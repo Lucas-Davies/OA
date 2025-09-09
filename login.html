@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>Fine Arts Online Academy (FAOA)</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    /* keep all styling in your main CSS; these are tiny helpers only */
+    .view[hidden]{ display:none; }
+    .link-blue{ color: var(--blue) !important; }
+  </style>
+</head>
+<body class="no-scroll">
+
+  <!-- Top nav with logo -->
+  <header class="nav">
+    <div class="logo-block">
+      <div class="logo">Art Online</div>
+      <div class="logo-sub">by Jody Graham</div>
+    </div>
+  </header>
+
+  <!-- Hero (no page scroll; full-bleed background) -->
+  <main class="hero-wrap">
+    <div class="bg login-bg" aria-hidden="true"></div>
+    <div class="overlay" aria-hidden="true"></div>
+
+    <section class="hero">
+      <h1 class="hero-title">Create. Learn. Grow.</h1>
+      <p class="hero-sub">Lessons, demos and workshops that build your art.</p>
+      <p class="hero-sub">From $19.99. Cancel anytime.</p>
+
+      <div class="hero-buttons">
+        <button class="btn cta-btn" id="openLogin" type="button">Sign In</button>
+        <!-- CHANGED: Sign Up now navigates to the combined Sign Up + Payment page -->
+        <a class="btn cta-btn" href="signup.html">Sign Up</a>
+        <a class="btn cta-btn ghost link-blue" href="learn.html">Learn More</a>
+      </div>
+
+      <p class="hero-cap">Let your creativity take over.</p>
+    </section>
+  </main>
+
+  <!-- Modal (centered over hero) -->
+  <div
+    id="loginModal"
+    class="modal"
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Member authentication"
+    tabindex="-1"
+  >
+    <div class="card" id="authCard">
+      <!-- VIEWS: Login, Signup, Status (only one shown at a time) -->
+
+      <!-- LOGIN VIEW -->
+      <section id="view-login" class="view">
+        <h2 class="card-title">Sign In</h2>
+        <p class="card-sub">Welcome back to Fine Arts Online Academy</p>
+
+        <form id="loginForm" class="form" novalidate>
+          <label for="email">Email</label>
+          <input id="email" type="email" required placeholder="you@example.com" autocomplete="username" inputmode="email" />
+
+          <label for="password">Password</label>
+          <input id="password" type="password" required minlength="6" placeholder="••••••••" autocomplete="current-password" />
+
+          <p id="authMsg" class="msg" role="alert" aria-live="polite" hidden></p>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Sign In</button>
+            <button class="btn ghost" type="button" id="reset">Forgot password</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- SIGNUP VIEW (kept for future use; not linked from this page) -->
+      <section id="view-signup" class="view" hidden>
+        <h2 class="card-title">Create your account</h2>
+        <p class="card-sub">Join FAOA to unlock courses, demos and more.</p>
+
+        <form id="suForm" class="form" novalidate>
+          <label for="suFirst">First Name</label>
+          <input id="suFirst" type="text" required placeholder="First name" />
+
+          <label for="suLast">Surname</label>
+          <input id="suLast" type="text" required placeholder="Surname" />
+
+          <label for="suEmail">Email</label>
+          <input id="suEmail" type="email" required placeholder="you@example.com" autocomplete="email" inputmode="email" />
+
+          <label for="suPhone">Phone number</label>
+          <input id="suPhone" type="tel" placeholder="Optional" />
+
+          <label for="suPass">Password</label>
+          <input id="suPass" type="password" minlength="8" required placeholder="Min 8 characters" />
+
+          <label for="suPass2">Confirm password</label>
+          <input id="suPass2" type="password" minlength="8" required placeholder="Re-enter password" />
+
+          <p id="suMsg" class="msg" role="alert" aria-live="polite" hidden></p>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Sign Up</button>
+            <button class="btn ghost" type="button" id="backToLogin">Back to Sign In</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- STATUS VIEW -->
+      <section id="view-status" class="view" hidden>
+        <h2 class="card-title">Check your email</h2>
+        <p class="card-sub" id="suStatus">We’ve sent a confirmation link to your email address.</p>
+
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" type="button" id="goSignIn">Sign In</button>
+          <a class="btn ghost" href="home.html">Go to Home</a>
+          <a class="btn ghost link-blue" href="learn.html">Learn More</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="assets/app.js"></script>
+  <script>
+    // ----- Helpers to switch modal views without leaving the page -----
+    const modal       = document.getElementById('loginModal');
+    const card        = document.getElementById('authCard');
+    const vLogin      = document.getElementById('view-login');
+    const vSignup     = document.getElementById('view-signup');
+    const vStatus     = document.getElementById('view-status');
+
+    function showModal(){ modal?.classList.add('show'); modal?.setAttribute('aria-hidden','false'); }
+    function hideModal(){ modal?.classList.remove('show'); modal?.setAttribute('aria-hidden','true'); }
+
+    function showView(which){
+      [vLogin, vSignup, vStatus].forEach(v=> v && (v.hidden = true));
+      if (which) which.hidden = false;
+      showModal();
+    }
+
+    // open buttons in hero
+    document.getElementById('openLogin')?.addEventListener('click', ()=> showView(vLogin));
+    // NOTE: We removed the on-page Sign Up trigger; Sign Up is now a link to signup.html.
+    // This listener is safe to keep (no element with id 'openSignup' exists).
+    document.getElementById('openSignup')?.addEventListener('click', ()=> showView(vSignup));
+
+    // backdrop/Esc close (and prevent inner-click from closing)
+    card?.addEventListener('click', e => e.stopPropagation());
+    modal?.addEventListener('click', e => { if (e.target === modal) hideModal(); });
+    window.addEventListener('keydown', e => { if (e.key === 'Escape' && modal?.classList.contains('show')) hideModal(); });
+
+    // Forgot password placeholder (Stage Two)
+    document.getElementById('reset')?.addEventListener('click', ()=> alert('Password reset coming in Stage Two'));
+
+    // ----- Signup validation then show STATUS view (kept for future use) -----
+    const suForm = document.getElementById('suForm');
+    const suMsg  = document.getElementById('suMsg');
+    suForm?.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      if (suMsg) suMsg.hidden = true;
+
+      const first = document.getElementById('suFirst').value.trim();
+      const last  = document.getElementById('suLast').value.trim();
+      const email = document.getElementById('suEmail').value.trim().toLowerCase();
+      const phone = document.getElementById('suPhone').value.trim();
+      const p1    = document.getElementById('suPass').value;
+      const p2    = document.getElementById('suPass2').value;
+
+      if (!first || !last || !email){
+        suMsg.textContent = 'Please complete all required fields.'; suMsg.hidden = false; return;
+      }
+      if (p1.length < 8){
+        suMsg.textContent = 'Password must be at least 8 characters.'; suMsg.hidden = false; return;
+      }
+      if (p1 !== p2){
+        suMsg.textContent = 'Passwords do not match.'; suMsg.hidden = false; return;
+      }
+
+      const status = document.getElementById('suStatus');
+      if (status){
+        status.textContent = `${first ? first + ',' : ''} we’ve sent a confirmation link to ${email}.`;
+      }
+      showView(vStatus);
+    });
+
+    // "Back to Sign In" from signup (if used)
+    document.getElementById('backToLogin')?.addEventListener('click', ()=> showView(vLogin));
+    // Status primary action
+    document.getElementById('goSignIn')?.addEventListener('click', ()=> showView(vLogin));
+  </script>
+</body>
+</html>

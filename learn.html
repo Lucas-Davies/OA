@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>Learn — Art Online by Jody Graham</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+<!-- Top nav -->
+<header class="nav">
+  <div class="logo-block">
+    <div class="logo">Art Online</div>
+    <div class="logo-sub">by Jody Graham</div>
+  </div>
+  <div class="nav-right">
+    <a class="btn ghost" href="index.html" aria-label="Go back to sign in">Back</a>
+  </div>
+</header>
+
+<main class="hero-wrap learn-bg">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <section class="hero hero-left" style="max-width:760px;">
+    <h1 class="hero-title">Create. Learn. Grow.</h1>
+    <p class="hero-sub">
+      Art demonstrations and structured courses guided by award-winning artist
+      <strong>Jody Graham</strong>.
+    </p>
+
+    <!-- CTA row -->
+    <div class="hero-buttons">
+      <a class="cta-btn" href="index.html" id="openLogin">Sign In</a>
+      <button class="cta-btn" id="joinFree" type="button">Join Free</button>
+    </div>
+
+    <hr style="border:none;height:1px;background:var(--stroke);margin:24px 0" />
+
+    <!-- About Jody Graham -->
+    <div class="about">
+      <h2 class="hero-title" style="font-size:clamp(22px,4.2vw,34px);">About Jody Graham</h2>
+      <p class="hero-sub" style="margin-top:6px">
+        Jody Graham is a Sydney-based multidisciplinary artist whose practice spans drawing,
+        sculpture, mixed media, installation and performance. Known for using unconventional
+        mark-making tools, she explores gesture, texture and the physical act of drawing.
+      </p>
+      <p class="hero-cap" style="margin-top:10px">
+        She has taught art for more than two decades through art schools, workshops and community
+        programs, helping students of all levels explore creativity and confidence in their work.
+        In 2022 she won the prestigious <em>Adelaide Perry Prize for Drawing</em> and continues to
+        lead courses and exhibitions across Australia.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+  // "Join Free" starts a guest session and lands on home
+  document.getElementById('joinFree')?.addEventListener('click', () => {
+    localStorage.setItem('session', JSON.stringify({ user:'guest', kind:'free', ts:Date.now() }));
+    window.location.href = 'home.html';
+  });
+</script>
+</body>
+</html>

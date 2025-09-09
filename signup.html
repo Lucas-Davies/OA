@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>FAOA — Sign Up</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    /* Small helpers that won’t fight your main CSS */
+    .wrap{min-height:100dvh; position:relative; overflow:hidden}
+    .overlay{position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.55));}
+    .center{position:relative; z-index:1; min-height:100dvh; display:grid; place-items:center; padding:20px}
+    .card{max-width:560px}
+    .msg{margin:8px 0 0; color:var(--danger); font-weight:600}
+    .help{margin:6px 0 0; color:var(--greyText); font-size:.9rem}
+    .error-ring{outline:2px solid var(--danger); outline-offset:2px}
+    [hidden]{display:none !important}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .cc-row{display:flex; gap:8px; align-items:center}
+    .cc-row select,.inline-select{
+      background:rgba(0,0,0,.45); border:1px solid var(--stroke); color:var(--ink);
+      padding:10px 12px; border-radius:12px; min-width:110px;
+    }
+    .pay-grid{display:grid; gap:12px; margin-top:12px}
+    .pay-option{border:1px solid var(--stroke); border-radius:14px; padding:14px; background:rgba(0,0,0,.35)}
+    .two{display:grid; gap:8px; grid-template-columns:1fr 1fr}
+    @media (max-width:520px){ .two{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <!-- Top nav -->
+  <header class="nav">
+    <div class="logo-block">
+      <div class="logo">Art Online</div>
+      <div class="logo-sub">by Jody Graham</div>
+    </div>
+  </header>
+
+  <main class="wrap signup-bg">
+    <div class="bg login-bg" aria-hidden="true"></div>
+    <div class="overlay" aria-hidden="true"></div>
+
+    <div class="center">
+      <div class="card">
+
+        <!-- ========== STEP 1: SIGN UP FORM ========== -->
+        <section id="step-signup">
+          <h2 class="card-title">Create your account</h2>
+          <p class="card-sub">Join FAOA to unlock courses, demos and more.</p>
+
+          <form id="suForm" class="form" novalidate>
+            <div class="two">
+              <div>
+                <label for="suFirst">First Name</label>
+                <input id="suFirst" type="text" required placeholder="First name" autocomplete="given-name" />
+              </div>
+              <div>
+                <label for="suLast">Surname</label>
+                <input id="suLast" type="text" required placeholder="Surname" autocomplete="family-name" />
+              </div>
+            </div>
+
+            <label for="suEmail">Email</label>
+            <input id="suEmail" type="email" required placeholder="you@example.com" autocomplete="email" inputmode="email" />
+
+            <!-- OECD Country (ISO-2) -->
+            <label for="suCountry">Country (OECD)</label>
+            <select id="suCountry" class="inline-select" required>
+              <option value="">Select country…</option>
+              <option value="AU">Australia (AU)</option>
+              <option value="AT">Austria (AT)</option>
+              <option value="BE">Belgium (BE)</option>
+              <option value="CA">Canada (CA)</option>
+              <option value="CL">Chile (CL)</option>
+              <option value="CO">Colombia (CO)</option>
+              <option value="CR">Costa Rica (CR)</option>
+              <option value="CZ">Czech Republic (CZ)</option>
+              <option value="DK">Denmark (DK)</option>
+              <option value="EE">Estonia (EE)</option>
+              <option value="FI">Finland (FI)</option>
+              <option value="FR">France (FR)</option>
+              <option value="DE">Germany (DE)</option>
+              <option value="GR">Greece (GR)</option>
+              <option value="HU">Hungary (HU)</option>
+              <option value="IS">Iceland (IS)</option>
+              <option value="IE">Ireland (IE)</option>
+              <option value="IL">Israel (IL)</option>
+              <option value="IT">Italy (IT)</option>
+              <option value="JP">Japan (JP)</option>
+              <option value="KR">Korea, Republic of (KR)</option>
+              <option value="LV">Latvia (LV)</option>
+              <option value="LT">Lithuania (LT)</option>
+              <option value="LU">Luxembourg (LU)</option>
+              <option value="MX">Mexico (MX)</option>
+              <option value="NL">Netherlands (NL)</option>
+              <option value="NZ">New Zealand (NZ)</option>
+              <option value="NO">Norway (NO)</option>
+              <option value="PL">Poland (PL)</option>
+              <option value="PT">Portugal (PT)</option>
+              <option value="SK">Slovakia (SK)</option>
+              <option value="SI">Slovenia (SI)</option>
+              <option value="ES">Spain (ES)</option>
+              <option value="SE">Sweden (SE)</option>
+              <option value="CH">Switzerland (CH)</option>
+              <option value="TR">Türkiye (TR)</option>
+              <option value="GB">United Kingdom (GB)</option>
+              <option value="US">United States (US)</option>
+              <option value="_OTHER">Other…</option>
+            </select>
+            <input id="suCountryOther" type="text" placeholder="Enter country (name or ISO-2)" hidden />
+
+            <!-- Phone number: OECD dial code + local number -->
+            <label for="suPhone">Phone number (optional)</label>
+            <div class="cc-row">
+              <select id="suCC" aria-label="Country dial code" class="inline-select">
+                <option value="">Select dial code…</option>
+                <option value="+61">🇦🇺 +61 (AU)</option>
+                <option value="+43">🇦🇹 +43 (AT)</option>
+                <option value="+32">🇧🇪 +32 (BE)</option>
+                <option value="+1">🇨🇦 +1 (CA)</option>
+                <option value="+56">🇨🇱 +56 (CL)</option>
+                <option value="+57">🇨🇴 +57 (CO)</option>
+                <option value="+506">🇨🇷 +506 (CR)</option>
+                <option value="+420">🇨🇿 +420 (CZ)</option>
+                <option value="+45">🇩🇰 +45 (DK)</option>
+                <option value="+372">🇪🇪 +372 (EE)</option>
+                <option value="+358">🇫🇮 +358 (FI)</option>
+                <option value="+33">🇫🇷 +33 (FR)</option>
+                <option value="+49">🇩🇪 +49 (DE)</option>
+                <option value="+30">🇬🇷 +30 (GR)</option>
+                <option value="+36">🇭🇺 +36 (HU)</option>
+                <option value="+354">🇮🇸 +354 (IS)</option>
+                <option value="+353">🇮🇪 +353 (IE)</option>
+                <option value="+972">🇮🇱 +972 (IL)</option>
+                <option value="+39">🇮🇹 +39 (IT)</option>
+                <option value="+81">🇯🇵 +81 (JP)</option>
+                <option value="+82">🇰🇷 +82 (KR)</option>
+                <option value="+371">🇱🇻 +371 (LV)</option>
+                <option value="+370">🇱🇹 +370 (LT)</option>
+                <option value="+352">🇱🇺 +352 (LU)</option>
+                <option value="+52">🇲🇽 +52 (MX)</option>
+                <option value="+31">🇳🇱 +31 (NL)</option>
+                <option value="+64">🇳🇿 +64 (NZ)</option>
+                <option value="+47">🇳🇴 +47 (NO)</option>
+                <option value="+48">🇵🇱 +48 (PL)</option>
+                <option value="+351">🇵🇹 +351 (PT)</option>
+                <option value="+421">🇸🇰 +421 (SK)</option>
+                <option value="+386">🇸🇮 +386 (SI)</option>
+                <option value="+34">🇪🇸 +34 (ES)</option>
+                <option value="+46">🇸🇪 +46 (SE)</option>
+                <option value="+41">🇨🇭 +41 (CH)</option>
+                <option value="+90">🇹🇷 +90 (TR)</option>
+                <option value="+44">🇬🇧 +44 (GB)</option>
+                <option value="+1">🇺🇸 +1 (US)</option>
+                <option value="_OTHER">Other…</option>
+              </select>
+              <input id="suCCOther" type="text" placeholder="+___ (enter dial code)" hidden />
+              <input id="suPhone" type="tel" placeholder="Local number" inputmode="tel" />
+            </div>
+            <p class="help">We’ll format your number as <em>dial code + local number</em> (e.g., +61 412345678).</p>
+
+            <!-- App Store Country (popular list) -->
+            <label for="suStore">Preferred App Store Country</label>
+            <select id="suStore" class="inline-select" required>
+              <option value="">Select country…</option>
+              <option value="US">United States (US)</option>
+              <option value="CN">China (CN)</option>
+              <option value="JP">Japan (JP)</option>
+              <option value="GB">United Kingdom (GB)</option>
+              <option value="CA">Canada (CA)</option>
+              <option value="DE">Germany (DE)</option>
+              <option value="AU">Australia (AU)</option>
+              <option value="KR">Korea, Republic of (KR)</option>
+              <option value="FR">France (FR)</option>
+              <option value="BR">Brazil (BR)</option>
+              <option value="IN">India (IN)</option>
+              <option value="_OTHER">Other…</option>
+            </select>
+            <input id="suStoreOther" type="text" placeholder="Enter country (name or ISO-2)" hidden />
+
+            <!-- Passwords -->
+            <label for="suPass">Password</label>
+            <input id="suPass" type="password" minlength="8" required placeholder="Min 8 characters" autocomplete="new-password" />
+
+            <label for="suPass2">Confirm password</label>
+            <input id="suPass2" type="password" minlength="8" required placeholder="Re-enter password" autocomplete="new-password" />
+
+            <p id="suMsg" class="msg" role="alert" aria-live="polite" hidden></p>
+
+            <div class="row">
+              <button class="btn primary" type="submit">Continue</button>
+              <a class="btn ghost" href="index.html">Cancel</a>
+            </div>
+          </form>
+        </section>
+
+        <!-- ========== STEP 2: PAYMENT (placeholder) ========== -->
+        <section id="step-payment" hidden>
+          <h2 class="card-title">Complete your sign up</h2>
+          <p class="card-sub">Choose a payment method to activate your FAOA membership.</p>
+
+          <div id="summary" style="margin:10px 0 6px"></div>
+
+          <div class="pay-grid">
+            <button class="btn pay-option" type="button" disabled>Credit / Debit (coming soon)</button>
+            <button class="btn pay-option" type="button" disabled>Apple Pay (coming soon)</button>
+            <button class="btn pay-option" type="button" disabled>PayPal (coming soon)</button>
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn ghost" type="button" id="backSignup">Back</button>
+            <!-- Placeholder finish: in Stage Two you’d only enable this after successful payment -->
+            <a class="btn primary" href="index.html">Finish (placeholder)</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Elements
+    const suForm = document.getElementById('suForm');
+    const suMsg  = document.getElementById('suMsg');
+    const stepSignup  = document.getElementById('step-signup');
+    const stepPayment = document.getElementById('step-payment');
+    const summary = document.getElementById('summary');
+
+    const suCountry = document.getElementById('suCountry');
+    const suCountryOther = document.getElementById('suCountryOther');
+
+    const suCC = document.getElementById('suCC');
+    const suCCOther = document.getElementById('suCCOther');
+
+    const suStore = document.getElementById('suStore');
+    const suStoreOther = document.getElementById('suStoreOther');
+
+    function toggleOther(selectEl, otherInput) {
+      if (!selectEl || !otherInput) return;
+      otherInput.hidden = (selectEl.value !== '_OTHER');
+      if (!otherInput.hidden) otherInput.focus();
+      if (otherInput.hidden) otherInput.value = '';
+    }
+
+    suCountry?.addEventListener('change', ()=> toggleOther(suCountry, suCountryOther));
+    suCC?.addEventListener('change', ()=> toggleOther(suCC, suCCOther));
+    suStore?.addEventListener('change', ()=> toggleOther(suStore, suStoreOther));
+
+    function ringMismatch(on){
+      ['suPass','suPass2'].forEach(id=>{
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (on) el.classList.add('error-ring'); else el.classList.remove('error-ring');
+      });
+    }
+
+    function valEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function valDial(v){ return /^\+\d{1,4}$/.test(v); } // +, then 1–4 digits
+    function valISO2(v){ return /^[A-Za-z]{2}$/.test(v); }
+
+    suForm?.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      suMsg.hidden = true; ringMismatch(false);
+
+      const first = document.getElementById('suFirst').value.trim();
+      const last  = document.getElementById('suLast').value.trim();
+      const email = document.getElementById('suEmail').value.trim().toLowerCase();
+
+      // Country selection (allow Other)
+      let country = suCountry.value;
+      if (country === '_OTHER') {
+        const raw = suCountryOther.value.trim();
+        if (!raw) { suMsg.textContent = 'Please enter your country.'; suMsg.hidden = false; return; }
+        country = raw.toUpperCase();
+        // If they typed two letters, assume ISO-2; otherwise accept free text
+        if (country.length === 2 && !valISO2(country)) {
+          suMsg.textContent = 'If using an ISO-2 code, please enter letters only (e.g., AU).';
+          suMsg.hidden = false; return;
+        }
+      } else if (!country) {
+        suMsg.textContent = 'Please select your country.'; suMsg.hidden = false; return;
+      }
+
+      // Phone (optional)
+      let dial = suCC.value;
+      let phone = document.getElementById('suPhone').value.trim().replace(/\s+/g,'');
+      if (dial === '_OTHER') {
+        dial = suCCOther.value.trim();
+        if (dial && !valDial(dial)) { suMsg.textContent = 'Enter a valid dial code like +356.'; suMsg.hidden=false; return; }
+      }
+      if (phone && !/^\d{6,15}$/.test(phone)) {
+        suMsg.textContent = 'Enter a valid local number (6–15 digits).'; suMsg.hidden=false; return;
+      }
+
+      // App Store country (allow Other)
+      let store = suStore.value;
+      if (store === '_OTHER') {
+        const raw = suStoreOther.value.trim();
+        if (!raw) { suMsg.textContent = 'Please enter your App Store country.'; suMsg.hidden=false; return; }
+        store = raw.toUpperCase();
+        if (store.length === 2 && !valISO2(store)) {
+          suMsg.textContent = 'If using an ISO-2 code, please enter letters only (e.g., AU).';
+          suMsg.hidden = false; return;
+        }
+      } else if (!store) {
+        suMsg.textContent = 'Please select your App Store country.'; suMsg.hidden=false; return;
+      }
+
+      // Passwords
+      const p1 = document.getElementById('suPass').value;
+      const p2 = document.getElementById('suPass2').value;
+      if (!first || !last || !email){
+        suMsg.textContent = 'Please complete all required fields.'; suMsg.hidden = false; return;
+      }
+      if (!valEmail(email)){
+        suMsg.textContent = 'Please enter a valid email address.'; suMsg.hidden = false; return;
+      }
+      if (p1.length < 8){
+        suMsg.textContent = 'Password must be at least 8 characters.'; 
+        suMsg.hidden = false; 
+        document.getElementById('suPass').classList.add('error-ring');
+        return;
+      }
+      if (p1 !== p2){
+        suMsg.textContent = 'Passwords do not match.'; 
+        suMsg.hidden = false; 
+        ringMismatch(true);
+        return;
+      }
+
+      // Build draft object (do NOT include raw password)
+      const draft = {
+        first, last, email,
+        country,
+        storeCountry: store,
+        phone: phone ? `${dial || ''}${phone}` : '',
+        createdAt: new Date().toISOString()
+      };
+      try { sessionStorage.setItem('signupDraft', JSON.stringify(draft)); } catch(e) {}
+
+      // Go to payment step
+      summary.innerHTML = `
+        <div>👤 <strong>${first} ${last}</strong></div>
+        <div>✉️ <strong>${email}</strong></div>
+        <div>🌍 <strong>${country}</strong></div>
+        <div>🛒 App Store: <strong>${store}</strong></div>
+        ${draft.phone ? `<div>📞 <strong>${draft.phone}</strong></div>` : ''}
+      `;
+      stepSignup.hidden = true;
+      stepPayment.hidden = false;
+    });
+
+    document.getElementById('backSignup')?.addEventListener('click',()=>{
+      stepPayment.hidden = true;
+      stepSignup.hidden = false;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>Home — FAOA</title>
+
+<!-- ===== DELIVERY: DESIGN TOKENS & RESETS ===== -->
+<style>
+:root{
+  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
+  --bg:#000; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
+}
+*{box-sizing:border-box}
+html,body{height:100%; overflow-x:hidden}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+}
+a{color:inherit; text-decoration:none}
+.bg{position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
+.hide{ display:none !important }
+.section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
+.wrap{max-width:var(--maxw); margin:0 auto; padding:10px 14px 80px}
+/* Buttons */
+.btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:44px; padding:0 16px;
+      border-radius:12px; border:0; font-weight:900; cursor:pointer }
+.btn.blue{ background:var(--blue); color:#fff }
+.btn.green{ background:var(--green); color:#000 }
+.btn.gold{ background:var(--gold); color:#0f1116 }
+.btn.grey{ background:#3a3a3a; color:#fff }
+.btn[disabled]{ opacity:.55; cursor:not-allowed }
+
+/* ===== DELIVERY: HEADER (Tabs + Avatar) ===== */
+.nav{
+  position:sticky; top:0; left:0; right:0; height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 12px; z-index:30; overflow:hidden;
+  background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35) 60%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.nav-left{display:flex; gap:10px; align-items:center; flex:0 1 auto}
+.nav-right{margin-left:auto; display:flex; align-items:center}
+.btn-tab{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:116px; height:44px; padding:0 14px;
+  border-radius:12px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
+  transition:transform .06s ease, filter .15s ease;
+}
+.btn-tab:active{transform:translateY(1px)}
+.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
+/* Avatar special tab (points left + circular initials right) */
+.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px }
+.avatarTab .points{ font-weight:900 }
+.avatarTab .dot{
+  position:absolute; right:0; top:0; bottom:0; width:44px; border-left:1px solid var(--stroke);
+  border-top-right-radius:22px; border-bottom-right-radius:22px; display:grid; place-items:center; font-weight:900;
+}
+.avatarTab.silver{ background:var(--silver); color:#0f1116 }
+.avatarTab.silver .dot{ background:linear-gradient(135deg,#d9dee6,#b7bec9) }
+.avatarTab.gold{ background:var(--gold); color:#0f1116; border-color:transparent }
+.avatarTab.gold .dot{ background:linear-gradient(135deg,#ffe88a,#f6c400) }
+
+/* ===== DELIVERY: HERO COMPONENT (base styles) ===== */
+.hero{
+  position:relative; overflow:hidden; background:#000;
+  border:1px solid var(--stroke); border-radius:16px;
+  padding:16px; margin:12px 0;
+}
+.hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
+.hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
+.hero .desc{ margin:8px 0 56px; color:var(--muted) }
+.cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
+/* Padlock */
+.padlock{ width:22px; height:22px; display:inline-block; vertical-align:-3px }
+.padlock svg{ width:100%; height:100% }
+.padlock .shackle{ fill:none; stroke:var(--silver); stroke-width:2.4 }
+.padlock .body{ fill:var(--silver) }
+.padlock .keyhole{ fill:#0f1116 }
+/* Price + Points bubbles */
+.price, .pts{
+  position:absolute; right:12px; border-radius:999px; font-weight:900; padding:6px 10px;
+  background:rgba(0,0,0,.6); border:1px solid var(--stroke)
+}
+.price{ bottom:12px; color:#fff }
+.pts{ top:12px; color:#0f1116; background:var(--gold); border-color:transparent; box-shadow:0 6px 18px rgba(255,215,0,.22) }
+.pts[hidden], .price[hidden]{ display:none }
+/* Completion ring + tick */
+.hero.complete{ box-shadow:0 0 0 3px var(--green) inset }
+.hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900 }
+/* Weekly grid */
+.weekly-grid{ display:grid; gap:var(--gap) }
+@media (orientation:portrait){
+  .weekly-grid{ grid-template-columns:1fr }
+  .hero.tall{ min-height: 360px }
+  #dailyHero{ min-height: 260px }
+}
+@media (orientation:landscape){
+  .weekly-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .hero.tall{ min-height: 300px }
+  #dailyHero{ min-height: 220px }
+}
+
+/* ===== DELIVERY: SHEETS (Avatar, Buy Flow) ===== */
+.sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;z-index:60}
+.sheet-mask.open{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:-100%;background:#0f1116;border-radius:16px 16px 0 0;
+       border:1px solid rgba(255,255,255,.15);padding:14px;z-index:61;transition:transform .2s ease, bottom .2s ease}
+.sheet.open{bottom:0}
+.sheet h3{margin:0 0 8px;font-size:18px;font-weight:900}
+.sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sheet .meta{color:#cfd3e1}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"></div>
+
+<!-- ===== DELIVERY: HEADER (Tabs + Avatar) ===== -->
+<header class="nav">
+  <div class="nav-left" role="tablist" aria-label="Primary">
+    <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
+    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
+    <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
+  </div>
+  <div class="nav-right">
+    <button id="avatarTab" class="btn-tab avatarTab silver" aria-haspopup="dialog" aria-expanded="false">
+      <span class="points" id="pointsBadge">0</span>
+      <span class="dot" id="avatarInitials">JG</span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== DELIVERY: HOME / MAIN (tabs & panels) ===== -->
+<main class="wrap">
+  <!-- Challenges -->
+  <section id="panel-challenges" data-panel="challenges">
+    <article class="hero" id="dailyHero" aria-labelledby="dailyTitle">
+      <h2 class="title" id="dailyTitle">Today’s Daily Challenge</h2>
+      <p class="meta" id="dailyDate">—</p>
+      <p class="desc" id="dailyDesc">Warm up: 15–20 minutes of quick charcoal gestures. Fill one page with 10–15 poses focusing on big shapes and clear value separation.</p>
+      <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
+    </article>
+    <h3 class="section-title">Weekly Challenges (Subscribers)</h3>
+    <div class="weekly-grid" id="weeklyGrid"></div>
+  </section>
+
+  <!-- Courses -->
+  <section id="panel-courses" class="hide" data-panel="courses">
+    <h2 class="section-title">Foundations (Subscribers)</h2>
+    <div class="weekly-grid" id="foundationsGrid"></div>
+
+    <h2 class="section-title">1-Day Courses</h2>
+    <div class="weekly-grid" id="oneDayGrid"></div>
+
+    <h2 class="section-title">3-Day Courses</h2>
+    <div class="weekly-grid" id="threeDayGrid"></div>
+
+    <h2 class="section-title">30-Day Courses</h2>
+    <div class="weekly-grid" id="thirtyDayGrid"></div>
+  </section>
+
+  <!-- Live -->
+  <section id="panel-live" class="hide" data-panel="live">
+    <h2 class="section-title">Demonstrations</h2>
+    <div class="weekly-grid" id="demoGrid"></div>
+  </section>
+</main>
+
+<!-- ===== DELIVERY: TEMPLATES (hidden clones) ===== -->
+<div id="templates" hidden>
+  <!-- Foundation template -->
+  <article class="hero tall course" data-kind="foundation" data-id="__ID__">
+    <h3 class="title">
+      <svg class="padlock" aria-hidden="true" viewBox="0 0 24 24">
+        <path class="shackle" d="M7 11V8.5a5 5 0 0 1 10 0V11"/>
+        <rect class="body" x="3" y="11" width="18" height="10" rx="2"/>
+        <circle class="keyhole" cx="12" cy="16" r="1.3"/>
+        <rect class="keyhole" x="11.2" y="14.7" width="1.6" height="2.8" rx="0.6"/>
+      </svg>
+      <span class="t">__TITLE__</span>
+    </h3>
+    <p class="meta">Subscriber-only foundations.</p>
+    <p class="desc">Core drills to build accuracy and flow.</p>
+    <div class="cta-left"><button class="btn blue start-found" disabled>Start Course</button></div>
+  </article>
+
+  <!-- Paid course template (1d/3d/30d) -->
+  <article class="hero tall course" data-kind="paid" data-id="__ID__">
+    <h3 class="title"><span class="t">__TITLE__</span></h3>
+    <p class="meta">Structured, focused learning.</p>
+    <p class="desc">Replace with course description.</p>
+    <div class="cta-left"><button class="btn green buy">Buy</button></div>
+    <div class="pts" data-pts="0"><span>0</span> pts</div>
+    <div class="price" data-price="$—"><span>$—</span></div>
+  </article>
+
+  <!-- Demo placeholder (dimmed) -->
+  <article class="hero tall live" data-kind="demo" data-id="demo-coming" style="opacity:.55; filter:saturate(.7)">
+    <h3 class="title">Demonstrations (Coming soon)</h3>
+    <p class="meta">Live demo sessions will appear here.</p>
+    <p class="desc">We’re preparing a series of live demonstrations. Stay tuned.</p>
+    <div class="cta-left"><button class="btn grey" disabled>Coming soon</button></div>
+  </article>
+</div>
+
+<!-- ===== DELIVERY: SHEETS (Avatar, Buy Flow) ===== -->
+<div class="sheet-mask" id="buyMask" aria-hidden="true"></div>
+<div class="sheet" id="buySheet" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
+  <h3 id="buyTitle">Unlock</h3>
+  <p class="meta" id="buyMeta">Choose how you’d like to unlock this course.</p>
+  <div class="row">
+    <button class="btn green" id="buyPay">Proceed to payment</button>
+    <button class="btn gold" id="buyRedeem">Redeem with points</button>
+    <button class="btn grey" id="buyCancel">Cancel</button>
+  </div>
+</div>
+
+<div class="sheet hide" id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
+    <h3>Account</h3>
+    <div class="row">
+      <strong>Subscription</strong>
+      <button class="btn grey" id="subToggle" aria-pressed="false">Off</button>
+    </div>
+    <div class="row"><a href="#" id="openCalendar">My Calendar</a><span>›</span></div>
+    <div class="row"><a href="profile.html#achievements">Achievements</a><span>›</span></div>
+    <h3>Shortcuts</h3>
+    <div class="row"><a href="profile.html#slot1">Placeholder 1</a><span>›</span></div>
+    <div class="row"><a href="profile.html#slot2">Placeholder 2</a><span>›</span></div>
+    <div class="row"><a href="profile.html#slot3">Placeholder 3</a><span>›</span></div>
+    <h3>Avatar</h3>
+    <div class="row"><a href="#" id="uploadAvatar">Upload Avatar (soon)</a><span>›</span></div>
+    <div class="row"><button class="btn grey" id="closeSheet">Close</button></div>
+  </div>
+</div>
+
+<!-- ===== DELIVERY: PRICING / REGISTRY (inline fallback) ===== -->
+<script id="pricingData" type="application/json">
+{
+  "1d-gesture":{"price":"$39","points":300},
+  "3d-portrait":{"price":"$79","points":500},
+  "30d-foundations":{"price":"$149","points":1500},
+  "live-1":{"price":"$29","points":1800}
+}
+</script>
+<script id="registryData" type="application/json">
+{
+  "foundations": [
+    {
+      "id": "found-setup",
+      "slug": "found-setup",
+      "title": "Materials & Setup",
+      "showOnHome": true
+    },
+    {
+      "id": "found-drawing",
+      "slug": "found-drawing",
+      "title": "Drawing",
+      "showOnHome": true
+    },
+    {
+      "id": "found-painting",
+      "slug": "found-painting",
+      "title": "Painting",
+      "showOnHome": true
+    }
+  ],
+  "courses": {
+    "1day": [
+      {
+        "id": "1d-gesture",
+        "slug": "1d-gesture",
+        "title": "1-Day Gesture",
+        "price": "$39",
+        "points": 300,
+        "showOnHome": true
+      }
+    ],
+    "3day": [
+      {
+        "id": "3d-portrait",
+        "slug": "3d-portrait",
+        "title": "3-Day Portrait",
+        "price": "$79",
+        "points": 500,
+        "showOnHome": true
+      }
+    ],
+    "30day": [
+      {
+        "id": "30d-foundations",
+        "slug": "30d-foundations",
+        "title": "30-Day Drawing Habit",
+        "price": "$149",
+        "points": 1500,
+        "showOnHome": false
+      }
+    ]
+  },
+  "weekly": [
+    {
+      "id": "W1",
+      "title": "Ink Portrait",
+      "expires": "2025-09-14",
+      "showOnHome": true
+    },
+    {
+      "id": "W2",
+      "title": "Value Composition",
+      "expires": "2025-09-21",
+      "showOnHome": true
+    },
+    {
+      "id": "W3",
+      "title": "Edges & Atmosphere",
+      "expires": "2025-09-28",
+      "showOnHome": true
+    }
+  ],
+  "live": [
+    {
+      "id": "live-1",
+      "title": "Saturday Studio",
+      "price": "$29",
+      "points": 1800,
+      "starts": "2025-09-20T09:00:00+10:00",
+      "showOnHome": false
+    }
+  ],
+  "demos": [
+    {
+      "id": "demo-coming",
+      "title": "Demonstrations",
+      "comingSoon": true,
+      "showOnHome": true
+    }
+  ]
+}
+</script>
+
+<!-- ===== DELIVERY: SCRIPT – STATE, HELPERS, TABS ===== -->
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const pad=n=>String(n).padStart(2,'0');
+const toISO=d=>d.toISOString().slice(0,10);
+const K={ sub:'ao_sub', points:'ao_points', purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses',
+          weeklyDone:'ao_weekly_done', dailyDone:'ao_daily_done' };
+const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
+const compactK = n => (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n));
+
+// State
+let isSub=!!store.get(K.sub,false);
+let points=+store.get(K.points,0);
+let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
+if(!Array.isArray(purchased)) purchased=[];
+let weeklyDone=store.get(K.weeklyDone,[]);
+let dailyDone=store.get(K.dailyDone,[]);
+
+// Tabs
+const tabBtns=$$('.btn-tab[data-tab]');
+const panels=$$('[data-panel]');
+tabBtns.forEach(b=>b.addEventListener('click', ()=>{
+  tabBtns.forEach(x=>{x.classList.toggle('is-active',x===b); x.setAttribute('aria-selected', x===b?'true':'false');});
+  panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==b.dataset.tab));
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+
+// Avatar + sheet
+const avatarBtn = $('#avatarTab');
+const avatarSheet = $('#avatarSheet');
+const subToggle = $('#subToggle');
+const pointsBadge = $('#pointsBadge');
+function paintAvatar(){
+  pointsBadge.textContent = compactK(points);
+  avatarBtn.classList.toggle('gold', isSub);
+  avatarBtn.classList.toggle('silver', !isSub);
+  subToggle.textContent = isSub?'On':'Off';
+  subToggle.className = 'btn ' + (isSub?'green':'grey');
+  subToggle.setAttribute('aria-pressed', isSub?'true':'false');
+}
+paintAvatar();
+avatarBtn.addEventListener('click', ()=>{ avatarSheet.classList.toggle('hide'); avatarBtn.setAttribute('aria-expanded', avatarSheet.classList.contains('hide')?'false':'true'); });
+$('#closeSheet').addEventListener('click', ()=>{ avatarSheet.classList.add('hide'); avatarBtn.setAttribute('aria-expanded','false'); });
+$('#uploadAvatar').addEventListener('click', (e)=>{ e.preventDefault(); alert('Avatar upload coming soon.'); });
+subToggle.addEventListener('click', ()=>{ isSub=!isSub; store.set(K.sub,isSub); paintAvatar(); paintGating(); paintWeeklies(); });
+
+// Daily
+const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const today=new Date(), isoToday=toISO(today);
+$('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
+function paintDaily(){
+  const done = dailyDone.includes(isoToday);
+  $('#btnDaily').textContent = done?'Undo':'Complete';
+  $('#btnDaily').className = 'btn ' + (done?'grey':'blue');
+  $('#dailyHero').classList.toggle('complete', done);
+}
+paintDaily();
+$('#btnDaily').addEventListener('click', ()=>{
+  const idx=dailyDone.indexOf(isoToday);
+  if(idx===-1){ dailyDone.push(isoToday); points+=1; }
+  else{ dailyDone.splice(idx,1); points=Math.max(0,points-1); }
+  store.set(K.dailyDone,dailyDone); store.set(K.points,points); paintDaily(); paintAvatar();
+});
+
+// Weekly (3 only)
+const DEFAULT_WEEKLY = [
+  {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
+  {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
+  {id:'W3', title:'Edges & Atmosphere', desc:'Depth via soft transitions.'}
+];
+function weeklyOrder(list){
+  const doneSet=new Set(weeklyDone);
+  return list.slice().sort((a,b)=>{
+    const A=doneSet.has(a.id), B=doneSet.has(b.id);
+    return (A===B)?0 : (A?1:-1);
+  });
+}
+function padlockSVG(){
+  return `<span class="padlock" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path class="shackle" d="M7 11V8.5a5 5 0 0 1 10 0V11"/></svg>
+    <svg viewBox="0 0 24 24" style="position:absolute;inset:0;opacity:0"><rect class="body" x="3" y="11" width="18" height="10" rx="2"/><circle class="keyhole" cx="12" cy="16" r="1.3"/><rect class="keyhole" x="11.2" y="14.7" width="1.6" height="2.8" rx=".6"/></svg>
+  </span>`;
+}
+function paintWeeklies(list){
+  list = list && list.length ? list : DEFAULT_WEEKLY;
+  const grid = $('#weeklyGrid'); grid.innerHTML='';
+  weeklyOrder(list).slice(0,3).forEach(w=>{
+    const done = weeklyDone.includes(w.id);
+    const el = document.createElement('article');
+    el.className = 'hero tall' + (done?' complete':'');
+    el.dataset.week = w.id;
+    el.innerHTML = `
+      <h4 class="title">${isSub?'':padlockSVG()} ${w.title}</h4>
+      <p class="meta">Sun ${pad(today.getDate())}/${pad(today.getMonth()+1)}</p>
+      <p class="desc">${w.desc||''}</p>
+      <div class="cta-left">
+        <a class="btn ${isSub?'blue':''}" ${isSub?'':'aria-disabled="true"'} ${isSub?'href="challenges/weekly-${w.id}.html"':''}>Start Challenge</a>
+      </div>`;
+    grid.appendChild(el);
+  });
+}
+window.AO_markWeeklyComplete = function(weekId){
+  if(!weeklyDone.includes(weekId)){
+    weeklyDone.push(weekId);
+    store.set(K.weeklyDone, weeklyDone);
+    points += 10; store.set(K.points,points); paintAvatar(); paintWeeklies();
+  }
+};
+
+// Pricing/Registry
+let pricing = {};
+function readPricing(){
+  if(window.PRICE_LIST) pricing = window.PRICE_LIST;
+  else{ try{ pricing=JSON.parse($('#pricingData').textContent||'{}'); }catch{ pricing={}; } }
+}
+readPricing();
+
+// Buy sheet
+const mask  = $('#buyMask');
+const sheet = $('#buySheet');
+const buyTitle = $('#buyTitle');
+const buyMeta  = $('#buyMeta');
+const btnPay   = $('#buyPay');
+const btnRedeem= $('#buyRedeem');
+const btnCancel= $('#buyCancel');
+let activeCard = null;
+function openBuySheet(card){
+  activeCard = card;
+  const title = card.querySelector('.title .t')?.textContent.trim() || card.querySelector('.title')?.textContent.trim() || 'Unlock';
+  const price = card.querySelector('.price span')?.textContent || card.querySelector('.price')?.dataset.price || '$—';
+  const ptsNeed = +(card.querySelector('.pts')?.dataset.pts || 0);
+  buyTitle.textContent = `Unlock “${title}”`;
+  buyMeta.textContent = ptsNeed ? `Price ${price} • or redeem ${ptsNeed} points` : `Price ${price}`;
+  sheet.classList.add('open'); mask.classList.add('open'); mask.setAttribute('aria-hidden','false');
+}
+function closeBuySheet(){ activeCard=null; sheet.classList.remove('open'); mask.classList.remove('open'); mask.setAttribute('aria-hidden','true'); }
+mask.addEventListener('click', closeBuySheet); btnCancel.addEventListener('click', closeBuySheet);
+btnPay.addEventListener('click', ()=>{
+  if(!activeCard) return; const id=activeCard.dataset.id; const title=activeCard.querySelector('.title .t')?.textContent.trim()||id;
+  AO_unlockCourse(id); closeBuySheet();
+});
+btnRedeem.addEventListener('click', ()=>{
+  if(!activeCard) return;
+  const ptsNeed = +(activeCard.querySelector('.pts')?.dataset.pts || 0);
+  if(!ptsNeed){ alert('This item is not redeemable with points.'); return; }
+  if(points < ptsNeed){ alert(`Not enough points. You need ${ptsNeed-points} more.`); return; }
+  points -= ptsNeed; store.set(K.points, points);
+  AO_unlockCourse(activeCard.dataset.id); closeBuySheet();
+});
+
+// Painters
+function paintGating(){
+  // Foundations require subscription
+  $$('.course[data-kind="foundation"]').forEach(card=>{
+    const btn=card.querySelector('.start-found');
+    if(isSub){ btn.removeAttribute('disabled'); card.querySelector('.padlock')?.classList.add('hide'); }
+    else{ btn.setAttribute('disabled',''); card.querySelector('.padlock')?.classList.remove('hide'); }
+  });
+}
+function markPurchased(card){
+  card.classList.add('complete');
+  card.querySelector('.price')?.setAttribute('hidden','');
+  card.querySelector('.pts')?.setAttribute('hidden','');
+  const b = card.querySelector('.buy');
+  if(b){ b.textContent='Start'; b.className='btn blue start'; }
+}
+function repaintPurchases(){
+  (purchased||[]).forEach(id=>{
+    const card = document.querySelector(`[data-id="${id}"]`); if(card) markPurchased(card);
+  });
+}
+
+// Public hooks
+window.AO_unlockCourse = function(courseId){
+  if(!purchased.includes(courseId)){ purchased.push(courseId); }
+  store.set(K.purchasedB, purchased); store.set(K.purchasedA, purchased);
+  const card = document.querySelector(`.hero.course[data-id="${courseId}"]`);
+  if(card) markPurchased(card);
+};
+window.AO_setPoints = function(n){
+  points = Math.max(0, +n||0); store.set(K.points, points); paintAvatar();
+};
+
+// Delegated clicks
+document.addEventListener('click', (e)=>{
+  const buy = e.target.closest('.btn.buy');   if(buy){ openBuySheet(buy.closest('.hero')); return; }
+  const start = e.target.closest('.btn.start,.btn.start-found');
+  if(start){
+    const card = start.closest('.hero');
+    if(card.dataset.kind==='foundation' && !isSub){ alert('Subscribe to access Foundations.'); return; }
+    const link = card.dataset.link || (card.dataset.kind==='paid' ? `courses/${card.dataset.id}.html` :
+                  card.dataset.kind==='foundation' ? `courses/${card.dataset.id}.html` :
+                  card.dataset.kind==='demo' ? `live/${card.dataset.id}.html` : `courses/${card.dataset.id}.html`);
+    window.location.href = link;
+  }
+});
+
+// Registry-driven rendering
+async function loadRegistry(){
+  try{
+    const res = await fetch('./data/registry.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('no registry');
+    return await res.json();
+  }catch{
+    try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }
+    catch{ return {}; }
+  }
+}
+function cloneTemplate(selector){
+  return document.querySelector(selector).cloneNode(true);
+}
+function applyPricePoints(card, price, pts){
+  const priceEl = card.querySelector('.price'); const ptsEl = card.querySelector('.pts');
+  if(priceEl && price){ priceEl.dataset.price = price; priceEl.firstElementChild.textContent = price; }
+  if(ptsEl && (pts!=null)){ ptsEl.dataset.pts = pts; ptsEl.firstElementChild.textContent = pts; }
+}
+function renderFromRegistry(reg){
+  // Foundations
+  const fGrid = document.getElementById('foundationsGrid'); fGrid.innerHTML='';
+  (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const t = cloneTemplate('#templates > article[data-kind="foundation"]');
+    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
+    t.dataset.link = `courses/${item.slug||item.id}.html`;
+    fGrid.appendChild(t);
+  });
+
+  // Paid: 1-day, 3-day, 30-day
+  const one = document.getElementById('oneDayGrid'); one.innerHTML='';
+  (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const t = cloneTemplate('#templates > article[data-kind="paid"]');
+    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
+    t.dataset.link = `courses/${item.slug||item.id}.html`; applyPricePoints(t, item.price, item.points); one.appendChild(t);
+  });
+  const three = document.getElementById('threeDayGrid'); three.innerHTML='';
+  (reg.courses?.["3day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const t = cloneTemplate('#templates > article[data-kind="paid"]');
+    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
+    t.dataset.link = `courses/${item.slug||item.id}.html`; applyPricePoints(t, item.price, item.points); three.appendChild(t);
+  });
+  const thirty = document.getElementById('thirtyDayGrid'); thirty.innerHTML='';
+  (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const t = cloneTemplate('#templates > article[data-kind="paid"]');
+    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
+    t.dataset.link = `courses/${item.slug||item.id}.html`; applyPricePoints(t, item.price, item.points); thirty.appendChild(t);
+  });
+
+  // Demos placeholder
+  const demoGrid = document.getElementById('demoGrid'); demoGrid.innerHTML='';
+  const hasDemo = (reg.demos||[]).some(d=>d.showOnHome!==false);
+  if(hasDemo){ demoGrid.appendChild(cloneTemplate('#templates > article[data-kind="demo"]')); }
+}
+loadRegistry().then(reg=>{
+  renderFromRegistry(reg);
+  paintGating(); repaintPurchases();
+  // Weekly from registry (optional)
+  const weekly = reg.weekly?.filter(x=>x.showOnHome!==false).map(x=>({id:x.id,title:x.title,desc:x.desc||''})) || null;
+  paintWeeklies(weekly);
+});
+
+// Public for console testing
+window._AO_debug = {paintWeeklies, renderFromRegistry};
+})();</script>
+</body>
+</html>
