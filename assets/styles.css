@@ -525,3 +525,35 @@ body.home-bg .lock-card{
 .hero.unlocked .pts{ display:none !important; }
 .hero.complete{ box-shadow:0 0 0 3px var(--green) inset; }
 .hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900; margin-left:6px; }
+
+/* === FIX: separate Avatar sheet vs Buy sheet behaviors === */
+
+/* Avatar menu: uses display toggle (keep simple open/close) */
+#avatarSheet.sheet{
+  display:none;                /* reset the global .sheet rule */
+  inset:0;
+  bottom:auto;                 /* don't slide from -100% */
+  background:rgba(0,0,0,.50);
+  backdrop-filter:blur(6px);
+  z-index:60;
+}
+#avatarSheet.open{ display:block; }        /* show when open */
+#avatarSheet .panel{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  border-top-left-radius:18px; border-top-right-radius:18px;
+}
+
+/* Buy sheet: explicitly scope the slide-up behavior to the buy IDs */
+#buyMask.sheet-mask{ display:none; }
+#buyMask.open{ display:block; }
+
+#buySheet.sheet{
+  left:0; right:0;
+  bottom:-100%;                 /* slide from bottom */
+  z-index:61;
+}
+#buySheet.open{ bottom:0; }      /* slide in when open */
+
+
+
