@@ -389,12 +389,31 @@ function paintAvatar(){
   subToggle.setAttribute('aria-pressed', isSub?'true':'false');
 }
 paintAvatar();
-avatarBtn.addEventListener('click', ()=>{ avatarSheet.classList.toggle('hide'); avatarBtn.setAttribute('aria-expanded', avatarSheet.classList.contains('hide')?'false':'true'); });
-$('#closeSheet').addEventListener('click', ()=>{ avatarSheet.classList.add('hide'); avatarBtn.setAttribute('aria-expanded','false'); });
-$('#uploadAvatar').addEventListener('click', (e)=>{ e.preventDefault(); alert('Avatar upload coming soon.'); });
-subToggle.addEventListener('click', ()=>{ isSub=!isSub; store.set(K.sub,isSub); paintAvatar(); paintGating(); paintWeeklies(); });
 
-// Daily
+avatarBtn.addEventListener('click', ()=>{
+  avatarSheet.classList.toggle('open');
+  avatarBtn.setAttribute('aria-expanded',
+    avatarSheet.classList.contains('open') ? 'true' : 'false'
+  );
+});
+
+$('#closeSheet').addEventListener('click', ()=>{
+  avatarSheet.classList.remove('open');
+  avatarBtn.setAttribute('aria-expanded','false');
+});
+
+$('#uploadAvatar').addEventListener('click', (e)=>{
+  e.preventDefault();
+  alert('Avatar upload coming soon.');
+});
+
+subToggle.addEventListener('click', ()=>{
+  isSub=!isSub;
+  store.set(K.sub,isSub);
+  paintAvatar();
+  paintGating();
+  paintWeeklies();
+});// Daily
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
