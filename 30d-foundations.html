@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>30-Day: Drawing Habit</title>
+<style>
+:root{ --ink:#eef3ff; --bg:#000; --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --green:#32d74b; }
+*{box-sizing:border-box} html,body{height:100%;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+.bg{position:fixed;inset:0;z-index:-1;background:#000 url("../assets/home-bg.jpg") center/cover no-repeat}
+.wrap{max-width:960px;margin:0 auto;padding:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:156px;height:44px;padding:0 16px;border-radius:12px;border:0;font-weight:900;cursor:pointer}
+.btn.blue{background:var(--blue);color:#fff} .btn.green{background:var(--green);color:#000} .btn.grey{background:#3a3a3a;color:#fff}
+.hero{border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:16px 0;position:relative}
+.price,.pts{position:absolute;right:12px;border-radius:999px;font-weight:900;padding:6px 10px;background:rgba(0,0,0,.6);border:1px solid var(--stroke)}
+.price{bottom:12px} .pts{top:12px;background:#ffd700;color:#0f1116;border-color:transparent}
+</style>
+</head>
+<body class="course-bg">
+<div class="bg" aria-hidden="true"></div>
+<main class="wrap">
+  <article class="hero course" data-kind="paid" data-id="30d-foundations">
+    <h1>30-Day: Drawing Habit</h1>
+    <p>This is a starter detail page. If locked, use the button below to unlock; if unlocked, the Start button will appear on Home automatically.</p>
+    <div class="cta-left">
+      <button class="btn blue start">Start</button>
+    </div>
+    <div class="pts" data-pts="0"><span>0</span> pts</div>
+    <div class="price" data-price="$—"><span>$—</span></div>
+  </article>
+</main>
+<script>
+(function(){ 
+  const card=document.querySelector('.hero.course');
+  const id=card.dataset.id;
+  const purchased=JSON.parse(localStorage.getItem('ao_purchasedCourses')||localStorage.getItem('ao_purchased')||'[]');
+  if(purchased.includes(id)){
+    card.querySelector('.price')?.setAttribute('hidden','');
+    card.querySelector('.pts')?.setAttribute('hidden','');
+  } else if(card.dataset.kind!=='foundation'){
+    window.AO_unlockCourse=function(cid){ 
+      const arr=new Set(JSON.parse(localStorage.getItem('ao_purchasedCourses')||'[]')); 
+      arr.add(cid); localStorage.setItem('ao_purchasedCourses', JSON.stringify(Array.from(arr)));
+      alert('Unlocked '+cid+'. Return to Home to see Start.'); 
+    };
+  }
+})(); 
+</script>
+</body>
+</html>
