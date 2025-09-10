@@ -87,8 +87,18 @@ a{color:inherit; text-decoration:none}
 }
 .hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
 .hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
-.hero .desc{ margin:8px 0 56px; color:var(--muted) }
+.hero .desc{ margin:8px 0 12px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
+
+/* Metadata chips (used by Daily tags) */
+.chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 44px }
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border-radius:999px; font-weight:800; font-size:13px;
+  background:rgba(0,0,0,.45); border:1px solid var(--stroke); color:var(--ink);
+}
+.chip .k{ opacity:.75; font-weight:700 }
+.chip .v{ font-weight:900 }
 
 /* Padlock */
 .padlock{ width:22px; height:22px; display:inline-block; vertical-align:-3px }
@@ -228,7 +238,7 @@ a{color:inherit; text-decoration:none}
   background:var(--daily-art) center/cover no-repeat;
   opacity:.22; z-index:0;
 }
-#dailyHero .title, #dailyHero .meta, #dailyHero .desc, #dailyHero .cta-left {
+#dailyHero .title, #dailyHero .meta, #dailyHero .desc, #dailyHero .cta-left, #dailyHero .chips {
   position:relative; z-index:1;
 }
 </style>
@@ -260,6 +270,10 @@ a{color:inherit; text-decoration:none}
       <h2 class="title" id="dailyTitle">Today’s Daily Challenge</h2>
       <p class="meta" id="dailyDate">—</p>
       <p class="desc" id="dailyDesc">Warm up: 15–20 minutes of quick charcoal gestures. Fill one page with 10–15 poses focusing on big shapes and clear value separation.</p>
+
+      <!-- New: daily tags (medium, time, level) -->
+      <div class="chips" id="dailyChips" aria-label="Daily metadata"></div>
+
       <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
     </article>
     <h3 class="section-title">Weekly Challenges (Subscribers)</h3>
@@ -420,7 +434,14 @@ const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.pars
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
 const compactK = n => (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n));
 
-// ===== Tabs
+/* Title-case first letter safely */
+const cap1 = (v) => {
+  if (v == null) return '';
+  const s = Array.isArray(v) ? v.join(', ') : String(v);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+/* ===== Tabs */
 const tabBtns=$$('.btn-tab[data-tab]');
 const panels=$$('[data-panel]');
 tabBtns.forEach(b=>b.addEventListener('click', ()=>{
@@ -429,7 +450,7 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 }));
 
-// ===== Avatar + sheet
+/* ===== Avatar + sheet */
 let isSub=!!store.get(K.sub,false);
 let points=+store.get(K.points,0);
 let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
@@ -489,10 +510,11 @@ window.addEventListener('keydown', (e)=>{
   }
 });
 
-// ===== Daily date + complete toggle
+/* ===== Daily date + complete toggle */
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
+
 function paintDaily(){
   const done = dailyDone.includes(isoToday);
   $('#btnDaily').textContent = done?'Undo':'Complete';
@@ -507,7 +529,7 @@ $('#btnDaily').addEventListener('click', ()=>{
   store.set(K.dailyDone,dailyDone); store.set(K.points,points); paintDaily(); paintAvatar();
 });
 
-// ===== Daily loader (Option A: registry file)
+/* ===== Daily loader (Option A: registry file in challenges/daily) */
 async function getDailyTotal(){
   try{
     const res = await fetch('./challenges/daily/index.json', { cache:'no-store' });
@@ -522,6 +544,19 @@ function getDayOfYear(d){
   const start = new Date(d.getFullYear(),0,0);
   return Math.floor((d - start) / 86400000);
 }
+
+function renderDailyChips(data){
+  const box = document.getElementById('dailyChips');
+  const chips = [];
+  if (data.medium) chips.push({k:'Medium', v:cap1(data.medium)});
+  if (data.time)   chips.push({k:'Time',   v:cap1(data.time)});
+  if (data.level)  chips.push({k:'Level',  v:cap1(data.level)});
+  if (!chips.length){ box.innerHTML=''; return; }
+  box.innerHTML = chips.map(c => 
+    `<span class="chip" role="note"><span class="k">${c.k}:</span><span class="v">${c.v}</span></span>`
+  ).join('');
+}
+
 async function loadDailyChallenge(){
   const total = await getDailyTotal();
   const doy = getDayOfYear(new Date());                 // 1..366
@@ -537,6 +572,9 @@ async function loadDailyChallenge(){
     document.getElementById('dailyTitle').textContent = data.title || `Daily Challenge ${idx}`;
     document.getElementById('dailyDesc').textContent  = data.desc  || '';
 
+    // Tags (chips)
+    renderDailyChips(data);
+
     // Optional artwork
     if (data.image){
       document.documentElement.style.setProperty('--daily-art', `url("${data.image}")`);
@@ -547,12 +585,13 @@ async function loadDailyChallenge(){
     console.error('[Daily] Load failed', err);
     document.getElementById('dailyTitle').textContent = `Daily Challenge ${idx}`;
     document.getElementById('dailyDesc').textContent  = 'New prompt coming soon.';
+    document.getElementById('dailyChips').innerHTML   = '';
     document.documentElement.style.setProperty('--daily-art', 'none');
   }
 }
 loadDailyChallenge();
 
-// ===== Weekly etc.
+/* ===== Weekly etc. (still using registry for now) */
 const DEFAULT_WEEKLY = [
   {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
   {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
@@ -598,7 +637,7 @@ window.AO_markWeeklyComplete = function(weekId){
   }
 };
 
-// Pricing/Registry
+/* Pricing/Registry */
 let pricing = {};
 function readPricing(){
   if(window.PRICE_LIST) pricing = window.PRICE_LIST;
@@ -606,7 +645,7 @@ function readPricing(){
 }
 readPricing();
 
-// Buy sheet
+/* Buy sheet */
 const mask  = $('#buyMask');
 const sheet = $('#buySheet');
 const buyTitle = $('#buyTitle');
@@ -639,7 +678,7 @@ btnRedeem.addEventListener('click', ()=>{
   AO_unlockCourse(activeCard.dataset.id); closeBuySheet();
 });
 
-// Painters
+/* Painters */
 function paintGating(){
   // Foundations require subscription
   $$('.course[data-kind="foundation"]').forEach(card=>{
@@ -661,7 +700,7 @@ function repaintPurchases(){
   });
 }
 
-// Public hooks
+/* Public hooks */
 window.AO_unlockCourse = function(courseId){
   if(!purchased.includes(courseId)){ purchased.push(courseId); }
   store.set(K.purchasedB, purchased); store.set(K.purchasedA, purchased);
@@ -672,7 +711,7 @@ window.AO_setPoints = function(n){
   points = Math.max(0, +n||0); store.set(K.points, points); paintAvatar();
 };
 
-// Delegated clicks
+/* Delegated clicks */
 document.addEventListener('click', (e)=>{
   const buy = e.target.closest('.btn.buy');   if(buy){ openBuySheet(buy.closest('.hero')); return; }
   const start = e.target.closest('.btn.start,.btn.start-found');
@@ -686,7 +725,7 @@ document.addEventListener('click', (e)=>{
   }
 });
 
-// Registry-driven rendering
+/* Registry-driven rendering */
 async function loadRegistry(){
   try{
     const res = await fetch('./data/registry.json', {cache:'no-store'});
@@ -747,7 +786,7 @@ loadRegistry().then(reg=>{
   paintWeeklies(weekly);
 });
 
-// Public for console testing
+/* Public for console testing */
 window._AO_debug = {loadDailyChallenge, paintWeeklies, renderFromRegistry};
 })();
 </script>
