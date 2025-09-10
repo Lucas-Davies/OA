@@ -84,7 +84,7 @@ a{color:inherit; text-decoration:none}
   border:1px solid var(--stroke); border-radius:16px;
   padding:16px; margin:12px 0;
 }
-.hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px; flex-wrap:wrap }
+.hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
 .hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
@@ -214,37 +214,23 @@ a{color:inherit; text-decoration:none}
 #templates[hidden]{ display:none !important; visibility:hidden !important; }
 
 /* ===== DAILY HERO DECOR ===== */
-#dailyHero{
-  background:
-    radial-gradient(160% 100% at 100% 0%, rgba(10,132,255,.18), transparent 60%),
-    linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-  position:relative;
-  overflow:hidden;
+#dailyHero { position:relative; overflow:hidden; }
+#dailyHero.hero--blend{
+  background: linear-gradient(90deg, #000 0%, #000 40%, #fff 100%);
+  color: var(--ink);
 }
-#dailyHero::before{
+#dailyHero.hero--white{
+  background:#fff; color:#000;
+}
+/* right-aligned art controlled by CSS vars */
+#dailyHero::after{
   content:"";
-  position:absolute; inset:0;
-  background: var(--daily-img, url("./assets/daily/d1.jpg")) center/cover no-repeat;
-  opacity:.18; z-index:0;
-}
-#dailyHero .title, #dailyHero .meta, #dailyHero .desc, #dailyHero .cta-left{
-  position:relative; z-index:1;
-}
-
-/* Daily badge pill */
-.pill{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:4px 10px; border-radius:999px;
-  font-weight:800; font-size:12px; letter-spacing:.2px;
-  background:rgba(0,0,0,.45); border:1px solid var(--stroke);
-}
-.pill .dot{
-  width:8px; height:8px; border-radius:50%;
-  background:var(--blue); box-shadow:0 0 0 2px rgba(10,132,255,.25);
-}
-.pill.blue{
-  border-color:rgba(10,132,255,.35);
-  box-shadow:0 4px 16px rgba(10,132,255,.18);
+  position:absolute; top:0; right:0; bottom:0;
+  width: var(--img-w, 60%);
+  background: var(--hero-img, none) right center / contain no-repeat;
+  opacity: var(--img-o, .95);
+  pointer-events:none;
+  filter:saturate(1) contrast(1);
 }
 </style>
 </head>
@@ -272,10 +258,7 @@ a{color:inherit; text-decoration:none}
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
     <article class="hero" id="dailyHero" aria-labelledby="dailyTitle">
-      <h2 class="title" id="dailyTitle">
-        Today’s Daily Challenge
-        <span id="dailyBadge" class="pill blue" aria-live="polite"><span class="dot" aria-hidden="true"></span>Daily 1</span>
-      </h2>
+      <h2 class="title" id="dailyTitle">Today’s Daily Challenge</h2>
       <p class="meta" id="dailyDate">—</p>
       <p class="desc" id="dailyDesc">Warm up: 15–20 minutes of quick charcoal gestures. Fill one page with 10–15 poses focusing on big shapes and clear value separation.</p>
       <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
@@ -425,7 +408,7 @@ a{color:inherit; text-decoration:none}
 }
 </script>
 
-<!-- ===== SCRIPT – STATE, HELPERS, TABS ===== -->
+<!-- ===== SCRIPT – STATE, HELPERS, TABS, DAILY LOADER ===== -->
 <script>
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
@@ -513,53 +496,25 @@ window.addEventListener('keydown', (e)=>{
   }
 });
 
-/* ========= DAILY (rotating pool, starts at #1) ========= */
+// Daily date paint
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const today=new Date();
-const isoToday=toISO(today);
+const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
-
-// Define the daily pool. Start with one (Daily 1). Add more objects later.
-const DAILY_POOL = [
-  {
-    id: 'd1',
-    title: 'Gesture Wake-Up',
-    desc: '15–20 mins of quick charcoal gestures. Fill one page with 10–15 poses. Focus on big shapes and clear value separation.',
-    img: './assets/daily/d1.jpg'
-  }
-  // When you add more, e.g. {id:'d2', title:'...', desc:'...', img:'./assets/daily/d2.jpg'}
-];
-
-// Calculate index by day so it rotates once per day across however many items exist.
-const daysSinceEpoch = Math.floor(today.setHours(0,0,0,0) / 86400000);
-const dIdx = DAILY_POOL.length ? (daysSinceEpoch % DAILY_POOL.length) : 0;
-const currentDaily = DAILY_POOL[dIdx] || DAILY_POOL[0];
-
-// Paint the hero with the current daily
-const badge = document.getElementById('dailyBadge');
-badge.innerHTML = '<span class="dot" aria-hidden="true"></span>' + `Daily ${dIdx+1}`;
-document.getElementById('dailyDesc').textContent = currentDaily.desc;
-document.getElementById('dailyHero').style.setProperty('--daily-img', `url("${currentDaily.img}")`);
-
-// Complete/undo state is still per calendar day
 function paintDaily(){
   const done = dailyDone.includes(isoToday);
-  $('#btnDaily').textContent = done ? 'Undo' : 'Complete';
-  $('#btnDaily').className = 'btn ' + (done ? 'grey' : 'blue');
+  $('#btnDaily').textContent = done?'Undo':'Complete';
+  $('#btnDaily').className = 'btn ' + (done?'grey':'blue');
   $('#dailyHero').classList.toggle('complete', done);
 }
 paintDaily();
-
-document.getElementById('btnDaily').addEventListener('click', ()=>{
+$('#btnDaily').addEventListener('click', ()=>{
   const idx=dailyDone.indexOf(isoToday);
   if(idx===-1){ dailyDone.push(isoToday); points+=1; }
   else{ dailyDone.splice(idx,1); points=Math.max(0,points-1); }
-  store.set(K.dailyDone,dailyDone);
-  store.set(K.points,points);
-  paintDaily(); paintAvatar();
+  store.set(K.dailyDone,dailyDone); store.set(K.points,points); paintDaily(); paintAvatar();
 });
 
-/* ========= WEEKLY (unchanged, just repainted when sub toggles) ========= */
+// Weekly (3 only)
 const DEFAULT_WEEKLY = [
   {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
   {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
@@ -647,7 +602,6 @@ btnRedeem.addEventListener('click', ()=>{
 
 // Painters
 function paintGating(){
-  // Foundations require subscription
   $$('.course[data-kind="foundation"]').forEach(card=>{
     const btn=card.querySelector('.start-found');
     if(isSub){ btn.removeAttribute('disabled'); card.querySelector('.padlock')?.classList.add('hide'); }
@@ -666,31 +620,6 @@ function repaintPurchases(){
     const card = document.querySelector(`[data-id="${id}"]`); if(card) markPurchased(card);
   });
 }
-
-// Public hooks
-window.AO_unlockCourse = function(courseId){
-  if(!purchased.includes(courseId)){ purchased.push(courseId); }
-  store.set(K.purchasedB, purchased); store.set(K.purchasedA, purchased);
-  const card = document.querySelector(`.hero.course[data-id="${courseId}"]`);
-  if(card) markPurchased(card);
-};
-window.AO_setPoints = function(n){
-  points = Math.max(0, +n||0); store.set(K.points, points); paintAvatar();
-};
-
-// Delegated clicks
-document.addEventListener('click', (e)=>{
-  const buy = e.target.closest('.btn.buy');   if(buy){ openBuySheet(buy.closest('.hero')); return; }
-  const start = e.target.closest('.btn.start,.btn.start-found');
-  if(start){
-    const card = start.closest('.hero');
-    if(card.dataset.kind==='foundation' && !isSub){ alert('Subscribe to access Foundations.'); return; }
-    const link = card.dataset.link || (card.dataset.kind==='paid' ? `courses/${card.dataset.id}.html` :
-                  card.dataset.kind==='foundation' ? `courses/${card.dataset.id}.html` :
-                  card.dataset.kind==='demo' ? `live/${card.dataset.id}.html` : `courses/${card.dataset.id}.html`);
-    window.location.href = link;
-  }
-});
 
 // Registry-driven rendering
 async function loadRegistry(){
@@ -712,7 +641,6 @@ function applyPricePoints(card, price, pts){
   if(ptsEl && (pts!=null)){ ptsEl.dataset.pts = pts; ptsEl.firstElementChild.textContent = pts; }
 }
 function renderFromRegistry(reg){
-  // Foundations
   const fGrid = document.getElementById('foundationsGrid'); fGrid.innerHTML='';
   (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="foundation"]');
@@ -720,8 +648,6 @@ function renderFromRegistry(reg){
     t.dataset.link = `courses/${item.slug||item.id}.html`;
     fGrid.appendChild(t);
   });
-
-  // Paid: 1-day, 3-day, 30-day
   const one = document.getElementById('oneDayGrid'); one.innerHTML='';
   (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="paid"]');
@@ -740,8 +666,6 @@ function renderFromRegistry(reg){
     t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
     t.dataset.link = `courses/${item.slug||item.id}.html`; applyPricePoints(t, item.price, item.points); thirty.appendChild(t);
   });
-
-  // Demos placeholder
   const demoGrid = document.getElementById('demoGrid'); demoGrid.innerHTML='';
   const hasDemo = (reg.demos||[]).some(d=>d.showOnHome!==false);
   if(hasDemo){ demoGrid.appendChild(cloneTemplate('#templates > article[data-kind="demo"]')); }
@@ -753,6 +677,42 @@ loadRegistry().then(reg=>{
   paintWeeklies(weekly);
 });
 
+/* === DAILY CHALLENGE LOADER (cycles 1..N and wraps) === */
+(async function loadDailyChallenge(){
+  const hero  = document.getElementById('dailyHero');
+  const title = document.getElementById('dailyTitle');
+  const desc  = document.getElementById('dailyDesc');
+  const todayIdx = Math.floor(Date.now()/86400000); // days since epoch
+
+  try{
+    const res = await fetch('./challenges/daily/index.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('index.json missing');
+    const data = await res.json();
+    const list = Array.isArray(data.items)?data.items:[];
+    if(!list.length) throw new Error('no items');
+
+    const item = list[todayIdx % list.length];
+
+    title.textContent = item.title || 'Today’s Daily Challenge';
+    if(item.desc) desc.textContent = item.desc;
+
+    hero.classList.remove('hero--blend','hero--white');
+    hero.classList.add((item.style||'blend').toLowerCase()==='white' ? 'hero--white' : 'hero--blend');
+
+    if(item.image){
+      hero.style.setProperty('--hero-img', `url("${item.image}")`);
+      hero.style.setProperty('--img-w', item.imgWidth || '60%');
+      hero.style.setProperty('--img-o', item.imgOpacity || '.95');
+    }else{
+      hero.style.setProperty('--hero-img','none');
+    }
+  }catch(err){
+    console.warn('[Daily] fallback', err?.message||err);
+    hero.classList.add('hero--blend');
+    hero.style.setProperty('--hero-img','none');
+  }
+})();
+  
 // Public for console testing
 window._AO_debug = {paintWeeklies, renderFromRegistry};
 })();
