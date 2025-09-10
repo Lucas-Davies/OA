@@ -391,23 +391,48 @@ function paintAvatar(){
 paintAvatar();
 
 avatarBtn.addEventListener('click', ()=>{
-  avatarSheet.classList.toggle('open');
-  avatarBtn.setAttribute('aria-expanded',
-    avatarSheet.classList.contains('open') ? 'true' : 'false'
-  );
+  const willOpen = !avatarSheet.classList.contains('open');
+  avatarSheet.classList.toggle('open', willOpen);
+  avatarSheet.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+  avatarBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 });
 
-$('#closeSheet').addEventListener('click', ()=>{
+document.getElementById('closeSheet').addEventListener('click', ()=>{
   avatarSheet.classList.remove('open');
+  avatarSheet.setAttribute('aria-hidden','true');
   avatarBtn.setAttribute('aria-expanded','false');
 });
 
-$('#uploadAvatar').addEventListener('click', (e)=>{
+document.getElementById('uploadAvatar').addEventListener('click', (e)=>{
   e.preventDefault();
   alert('Avatar upload coming soon.');
 });
 
 subToggle.addEventListener('click', ()=>{
+  isSub = !isSub;
+  store.set(K.sub, isSub);
+  paintAvatar();
+  paintGating();
+  paintWeeklies();
+});
+
+/* === NEW: click-outside + Esc to close === */
+avatarSheet.addEventListener('click', (e)=>{
+  // Only if the click is on the backdrop (not inside the .panel)
+  if (e.target === avatarSheet) {
+    avatarSheet.classList.remove('open');
+    avatarSheet.setAttribute('aria-hidden','true');
+    avatarBtn.setAttribute('aria-expanded','false');
+  }
+});
+
+window.addEventListener('keydown', (e)=>{
+  if (e.key === 'Escape' && avatarSheet.classList.contains('open')) {
+    avatarSheet.classList.remove('open');
+    avatarSheet.setAttribute('aria-hidden','true');
+    avatarBtn.setAttribute('aria-expanded','false');
+  }
+});
   isSub=!isSub;
   store.set(K.sub,isSub);
   paintAvatar();
