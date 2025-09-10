@@ -1,0 +1,92 @@
+{
+  "foundations": [
+    {
+      "id": "found-setup",
+      "slug": "found-setup",
+      "title": "Materials & Setup",
+      "showOnHome": true
+    },
+    {
+      "id": "found-drawing",
+      "slug": "found-drawing",
+      "title": "Drawing",
+      "showOnHome": true
+    },
+    {
+      "id": "found-painting",
+      "slug": "found-painting",
+      "title": "Painting",
+      "showOnHome": true
+    }
+  ],
+  "courses": {
+    "1day": [
+      {
+        "id": "1d-gesture",
+        "slug": "1d-gesture",
+        "title": "1-Day Gesture",
+        "price": "$39",
+        "points": 300,
+        "showOnHome": true
+      }
+    ],
+    "3day": [
+      {
+        "id": "3d-portrait",
+        "slug": "3d-portrait",
+        "title": "3-Day Portrait",
+        "price": "$79",
+        "points": 500,
+        "showOnHome": true
+      }
+    ],
+    "30day": [
+      {
+        "id": "30d-foundations",
+        "slug": "30d-foundations",
+        "title": "30-Day Drawing Habit",
+        "price": "$149",
+        "points": 1500,
+        "showOnHome": false
+      }
+    ]
+  },
+  "weekly": [
+    {
+      "id": "W1",
+      "title": "Ink Portrait",
+      "expires": "2025-09-14",
+      "showOnHome": true
+    },
+    {
+      "id": "W2",
+      "title": "Value Composition",
+      "expires": "2025-09-21",
+      "showOnHome": true
+    },
+    {
+      "id": "W3",
+      "title": "Edges & Atmosphere",
+      "expires": "2025-09-28",
+      "showOnHome": true
+    }
+  ],
+  "live": [
+    {
+      "id": "live-1",
+      "title": "Saturday Studio",
+      "price": "$29",
+      "points": 1800,
+      "starts": "2025-09-20T09:00:00+10:00",
+      "showOnHome": false
+    }
+  ],
+  "demos": [
+    {
+      "id": "demo-coming",
+      "title": "Demonstrations",
+      "comingSoon": true,
+      "showOnHome": true
+    }
+  ]
+}
