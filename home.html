@@ -13,6 +13,7 @@
   --bg:#000; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
+  --daily-art:none; /* set by JS when a daily has image */
 }
 *{box-sizing:border-box}
 html,body{height:100%; overflow-x:hidden}
@@ -213,24 +214,22 @@ a{color:inherit; text-decoration:none}
 /* Ensure templates never interfere with layout */
 #templates[hidden]{ display:none !important; visibility:hidden !important; }
 
-/* ===== DAILY HERO DECOR ===== */
-#dailyHero { position:relative; overflow:hidden; }
-#dailyHero.hero--blend{
-  background: linear-gradient(90deg, #000 0%, #000 40%, #fff 100%);
-  color: var(--ink);
+/* ===== DAILY HERO DECOR (supports dynamic art via CSS var) ===== */
+#dailyHero {
+  background:
+    radial-gradient(160% 100% at 100% 0%, rgba(10,132,255,.18), transparent 60%),
+    linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+  position:relative;
+  overflow:hidden;
 }
-#dailyHero.hero--white{
-  background:#fff; color:#000;
-}
-/* right-aligned art controlled by CSS vars */
-#dailyHero::after{
+#dailyHero::before {
   content:"";
-  position:absolute; top:0; right:0; bottom:0;
-  width: var(--img-w, 60%);
-  background: var(--hero-img, none) right center / contain no-repeat;
-  opacity: var(--img-o, .95);
-  pointer-events:none;
-  filter:saturate(1) contrast(1);
+  position:absolute; inset:0;
+  background:var(--daily-art) center/cover no-repeat;
+  opacity:.22; z-index:0;
+}
+#dailyHero .title, #dailyHero .meta, #dailyHero .desc, #dailyHero .cta-left {
+  position:relative; z-index:1;
 }
 </style>
 </head>
@@ -421,15 +420,7 @@ const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.pars
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
 const compactK = n => (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n));
 
-// State
-let isSub=!!store.get(K.sub,false);
-let points=+store.get(K.points,0);
-let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
-if(!Array.isArray(purchased)) purchased=[];
-let weeklyDone=store.get(K.weeklyDone,[]);
-let dailyDone=store.get(K.dailyDone,[]);
-
-// Tabs
+// ===== Tabs
 const tabBtns=$$('.btn-tab[data-tab]');
 const panels=$$('[data-panel]');
 tabBtns.forEach(b=>b.addEventListener('click', ()=>{
@@ -438,7 +429,14 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 }));
 
-// Avatar + sheet
+// ===== Avatar + sheet
+let isSub=!!store.get(K.sub,false);
+let points=+store.get(K.points,0);
+let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
+if(!Array.isArray(purchased)) purchased=[];
+let weeklyDone=store.get(K.weeklyDone,[]);
+let dailyDone=store.get(K.dailyDone,[]);
+
 const avatarBtn = $('#avatarTab');
 const avatarSheet = $('#avatarSheet');
 const subToggle = $('#subToggle');
@@ -460,18 +458,15 @@ avatarBtn.addEventListener('click', ()=>{
   avatarSheet.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
   avatarBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 });
-
-document.getElementById('closeSheet').addEventListener('click', ()=>{
+$('#closeSheet').addEventListener('click', ()=>{
   avatarSheet.classList.remove('open');
   avatarSheet.setAttribute('aria-hidden','true');
   avatarBtn.setAttribute('aria-expanded','false');
 });
-
-document.getElementById('uploadAvatar').addEventListener('click', (e)=>{
+$('#uploadAvatar').addEventListener('click', (e)=>{
   e.preventDefault();
   alert('Avatar upload coming soon.');
 });
-
 subToggle.addEventListener('click', ()=>{
   isSub = !isSub;
   store.set(K.sub, isSub);
@@ -479,8 +474,6 @@ subToggle.addEventListener('click', ()=>{
   paintGating();
   paintWeeklies();
 });
-
-/* click-outside + Esc to close */
 avatarSheet.addEventListener('click', (e)=>{
   if (e.target === avatarSheet) {
     avatarSheet.classList.remove('open');
@@ -496,7 +489,7 @@ window.addEventListener('keydown', (e)=>{
   }
 });
 
-// Daily date paint
+// ===== Daily date + complete toggle
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
@@ -514,7 +507,52 @@ $('#btnDaily').addEventListener('click', ()=>{
   store.set(K.dailyDone,dailyDone); store.set(K.points,points); paintDaily(); paintAvatar();
 });
 
-// Weekly (3 only)
+// ===== Daily loader (Option A: registry file)
+async function getDailyTotal(){
+  try{
+    const res = await fetch('./challenges/daily/index.json', { cache:'no-store' });
+    if(!res.ok) throw new Error('missing index.json');
+    const { count } = await res.json();
+    return +count || 1;
+  }catch{
+    return 1;
+  }
+}
+function getDayOfYear(d){
+  const start = new Date(d.getFullYear(),0,0);
+  return Math.floor((d - start) / 86400000);
+}
+async function loadDailyChallenge(){
+  const total = await getDailyTotal();
+  const doy = getDayOfYear(new Date());                 // 1..366
+  const idx = ((doy - 1) % total) + 1;                  // 1..total
+  const file = `./challenges/daily/d${idx}.json`;
+
+  try{
+    const res = await fetch(file, { cache:'no-store' });
+    if(!res.ok) throw new Error(`Missing ${file}`);
+    const data = await res.json();
+
+    // Title/desc
+    document.getElementById('dailyTitle').textContent = data.title || `Daily Challenge ${idx}`;
+    document.getElementById('dailyDesc').textContent  = data.desc  || '';
+
+    // Optional artwork
+    if (data.image){
+      document.documentElement.style.setProperty('--daily-art', `url("${data.image}")`);
+    } else {
+      document.documentElement.style.setProperty('--daily-art', 'none');
+    }
+  }catch(err){
+    console.error('[Daily] Load failed', err);
+    document.getElementById('dailyTitle').textContent = `Daily Challenge ${idx}`;
+    document.getElementById('dailyDesc').textContent  = 'New prompt coming soon.';
+    document.documentElement.style.setProperty('--daily-art', 'none');
+  }
+}
+loadDailyChallenge();
+
+// ===== Weekly etc.
 const DEFAULT_WEEKLY = [
   {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
   {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
@@ -536,6 +574,7 @@ function padlockSVG(){
 function paintWeeklies(list){
   list = list && list.length ? list : DEFAULT_WEEKLY;
   const grid = $('#weeklyGrid'); grid.innerHTML='';
+  const now=new Date();
   weeklyOrder(list).slice(0,3).forEach(w=>{
     const done = weeklyDone.includes(w.id);
     const el = document.createElement('article');
@@ -543,7 +582,7 @@ function paintWeeklies(list){
     el.dataset.week = w.id;
     el.innerHTML = `
       <h4 class="title">${isSub?'':padlockSVG()} ${w.title}</h4>
-      <p class="meta">Sun ${pad(today.getDate())}/${pad(today.getMonth()+1)}</p>
+      <p class="meta">Sun ${pad(now.getDate())}/${pad(now.getMonth()+1)}</p>
       <p class="desc">${w.desc||''}</p>
       <div class="cta-left">
         <a class="btn ${isSub?'blue':''}" ${isSub?'':'aria-disabled="true"'} ${isSub?'href="challenges/weekly-${w.id}.html"':''}>Start Challenge</a>
@@ -563,7 +602,7 @@ window.AO_markWeeklyComplete = function(weekId){
 let pricing = {};
 function readPricing(){
   if(window.PRICE_LIST) pricing = window.PRICE_LIST;
-  else{ try{ pricing=JSON.parse($('#pricingData').textContent||'{}'); }catch{ pricing={}; } }
+  else{ try{ pricing=JSON.parse(document.getElementById('pricingData').textContent||'{}'); }catch{ pricing={}; } }
 }
 readPricing();
 
@@ -602,6 +641,7 @@ btnRedeem.addEventListener('click', ()=>{
 
 // Painters
 function paintGating(){
+  // Foundations require subscription
   $$('.course[data-kind="foundation"]').forEach(card=>{
     const btn=card.querySelector('.start-found');
     if(isSub){ btn.removeAttribute('disabled'); card.querySelector('.padlock')?.classList.add('hide'); }
@@ -620,6 +660,31 @@ function repaintPurchases(){
     const card = document.querySelector(`[data-id="${id}"]`); if(card) markPurchased(card);
   });
 }
+
+// Public hooks
+window.AO_unlockCourse = function(courseId){
+  if(!purchased.includes(courseId)){ purchased.push(courseId); }
+  store.set(K.purchasedB, purchased); store.set(K.purchasedA, purchased);
+  const card = document.querySelector(`.hero.course[data-id="${courseId}"]`);
+  if(card) markPurchased(card);
+};
+window.AO_setPoints = function(n){
+  points = Math.max(0, +n||0); store.set(K.points, points); paintAvatar();
+};
+
+// Delegated clicks
+document.addEventListener('click', (e)=>{
+  const buy = e.target.closest('.btn.buy');   if(buy){ openBuySheet(buy.closest('.hero')); return; }
+  const start = e.target.closest('.btn.start,.btn.start-found');
+  if(start){
+    const card = start.closest('.hero');
+    if(card.dataset.kind==='foundation' && !isSub){ alert('Subscribe to access Foundations.'); return; }
+    const link = card.dataset.link || (card.dataset.kind==='paid' ? `courses/${card.dataset.id}.html` :
+                  card.dataset.kind==='foundation' ? `courses/${card.dataset.id}.html` :
+                  card.dataset.kind==='demo' ? `live/${card.dataset.id}.html` : `courses/${card.dataset.id}.html`);
+    window.location.href = link;
+  }
+});
 
 // Registry-driven rendering
 async function loadRegistry(){
@@ -641,6 +706,7 @@ function applyPricePoints(card, price, pts){
   if(ptsEl && (pts!=null)){ ptsEl.dataset.pts = pts; ptsEl.firstElementChild.textContent = pts; }
 }
 function renderFromRegistry(reg){
+  // Foundations
   const fGrid = document.getElementById('foundationsGrid'); fGrid.innerHTML='';
   (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="foundation"]');
@@ -648,6 +714,8 @@ function renderFromRegistry(reg){
     t.dataset.link = `courses/${item.slug||item.id}.html`;
     fGrid.appendChild(t);
   });
+
+  // Paid: 1-day, 3-day, 30-day
   const one = document.getElementById('oneDayGrid'); one.innerHTML='';
   (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="paid"]');
@@ -666,6 +734,8 @@ function renderFromRegistry(reg){
     t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
     t.dataset.link = `courses/${item.slug||item.id}.html`; applyPricePoints(t, item.price, item.points); thirty.appendChild(t);
   });
+
+  // Demos placeholder
   const demoGrid = document.getElementById('demoGrid'); demoGrid.innerHTML='';
   const hasDemo = (reg.demos||[]).some(d=>d.showOnHome!==false);
   if(hasDemo){ demoGrid.appendChild(cloneTemplate('#templates > article[data-kind="demo"]')); }
@@ -677,44 +747,8 @@ loadRegistry().then(reg=>{
   paintWeeklies(weekly);
 });
 
-/* === DAILY CHALLENGE LOADER (cycles 1..N and wraps) === */
-(async function loadDailyChallenge(){
-  const hero  = document.getElementById('dailyHero');
-  const title = document.getElementById('dailyTitle');
-  const desc  = document.getElementById('dailyDesc');
-  const todayIdx = Math.floor(Date.now()/86400000); // days since epoch
-
-  try{
-    const res = await fetch('./challenges/daily/index.json', {cache:'no-store'});
-    if(!res.ok) throw new Error('index.json missing');
-    const data = await res.json();
-    const list = Array.isArray(data.items)?data.items:[];
-    if(!list.length) throw new Error('no items');
-
-    const item = list[todayIdx % list.length];
-
-    title.textContent = item.title || 'Today’s Daily Challenge';
-    if(item.desc) desc.textContent = item.desc;
-
-    hero.classList.remove('hero--blend','hero--white');
-    hero.classList.add((item.style||'blend').toLowerCase()==='white' ? 'hero--white' : 'hero--blend');
-
-    if(item.image){
-      hero.style.setProperty('--hero-img', `url("${item.image}")`);
-      hero.style.setProperty('--img-w', item.imgWidth || '60%');
-      hero.style.setProperty('--img-o', item.imgOpacity || '.95');
-    }else{
-      hero.style.setProperty('--hero-img','none');
-    }
-  }catch(err){
-    console.warn('[Daily] fallback', err?.message||err);
-    hero.classList.add('hero--blend');
-    hero.style.setProperty('--hero-img','none');
-  }
-})();
-  
 // Public for console testing
-window._AO_debug = {paintWeeklies, renderFromRegistry};
+window._AO_debug = {loadDailyChallenge, paintWeeklies, renderFromRegistry};
 })();
 </script>
 
