@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
-<!-- ===== DELIVERY: DESIGN TOKENS & RESETS ===== -->
+<!-- ===== DESIGN TOKENS & RESETS ===== -->
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -27,6 +27,7 @@ a{color:inherit; text-decoration:none}
 .hide{ display:none !important }
 .section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
 .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 14px 80px}
+
 /* Buttons */
 .btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:44px; padding:0 16px;
       border-radius:12px; border:0; font-weight:900; cursor:pointer }
@@ -36,38 +37,48 @@ a{color:inherit; text-decoration:none}
 .btn.grey{ background:#3a3a3a; color:#fff }
 .btn[disabled]{ opacity:.55; cursor:not-allowed }
 
-/* ===== DELIVERY: HEADER (Tabs + Avatar) ===== */
+/* ===== HEADER (Tabs + Avatar) ===== */
 .nav{
   position:sticky; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:30; overflow:hidden;
+  padding:8px 12px; z-index:30; overflow:visible; /* prevent avatar dot clipping */
   background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35) 60%, transparent);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
-.nav-left{display:flex; gap:10px; align-items:center; flex:0 1 auto}
+.nav-left{display:flex; gap:8px; align-items:center; flex:1 1 auto; min-width:0}
 .nav-right{margin-left:auto; display:flex; align-items:center}
 .btn-tab{
   display:inline-flex; align-items:center; justify-content:center;
-  min-width:116px; height:44px; padding:0 14px;
+  flex:1 1 0; min-width:0; max-width:120px;
+  height:44px; padding:0 12px;
   border-radius:12px; border:1px solid var(--stroke);
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
   transition:transform .06s ease, filter .15s ease;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-size:clamp(13px, 3.2vw, 16px);
 }
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
+
 /* Avatar special tab (points left + circular initials right) */
-.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px }
+.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
 .avatarTab .points{ font-weight:900 }
 .avatarTab .dot{
   position:absolute; right:0; top:0; bottom:0; width:44px; border-left:1px solid var(--stroke);
   border-top-right-radius:22px; border-bottom-right-radius:22px; display:grid; place-items:center; font-weight:900;
+  transform: translateX(1px); /* tiny nudge so initials look optically centered */
 }
 .avatarTab.silver{ background:var(--silver); color:#0f1116 }
 .avatarTab.silver .dot{ background:linear-gradient(135deg,#d9dee6,#b7bec9) }
 .avatarTab.gold{ background:var(--gold); color:#0f1116; border-color:transparent }
 .avatarTab.gold .dot{ background:linear-gradient(135deg,#ffe88a,#f6c400) }
 
-/* ===== DELIVERY: HERO COMPONENT (base styles) ===== */
+@media (max-width:390px){
+  .btn-tab{ max-width:96px; padding:0 10px; }
+  #avatarTab{ padding-right:52px; }
+}
+
+/* ===== HERO COMPONENT (base styles) ===== */
 .hero{
   position:relative; overflow:hidden; background:#000;
   border:1px solid var(--stroke); border-radius:16px;
@@ -77,12 +88,14 @@ a{color:inherit; text-decoration:none}
 .hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
+
 /* Padlock */
 .padlock{ width:22px; height:22px; display:inline-block; vertical-align:-3px }
 .padlock svg{ width:100%; height:100% }
 .padlock .shackle{ fill:none; stroke:var(--silver); stroke-width:2.4 }
 .padlock .body{ fill:var(--silver) }
 .padlock .keyhole{ fill:#0f1116 }
+
 /* Price + Points bubbles */
 .price, .pts{
   position:absolute; right:12px; border-radius:999px; font-weight:900; padding:6px 10px;
@@ -91,9 +104,11 @@ a{color:inherit; text-decoration:none}
 .price{ bottom:12px; color:#fff }
 .pts{ top:12px; color:#0f1116; background:var(--gold); border-color:transparent; box-shadow:0 6px 18px rgba(255,215,0,.22) }
 .pts[hidden], .price[hidden]{ display:none }
+
 /* Completion ring + tick */
 .hero.complete{ box-shadow:0 0 0 3px var(--green) inset }
 .hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900 }
+
 /* Weekly grid */
 .weekly-grid{ display:grid; gap:var(--gap) }
 @media (orientation:portrait){
@@ -107,7 +122,7 @@ a{color:inherit; text-decoration:none}
   #dailyHero{ min-height: 220px }
 }
 
-/* ===== DELIVERY: SHEETS (Avatar, Buy Flow) ===== */
+/* ===== SHEETS (Buy) ===== */
 .sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;z-index:60}
 .sheet-mask.open{display:block}
 .sheet{position:fixed;left:0;right:0;bottom:-100%;background:#0f1116;border-radius:16px 16px 0 0;
@@ -116,16 +131,20 @@ a{color:inherit; text-decoration:none}
 .sheet h3{margin:0 0 8px;font-size:18px;font-weight:900}
 .sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .sheet .meta{color:#cfd3e1}
-/* ===== Avatar sheet polish (iOS blue accents) ===== */
 
-/* Backdrop tint a touch bluer on phones */
-#avatarSheet {
+/* ===== AVATAR SHEET (phones slide up, desktop dropdown) ===== */
+
+/* Backdrop (mobile/tablet) */
+#avatarSheet{
+  position:fixed; inset:0; display:none; z-index:60;
   background:
     radial-gradient(120% 80% at 90% 10%, rgba(10,132,255,.10), transparent 60%),
     rgba(0,0,0,.55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
+#avatarSheet.open{ display:block; }
 
-/* Panel base — keep your slide-up, but add a subtle blue ring + sheen */
+/* Panel — slide up on small screens */
 #avatarSheet .panel{
   position:absolute; left:0; right:0; bottom:-100%;
   background:#0f1116;
@@ -134,26 +153,24 @@ a{color:inherit; text-decoration:none}
   padding:18px;
   max-height:80vh; overflow:auto;
   transition:bottom .25s ease;
-
-  /* subtle ring + inner highlight */
+  /* subtle blue ring & inner sheen */
   box-shadow:
     0 14px 36px rgba(0,0,0,.6),
     0 0 0 1px rgba(10,132,255,.28) inset,
     0 1px 0 rgba(255,255,255,.06) inset;
 }
+#avatarSheet.open .panel{ bottom:0; }
 
-/* a soft blue hairline around sections */
-#avatarSheet .row {
+/* Section hairlines */
+#avatarSheet .row{
   border-bottom:1px solid rgba(10,132,255,.12);
   padding-bottom:6px;
 }
-#avatarSheet .row:last-child { border-bottom:none; }
+#avatarSheet .row:last-child{ border-bottom:none }
 
-/* Headings with a tiny blue underline */
+/* Headings with tiny blue underline */
 #avatarSheet h3{
-  margin:12px 0 6px;
-  font-weight:900;
-  position:relative;
+  margin:12px 0 6px; font-weight:900; position:relative;
 }
 #avatarSheet h3::after{
   content:""; position:absolute; left:0; bottom:-6px; right:0; height:2px;
@@ -161,13 +178,12 @@ a{color:inherit; text-decoration:none}
   border-radius:2px;
 }
 
-/* Footer area (logo / credit) */
+/* Footer brand strip */
 .sheet-footer{
   display:flex; align-items:center; gap:10px;
   margin-top:14px; padding-top:10px;
   border-top:1px dashed rgba(10,132,255,.18);
-  color:var(--ink-dim); font-size:13px;
-  opacity:.9;
+  color:var(--ink-dim); font-size:13px; opacity:.9;
 }
 .sheet-footer img{
   width:22px; height:22px; border-radius:6px;
@@ -175,97 +191,34 @@ a{color:inherit; text-decoration:none}
   display:block;
 }
 .sheet-footer .byline{ letter-spacing:.2px }
-.sheet-footer .brand{ font-weight:800; color:#0A84FF }
+.sheet-footer .brand{ font-weight:800; color:var(--blue) }
 
-/* ===== Desktop/tablet: convert to dropdown below avatar, with blue outline ===== */
-@media (min-width: 768px){
-  #avatarSheet{                 /* no backdrop on desktop */
-    position:absolute; inset:unset; top:64px; right:12px;
-    width:320px; background:none; backdrop-filter:none; display:none;
+/* Desktop/tablet: dropdown under avatar, no backdrop, no slide */
+@media (min-width:768px){
+  #avatarSheet{
+    position:absolute; inset:auto; top:64px; right:12px; width:320px;
+    background:none; -webkit-backdrop-filter:none; backdrop-filter:none; display:none;
   }
   #avatarSheet.open{ display:block; }
-
   #avatarSheet .panel{
     position:relative; bottom:auto; max-height:70vh; overflow:auto;
     border-radius:14px; border:1px solid var(--stroke);
     transition:none;
-    /* keep the blue accent ring but subtler on desktop */
     box-shadow:
       0 16px 40px rgba(0,0,0,.55),
       0 0 0 1px rgba(10,132,255,.22) inset;
   }
 }
-</style>
 
-<!-- === FIX (home.html): separate Avatar sheet vs Buy sheet === -->
-<style>
-/* Avatar menu uses simple display toggle via .open (no slide) */
-#avatarSheet{
-  position:fixed;
-  inset:0;
-  display:none;                 /* closed by default */
-  background:rgba(0,0,0,.50);
-  backdrop-filter:blur(6px);
-  z-index:60;
-}
-#avatarSheet.open{ display:block; }
-#avatarSheet .panel{
-  position:absolute;
-  left:0; right:0; bottom:0;
-  border-top-left-radius:18px; border-top-right-radius:18px;
-  background:#0f1116; border-top:1px solid var(--stroke); padding:14px; max-height:80vh; overflow:auto;
-}
-
-/* Keep buy sheet sliding */
-#buyMask.sheet-mask{ display:none; }
-#buyMask.open{ display:block; }
-#buySheet.sheet{ bottom:-100%; z-index:61; }
-#buySheet.open{ bottom:0; }
-
-/* Make sure templates never interfere with layout */
+/* Ensure templates never interfere with layout */
 #templates[hidden]{ display:none !important; visibility:hidden !important; }
-</style>
-
-<!-- === HEADER FIT PATCH (keeps avatar visible; tabs shrink) === -->
-<style>
-header.nav{
-  align-items:center;
-  overflow:visible; /* prevent clipping of avatar dot */
-  padding-left: max(12px, env(safe-area-inset-left) + 12px);
-  padding-right: max(12px, env(safe-area-inset-right) + 12px);
-}
-.nav-left{
-  display:flex;
-  gap:8px;
-  min-width:0;         /* allow children to shrink */
-  flex:1 1 auto;       /* tabs use available space */
-}
-.btn-tab{
-  flex:1 1 0;          /* shrinkable tabs */
-  min-width:0;
-  max-width:120px;     /* so 3 tabs + avatar fit */
-  padding:9px 12px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  font-size:clamp(13px, 3.2vw, 16px);
-}
-#avatarTab{
-  flex:0 0 auto;       /* do not shrink avatar */
-  margin-left:auto;
-  height:44px;
-}
-@media (max-width:390px){
-  .btn-tab{ max-width:96px; padding:8px 10px; }
-  #avatarTab{ padding-right:52px; }
-}
 </style>
 </head>
 <body>
 
 <div class="bg" aria-hidden="true"></div>
 
-<!-- ===== DELIVERY: HEADER (Tabs + Avatar) ===== -->
+<!-- ===== HEADER (Tabs + Avatar) ===== -->
 <header class="nav">
   <div class="nav-left" role="tablist" aria-label="Primary">
     <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
@@ -280,7 +233,7 @@ header.nav{
   </div>
 </header>
 
-<!-- ===== DELIVERY: HOME / MAIN (tabs & panels) ===== -->
+<!-- ===== MAIN ===== -->
 <main class="wrap">
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
@@ -316,7 +269,7 @@ header.nav{
   </section>
 </main>
 
-<!-- ===== DELIVERY: TEMPLATES (hidden clones) ===== -->
+<!-- ===== TEMPLATES (hidden clones) ===== -->
 <div id="templates" hidden>
   <!-- Foundation template -->
   <article class="hero tall course" data-kind="foundation" data-id="__ID__">
@@ -353,7 +306,7 @@ header.nav{
   </article>
 </div>
 
-<!-- ===== DELIVERY: SHEETS (Avatar, Buy Flow) ===== -->
+<!-- ===== SHEETS (Avatar, Buy Flow) ===== -->
 <div class="sheet-mask" id="buyMask" aria-hidden="true"></div>
 <div class="sheet" id="buySheet" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
   <h3 id="buyTitle">Unlock</h3>
@@ -365,7 +318,7 @@ header.nav{
   </div>
 </div>
 
-<!-- NOTE: removed class="sheet" to avoid inheriting slide-up behavior -->
+<!-- Avatar Sheet -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <h3>Account</h3>
@@ -373,6 +326,7 @@ header.nav{
       <strong>Subscription</strong>
       <button class="btn grey" id="subToggle" aria-pressed="false">Off</button>
     </div>
+
     <div class="row"><a href="#" id="openCalendar">My Calendar</a><span>›</span></div>
     <div class="row"><a href="profile.html#achievements">Achievements</a><span>›</span></div>
 
@@ -384,7 +338,6 @@ header.nav{
     <h3>Avatar</h3>
     <div class="row"><a href="#" id="uploadAvatar">Upload Avatar (soon)</a><span>›</span></div>
 
-    <!-- Only one close button row -->
     <div class="row"><button class="btn grey" id="closeSheet">Close</button></div>
 
     <!-- Footer brand strip -->
@@ -393,10 +346,10 @@ header.nav{
            onerror="this.style.background='linear-gradient(135deg,#ffe88a,#f6c400)'; this.removeAttribute('src');">
       <div class="byline">by <span class="brand">Jody Graham</span></div>
     </div>
-  </div> <!-- end .panel -->
-</div> <!-- end #avatarSheet -->
+  </div>
+</div>
 
-<!-- ===== DELIVERY: PRICING / REGISTRY (inline fallback) ===== -->
+<!-- ===== PRICING / REGISTRY (inline fallback) ===== -->
 <script id="pricingData" type="application/json">
 {
   "1d-gesture":{"price":"$39","points":300},
@@ -437,7 +390,7 @@ header.nav{
 }
 </script>
 
-<!-- ===== DELIVERY: SCRIPT – STATE, HELPERS, TABS ===== -->
+<!-- ===== SCRIPT – STATE, HELPERS, TABS ===== -->
 <script>
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
@@ -490,17 +443,15 @@ avatarBtn.addEventListener('click', ()=>{
   avatarBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 });
 
-document.getElementById('closeSheet').addEventListener('click', ()=>{
+$('#closeSheet').addEventListener('click', ()=>{
   avatarSheet.classList.remove('open');
   avatarSheet.setAttribute('aria-hidden','true');
   avatarBtn.setAttribute('aria-expanded','false');
 });
-
-document.getElementById('uploadAvatar').addEventListener('click', (e)=>{
+$('#uploadAvatar').addEventListener('click', (e)=>{
   e.preventDefault();
   alert('Avatar upload coming soon.');
 });
-
 subToggle.addEventListener('click', ()=>{
   isSub = !isSub;
   store.set(K.sub, isSub);
@@ -743,7 +694,7 @@ window._AO_debug = {paintWeeklies, renderFromRegistry};
 })();
 </script>
 
-<!-- Safety badge for debugging in prod -->
+<!-- Safety badge for quick debugging -->
 <script>
   window.onerror = function (msg, src, line, col) {
     const b = document.createElement('div');
