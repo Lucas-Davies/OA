@@ -116,6 +116,85 @@ a{color:inherit; text-decoration:none}
 .sheet h3{margin:0 0 8px;font-size:18px;font-weight:900}
 .sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .sheet .meta{color:#cfd3e1}
+/* ===== Avatar sheet polish (iOS blue accents) ===== */
+
+/* Backdrop tint a touch bluer on phones */
+#avatarSheet {
+  background:
+    radial-gradient(120% 80% at 90% 10%, rgba(10,132,255,.10), transparent 60%),
+    rgba(0,0,0,.55);
+}
+
+/* Panel base — keep your slide-up, but add a subtle blue ring + sheen */
+#avatarSheet .panel{
+  position:absolute; left:0; right:0; bottom:-100%;
+  background:#0f1116;
+  border-top-left-radius:18px; border-top-right-radius:18px;
+  border-top:1px solid var(--stroke);
+  padding:18px;
+  max-height:80vh; overflow:auto;
+  transition:bottom .25s ease;
+
+  /* subtle ring + inner highlight */
+  box-shadow:
+    0 14px 36px rgba(0,0,0,.6),
+    0 0 0 1px rgba(10,132,255,.28) inset,
+    0 1px 0 rgba(255,255,255,.06) inset;
+}
+
+/* a soft blue hairline around sections */
+#avatarSheet .row {
+  border-bottom:1px solid rgba(10,132,255,.12);
+  padding-bottom:6px;
+}
+#avatarSheet .row:last-child { border-bottom:none; }
+
+/* Headings with a tiny blue underline */
+#avatarSheet h3{
+  margin:12px 0 6px;
+  font-weight:900;
+  position:relative;
+}
+#avatarSheet h3::after{
+  content:""; position:absolute; left:0; bottom:-6px; right:0; height:2px;
+  background:linear-gradient(90deg, rgba(10,132,255,.55), rgba(10,132,255,0));
+  border-radius:2px;
+}
+
+/* Footer area (logo / credit) */
+.sheet-footer{
+  display:flex; align-items:center; gap:10px;
+  margin-top:14px; padding-top:10px;
+  border-top:1px dashed rgba(10,132,255,.18);
+  color:var(--ink-dim); font-size:13px;
+  opacity:.9;
+}
+.sheet-footer img{
+  width:22px; height:22px; border-radius:6px;
+  background:linear-gradient(135deg,#ffe88a,#f6c400);
+  display:block;
+}
+.sheet-footer .byline{ letter-spacing:.2px }
+.sheet-footer .brand{ font-weight:800; color:#0A84FF }
+
+/* ===== Desktop/tablet: convert to dropdown below avatar, with blue outline ===== */
+@media (min-width: 768px){
+  #avatarSheet{                 /* no backdrop on desktop */
+    position:absolute; inset:unset; top:64px; right:12px;
+    width:320px; background:none; backdrop-filter:none; display:none;
+  }
+  #avatarSheet.open{ display:block; }
+
+  #avatarSheet .panel{
+    position:relative; bottom:auto; max-height:70vh; overflow:auto;
+    border-radius:14px; border:1px solid var(--stroke);
+    transition:none;
+    /* keep the blue accent ring but subtler on desktop */
+    box-shadow:
+      0 16px 40px rgba(0,0,0,.55),
+      0 0 0 1px rgba(10,132,255,.22) inset;
+  }
+}
 </style>
 
 <!-- === FIX (home.html): separate Avatar sheet vs Buy sheet === -->
@@ -296,15 +375,26 @@ header.nav{
     </div>
     <div class="row"><a href="#" id="openCalendar">My Calendar</a><span>›</span></div>
     <div class="row"><a href="profile.html#achievements">Achievements</a><span>›</span></div>
+
     <h3>Shortcuts</h3>
     <div class="row"><a href="profile.html#slot1">Placeholder 1</a><span>›</span></div>
     <div class="row"><a href="profile.html#slot2">Placeholder 2</a><span>›</span></div>
     <div class="row"><a href="profile.html#slot3">Placeholder 3</a><span>›</span></div>
+
     <h3>Avatar</h3>
     <div class="row"><a href="#" id="uploadAvatar">Upload Avatar (soon)</a><span>›</span></div>
+
+    <!-- Only one close button row -->
     <div class="row"><button class="btn grey" id="closeSheet">Close</button></div>
-  </div>
-</div>
+
+    <!-- Footer brand strip -->
+    <div class="sheet-footer">
+      <img src="./assets/jg-mark.svg" alt="Jody Graham logo"
+           onerror="this.style.background='linear-gradient(135deg,#ffe88a,#f6c400)'; this.removeAttribute('src');">
+      <div class="byline">by <span class="brand">Jody Graham</span></div>
+    </div>
+  </div> <!-- end .panel -->
+</div> <!-- end #avatarSheet -->
 
 <!-- ===== DELIVERY: PRICING / REGISTRY (inline fallback) ===== -->
 <script id="pricingData" type="application/json">
