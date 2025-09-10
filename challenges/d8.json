@@ -1,0 +1,12 @@
+{
+  "id": "d8",
+  "title": "Slow Continuous Line",
+  "desc": "Draw a single object using one unbroken line at a crawling speed. Focus on pressure changes for weight.",
+  "medium": "Ink pen",
+  "time": "10 min",
+  "level": "Beginner",
+  "tags": [
+    "line",
+    "control"
+  ]
+}

@@ -1,9 +1,13 @@
 {
   "id": "d1",
   "title": "Continuous Line Trio",
-  "desc": "Think of three objects. Draw each in a single, unbroken line—no lifting until it’s finished. Lift only to move to the next. Keep it loose and quick, 2–3 minutes each.",
-  "image": "./challenges/daily/imgs/bird.png",
-  "imgWidth": "58%",
-  "imgOpacity": "0.95",
-  "style": "blend"
+  "desc": "Draw the first three objects that come to mind without lifting your pencil or pen, except when moving to the next object. Let the line wander; no erasing.",
+  "medium": "Pencil, pen",
+  "time": "10 min",
+  "level": "Beginner",
+  "tags": [
+    "line",
+    "flow",
+    "loosening"
+  ]
 }
