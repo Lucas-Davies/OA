@@ -146,6 +146,41 @@ a{color:inherit; text-decoration:none}
 /* Make sure templates never interfere with layout */
 #templates[hidden]{ display:none !important; visibility:hidden !important; }
 </style>
+
+<!-- === HEADER FIT PATCH (keeps avatar visible; tabs shrink) === -->
+<style>
+header.nav{
+  align-items:center;
+  overflow:visible; /* prevent clipping of avatar dot */
+  padding-left: max(12px, env(safe-area-inset-left) + 12px);
+  padding-right: max(12px, env(safe-area-inset-right) + 12px);
+}
+.nav-left{
+  display:flex;
+  gap:8px;
+  min-width:0;         /* allow children to shrink */
+  flex:1 1 auto;       /* tabs use available space */
+}
+.btn-tab{
+  flex:1 1 0;          /* shrinkable tabs */
+  min-width:0;
+  max-width:120px;     /* so 3 tabs + avatar fit */
+  padding:9px 12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:clamp(13px, 3.2vw, 16px);
+}
+#avatarTab{
+  flex:0 0 auto;       /* do not shrink avatar */
+  margin-left:auto;
+  height:44px;
+}
+@media (max-width:390px){
+  .btn-tab{ max-width:96px; padding:8px 10px; }
+  #avatarTab{ padding-right:52px; }
+}
+</style>
 </head>
 <body>
 
