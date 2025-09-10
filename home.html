@@ -5,237 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
-
-<!-- ===== DESIGN TOKENS & RESETS ===== -->
-<style>
-:root{
-  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
-
-  /* set by JS if a daily has an image */
-  --daily-art:none;
-}
-*{box-sizing:border-box}
-html,body{height:100%; overflow-x:hidden}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
-}
-a{color:inherit; text-decoration:none}
-.bg{
-  position:fixed; inset:0; z-index:-1;
-  /* exact filenames (no ?v= query) */
-  background:#000 url("./assets/home-bg.jpg") center/cover no-repeat;
-}
-.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
-.hide{ display:none !important }
-.section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
-.wrap{max-width:var(--maxw); margin:0 auto; padding:10px 14px 80px}
-
-/* Buttons */
-.btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:44px; padding:0 16px;
-      border-radius:12px; border:0; font-weight:900; cursor:pointer }
-.btn.blue{ background:var(--blue); color:#fff }
-.btn.green{ background:var(--green); color:#000 }
-.btn.gold{ background:var(--gold); color:#0f1116 }
-.btn.grey{ background:#3a3a3a; color:#fff }
-.btn[disabled]{ opacity:.55; cursor:not-allowed }
-
-/* ===== HEADER (Tabs + Avatar) ===== */
-.nav{
-  position:sticky; top:0; left:0; right:0; height:var(--nav-h);
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:30; overflow:visible; /* prevent avatar dot clipping */
-  background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35) 60%, transparent);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-}
-.nav-left{display:flex; gap:8px; align-items:center; flex:1 1 auto; min-width:0}
-.nav-right{margin-left:auto; display:flex; align-items:center}
-.btn-tab{
-  display:inline-flex; align-items:center; justify-content:center;
-  flex:1 1 0; min-width:0; max-width:120px;
-  height:44px; padding:0 12px;
-  border-radius:12px; border:1px solid var(--stroke);
-  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
-  transition:transform .06s ease, filter .15s ease;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  font-size:clamp(13px, 3.2vw, 16px);
-}
-.btn-tab:active{transform:translateY(1px)}
-.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
-
-/* Avatar special tab (points left + circular initials right) */
-.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
-.avatarTab .points{ font-weight:900 }
-.avatarTab .dot{
-  position:absolute; right:0; top:0; bottom:0; width:44px; border-left:1px solid var(--stroke);
-  border-top-right-radius:22px; border-bottom-right-radius:22px; display:grid; place-items:center; font-weight:900;
-  transform: translateX(1px); /* tiny nudge so initials look optically centered */
-}
-.avatarTab.silver{ background:var(--silver); color:#0f1116 }
-.avatarTab.silver .dot{ background:linear-gradient(135deg,#d9dee6,#b7bec9) }
-.avatarTab.gold{ background:var(--gold); color:#0f1116; border-color:transparent }
-.avatarTab.gold .dot{ background:linear-gradient(135deg,#ffe88a,#f6c400) }
-
-@media (max-width:390px){
-  .btn-tab{ max-width:96px; padding:0 10px; }
-  #avatarTab{ padding-right:52px; }
-}
-
-/* ===== HERO COMPONENT (base styles) ===== */
-.hero{
-  position:relative; overflow:hidden; background:#000;
-  border:1px solid var(--stroke); border-radius:16px;
-  padding:16px; margin:12px 0;
-}
-.hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
-.hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
-.hero .desc{ margin:8px 0 56px; color:var(--muted) }
-.cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
-
-/* Daily hero “art” fade + chips */
-#dailyHero {
-  background:
-    radial-gradient(160% 100% at 100% 0%, rgba(10,132,255,.18), transparent 60%),
-    linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-}
-#dailyHero::before{
-  content:""; position:absolute; inset:0; z-index:0;
-  background:var(--daily-art) center/cover no-repeat;
-  opacity:.22;
-}
-#dailyHero > *{ position:relative; z-index:1; }
-
-/* Chips row */
-.meta-chips{
-  display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;
-}
-.chip{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:6px 10px; border-radius:999px;
-  background:rgba(0,0,0,.45); border:1px solid var(--stroke);
-  color:var(--ink); font-weight:700; font-size:13px;
-}
-.chip .k{ opacity:.75; font-weight:700; }
-.chip .v{ font-weight:900; }
-
-/* Padlock */
-.padlock{ width:22px; height:22px; display:inline-block; vertical-align:-3px }
-.padlock svg{ width:100%; height:100% }
-.padlock .shackle{ fill:none; stroke:var(--silver); stroke-width:2.4 }
-.padlock .body{ fill:var(--silver) }
-.padlock .keyhole{ fill:#0f1116 }
-
-/* Price + Points bubbles */
-.price, .pts{
-  position:absolute; right:12px; border-radius:999px; font-weight:900; padding:6px 10px;
-  background:rgba(0,0,0,.6); border:1px solid var(--stroke)
-}
-.price{ bottom:12px; color:#fff }
-.pts{ top:12px; color:#0f1116; background:var(--gold); border-color:transparent; box-shadow:0 6px 18px rgba(255,215,0,.22) }
-.pts[hidden], .price[hidden]{ display:none }
-
-/* Completion ring + tick */
-.hero.complete{ box-shadow:0 0 0 3px var(--green) inset }
-.hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900 }
-
-/* Weekly grid */
-.weekly-grid{ display:grid; gap:var(--gap) }
-@media (orientation:portrait){
-  .weekly-grid{ grid-template-columns:1fr }
-  .hero.tall{ min-height: 360px }
-  #dailyHero{ min-height: 260px }
-}
-@media (orientation:landscape){
-  .weekly-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) }
-  .hero.tall{ min-height: 300px }
-  #dailyHero{ min-height: 220px }
-}
-
-/* ===== SHEETS (Buy) ===== */
-.sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;z-index:60}
-.sheet-mask.open{display:block}
-.sheet{position:fixed;left:0;right:0;bottom:-100%;background:#0f1116;border-radius:16px 16px 0 0;
-       border:1px solid rgba(255,255,255,.15);padding:14px;z-index:61;transition:transform .2s ease, bottom .2s ease}
-.sheet.open{bottom:0}
-.sheet h3{margin:0 0 8px;font-size:18px;font-weight:900}
-.sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.sheet .meta{color:#cfd3e1}
-
-/* ===== AVATAR SHEET (phones slide up, desktop dropdown) ===== */
-#avatarSheet{
-  position:fixed; inset:0; display:none; z-index:60;
-  background:
-    radial-gradient(120% 80% at 90% 10%, rgba(10,132,255,.10), transparent 60%),
-    rgba(0,0,0,.55);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-}
-#avatarSheet.open{ display:block; }
-#avatarSheet .panel{
-  position:absolute; left:0; right:0; bottom:-100%;
-  background:#0f1116;
-  border-top-left-radius:18px; border-top-right-radius:18px;
-  border-top:1px solid var(--stroke);
-  padding:18px;
-  max-height:80vh; overflow:auto;
-  transition:bottom .25s ease;
-  box-shadow:
-    0 14px 36px rgba(0,0,0,.6),
-    0 0 0 1px rgba(10,132,255,.28) inset,
-    0 1px 0 rgba(255,255,255,.06) inset;
-}
-#avatarSheet.open .panel{ bottom:0; }
-#avatarSheet .row{ border-bottom:1px solid rgba(10,132,255,.12); padding-bottom:6px; }
-#avatarSheet .row:last-child{ border-bottom:none }
-#avatarSheet h3{ margin:12px 0 6px; font-weight:900; position:relative; }
-#avatarSheet h3::after{
-  content:""; position:absolute; left:0; bottom:-6px; right:0; height:2px;
-  background:linear-gradient(90deg, rgba(10,132,255,.55), rgba(10,132,255,0));
-  border-radius:2px;
-}
-.sheet-footer{
-  display:flex; align-items:center; gap:10px;
-  margin-top:14px; padding-top:10px;
-  border-top:1px dashed rgba(10,132,255,.18);
-  color:var(--ink-dim); font-size:13px; opacity:.9;
-}
-.sheet-footer img{ width:22px; height:22px; border-radius:6px; background:linear-gradient(135deg,#ffe88a,#f6c400); display:block; }
-.sheet-footer .brand{ font-weight:800; color:var(--blue) }
-
-/* Desktop/tablet: dropdown under avatar, no backdrop, no slide */
-@media (min-width:768px){
-  #avatarSheet{
-    position:absolute; inset:auto; top:64px; right:12px; width:320px;
-    background:none; -webkit-backdrop-filter:none; backdrop-filter:none; display:none;
-  }
-  #avatarSheet.open{ display:block; }
-  #avatarSheet .panel{
-    position:relative; bottom:auto; max-height:70vh; overflow:auto;
-    border-radius:14px; border:1px solid var(--stroke);
-    transition:none;
-    box-shadow: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(10,132,255,.22) inset;
-  }
-}
-
-/* Ensure templates never interfere with layout */
-#templates[hidden]{ display:none !important; visibility:hidden !important; }
-
-/* ===== tiny debug badge ===== */
-#debugBadge{
-  position:fixed; right:8px; bottom:8px; padding:8px 10px; border-radius:10px;
-  background:#0b2a57; color:#fff; font:12px/1.2 system-ui; z-index:9999;
-  border:1px solid rgba(255,255,255,.2);
-  display:none;
-}
-#debugBadge.show{ display:block; }
-</style>
+<link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
 
-<div class="bg" aria-hidden="true"></div>
+<!-- Background -->
+<div class="bg home-bg" aria-hidden="true"></div>
 
 <!-- ===== HEADER (Tabs + Avatar) ===== -->
 <header class="nav">
@@ -254,16 +29,14 @@ a{color:inherit; text-decoration:none}
 
 <!-- ===== HOME / MAIN (tabs & panels) ===== -->
 <main class="wrap">
+
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
     <article class="hero" id="dailyHero" aria-labelledby="dailyTitle">
       <h2 class="title" id="dailyTitle">Daily Challenge</h2>
       <p class="meta" id="dailyDate">—</p>
-      <p class="desc" id="dailyDesc">New prompt coming soon.</p>
-
-      <!-- meta chips (filled by JS) -->
-      <div id="dailyMeta" class="meta-chips" aria-live="polite"></div>
-
+      <p class="desc" id="dailyDesc">—</p>
+      <div class="meta-chips" id="dailyChips"></div>
       <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
     </article>
 
@@ -311,7 +84,7 @@ a{color:inherit; text-decoration:none}
     <div class="cta-left"><button class="btn blue start-found" disabled>Start Course</button></div>
   </article>
 
-  <!-- Paid course template -->
+  <!-- Paid course template (1d/3d/30d) -->
   <article class="hero tall course" data-kind="paid" data-id="__ID__">
     <h3 class="title"><span class="t">__TITLE__</span></h3>
     <p class="meta">Structured, focused learning.</p>
@@ -321,7 +94,7 @@ a{color:inherit; text-decoration:none}
     <div class="price" data-price="$—"><span>$—</span></div>
   </article>
 
-  <!-- Demo placeholder -->
+  <!-- Demo placeholder (dimmed) -->
   <article class="hero tall live" data-kind="demo" data-id="demo-coming" style="opacity:.55; filter:saturate(.7)">
     <h3 class="title">Demonstrations (Coming soon)</h3>
     <p class="meta">Live demo sessions will appear here.</p>
@@ -424,9 +197,8 @@ const K={ sub:'ao_sub', points:'ao_points', purchasedA:'ao_purchased', purchased
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
 const compactK = n => (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n));
-const capFirst = s => (s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* ===== Tabs */
+/* ===== Tabs ===== */
 const tabBtns=$$('.btn-tab[data-tab]');
 const panels=$$('[data-panel]');
 tabBtns.forEach(b=>b.addEventListener('click', ()=>{
@@ -435,7 +207,7 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 }));
 
-/* ===== Avatar + sheet */
+/* ===== Avatar + sheet ===== */
 let isSub=!!store.get(K.sub,false);
 let points=+store.get(K.points,0);
 let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
@@ -495,7 +267,7 @@ window.addEventListener('keydown', (e)=>{
   }
 });
 
-/* ===== Daily date + complete toggle */
+/* ===== Daily date + complete toggle ===== */
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
@@ -514,7 +286,7 @@ $('#btnDaily').addEventListener('click', ()=>{
   store.set(K.dailyDone,dailyDone); store.set(K.points,points); paintDaily(); paintAvatar();
 });
 
-/* ===== Daily loader (Option A: index.json) */
+/* ===== Daily loader (Option A: registry file) ===== */
 async function getDailyTotal(){
   try{
     const res = await fetch('./challenges/daily/index.json', { cache:'no-store' });
@@ -529,10 +301,6 @@ function getDayOfYear(d){
   const start = new Date(d.getFullYear(),0,0);
   return Math.floor((d - start) / 86400000);
 }
-function chip(label, value){
-  if(!value) return '';
-  return `<span class="chip"><span class="k">${label}:</span><span class="v">${capFirst(value)}</span></span>`;
-}
 async function loadDailyChallenge(){
   const total = await getDailyTotal();
   const doy = getDayOfYear(new Date());                 // 1..366
@@ -544,42 +312,29 @@ async function loadDailyChallenge(){
     if(!res.ok) throw new Error(`Missing ${file}`);
     const data = await res.json();
 
-    // Title locked to “Daily Challenge”; show date only (per your request)
-    $('#dailyTitle').textContent = 'Daily Challenge';
-    $('#dailyDesc').textContent  = data.desc || '';
+    // Title fixed as "Daily Challenge"; JSON supplies desc + meta
+    document.getElementById('dailyTitle').textContent = 'Daily Challenge';
+    document.getElementById('dailyDesc').textContent  = data.desc || '';
 
-    // Meta chips (Medium • Time • Level)
-    const chipsHTML =
-      chip('Medium', data.medium) +
-      chip('Time', data.time) +
-      chip('Level', data.level);
-    $('#dailyMeta').innerHTML = chipsHTML;
-
-    // Optional artwork underneath content
-    if (data.image){
-      document.documentElement.style.setProperty('--daily-art', `url("${data.image}")`);
-    } else {
-      document.documentElement.style.setProperty('--daily-art', 'none');
-    }
-
-    // Debug overlay
-    if (new URLSearchParams(location.search).get('debug')==='1'){
-      const badge = document.getElementById('debugBadge');
-      badge.classList.add('show');
-      badge.textContent = `Loaded: d${idx}.json • keys: ${Object.keys(data).join(', ')}`;
-      console.log('[Daily]', {picked:`d${idx}.json`, data});
+    // Chips: Medium / Time / Level (capitalize first letter)
+    const chips = document.getElementById('dailyChips');
+    if (chips){
+      const cap = s => (s||'').toString().replace(/^\s*([a-z])/, (m,c)=>c.toUpperCase());
+      chips.innerHTML = '';
+      if (data.medium) chips.insertAdjacentHTML('beforeend', `<span class="chip"><span class="k">Medium</span><span class="v">${cap(data.medium)}</span></span>`);
+      if (data.time)   chips.insertAdjacentHTML('beforeend', `<span class="chip"><span class="k">Time</span><span class="v">${cap(data.time)}</span></span>`);
+      if (data.level)  chips.insertAdjacentHTML('beforeend', `<span class="chip"><span class="k">Level</span><span class="v">${cap(data.level)}</span></span>`);
     }
   }catch(err){
     console.error('[Daily] Load failed', err);
-    $('#dailyTitle').textContent = 'Daily Challenge';
-    $('#dailyDesc').textContent  = 'New prompt coming soon.';
-    $('#dailyMeta').innerHTML = '';
-    document.documentElement.style.setProperty('--daily-art', 'none');
+    document.getElementById('dailyTitle').textContent = 'Daily Challenge';
+    document.getElementById('dailyDesc').textContent  = 'New prompt coming soon.';
+    const chips = document.getElementById('dailyChips'); if (chips) chips.innerHTML='';
   }
 }
 loadDailyChallenge();
 
-/* ===== Weekly etc. (unchanged display; pulls from inline registry fallback) */
+/* ===== Weekly etc. ===== */
 const DEFAULT_WEEKLY = [
   {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
   {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
@@ -612,7 +367,7 @@ function paintWeeklies(list){
       <p class="meta">Sun ${pad(now.getDate())}/${pad(now.getMonth()+1)}</p>
       <p class="desc">${w.desc||''}</p>
       <div class="cta-left">
-        <a class="btn ${isSub?'blue':''}" ${isSub?'':'aria-disabled="true"'} ${isSub?'href="challenges/weekly-${w.id}.html"':''}>Start Challenge</a>
+        <a class="btn ${isSub?'blue':''}" ${isSub?'':'aria-disabled="true"'} ${isSub?'href="challenges/weeklies/w${w.id.slice(1)}.html"':''}>Start Challenge</a>
       </div>`;
     grid.appendChild(el);
   });
@@ -625,7 +380,7 @@ window.AO_markWeeklyComplete = function(weekId){
   }
 };
 
-/* Pricing/Registry (fallback) */
+/* ===== Pricing/Registry ===== */
 let pricing = {};
 function readPricing(){
   if(window.PRICE_LIST) pricing = window.PRICE_LIST;
@@ -633,7 +388,7 @@ function readPricing(){
 }
 readPricing();
 
-/* Buy sheet */
+/* ===== Buy sheet ===== */
 const mask  = $('#buyMask');
 const sheet = $('#buySheet');
 const buyTitle = $('#buyTitle');
@@ -642,6 +397,7 @@ const btnPay   = $('#buyPay');
 const btnRedeem= $('#buyRedeem');
 const btnCancel= $('#buyCancel');
 let activeCard = null;
+
 function openBuySheet(card){
   activeCard = card;
   const title = card.querySelector('.title .t')?.textContent.trim() || card.querySelector('.title')?.textContent.trim() || 'Unlock';
@@ -666,7 +422,7 @@ btnRedeem.addEventListener('click', ()=>{
   AO_unlockCourse(activeCard.dataset.id); closeBuySheet();
 });
 
-/* Painters */
+/* ===== Gating & purchases ===== */
 function paintGating(){
   $$('.course[data-kind="foundation"]').forEach(card=>{
     const btn=card.querySelector('.start-found');
@@ -712,7 +468,7 @@ document.addEventListener('click', (e)=>{
   }
 });
 
-/* Registry-driven rendering (fallback) */
+/* Registry rendering */
 async function loadRegistry(){
   try{
     const res = await fetch('./data/registry.json', {cache:'no-store'});
@@ -723,15 +479,14 @@ async function loadRegistry(){
     catch{ return {}; }
   }
 }
-function cloneTemplate(selector){
-  return document.querySelector(selector).cloneNode(true);
-}
+function cloneTemplate(selector){ return document.querySelector(selector).cloneNode(true); }
 function applyPricePoints(card, price, pts){
   const priceEl = card.querySelector('.price'); const ptsEl = card.querySelector('.pts');
   if(priceEl && price){ priceEl.dataset.price = price; priceEl.firstElementChild.textContent = price; }
   if(ptsEl && (pts!=null)){ ptsEl.dataset.pts = pts; ptsEl.firstElementChild.textContent = pts; }
 }
 function renderFromRegistry(reg){
+  // Foundations
   const fGrid = document.getElementById('foundationsGrid'); fGrid.innerHTML='';
   (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="foundation"]');
@@ -740,6 +495,7 @@ function renderFromRegistry(reg){
     fGrid.appendChild(t);
   });
 
+  // Paid: 1-day, 3-day, 30-day
   const one = document.getElementById('oneDayGrid'); one.innerHTML='';
   (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="paid"]');
@@ -759,6 +515,7 @@ function renderFromRegistry(reg){
     t.dataset.link = `courses/${item.slug||item.id}.html`; applyPricePoints(t, item.price, item.points); thirty.appendChild(t);
   });
 
+  // Demos placeholder
   const demoGrid = document.getElementById('demoGrid'); demoGrid.innerHTML='';
   const hasDemo = (reg.demos||[]).some(d=>d.showOnHome!==false);
   if(hasDemo){ demoGrid.appendChild(cloneTemplate('#templates > article[data-kind="demo"]')); }
@@ -770,11 +527,8 @@ loadRegistry().then(reg=>{
   paintWeeklies(weekly);
 });
 
-/* Debug badge element */
-const dbg = document.createElement('div');
-dbg.id = 'debugBadge';
-document.body.appendChild(dbg);
-
+// Public for console testing
+window._AO_debug = {loadDailyChallenge, paintWeeklies, renderFromRegistry};
 })();
 </script>
 
