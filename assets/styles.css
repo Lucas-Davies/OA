@@ -1,4 +1,3 @@
-
 :root{
   --ink:#eef3ff;
   --muted:rgba(238,243,255,.75);
@@ -556,4 +555,45 @@ body.home-bg .lock-card{
 #buySheet.open{ bottom:0; }      /* slide in when open */
 
 
+/* =========================================================
+   HEADER FIT & SCALE PATCH — tabs shrink, avatar always visible
+   (Additions below override earlier header/tab rules as needed)
+   ========================================================= */
+.nav{
+  /* keep it a flex header but ensure single-line, no overflow */
+  display:flex;
+  align-items:center;                 /* center vertically */
+  justify-content:space-between;
+  gap:8px;
+  overflow:hidden;                    /* avoid accidental horizontal scroll */
+}
 
+.nav-left{
+  display:flex;
+  gap:8px;
+  min-width:0;                        /* allow children to shrink */
+  flex:1 1 auto;                      /* tabs take remaining space */
+}
+
+.btn-tab{
+  flex:1 1 0;                         /* SHRINKABLE tabs */
+  min-width:0;
+  max-width:120px;                    /* cap width so 3 fit beside avatar */
+  padding:9px 12px;                   /* slightly tighter */
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:center;
+  font-size:clamp(13px, 3.2vw, 16px); /* auto-scale text */
+}
+
+.avatarTab{
+  flex:0 0 auto;                      /* never shrink */
+  margin-left:auto;
+  height:44px;                        /* match tab height */
+}
+
+@media (max-width:390px){
+  .btn-tab{ max-width:100px; padding:8px 10px; }
+  .avatarTab{ padding-right:52px; }   /* tiny tweak so initials cap fits */
+}
