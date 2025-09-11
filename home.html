@@ -14,10 +14,10 @@
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
 
-  /* controls alignment between button & chips */
-  --btn-h:44px;         /* must match .btn height */
-  --btn-bottom:14px;    /* must match .cta-left bottom */
-  --chip-h:36px;        /* visual height of chip pills */
+  /* aligns the right chips row vertical center with the left button */
+  --btn-h:44px;
+  --btn-bottom:14px;
+  --chip-h:36px;
 }
 *{box-sizing:border-box}
 html,body{height:100%; overflow-x:hidden}
@@ -28,7 +28,7 @@ body{
 }
 a{color:inherit; text-decoration:none}
 
-/* ==== Page background image (no ?v params) ==== */
+/* ==== Page background image ==== */
 .bg{
   position:fixed; inset:0; z-index:-1;
   background:#000 url("./assets/home-bg.jpg") center/cover no-repeat;
@@ -41,7 +41,7 @@ a{color:inherit; text-decoration:none}
 
 /* Buttons */
 .btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:var(--btn-h); padding:0 16px;
-      border-radius:12px; border:0; font-weight:900; cursor:pointer }
+      border-radius:12px; border:0; font-weight:900; cursor:pointer; font-family:inherit; }
 .btn.blue{ background:var(--blue); color:#fff }
 .btn.green{ background:var(--green); color:#000 }
 .btn.gold{ background:var(--gold); color:#0f1116 }
@@ -71,13 +71,20 @@ a{color:inherit; text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
 
-/* Avatar special tab (simple, no points) */
-.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px; background:var(--silver); color:#0f1116 }
+/* Avatar tab + initials perfectly centered */
+.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
+.avatarTab .points{ font-weight:900 }
 .avatarTab .dot{
-  position:absolute; right:0; top:0; bottom:0; width:44px; border-left:1px solid var(--stroke);
-  border-top-right-radius:22px; border-bottom-right-radius:22px; display:grid; place-items:center; font-weight:900;
-  transform: translateX(1px); background:linear-gradient(135deg,#d9dee6,#b7bec9)
+  position:absolute; right:0; top:0; bottom:0; width:44px;
+  border-left:1px solid var(--stroke);
+  border-top-right-radius:22px; border-bottom-right-radius:22px;
+  display:flex; align-items:center; justify-content:center; font-weight:900;
+  transform: translateX(1px);
 }
+.avatarTab.silver{ background:var(--silver); color:#0f1116 }
+.avatarTab.silver .dot{ background:linear-gradient(135deg,#d9dee6,#b7bec9) }
+.avatarTab.gold{ background:var(--gold); color:#0f1116; border-color:transparent }
+.avatarTab.gold .dot{ background:linear-gradient(135deg,#ffe88a,#f6c400) }
 
 @media (max-width:390px){
   .btn-tab{ max-width:96px; padding:0 10px; }
@@ -97,15 +104,11 @@ a{color:inherit; text-decoration:none}
 
 /* ===== Daily hero — glossy skins + level text ===== */
 #dailyHero{ color:#eef3ff; position:relative; }
-#dailyHero::after{ /* global gloss highlight overlay */
+#dailyHero::after{ /* glossy sweep */
   content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(120deg,
-    rgba(255,255,255,.35) 0%,
-    rgba(255,255,255,.10) 30%,
-    rgba(255,255,255,0) 60%);
+  background:linear-gradient(120deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.10) 30%, rgba(255,255,255,0) 60%);
   mix-blend-mode:screen;
 }
-
 /* Level text (top-right) */
 #dailyHero .level{
   position:absolute; top:12px; right:16px;
@@ -113,12 +116,11 @@ a{color:inherit; text-decoration:none}
   z-index:1;
 }
 
-/* Chips row pinned bottom-right; vertically aligned to button centreline */
+/* Chips row pinned right & aligned with button centreline */
 #dailyHero .meta-chips{
   position:absolute; right:16px;
   bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
-  display:flex; gap:8px; flex-wrap:wrap; margin:0;
-  justify-content:flex-end;
+  display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end;
 }
 .chip{
   display:inline-flex; align-items:center; gap:6px;
@@ -129,36 +131,18 @@ a{color:inherit; text-decoration:none}
 .chip .k{ opacity:.75; font-weight:700; }
 .chip .v{ font-weight:900; }
 
-/* —— Skins (glossy, like polished car paint) —— */
-#dailyHero[data-skin="bronze"]{
-  background:
-    linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%);
-  color:#fff;
-}
-#dailyHero[data-skin="silver"]{
-  background:
-    linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%);
-  color:#111;
-}
-#dailyHero[data-skin="gold"]{
-  background:
-    linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%);
-  color:#111;
-}
-#dailyHero[data-skin="black"]{
-  background:
-    linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%);
-  color:#fff;
-  border-color: rgba(255,255,255,.22);
-}
+/* Skins */
+#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff; }
+#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111; }
+#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111; }
+#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22); }
 
-/* Embossed look for Bronze/Silver/Gold */
+/* Embossed level for Bronze/Silver/Gold */
 #dailyHero[data-skin="bronze"] .level,
 #dailyHero[data-skin="silver"] .level,
 #dailyHero[data-skin="gold"]   .level{
   color:inherit;
-  text-shadow: 1px 1px 2px rgba(0,0,0,.6),
-               -1px -1px 2px rgba(255,255,255,.3);
+  text-shadow: 1px 1px 2px rgba(0,0,0,.6), -1px -1px 2px rgba(255,255,255,.3);
 }
 /* Expert = Gold fill on black */
 #dailyHero[data-skin="black"] .level{
@@ -167,64 +151,68 @@ a{color:inherit; text-decoration:none}
   text-shadow: 1px 1px 3px rgba(0,0,0,.9);
 }
 
+/* Completion ring + tick (daily) */
+.hero.complete{ box-shadow:0 0 0 3px var(--green) inset }
+.hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900 }
+
+/* ===== WEEKLY HERO (single card) ===== */
+#weeklyHero{
+  background:linear-gradient(135deg,#0b0f16,#1b2230 60%, #0d1320 95%);
+}
+#weeklyHero .badge{
+  position:absolute; top:12px; left:16px; font-weight:900; opacity:.95;
+  background:rgba(255,255,255,.08); border:1px solid var(--stroke);
+  padding:6px 10px; border-radius:999px; font-size:13px;
+}
+#weeklyHero .meta-chips{
+  position:absolute; right:16px;
+  bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
+  display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end;
+}
+
 /* Small-screen fallback: let chips flow under content */
 @media (max-width:540px){
-  #dailyHero .meta-chips{
-    position:static; margin-top:10px; justify-content:flex-start;
-  }
+  #dailyHero .meta-chips, #weeklyHero .meta-chips{ position:static; margin-top:10px; justify-content:flex-start; }
 }
 
-/* ===== WEEKLY HERO (single card, week-long) ===== */
-#weeklyHero{
-  position:relative; color:#eef3ff;
-  background:
-    linear-gradient(135deg,#0b0d12,#172033 40%,#0b0d12 90%);
+/* ===== TRACKER ===== */
+.tracker .cards{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); }
+.tracker .card{
+  border:1px solid var(--stroke); border-radius:12px; padding:12px;
+  background:rgba(255,255,255,.03);
 }
-#weeklyHero .label{
-  position:absolute; top:12px; left:16px; font-weight:900; opacity:.95;
+.medals{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+.medal{
+  width:24px; height:24px; border-radius:50%; border:2px solid rgba(255,255,255,.18);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900; line-height:1; color:#fff;
+}
+.medal.empty{ background:transparent; color:transparent; }
+.medal .tick{ transform:translateY(-.5px) }
+
+/* medal colorways */
+.m-bronze{ background:linear-gradient(135deg,#5e3515,#b86b2e 60%,#5e3515) }
+.m-silver{ background:linear-gradient(135deg,#7c838a,#cfd6dd 60%,#7c838a) ; color:#111}
+.m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00) ; color:#111}
+.m-black{ background:linear-gradient(135deg,#000,#333 60%,#000) }
+
+.tracker .kpi{ display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700 }
+.tracker .kpi .dot{ width:8px; height:8px; border-radius:50%; background:var(--green) }
+
+/* Weekly grid (not used now, but keep for responsive) */
+.weekly-grid{ display:grid; gap:var(--gap) }
+@media (orientation:portrait){
+  .weekly-grid{ grid-template-columns:1fr }
+  .hero.tall{ min-height: 360px }
+  #dailyHero, #weeklyHero{ min-height: 220px }
+}
+@media (orientation:landscape){
+  .weekly-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .hero.tall{ min-height: 300px }
+  #dailyHero, #weeklyHero{ min-height: 220px }
 }
 
-/* ===== CHALLENGE TRACKER HERO ===== */
-#trackerHero .track-wrap{
-  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:8px;
-}
-.ring{
-  display:flex; align-items:center; gap:12px; padding:10px; background:rgba(0,0,0,.28);
-  border:1px solid var(--stroke); border-radius:12px;
-}
-.ring svg{ width:72px; height:72px; display:block }
-.ring .meta{ margin:0; }
-.ring .meta strong{ display:block; font-size:14px; }
-.ring .meta span{ color:var(--ink-dim); font-size:13px }
-.dot-row, .tick-row{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap }
-.dot{ width:10px; height:10px; border-radius:50%; background:#2c2c2c; border:1px solid rgba(255,255,255,.15) }
-.dot.on{ background:var(--green); border-color:rgba(50,215,75,.6) }
-.tick{ width:12px; height:6px; border-radius:3px; background:#2c2c2c; border:1px solid rgba(255,255,255,.15) }
-.tick.on{ background:var(--blue); border-color:rgba(10,132,255,.55) }
-
-/* ===== SIMPLE AVATAR DRAWER (drops down under avatar) ===== */
-#avatarDrawerMask{
-  position:fixed; inset:0; background:transparent; display:none; z-index:59;
-}
-#avatarDrawerMask.open{ display:block; }
-#avatarDrawer{
-  position:absolute; top:calc(var(--nav-h) - 4px); right:12px; width:280px;
-  background:#0f1116; border:1px solid var(--stroke);
-  border-radius:14px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.6);
-  transform-origin: top right; transform: translateY(-10px) scale(.98);
-  opacity:0; pointer-events:none; z-index:60;
-  transition: opacity .16s ease, transform .16s ease;
-}
-#avatarDrawer.open{ opacity:1; transform: translateY(0) scale(1); pointer-events:auto; }
-#avatarDrawer .menu a{
-  display:block; padding:12px 14px; font-weight:800; border-bottom:1px solid rgba(255,255,255,.08);
-}
-#avatarDrawer .menu a:last-child{ border-bottom:none }
-#avatarDrawer .brand{ padding:14px; text-align:left; border-top:1px solid rgba(255,255,255,.08); }
-#avatarDrawer .brand .blue{ color:var(--blue); font-weight:900; font-size:16px; line-height:1.1 }
-#avatarDrawer .brand .white{ color:#fff; opacity:.95; font-weight:800; font-size:14px; line-height:1.1 }
-
-/* ===== BUY SHEET (no points / redemption) ===== */
+/* ===== SHEETS (Buy) ===== */
 .sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;z-index:60}
 .sheet-mask.open{display:block}
 .sheet{position:fixed;left:0;right:0;bottom:-100%;background:#0f1116;border-radius:16px 16px 0 0;
@@ -233,6 +221,25 @@ a{color:inherit; text-decoration:none}
 .sheet h3{margin:0 0 8px;font-size:18px;font-weight:900}
 .sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .sheet .meta{color:#cfd3e1}
+
+/* ===== AVATAR SHEET (unchanged structure) ===== */
+#avatarSheet{
+  position:fixed; inset:0; display:none; z-index:60;
+  background:radial-gradient(120% 80% at 90% 10%, rgba(10,132,255,.10), transparent 60%), rgba(0,0,0,.55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+#avatarSheet.open{ display:block; }
+#avatarSheet .panel{
+  position:absolute; left:0; right:0; bottom:-100%;
+  background:#0f1116;
+  border-top-left-radius:18px; border-top-right-radius:18px;
+  border-top:1px solid var(--stroke);
+  padding:18px;
+  max-height:80vh; overflow:auto;
+  transition:bottom .25s ease;
+  box-shadow:0 14px 36px rgba(0,0,0,.6), 0 0 0 1px rgba(10,132,255,.28) inset, 0 1px 0 rgba(255,255,255,.06) inset;
+}
+#avatarSheet.open .panel{ bottom:0; }
 
 /* Ensure templates never interfere with layout */
 #templates[hidden]{ display:none !important; visibility:hidden !important; }
@@ -250,26 +257,10 @@ a{color:inherit; text-decoration:none}
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
   </div>
   <div class="nav-right">
-    <button id="avatarTab" class="btn-tab avatarTab" aria-haspopup="dialog" aria-expanded="false">
+    <button id="avatarTab" class="btn-tab avatarTab silver" aria-haspopup="dialog" aria-expanded="false">
+      <span class="points" id="pointsBadge">0</span>
       <span class="dot" id="avatarInitials">JG</span>
     </button>
-  </div>
-
-  <!-- Simple drop-down drawer under avatar -->
-  <div id="avatarDrawerMask"></div>
-  <div id="avatarDrawer" role="dialog" aria-modal="true" aria-hidden="true">
-    <nav class="menu">
-      <a href="profile.html">Profile</a>
-      <a href="booked.html">Booked Classes</a>
-      <a href="tracker.html">Challenge Tracker</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact Us</a>
-      <a href="settings.html">Settings</a>
-    </nav>
-    <div class="brand">
-      <div class="blue">Online Art</div>
-      <div class="white">by Jody Graham</div>
-    </div>
   </div>
 </header>
 
@@ -277,6 +268,7 @@ a{color:inherit; text-decoration:none}
 <main class="wrap">
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
+
     <!-- DAILY -->
     <article class="hero" id="dailyHero" aria-labelledby="dailyTitle" data-skin="bronze">
       <h2 class="title" id="dailyTitle">Daily Challenge</h2>
@@ -295,42 +287,36 @@ a{color:inherit; text-decoration:none}
 
     <!-- WEEKLY (single hero) -->
     <article class="hero" id="weeklyHero" aria-labelledby="weeklyTitle">
-      <h2 class="title" id="weeklyTitle">Weekly Challenge</h2>
-      <span class="label" id="weeklyLabel">Weekly Challenge</span>
+      <div class="badge">Weekly Challenge</div>
+      <h2 class="title" id="weeklyTitle">—</h2>
       <p class="meta" id="weeklyMeta">—</p>
       <p class="desc" id="weeklyDesc">Design focus for the week.</p>
-      <div class="cta-left">
-        <a class="btn blue" id="btnWeeklyStart" href="#" rel="noopener">Start Challenge</a>
-      </div>
+      <div class="cta-left"><a class="btn blue" id="btnWeekly" href="#" aria-disabled="true">Start Challenge</a></div>
+      <div class="meta-chips" id="weeklyChips"></div>
     </article>
 
     <!-- TRACKER -->
-    <article class="hero" id="trackerHero" aria-labelledby="trackerTitle">
+    <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
       <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
       <p class="meta">See your recent progress.</p>
 
-      <div class="track-wrap">
-        <div>
-          <div class="ring" id="ringDaily">
-            <!-- SVG ring injected -->
-            <p class="meta"><strong>Daily (7d)</strong><span id="dailyPct">0% complete</span></p>
-          </div>
-          <div class="dot-row" id="dailyDots"></div>
+      <div class="cards">
+        <div class="card">
+          <div class="kpi"><span class="dot"></span>Daily (7d)</div>
+          <div class="medals" id="dailyMedals"></div>
         </div>
-        <div>
-          <div class="ring" id="ringWeekly">
-            <!-- SVG ring injected -->
-            <p class="meta"><strong>Weekly (12w)</strong><span id="weeklyPct">0% complete</span></p>
-          </div>
-          <div class="tick-row" id="weeklyTicks"></div>
+        <div class="card">
+          <div class="kpi"><span class="dot" style="background:#0A84FF"></span>Weekly (6w)</div>
+          <div class="medals" id="weeklyMedals"></div>
         </div>
       </div>
     </article>
+
   </section>
 
   <!-- Courses -->
   <section id="panel-courses" class="hide" data-panel="courses">
-    <h2 class="section-title">Foundations</h2>
+    <h2 class="section-title">Foundations (Subscribers)</h2>
     <div class="weekly-grid" id="foundationsGrid"></div>
 
     <h2 class="section-title">1-Day Courses</h2>
@@ -354,10 +340,18 @@ a{color:inherit; text-decoration:none}
 <div id="templates" hidden>
   <!-- Foundation template -->
   <article class="hero tall course" data-kind="foundation" data-id="__ID__">
-    <h3 class="title"><span class="t">__TITLE__</span></h3>
-    <p class="meta">Core drills to build accuracy and flow.</p>
-    <p class="desc">Replace with course description.</p>
-    <div class="cta-left"><a class="btn blue start-found" href="#">Start Course</a></div>
+    <h3 class="title">
+      <svg class="padlock" aria-hidden="true" viewBox="0 0 24 24">
+        <path class="shackle" d="M7 11V8.5a5 5 0 0 1 10 0V11"/>
+        <rect class="body" x="3" y="11" width="18" height="10" rx="2"/>
+        <circle class="keyhole" cx="12" cy="16" r="1.3"/>
+        <rect class="keyhole" x="11.2" y="14.7" width="1.6" height="2.8" rx="0.6"/>
+      </svg>
+      <span class="t">__TITLE__</span>
+    </h3>
+    <p class="meta">Subscriber-only foundations.</p>
+    <p class="desc">Core drills to build accuracy and flow.</p>
+    <div class="cta-left"><button class="btn blue start-found" disabled>Start Course</button></div>
   </article>
 
   <!-- Paid course template -->
@@ -366,6 +360,7 @@ a{color:inherit; text-decoration:none}
     <p class="meta">Structured, focused learning.</p>
     <p class="desc">Replace with course description.</p>
     <div class="cta-left"><button class="btn green buy">Buy</button></div>
+    <div class="pts" data-pts="0"><span>0</span> pts</div>
     <div class="price" data-price="$—"><span>$—</span></div>
   </article>
 
@@ -378,24 +373,33 @@ a{color:inherit; text-decoration:none}
   </article>
 </div>
 
-<!-- ===== SHEETS (Buy only; no points redeem) ===== -->
+<!-- ===== SHEETS (Buy & Avatar) ===== -->
 <div class="sheet-mask" id="buyMask" aria-hidden="true"></div>
 <div class="sheet" id="buySheet" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
   <h3 id="buyTitle">Unlock</h3>
-  <p class="meta" id="buyMeta">Proceed to payment to unlock this course.</p>
+  <p class="meta" id="buyMeta">Choose how you’d like to unlock this course.</p>
   <div class="row">
     <button class="btn green" id="buyPay">Proceed to payment</button>
+    <button class="btn gold" id="buyRedeem">Redeem with points</button>
     <button class="btn grey" id="buyCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- Avatar (no .sheet class; we control it separately) -->
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
+    <h3>Account</h3>
+    <div class="row"><a href="#" id="uploadAvatar">Upload Avatar (soon)</a><span>›</span></div>
   </div>
 </div>
 
 <!-- ===== PRICING / REGISTRY (inline fallback) ===== -->
 <script id="pricingData" type="application/json">
 {
-  "1d-gesture":{"price":"$39"},
-  "3d-portrait":{"price":"$79"},
-  "30d-foundations":{"price":"$149"},
-  "live-1":{"price":"$29"}
+  "1d-gesture":{"price":"$39","points":300},
+  "3d-portrait":{"price":"$79","points":500},
+  "30d-foundations":{"price":"$149","points":1500},
+  "live-1":{"price":"$29","points":1800}
 }
 </script>
 <script id="registryData" type="application/json">
@@ -407,30 +411,26 @@ a{color:inherit; text-decoration:none}
   ],
   "courses": {
     "1day": [
-      { "id": "1d-gesture", "slug": "1d-gesture", "title": "1-Day Gesture", "price": "$39", "showOnHome": true }
+      { "id": "1d-gesture", "slug": "1d-gesture", "title": "1-Day Gesture", "price": "$39", "points": 300, "showOnHome": true }
     ],
     "3day": [
-      { "id": "3d-portrait", "slug": "3d-portrait", "title": "3-Day Portrait", "price": "$79", "showOnHome": true }
+      { "id": "3d-portrait", "slug": "3d-portrait", "title": "3-Day Portrait", "price": "$79", "points": 500, "showOnHome": true }
     ],
     "30day": [
-      { "id": "30d-foundations", "slug": "30d-foundations", "title": "30-Day Drawing Habit", "price": "$149", "showOnHome": false }
+      { "id": "30d-foundations", "slug": "30d-foundations", "title": "30-Day Drawing Habit", "price": "$149", "points": 1500, "showOnHome": false }
     ]
   },
   "weekly": [
-    { "id": "W1", "title": "Ink Portrait", "expires": "2025-09-14", "desc": "Brush + splash accents.", "showOnHome": true },
-    { "id": "W2", "title": "Value Composition", "expires": "2025-09-21", "desc": "Design with 3 clear values.", "showOnHome": false },
-    { "id": "W3", "title": "Edges & Atmosphere", "expires": "2025-09-28", "desc": "Depth via soft transitions.", "showOnHome": false }
+    { "id": "W1", "title": "Ink Portrait", "expires": "2025-09-14", "showOnHome": true, "desc":"Design focus for the week." }
   ],
-  "live": [
-    { "id": "live-1", "title": "Saturday Studio", "price": "$29", "starts": "2025-09-20T09:00:00+10:00", "showOnHome": false }
-  ],
+  "live": [],
   "demos": [
     { "id": "demo-coming", "title": "Demonstrations", "comingSoon": true, "showOnHome": true }
   ]
 }
 </script>
 
-<!-- ===== SCRIPT – STATE, HELPERS, TABS, DAILY/WEEKLY/TRACKER ===== -->
+<!-- ===== SCRIPT – STATE, HELPERS, TABS, DAILY/WEELY/ TRACKER ===== -->
 <script>
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
@@ -438,6 +438,17 @@ const $$=s=>Array.from(document.querySelectorAll(s));
 const pad=n=>String(n).padStart(2,'0');
 const toISO=d=>d.toISOString().slice(0,10);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
+const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+const K={
+  sub:'ao_sub', points:'ao_points',
+  purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses',
+  weeklyDone:'ao_weekly_done', dailyDone:'ao_daily_done',
+  dailyMeta:'ao_daily_meta' /* { 'YYYY-MM-DD': {skin:'bronze|silver|gold|black'} } */
+};
+const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
+const compactK = n => (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n));
 
 /* ===== Tabs ===== */
 const tabBtns=$$('.btn-tab[data-tab]');
@@ -448,38 +459,56 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 }));
 
-/* ===== Simple Avatar Drawer ===== */
-const avatarBtn = $('#avatarTab');
-const drawer = $('#avatarDrawer');
-const drawerMask = $('#avatarDrawerMask');
-function openDrawer(){ drawer.classList.add('open'); drawerMask.classList.add('open'); drawer.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
-function closeDrawer(){ drawer.classList.remove('open'); drawerMask.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', ()=> drawer.classList.contains('open') ? closeDrawer() : openDrawer());
-drawerMask.addEventListener('click', closeDrawer);
-window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && drawer.classList.contains('open')) closeDrawer(); });
+/* ===== Avatar + (simple) sheet ===== */
+let isSub=!!store.get(K.sub,false);
+let points=+store.get(K.points,0);
+let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
+if(!Array.isArray(purchased)) purchased=[];
+let weeklyDone=store.get(K.weeklyDone,[]);
+let dailyDone=store.get(K.dailyDone,[]);
+let dailyMeta=store.get(K.dailyMeta,{});
 
-/* ===== Daily date + complete toggle (no points) ===== */
-const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const avatarBtn = $('#avatarTab');
+const avatarSheet = $('#avatarSheet');
+const pointsBadge = $('#pointsBadge');
+
+function paintAvatar(){
+  pointsBadge.textContent = compactK(points);
+  avatarBtn.classList.toggle('gold', isSub);
+  avatarBtn.classList.toggle('silver', !isSub);
+}
+paintAvatar();
+
+avatarBtn.addEventListener('click', ()=>{
+  const willOpen = !avatarSheet.classList.contains('open');
+  avatarSheet.classList.toggle('open', willOpen);
+  avatarSheet.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+  avatarBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+});
+avatarSheet.addEventListener('click', (e)=>{ if (e.target === avatarSheet) { avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
+window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') { avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
+
+/* ===== Dates ===== */
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
 
-let dailyDone = JSON.parse(localStorage.getItem('ao_daily_done')||'[]');
+/* ===== Daily done toggle (keeps green ring/tick) ===== */
 function paintDaily(){
   const done = dailyDone.includes(isoToday);
   $('#btnDaily').textContent = done?'Undo':'Complete';
   $('#btnDaily').className = 'btn ' + (done?'grey':'blue');
   $('#dailyHero').classList.toggle('complete', done);
+  paintTracker(); /* refresh medals */
 }
 paintDaily();
 $('#btnDaily').addEventListener('click', ()=>{
   const idx=dailyDone.indexOf(isoToday);
   if(idx===-1){ dailyDone.push(isoToday); }
   else{ dailyDone.splice(idx,1); }
-  localStorage.setItem('ao_daily_done', JSON.stringify(dailyDone));
-  paintDaily(); paintTracker(); // update tracker live
+  store.set(K.dailyDone,dailyDone); paintDaily();
 });
 
-/* ===== Daily loader (HTML include) + skin & level injection ===== */
+/* ===== Daily loader + skin & level injection (also persist skin per day) ===== */
 async function loadDailyFromHTML(){
   const target = document.getElementById('dailyContent');
   try{
@@ -499,104 +528,26 @@ function applyDailySkinAndLevel(){
     const k = (ch.querySelector('.k')?.textContent || '').toLowerCase();
     if (k.includes('level')) {
       lvl = (ch.querySelector('.v')?.textContent || '').trim().toLowerCase();
-      ch.remove(); // remove from chips
+      ch.remove(); /* remove Level chip from row */
     }
   });
   const map = { beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
   const skin = map[lvl] || 'bronze';
   host.setAttribute('data-skin', skin);
 
+  /* inject/update level text */
   const label = lvl ? cap(lvl) : 'Beginner';
   let el = document.getElementById('dailyLevel');
   if(!el){ el = document.createElement('div'); el.id='dailyLevel'; el.className='level'; host.appendChild(el); }
   el.textContent = label;
-}
 
-/* ===== Weekly single hero ===== */
-let weeklyLog = JSON.parse(localStorage.getItem('ao_weekly_log')||'[]'); // array of ISO dates when weekly completed
-function setWeeklyHero(item){
-  const meta = $('#weeklyMeta');
-  const desc = $('#weeklyDesc');
-  const start = new Date(); // today as reference
-  const ends = item?.expires ? new Date(item.expires) : null;
-  meta.textContent = ends ? `Ends Sun ${pad(ends.getDate())}/${pad(ends.getMonth()+1)}` : 'Available this week';
-  desc.textContent = item?.desc || 'Design focus for the week.';
-  const link = `challenges/weekly-${item.id}.html`;
-  $('#btnWeeklyStart').setAttribute('href', link);
-  $('#btnWeeklyStart').dataset.weekId = item.id;
+  /* persist today's skin for tracker coloring */
+  dailyMeta[isoToday] = {skin};
+  store.set(K.dailyMeta, dailyMeta);
 }
-function markWeeklyComplete(){
-  const iso = toISO(new Date());
-  if(!weeklyLog.includes(iso)){
-    weeklyLog.push(iso);
-    localStorage.setItem('ao_weekly_log', JSON.stringify(weeklyLog));
-    paintTracker();
-  }
-}
-window.AO_markWeeklyComplete = markWeeklyComplete; // in case weekly pages call it
+(async()=>{ await loadDailyFromHTML(); applyDailySkinAndLevel(); })();
 
-/* ===== Tracker ===== */
-function ringSVG(percent, color){
-  const p = Math.max(0,Math.min(100,percent));
-  const r=30, c=2*Math.PI*r, dash = (p/100)*c;
-  return `
-    <svg viewBox="0 0 80 80" aria-hidden="true">
-      <circle cx="40" cy="40" r="${r}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="8"/>
-      <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="8"
-              stroke-linecap="round" stroke-dasharray="${dash} ${c-dash}" transform="rotate(-90 40 40)"/>
-    </svg>`;
-}
-function getLast7Days(){
-  const days=[]; const now=new Date();
-  for(let i=6;i>=0;i--){ const d=new Date(now); d.setDate(now.getDate()-i); days.push(toISO(d)); }
-  return days;
-}
-function weekKey(dt){
-  const d=new Date(dt); // ISO string OK
-  const tmp=new Date(d); const day=tmp.getDay(); // 0..6 Sun..Sat
-  const monday=new Date(tmp); monday.setDate(tmp.getDate() - ((day+6)%7)); monday.setHours(0,0,0,0);
-  return toISO(monday); // week id = ISO of Monday
-}
-function getLastNWeekKeys(n=12){
-  const keys=[]; const now=new Date(); // start from current week
-  const curMon = new Date(now); curMon.setDate(now.getDate()-((now.getDay()+6)%7)); curMon.setHours(0,0,0,0);
-  for(let i=n-1;i>=0;i--){ const d=new Date(curMon); d.setDate(curMon.getDate() - i*7); keys.push(toISO(d)); }
-  return keys;
-}
-function paintTracker(){
-  // Daily 7d
-  const last7 = getLast7Days();
-  const doneSet = new Set(dailyDone);
-  const hits = last7.filter(d=>doneSet.has(d)).length;
-  const pct = Math.round((hits/7)*100);
-  $('#dailyPct').textContent = `${pct}% complete`;
-  $('#ringDaily').querySelector('svg')?.remove();
-  $('#ringDaily').insertAdjacentHTML('afterbegin', ringSVG(pct, 'var(--green)'));
-  const dots = $('#dailyDots'); dots.innerHTML='';
-  last7.forEach(d=>{
-    const dot=document.createElement('div'); dot.className='dot' + (doneSet.has(d)?' on':''); dots.appendChild(dot);
-  });
-
-  // Weekly 12w (~3 months)
-  const last12 = getLastNWeekKeys(12);
-  const logWeeks = new Set(weeklyLog.map(iso=>weekKey(iso)));
-  const wHits = last12.filter(k=>logWeeks.has(k)).length;
-  const wPct = Math.round((wHits/12)*100);
-  $('#weeklyPct').textContent = `${wPct}% complete`;
-  $('#ringWeekly').querySelector('svg')?.remove();
-  $('#ringWeekly').insertAdjacentHTML('afterbegin', ringSVG(wPct, 'var(--blue)'));
-  const ticks = $('#weeklyTicks'); ticks.innerHTML='';
-  last12.forEach(k=>{
-    const t=document.createElement('div'); t.className='tick' + (logWeeks.has(k)?' on':''); ticks.appendChild(t);
-  });
-}
-
-/* ===== Pricing/Registry (fallback) + initial paint ===== */
-function readPricing(){
-  try{ return JSON.parse(document.getElementById('pricingData').textContent||'{}'); }catch{return{}}
-}
-let pricing = readPricing();
-
+/* ===== Weekly HERO (single) ===== */
 async function loadRegistry(){
   try{
     const res = await fetch('./data/registry.json', {cache:'no-store'});
@@ -607,53 +558,66 @@ async function loadRegistry(){
     catch{ return {}; }
   }
 }
-function cloneTemplate(selector){ return document.querySelector(selector).cloneNode(true); }
-function applyPrice(card, price){
-  const priceEl = card.querySelector('.price'); if(priceEl && price){ priceEl.dataset.price = price; priceEl.firstElementChild.textContent = price; }
+function paintWeeklyHero(item){
+  const titleEl = $('#weeklyTitle'), metaEl=$('#weeklyMeta'), descEl=$('#weeklyDesc'), btn=$('#btnWeekly'), chips=$('#weeklyChips');
+  if(!item){ titleEl.textContent='Weekly Challenge'; metaEl.textContent='—'; btn.setAttribute('aria-disabled','true'); btn.removeAttribute('href'); chips.innerHTML=''; return; }
+  titleEl.textContent = item.title || 'Weekly Challenge';
+  const end = item.expires ? new Date(item.expires) : null;
+  if(end){
+    /* show ends Sun dd/mm */
+    metaEl.textContent = `Ends ${dayNames[end.getDay()]} ${pad(end.getDate())}/${pad(end.getMonth()+1)}`;
+  }else metaEl.textContent='This week';
+  descEl.textContent = item.desc || 'Design focus for the week.';
+  btn.removeAttribute('aria-disabled'); btn.href = `challenges/weekly-${item.id}.html`;
+  chips.innerHTML = ''; // placeholder if you later want chips
 }
-function renderFromRegistry(reg){
-  // foundations/courses/demos (unchanged)
-  const fGrid = document.getElementById('foundationsGrid'); fGrid.innerHTML='';
-  (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const t = cloneTemplate('#templates > article[data-kind="foundation"]');
-    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
-    t.dataset.link = `courses/${item.slug||item.id}.html`;
-    fGrid.appendChild(t);
-  });
-  const one = document.getElementById('oneDayGrid'); one.innerHTML='';
-  (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const t = cloneTemplate('#templates > article[data-kind="paid"]');
-    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
-    t.dataset.link = `courses/${item.slug||item.id}.html`; applyPrice(t, item.price); one.appendChild(t);
-  });
-  const three = document.getElementById('threeDayGrid'); three.innerHTML='';
-  (reg.courses?.["3day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const t = cloneTemplate('#templates > article[data-kind="paid"]');
-    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
-    t.dataset.link = `courses/${item.slug||item.id}.html`; applyPrice(t, item.price); three.appendChild(t);
-  });
-  const thirty = document.getElementById('thirtyDayGrid'); thirty.innerHTML='';
-  (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const t = cloneTemplate('#templates > article[data-kind="paid"]');
-    t.dataset.id = item.id; t.querySelector('.t').textContent = item.title;
-    t.dataset.link = `courses/${item.slug||item.id}.html`; applyPrice(t, item.price); thirty.appendChild(t);
-  });
+loadRegistry().then(reg=>{
+  const weekly = (reg.weekly||[]).find(x=>x.showOnHome!==false || x.showOnHome===true) || reg.weekly?.[0];
+  paintWeeklyHero(weekly||null);
+});
 
-  // Single weekly hero: choose first showOnHome
-  const show = (reg.weekly||[]).find(x=>x.showOnHome!==false);
-  if(show){ setWeeklyHero(show); }
+/* ===== TRACKER ===== */
+function startOfWeek(d){ // Monday start
+  const x = new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x;
 }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function weekKey(d){ const s=startOfWeek(d); return s.toISOString().slice(0,10); } // YYYY-MM-DD for Monday
 
-(async()=>{
-  await loadDailyFromHTML();
-  applyDailySkinAndLevel();
+function paintTracker(){
+  // Daily medals for current week (Mon..Sun)
+  const wrapD = $('#dailyMedals'); wrapD.innerHTML='';
+  const start = startOfWeek(new Date());
+  for(let i=0;i<7;i++){
+    const dt = addDays(start,i), iso = toISO(dt);
+    const done = dailyDone.includes(iso);
+    const skin = dailyMeta[iso]?.skin || null;
+    const span = document.createElement('span');
+    span.className = 'medal ' + (done ? (skin ? 'm-'+skin : '') : 'empty');
+    if(done){ span.innerHTML = '<span class="tick">✓</span>'; }
+    wrapD.appendChild(span);
+  }
 
-  const reg = await loadRegistry();
-  renderFromRegistry(reg);
+  // Weekly medals for last 6 weeks (including current)
+  const wrapW = $('#weeklyMedals'); wrapW.innerHTML='';
+  const now = new Date(); const curStart = startOfWeek(now);
+  for(let i=5;i>=0;i--){
+    const wk = addDays(curStart, -7*i); const key = weekKey(wk);
+    const done = weeklyDone.includes(key);
+    const span = document.createElement('span');
+    span.className = 'medal ' + (done ? 'm-silver' : 'empty'); // silver for weekly, adjust later if needed
+    if(done){ span.innerHTML = '<span class="tick">✓</span>'; }
+    wrapW.appendChild(span);
+  }
+}
+paintTracker();
 
-  // initial tracker paint
-  paintTracker();
-})();
+/* When weekly is marked complete elsewhere, push standardized key */
+window.AO_markWeeklyComplete = function(dateLike){
+  const key = weekKey(dateLike? new Date(dateLike): new Date());
+  if(!weeklyDone.includes(key)){ weeklyDone.push(key); store.set(K.weeklyDone,weeklyDone); paintTracker(); }
+};
+
+/* ===== Safety badge ===== */
 })();
 </script>
 
