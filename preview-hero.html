@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Daily Hero – Level Variants Preview</title>
+<title>Daily Hero – Gloss Preview</title>
 <style>
   body{
     margin:0; background:#0b0e14; color:#eef3ff;
@@ -24,36 +24,51 @@
     letter-spacing:.5px;
   }
 
-  /* ---- Variant backgrounds ---- */
+  /* ---- Glossy Variants ---- */
   .beginner{
-    background:linear-gradient(135deg,#7c4a1f,#c67c3f);
+    background:
+      linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%);
     color:#fff;
   }
   .intermediate{
-    background:linear-gradient(135deg,#8e9ba9,#cfd6dd);
+    background:
+      linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%);
     color:#111;
   }
   .advanced{
-    background:linear-gradient(135deg,#d4af37,#ffea75);
+    background:
+      linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%);
     color:#111;
   }
   .expert{
-    background:linear-gradient(135deg,#0f0f0f,#2a2a2a);
+    background:
+      linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%);
     color:#fff;
+  }
+
+  /* Gloss highlight overlay */
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(120deg,
+      rgba(255,255,255,.35) 0%,
+      rgba(255,255,255,.1) 30%,
+      rgba(255,255,255,0) 60%);
+    mix-blend-mode:screen;
+    pointer-events:none;
   }
 
   /* ---- Embossed look ---- */
   .beginner .level, .intermediate .level, .advanced .level{
     color:inherit;
     text-shadow: 1px 1px 2px rgba(0,0,0,.6),
-                 -1px -1px 2px rgba(255,255,255,.2);
+                 -1px -1px 2px rgba(255,255,255,.3);
   }
   /* ---- Expert = Gold Fill ---- */
   .expert .level{
     background:linear-gradient(135deg,#ffd54a,#f6c400);
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
-    text-shadow: 1px 1px 2px rgba(0,0,0,.7);
+    text-shadow: 1px 1px 3px rgba(0,0,0,.9);
   }
 </style>
 </head>
