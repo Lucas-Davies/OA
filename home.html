@@ -13,6 +13,11 @@
   --bg:#000; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
+
+  /* controls alignment between button & chips */
+  --btn-h:44px;         /* must match .btn height */
+  --btn-bottom:14px;    /* must match .cta-left bottom */
+  --chip-h:36px;        /* visual height of chip pills */
 }
 *{box-sizing:border-box}
 html,body{height:100%; overflow-x:hidden}
@@ -35,7 +40,7 @@ a{color:inherit; text-decoration:none}
 .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 14px 80px}
 
 /* Buttons */
-.btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:44px; padding:0 16px;
+.btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:var(--btn-h); padding:0 16px;
       border-radius:12px; border:0; font-weight:900; cursor:pointer }
 .btn.blue{ background:var(--blue); color:#fff }
 .btn.green{ background:var(--green); color:#000 }
@@ -93,7 +98,7 @@ a{color:inherit; text-decoration:none}
 .hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
 .hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
-.cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
+.cta-left{ position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px }
 
 /* ===== Daily hero — glossy skins + level text ===== */
 #dailyHero{ color:#eef3ff; position:relative; }
@@ -113,13 +118,17 @@ a{color:inherit; text-decoration:none}
   z-index:1;
 }
 
-/* Chips row aligned RIGHT */
+/* Chips row pinned bottom-right; vertically aligned to button centreline */
 #dailyHero .meta-chips{
-  display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; justify-content:flex-end;
+  position:absolute; right:16px;
+  /* centerline of chips equals centerline of button */
+  bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
+  display:flex; gap:8px; flex-wrap:wrap; margin:0;
+  justify-content:flex-end;
 }
 .chip{
   display:inline-flex; align-items:center; gap:6px;
-  padding:6px 10px; border-radius:999px;
+  height:var(--chip-h); padding:0 12px; border-radius:999px;
   background:rgba(0,0,0,.45); border:1px solid var(--stroke);
   color:var(--ink); font-weight:700; font-size:13px;
 }
@@ -160,9 +169,15 @@ a{color:inherit; text-decoration:none}
 /* Expert = Gold fill on black */
 #dailyHero[data-skin="black"] .level{
   background:linear-gradient(135deg,#ffd54a,#f6c400);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   text-shadow: 1px 1px 3px rgba(0,0,0,.9);
+}
+
+/* Small-screen fallback: let chips flow under content */
+@media (max-width:540px){
+  #dailyHero .meta-chips{
+    position:static; margin-top:10px; justify-content:flex-start;
+  }
 }
 
 /* Padlock */
@@ -567,15 +582,16 @@ function applyDailySkinAndLevel(){
     const k = (ch.querySelector('.k')?.textContent || '').toLowerCase();
     if (k.includes('level')) {
       lvl = (ch.querySelector('.v')?.textContent || '').trim().toLowerCase();
+      /* remove the "Level: ..." chip from the row */
+      ch.remove();
     }
   });
-  // skin map
   const map = { beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
   const skin = map[lvl] || 'bronze';
   host.setAttribute('data-skin', skin);
 
-  // inject/update the visible level text (without "Level")
-  const label = lvl ? cap(lvl) : 'Beginner';
+  /* inject/update top-right level text (without the word “Level”) */
+  const label = lvl ? labelCase(lvl) : 'Beginner';
   let el = document.getElementById('dailyLevel');
   if(!el){
     el = document.createElement('div');
@@ -585,6 +601,8 @@ function applyDailySkinAndLevel(){
   }
   el.textContent = label;
 }
+function labelCase(s){ return (s||'').replace(/\b\w/g,m=>m.toUpperCase()); }
+
 (async()=>{ await loadDailyFromHTML(); applyDailySkinAndLevel(); })();
 
 /* ===== Weekly etc. (unchanged display; pulls from inline registry fallback) ===== */
