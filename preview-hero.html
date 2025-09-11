@@ -1,107 +1,87 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Daily Hero Skins Preview</title>
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Hero – Level Variants Preview</title>
 <style>
-  :root{ --ink:#eef3ff; --stroke:rgba(255,255,255,.18); --blue:#0A84FF; }
-  body{ margin:0; background:#0b0f16; color:#fff; font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif; }
-  .wrap{ max-width:1100px; margin:24px auto; padding:0 16px; }
-  h1{ font-size:22px; margin:8px 0 16px; font-weight:900 }
-  .grid{ display:grid; gap:16px; grid-template-columns:repeat(2,minmax(0,1fr)); }
-  @media (max-width:760px){ .grid{ grid-template-columns:1fr } }
+  body{
+    margin:0; background:#0b0e14; color:#eef3ff;
+    font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    padding:24px; display:grid; gap:20px;
+  }
   .hero{
-    position:relative; border:1px solid var(--stroke); border-radius:16px; padding:16px; min-height:200px;
-    display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden;
+    position:relative; overflow:hidden; border-radius:16px;
+    border:1px solid rgba(255,255,255,.14);
+    padding:20px; min-height:200px;
+    display:flex; flex-direction:column; justify-content:flex-end;
   }
-  .title{ margin:0 0 6px; font-weight:900; font-size:20px }
-  .meta{ margin:0 0 6px; opacity:.85 }
-  .desc{ margin:0 0 12px; opacity:.9 }
-  .meta-chips{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-  .chip{ display:inline-flex; gap:6px; padding:6px 10px; border-radius:999px;
-         border:1px solid rgba(255,255,255,.18); background:rgba(0,0,0,.35); font-weight:700; }
-  .k{ opacity:.75 } .v{ font-weight:900 }
-  .btn{ position:absolute; left:16px; bottom:16px; background:var(--blue); border:0; color:#fff; font-weight:900; padding:10px 16px; border-radius:12px }
+  .hero .title{ margin:0 0 6px; font-weight:900; font-size:24px }
+  .hero .desc{ margin:0; color:rgba(238,243,255,.78) }
+  .hero .level{
+    position:absolute; top:12px; right:16px;
+    font-weight:800; font-size:18px;
+    letter-spacing:.5px;
+  }
 
-  /* SKINS (same as in home.html) */
-  .hero[data-skin="bronze"]{
-    background:
-      radial-gradient(140% 100% at 100% 0%, rgba(143,98,35,.35), transparent 55%),
-      repeating-linear-gradient(15deg, rgba(160,110,45,.10) 0 6px, rgba(90,55,20,.10) 6px 12px),
-      linear-gradient(135deg, #5a3a16, #a86b2a 40%, #784918 80%);
+  /* ---- Variant backgrounds ---- */
+  .beginner{
+    background:linear-gradient(135deg,#7c4a1f,#c67c3f);
     color:#fff;
   }
-  .hero[data-skin="silver"]{
-    background:
-      radial-gradient(140% 100% at 100% 0%, rgba(180,190,205,.30), transparent 55%),
-      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0)),
-      linear-gradient(135deg, #6e7681, #c6cbd2 45%, #8b939d 85%);
-    color:#0f1116;
+  .intermediate{
+    background:linear-gradient(135deg,#8e9ba9,#cfd6dd);
+    color:#111;
   }
-  .hero[data-skin="gold"]{
-    background:
-      radial-gradient(140% 100% at 100% 0%, rgba(255,215,0,.28), transparent 55%),
-      linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)),
-      linear-gradient(135deg, #7a5a00, #ffd34d 45%, #ad7f00 85%);
-    color:#0b0f1a;
+  .advanced{
+    background:linear-gradient(135deg,#d4af37,#ffea75);
+    color:#111;
   }
-  .hero[data-skin="black"]{
-    background:
-      repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 6px, rgba(0,0,0,.04) 6px 12px),
-      linear-gradient(135deg, #0b0d12, #0a0a0a 50%, #131722 95%);
+  .expert{
+    background:linear-gradient(135deg,#0f0f0f,#2a2a2a);
     color:#fff;
-    border-color: rgba(255,255,255,.22);
+  }
+
+  /* ---- Embossed look ---- */
+  .beginner .level, .intermediate .level, .advanced .level{
+    color:inherit;
+    text-shadow: 1px 1px 2px rgba(0,0,0,.6),
+                 -1px -1px 2px rgba(255,255,255,.2);
+  }
+  /* ---- Expert = Gold Fill ---- */
+  .expert .level{
+    background:linear-gradient(135deg,#ffd54a,#f6c400);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow: 1px 1px 2px rgba(0,0,0,.7);
   }
 </style>
-<div class="wrap">
-  <h1>Daily Hero — Skins Preview</h1>
-  <div class="grid">
-    <article class="hero" data-skin="bronze">
-      <h2 class="title">Daily Challenge</h2>
-      <p class="meta">Thu 11/09</p>
-      <p class="desc">Bronze (Beginner): warm brushed-metal feel.</p>
-      <div class="meta-chips">
-        <span class="chip"><span class="k">Medium:</span><span class="v">Pencil, Pen</span></span>
-        <span class="chip"><span class="k">Time:</span><span class="v">10 Min</span></span>
-        <span class="chip"><span class="k">Level:</span><span class="v">Beginner</span></span>
-      </div>
-      <button class="btn">Complete</button>
-    </article>
+</head>
+<body>
 
-    <article class="hero" data-skin="silver">
-      <h2 class="title">Daily Challenge</h2>
-      <p class="meta">Thu 11/09</p>
-      <p class="desc">Silver (Intermediate): frosted/satin silver with dark text.</p>
-      <div class="meta-chips">
-        <span class="chip"><span class="k">Medium:</span><span class="v">Charcoal</span></span>
-        <span class="chip"><span class="k">Time:</span><span class="v">20 Min</span></span>
-        <span class="chip"><span class="k">Level:</span><span class="v">Intermediate</span></span>
-      </div>
-      <button class="btn">Complete</button>
-    </article>
-
-    <article class="hero" data-skin="gold">
-      <h2 class="title">Daily Challenge</h2>
-      <p class="meta">Thu 11/09</p>
-      <p class="desc">Gold (Advanced): rich gold gradient; dark text.</p>
-      <div class="meta-chips">
-        <span class="chip"><span class="k">Medium:</span><span class="v">Ink</span></span>
-        <span class="chip"><span class="k">Time:</span><span class="v">30 Min</span></span>
-        <span class="chip"><span class="k">Level:</span><span class="v">Advanced</span></span>
-      </div>
-      <button class="btn">Complete</button>
-    </article>
-
-    <article class="hero" data-skin="black">
-      <h2 class="title">Daily Challenge</h2>
-      <p class="meta">Thu 11/09</p>
-      <p class="desc">Black (Expert): deep near-black with subtle carbon fiber.</p>
-      <div class="meta-chips">
-        <span class="chip"><span class="k">Medium:</span><span class="v">Mixed</span></span>
-        <span class="chip"><span class="k">Time:</span><span class="v">45 Min</span></span>
-        <span class="chip"><span class="k">Level:</span><span class="v">Expert</span></span>
-      </div>
-      <button class="btn">Complete</button>
-    </article>
-  </div>
+<div class="hero beginner">
+  <div class="level">Beginner</div>
+  <h2 class="title">Daily Challenge</h2>
+  <p class="desc">A simple warm-up drawing task for loosening lines.</p>
 </div>
+
+<div class="hero intermediate">
+  <div class="level">Intermediate</div>
+  <h2 class="title">Daily Challenge</h2>
+  <p class="desc">A slightly more structured study with tonal focus.</p>
+</div>
+
+<div class="hero advanced">
+  <div class="level">Advanced</div>
+  <h2 class="title">Daily Challenge</h2>
+  <p class="desc">A complex composition requiring planning and layering.</p>
+</div>
+
+<div class="hero expert">
+  <div class="level">Expert</div>
+  <h2 class="title">Daily Challenge</h2>
+  <p class="desc">A high-level challenge designed to push your limits.</p>
+</div>
+
+</body>
+</html>
