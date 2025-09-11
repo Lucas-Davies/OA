@@ -22,10 +22,21 @@ body{
   -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
 }
 a{color:inherit; text-decoration:none}
+
+/* ===== Fixed page background (ensure assets/home-bg.jpg exists) ===== */
 .bg{
   position:fixed; inset:0; z-index:-1;
   background:#000 url("./assets/home-bg.jpg") center/cover no-repeat;
 }
+
+/* Optional: solid-color fallback if the image fails to load */
+.bg:after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(80% 60% at 80% 0%, rgba(10,132,255,.12), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.45) 80%);
+}
+
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
 .hide{ display:none !important }
 .section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
@@ -92,16 +103,43 @@ a{color:inherit; text-decoration:none}
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:14px; display:flex; gap:10px }
 
-/* Daily hero background (simple decorative gradient) */
-#dailyHero {
+/* ===== Daily hero — neutral base (overridden by difficulty classes) ===== */
+#dailyHero{
   background:
     radial-gradient(160% 100% at 100% 0%, rgba(10,132,255,.18), transparent 60%),
     linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
 }
 
-/* Chips row (optional content inside the daily HTML snippet) */
+/* ===== Difficulty skins ===== */
+/* 1) Bronze — Beginner */
+.hero.bronze{
+  background:
+    linear-gradient(135deg,#cd7f32,#8c5a25);
+  color:#fff;
+}
+/* 2) Silver — Intermediate */
+.hero.silver{
+  background:
+    linear-gradient(135deg,#e3e6eb,#8c9099);
+  color:#111;
+}
+/* 3) Gold — Advanced */
+.hero.gold{
+  background:
+    linear-gradient(135deg,#ffe88a,#f6c400);
+  color:#111;
+}
+/* 4) Black — Expert (subtle carbon fibre stripes) */
+.hero.black{
+  background:
+    repeating-linear-gradient(135deg,#0c0c0f 0 8px,#121318 8px 16px);
+  color:#fff;
+}
+
+/* Chips row (your daily snippet can include these) */
 .meta-chips{
   display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;
+  justify-content:flex-end;          /* push chips hard-right */
 }
 .chip{
   display:inline-flex; align-items:center; gap:6px;
@@ -476,7 +514,7 @@ window.addEventListener('keydown', (e)=>{
   }
 });
 
-/* ===== Daily date + complete toggle (no JSON) */
+/* ===== Daily date + complete toggle (no JSON) ===== */
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
@@ -505,14 +543,44 @@ async function loadDailyFromHTML(){
     if(!res.ok) throw new Error('today.html not found');
     const html = await res.text();
     target.innerHTML = html;
+
+    // === Apply difficulty skin to #dailyHero based on "Level" ===
+    const hero = document.getElementById('dailyHero');
+    hero.classList.remove('bronze','silver','gold','black');
+
+    // Try to find a chip labeled "Level"
+    let levelText = '';
+    // Look for .meta-chips .chip -> ".k" contains "Level"
+    const chips = target.querySelectorAll('.meta-chips .chip');
+    chips.forEach(ch=>{
+      const k = ch.querySelector('.k')?.textContent?.toLowerCase() || '';
+      if(k.includes('level')){
+        levelText = (ch.querySelector('.v')?.textContent || '').toLowerCase();
+      }
+    });
+    // Fallback: look for any element with data-level or [data-level] in snippet
+    if(!levelText){
+      const el = target.querySelector('[data-level]');
+      if(el){ levelText = String(el.getAttribute('data-level')||'').toLowerCase(); }
+    }
+
+    if(levelText.includes('beginner')) hero.classList.add('bronze');
+    else if(levelText.includes('intermediate')) hero.classList.add('silver');
+    else if(levelText.includes('advanced')) hero.classList.add('gold');
+    else if(levelText.includes('expert')) hero.classList.add('black');
+    // else leave the neutral gradient
+
   }catch(err){
     console.warn('[Daily] Could not load challenges/daily/today.html', err);
     target.innerHTML = `<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>`;
+    // neutral base
+    const hero = document.getElementById('dailyHero');
+    hero.classList.remove('bronze','silver','gold','black');
   }
 }
 loadDailyFromHTML();
 
-/* ===== Weekly etc. (unchanged display; pulls from inline registry fallback) */
+/* ===== Weekly etc. (unchanged display; pulls from inline registry fallback) ===== */
 const DEFAULT_WEEKLY = [
   {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
   {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
