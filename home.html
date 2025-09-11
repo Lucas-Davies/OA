@@ -71,15 +71,13 @@ a{color:inherit; text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
 
-/* Avatar special tab (no points) */
-.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
+/* Avatar special tab (simple, no points) */
+.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px; background:var(--silver); color:#0f1116 }
 .avatarTab .dot{
   position:absolute; right:0; top:0; bottom:0; width:44px; border-left:1px solid var(--stroke);
   border-top-right-radius:22px; border-bottom-right-radius:22px; display:grid; place-items:center; font-weight:900;
-  transform: translateX(1px);
+  transform: translateX(1px); background:linear-gradient(135deg,#d9dee6,#b7bec9)
 }
-.avatarTab{ background:var(--silver); color:#0f1116 }
-.avatarTab .dot{ background:linear-gradient(135deg,#d9dee6,#b7bec9) }
 
 @media (max-width:390px){
   .btn-tab{ max-width:96px; padding:0 10px; }
@@ -118,7 +116,6 @@ a{color:inherit; text-decoration:none}
 /* Chips row pinned bottom-right; vertically aligned to button centreline */
 #dailyHero .meta-chips{
   position:absolute; right:16px;
-  /* centerline of chips equals centerline of button */
   bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
   display:flex; gap:8px; flex-wrap:wrap; margin:0;
   justify-content:flex-end;
@@ -177,12 +174,39 @@ a{color:inherit; text-decoration:none}
   }
 }
 
+/* ===== WEEKLY HERO (single card, week-long) ===== */
+#weeklyHero{
+  position:relative; color:#eef3ff;
+  background:
+    linear-gradient(135deg,#0b0d12,#172033 40%,#0b0d12 90%);
+}
+#weeklyHero .label{
+  position:absolute; top:12px; left:16px; font-weight:900; opacity:.95;
+}
+
+/* ===== CHALLENGE TRACKER HERO ===== */
+#trackerHero .track-wrap{
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:8px;
+}
+.ring{
+  display:flex; align-items:center; gap:12px; padding:10px; background:rgba(0,0,0,.28);
+  border:1px solid var(--stroke); border-radius:12px;
+}
+.ring svg{ width:72px; height:72px; display:block }
+.ring .meta{ margin:0; }
+.ring .meta strong{ display:block; font-size:14px; }
+.ring .meta span{ color:var(--ink-dim); font-size:13px }
+.dot-row, .tick-row{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap }
+.dot{ width:10px; height:10px; border-radius:50%; background:#2c2c2c; border:1px solid rgba(255,255,255,.15) }
+.dot.on{ background:var(--green); border-color:rgba(50,215,75,.6) }
+.tick{ width:12px; height:6px; border-radius:3px; background:#2c2c2c; border:1px solid rgba(255,255,255,.15) }
+.tick.on{ background:var(--blue); border-color:rgba(10,132,255,.55) }
+
 /* ===== SIMPLE AVATAR DRAWER (drops down under avatar) ===== */
 #avatarDrawerMask{
   position:fixed; inset:0; background:transparent; display:none; z-index:59;
 }
 #avatarDrawerMask.open{ display:block; }
-
 #avatarDrawer{
   position:absolute; top:calc(var(--nav-h) - 4px); right:12px; width:280px;
   background:#0f1116; border:1px solid var(--stroke);
@@ -192,15 +216,11 @@ a{color:inherit; text-decoration:none}
   transition: opacity .16s ease, transform .16s ease;
 }
 #avatarDrawer.open{ opacity:1; transform: translateY(0) scale(1); pointer-events:auto; }
-
 #avatarDrawer .menu a{
   display:block; padding:12px 14px; font-weight:800; border-bottom:1px solid rgba(255,255,255,.08);
 }
 #avatarDrawer .menu a:last-child{ border-bottom:none }
-
-#avatarDrawer .brand{
-  padding:14px; text-align:left; border-top:1px solid rgba(255,255,255,.08);
-}
+#avatarDrawer .brand{ padding:14px; text-align:left; border-top:1px solid rgba(255,255,255,.08); }
 #avatarDrawer .brand .blue{ color:var(--blue); font-weight:900; font-size:16px; line-height:1.1 }
 #avatarDrawer .brand .white{ color:#fff; opacity:.95; font-weight:800; font-size:14px; line-height:1.1 }
 
@@ -257,6 +277,7 @@ a{color:inherit; text-decoration:none}
 <main class="wrap">
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
+    <!-- DAILY -->
     <article class="hero" id="dailyHero" aria-labelledby="dailyTitle" data-skin="bronze">
       <h2 class="title" id="dailyTitle">Daily Challenge</h2>
       <p class="meta" id="dailyDate">—</p>
@@ -272,8 +293,39 @@ a{color:inherit; text-decoration:none}
       <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
     </article>
 
-    <h3 class="section-title">Weekly Challenges</h3>
-    <div class="weekly-grid" id="weeklyGrid"></div>
+    <!-- WEEKLY (single hero) -->
+    <article class="hero" id="weeklyHero" aria-labelledby="weeklyTitle">
+      <h2 class="title" id="weeklyTitle">Weekly Challenge</h2>
+      <span class="label" id="weeklyLabel">Weekly Challenge</span>
+      <p class="meta" id="weeklyMeta">—</p>
+      <p class="desc" id="weeklyDesc">Design focus for the week.</p>
+      <div class="cta-left">
+        <a class="btn blue" id="btnWeeklyStart" href="#" rel="noopener">Start Challenge</a>
+      </div>
+    </article>
+
+    <!-- TRACKER -->
+    <article class="hero" id="trackerHero" aria-labelledby="trackerTitle">
+      <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
+      <p class="meta">See your recent progress.</p>
+
+      <div class="track-wrap">
+        <div>
+          <div class="ring" id="ringDaily">
+            <!-- SVG ring injected -->
+            <p class="meta"><strong>Daily (7d)</strong><span id="dailyPct">0% complete</span></p>
+          </div>
+          <div class="dot-row" id="dailyDots"></div>
+        </div>
+        <div>
+          <div class="ring" id="ringWeekly">
+            <!-- SVG ring injected -->
+            <p class="meta"><strong>Weekly (12w)</strong><span id="weeklyPct">0% complete</span></p>
+          </div>
+          <div class="tick-row" id="weeklyTicks"></div>
+        </div>
+      </div>
+    </article>
   </section>
 
   <!-- Courses -->
@@ -304,11 +356,11 @@ a{color:inherit; text-decoration:none}
   <article class="hero tall course" data-kind="foundation" data-id="__ID__">
     <h3 class="title"><span class="t">__TITLE__</span></h3>
     <p class="meta">Core drills to build accuracy and flow.</p>
-    <p class="desc">Subscriber text removed — paid access only.</p>
+    <p class="desc">Replace with course description.</p>
     <div class="cta-left"><a class="btn blue start-found" href="#">Start Course</a></div>
   </article>
 
-  <!-- Paid course template (no points UI) -->
+  <!-- Paid course template -->
   <article class="hero tall course" data-kind="paid" data-id="__ID__">
     <h3 class="title"><span class="t">__TITLE__</span></h3>
     <p class="meta">Structured, focused learning.</p>
@@ -365,9 +417,9 @@ a{color:inherit; text-decoration:none}
     ]
   },
   "weekly": [
-    { "id": "W1", "title": "Ink Portrait", "expires": "2025-09-14", "showOnHome": true },
-    { "id": "W2", "title": "Value Composition", "expires": "2025-09-21", "showOnHome": true },
-    { "id": "W3", "title": "Edges & Atmosphere", "expires": "2025-09-28", "showOnHome": true }
+    { "id": "W1", "title": "Ink Portrait", "expires": "2025-09-14", "desc": "Brush + splash accents.", "showOnHome": true },
+    { "id": "W2", "title": "Value Composition", "expires": "2025-09-21", "desc": "Design with 3 clear values.", "showOnHome": false },
+    { "id": "W3", "title": "Edges & Atmosphere", "expires": "2025-09-28", "desc": "Depth via soft transitions.", "showOnHome": false }
   ],
   "live": [
     { "id": "live-1", "title": "Saturday Studio", "price": "$29", "starts": "2025-09-20T09:00:00+10:00", "showOnHome": false }
@@ -378,7 +430,7 @@ a{color:inherit; text-decoration:none}
 }
 </script>
 
-<!-- ===== SCRIPT – STATE, HELPERS, TABS, DAILY HTML LOADER ===== -->
+<!-- ===== SCRIPT – STATE, HELPERS, TABS, DAILY/WEEKLY/TRACKER ===== -->
 <script>
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
@@ -387,7 +439,7 @@ const pad=n=>String(n).padStart(2,'0');
 const toISO=d=>d.toISOString().slice(0,10);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* ===== Tabs */
+/* ===== Tabs ===== */
 const tabBtns=$$('.btn-tab[data-tab]');
 const panels=$$('[data-panel]');
 tabBtns.forEach(b=>b.addEventListener('click', ()=>{
@@ -400,23 +452,9 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
 const avatarBtn = $('#avatarTab');
 const drawer = $('#avatarDrawer');
 const drawerMask = $('#avatarDrawerMask');
-
-function openDrawer(){
-  drawer.classList.add('open');
-  drawerMask.classList.add('open');
-  drawer.setAttribute('aria-hidden','false');
-  avatarBtn.setAttribute('aria-expanded','true');
-}
-function closeDrawer(){
-  drawer.classList.remove('open');
-  drawerMask.classList.remove('open');
-  drawer.setAttribute('aria-hidden','true');
-  avatarBtn.setAttribute('aria-expanded','false');
-}
-avatarBtn.addEventListener('click', (e)=>{
-  const isOpen = drawer.classList.contains('open');
-  if(isOpen) closeDrawer(); else openDrawer();
-});
+function openDrawer(){ drawer.classList.add('open'); drawerMask.classList.add('open'); drawer.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ drawer.classList.remove('open'); drawerMask.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+avatarBtn.addEventListener('click', ()=> drawer.classList.contains('open') ? closeDrawer() : openDrawer());
 drawerMask.addEventListener('click', closeDrawer);
 window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && drawer.classList.contains('open')) closeDrawer(); });
 
@@ -438,10 +476,10 @@ $('#btnDaily').addEventListener('click', ()=>{
   if(idx===-1){ dailyDone.push(isoToday); }
   else{ dailyDone.splice(idx,1); }
   localStorage.setItem('ao_daily_done', JSON.stringify(dailyDone));
-  paintDaily();
+  paintDaily(); paintTracker(); // update tracker live
 });
 
-/* ===== Daily loader (pure HTML include) + skin & level injection ===== */
+/* ===== Daily loader (HTML include) + skin & level injection ===== */
 async function loadDailyFromHTML(){
   const target = document.getElementById('dailyContent');
   try{
@@ -461,100 +499,104 @@ function applyDailySkinAndLevel(){
     const k = (ch.querySelector('.k')?.textContent || '').toLowerCase();
     if (k.includes('level')) {
       lvl = (ch.querySelector('.v')?.textContent || '').trim().toLowerCase();
-      /* remove the "Level: ..." chip from the row */
-      ch.remove();
+      ch.remove(); // remove from chips
     }
   });
   const map = { beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
   const skin = map[lvl] || 'bronze';
   host.setAttribute('data-skin', skin);
 
-  /* inject/update top-right level text (without the word “Level”) */
   const label = lvl ? cap(lvl) : 'Beginner';
   let el = document.getElementById('dailyLevel');
-  if(!el){
-    el = document.createElement('div');
-    el.id = 'dailyLevel';
-    el.className = 'level';
-    host.appendChild(el);
-  }
+  if(!el){ el = document.createElement('div'); el.id='dailyLevel'; el.className='level'; host.appendChild(el); }
   el.textContent = label;
 }
-(async()=>{ await loadDailyFromHTML(); applyDailySkinAndLevel(); })();
 
-/* ===== Weekly (always visible; no subscriber gating) ===== */
-let weeklyDone = JSON.parse(localStorage.getItem('ao_weekly_done')||'[]');
-const DEFAULT_WEEKLY = [
-  {id:'W1', title:'Ink Portrait', desc:'Brush + splash accents.'},
-  {id:'W2', title:'Value Composition', desc:'Design with 3 clear values.'},
-  {id:'W3', title:'Edges & Atmosphere', desc:'Depth via soft transitions.'}
-];
-function weeklyOrder(list){
-  const doneSet=new Set(weeklyDone);
-  return list.slice().sort((a,b)=>{
-    const A=doneSet.has(a.id), B=doneSet.has(b.id);
-    return (A===B)?0 : (A?1:-1);
-  });
+/* ===== Weekly single hero ===== */
+let weeklyLog = JSON.parse(localStorage.getItem('ao_weekly_log')||'[]'); // array of ISO dates when weekly completed
+function setWeeklyHero(item){
+  const meta = $('#weeklyMeta');
+  const desc = $('#weeklyDesc');
+  const start = new Date(); // today as reference
+  const ends = item?.expires ? new Date(item.expires) : null;
+  meta.textContent = ends ? `Ends Sun ${pad(ends.getDate())}/${pad(ends.getMonth()+1)}` : 'Available this week';
+  desc.textContent = item?.desc || 'Design focus for the week.';
+  const link = `challenges/weekly-${item.id}.html`;
+  $('#btnWeeklyStart').setAttribute('href', link);
+  $('#btnWeeklyStart').dataset.weekId = item.id;
 }
-function paintWeeklies(list){
-  list = list && list.length ? list : DEFAULT_WEEKLY;
-  const grid = $('#weeklyGrid'); grid.innerHTML='';
-  const now=new Date();
-  weeklyOrder(list).slice(0,3).forEach(w=>{
-    const done = weeklyDone.includes(w.id);
-    const el = document.createElement('article');
-    el.className = 'hero tall' + (done?' complete':'');
-    el.dataset.week = w.id;
-    el.innerHTML = `
-      <h4 class="title">${w.title}</h4>
-      <p class="meta">Sun ${pad(now.getDate())}/${pad(now.getMonth()+1)}</p>
-      <p class="desc">${w.desc||''}</p>
-      <div class="cta-left">
-        <a class="btn blue" href="challenges/weekly-${w.id}.html">Start Challenge</a>
-      </div>`;
-    grid.appendChild(el);
-  });
-}
-window.AO_markWeeklyComplete = function(weekId){
-  if(!weeklyDone.includes(weekId)){
-    weeklyDone.push(weekId);
-    localStorage.setItem('ao_weekly_done', JSON.stringify(weeklyDone));
-    paintWeeklies();
+function markWeeklyComplete(){
+  const iso = toISO(new Date());
+  if(!weeklyLog.includes(iso)){
+    weeklyLog.push(iso);
+    localStorage.setItem('ao_weekly_log', JSON.stringify(weeklyLog));
+    paintTracker();
   }
-};
+}
+window.AO_markWeeklyComplete = markWeeklyComplete; // in case weekly pages call it
 
-/* Pricing/Registry (fallback) */
+/* ===== Tracker ===== */
+function ringSVG(percent, color){
+  const p = Math.max(0,Math.min(100,percent));
+  const r=30, c=2*Math.PI*r, dash = (p/100)*c;
+  return `
+    <svg viewBox="0 0 80 80" aria-hidden="true">
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="8"/>
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="${dash} ${c-dash}" transform="rotate(-90 40 40)"/>
+    </svg>`;
+}
+function getLast7Days(){
+  const days=[]; const now=new Date();
+  for(let i=6;i>=0;i--){ const d=new Date(now); d.setDate(now.getDate()-i); days.push(toISO(d)); }
+  return days;
+}
+function weekKey(dt){
+  const d=new Date(dt); // ISO string OK
+  const tmp=new Date(d); const day=tmp.getDay(); // 0..6 Sun..Sat
+  const monday=new Date(tmp); monday.setDate(tmp.getDate() - ((day+6)%7)); monday.setHours(0,0,0,0);
+  return toISO(monday); // week id = ISO of Monday
+}
+function getLastNWeekKeys(n=12){
+  const keys=[]; const now=new Date(); // start from current week
+  const curMon = new Date(now); curMon.setDate(now.getDate()-((now.getDay()+6)%7)); curMon.setHours(0,0,0,0);
+  for(let i=n-1;i>=0;i--){ const d=new Date(curMon); d.setDate(curMon.getDate() - i*7); keys.push(toISO(d)); }
+  return keys;
+}
+function paintTracker(){
+  // Daily 7d
+  const last7 = getLast7Days();
+  const doneSet = new Set(dailyDone);
+  const hits = last7.filter(d=>doneSet.has(d)).length;
+  const pct = Math.round((hits/7)*100);
+  $('#dailyPct').textContent = `${pct}% complete`;
+  $('#ringDaily').querySelector('svg')?.remove();
+  $('#ringDaily').insertAdjacentHTML('afterbegin', ringSVG(pct, 'var(--green)'));
+  const dots = $('#dailyDots'); dots.innerHTML='';
+  last7.forEach(d=>{
+    const dot=document.createElement('div'); dot.className='dot' + (doneSet.has(d)?' on':''); dots.appendChild(dot);
+  });
+
+  // Weekly 12w (~3 months)
+  const last12 = getLastNWeekKeys(12);
+  const logWeeks = new Set(weeklyLog.map(iso=>weekKey(iso)));
+  const wHits = last12.filter(k=>logWeeks.has(k)).length;
+  const wPct = Math.round((wHits/12)*100);
+  $('#weeklyPct').textContent = `${wPct}% complete`;
+  $('#ringWeekly').querySelector('svg')?.remove();
+  $('#ringWeekly').insertAdjacentHTML('afterbegin', ringSVG(wPct, 'var(--blue)'));
+  const ticks = $('#weeklyTicks'); ticks.innerHTML='';
+  last12.forEach(k=>{
+    const t=document.createElement('div'); t.className='tick' + (logWeeks.has(k)?' on':''); ticks.appendChild(t);
+  });
+}
+
+/* ===== Pricing/Registry (fallback) + initial paint ===== */
 function readPricing(){
   try{ return JSON.parse(document.getElementById('pricingData').textContent||'{}'); }catch{return{}}
 }
 let pricing = readPricing();
 
-/* Buy sheet (no redeem) */
-const mask  = $('#buyMask');
-const sheet = $('#buySheet');
-const buyTitle = $('#buyTitle');
-const buyMeta  = $('#buyMeta');
-const btnPay   = $('#buyPay');
-const btnCancel= $('#buyCancel');
-let activeCard = null;
-function openBuySheet(card){
-  activeCard = card;
-  const title = card.querySelector('.title .t')?.textContent.trim() || card.querySelector('.title')?.textContent.trim() || 'Unlock';
-  const price = card.querySelector('.price span')?.textContent || card.querySelector('.price')?.dataset.price || '$—';
-  buyTitle.textContent = `Unlock “${title}”`;
-  buyMeta.textContent = `Price ${price}`;
-  sheet.classList.add('open'); mask.classList.add('open'); mask.setAttribute('aria-hidden','false');
-}
-function closeBuySheet(){ activeCard=null; sheet.classList.remove('open'); mask.classList.remove('open'); mask.setAttribute('aria-hidden','true'); }
-mask.addEventListener('click', closeBuySheet); btnCancel.addEventListener('click', closeBuySheet);
-btnPay.addEventListener('click', ()=>{
-  if(!activeCard) return;
-  // TODO: wire to checkout
-  alert('Proceeding to payment…');
-  closeBuySheet();
-});
-
-/* Registry-driven rendering (fallback) */
 async function loadRegistry(){
   try{
     const res = await fetch('./data/registry.json', {cache:'no-store'});
@@ -565,14 +607,12 @@ async function loadRegistry(){
     catch{ return {}; }
   }
 }
-function cloneTemplate(selector){
-  return document.querySelector(selector).cloneNode(true);
-}
+function cloneTemplate(selector){ return document.querySelector(selector).cloneNode(true); }
 function applyPrice(card, price){
-  const priceEl = card.querySelector('.price');
-  if(priceEl && price){ priceEl.dataset.price = price; priceEl.firstElementChild.textContent = price; }
+  const priceEl = card.querySelector('.price'); if(priceEl && price){ priceEl.dataset.price = price; priceEl.firstElementChild.textContent = price; }
 }
 function renderFromRegistry(reg){
+  // foundations/courses/demos (unchanged)
   const fGrid = document.getElementById('foundationsGrid'); fGrid.innerHTML='';
   (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="foundation"]');
@@ -580,7 +620,6 @@ function renderFromRegistry(reg){
     t.dataset.link = `courses/${item.slug||item.id}.html`;
     fGrid.appendChild(t);
   });
-
   const one = document.getElementById('oneDayGrid'); one.innerHTML='';
   (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const t = cloneTemplate('#templates > article[data-kind="paid"]');
@@ -600,15 +639,21 @@ function renderFromRegistry(reg){
     t.dataset.link = `courses/${item.slug||item.id}.html`; applyPrice(t, item.price); thirty.appendChild(t);
   });
 
-  const demoGrid = document.getElementById('demoGrid'); demoGrid.innerHTML='';
-  const hasDemo = (reg.demos||[]).some(d=>d.showOnHome!==false);
-  if(hasDemo){ demoGrid.appendChild(cloneTemplate('#templates > article[data-kind="demo"]')); }
+  // Single weekly hero: choose first showOnHome
+  const show = (reg.weekly||[]).find(x=>x.showOnHome!==false);
+  if(show){ setWeeklyHero(show); }
 }
-loadRegistry().then(reg=>{
+
+(async()=>{
+  await loadDailyFromHTML();
+  applyDailySkinAndLevel();
+
+  const reg = await loadRegistry();
   renderFromRegistry(reg);
-  const weekly = reg.weekly?.filter(x=>x.showOnHome!==false).map(x=>({id:x.id,title:x.title,desc:x.desc||''})) || null;
-  paintWeeklies(weekly);
-});
+
+  // initial tracker paint
+  paintTracker();
+})();
 })();
 </script>
 
