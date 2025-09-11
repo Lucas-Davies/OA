@@ -6,7 +6,6 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
-<!-- ===== DESIGN TOKENS & RESETS ===== -->
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -14,10 +13,9 @@
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
 
-  /* aligns the right chips row vertical center with the left button */
-  --btn-h:44px;
+  --btn-h:44px;     /* button height */
   --btn-bottom:14px;
-  --chip-h:36px;
+  --chip-h:36px;    /* chip visual height */
 }
 *{box-sizing:border-box}
 html,body{height:100%; overflow-x:hidden}
@@ -28,11 +26,8 @@ body{
 }
 a{color:inherit; text-decoration:none}
 
-/* ==== Page background image ==== */
-.bg{
-  position:fixed; inset:0; z-index:-1;
-  background:#000 url("./assets/home-bg.jpg") center/cover no-repeat;
-}
+/* Background */
+.bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat; }
 
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
 .hide{ display:none !important }
@@ -48,11 +43,11 @@ a{color:inherit; text-decoration:none}
 .btn.grey{ background:#3a3a3a; color:#fff }
 .btn[disabled]{ opacity:.55; cursor:not-allowed }
 
-/* ===== HEADER (Tabs + Avatar) ===== */
+/* ===== HEADER ===== */
 .nav{
   position:sticky; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:30; overflow:visible;
+  padding:8px 12px; z-index:40;
   background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35) 60%, transparent);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
@@ -64,14 +59,14 @@ a{color:inherit; text-decoration:none}
   height:44px; padding:0 12px;
   border-radius:12px; border:1px solid var(--stroke);
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
-  transition:transform .06s ease, filter .15s ease;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  transition:transform .06s ease, filter .15s ease;
   font-size:clamp(13px, 3.2vw, 16px);
 }
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
 
-/* Avatar tab + initials perfectly centered */
+/* Avatar tab (initials perfectly centered) */
 .avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
 .avatarTab .points{ font-weight:900 }
 .avatarTab .dot{
@@ -86,12 +81,9 @@ a{color:inherit; text-decoration:none}
 .avatarTab.gold{ background:var(--gold); color:#0f1116; border-color:transparent }
 .avatarTab.gold .dot{ background:linear-gradient(135deg,#ffe88a,#f6c400) }
 
-@media (max-width:390px){
-  .btn-tab{ max-width:96px; padding:0 10px; }
-  #avatarTab{ padding-right:52px; }
-}
+@media (max-width:390px){ .btn-tab{ max-width:96px; padding:0 10px } #avatarTab{ padding-right:52px } }
 
-/* ===== HERO COMPONENT (base styles) ===== */
+/* ===== HERO base ===== */
 .hero{
   position:relative; overflow:hidden; background:#000;
   border:1px solid var(--stroke); border-radius:16px;
@@ -102,21 +94,19 @@ a{color:inherit; text-decoration:none}
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px }
 
-/* ===== Daily hero — glossy skins + level text ===== */
+/* ===== Daily hero (gloss + level) ===== */
 #dailyHero{ color:#eef3ff; position:relative; }
-#dailyHero::after{ /* glossy sweep */
+#dailyHero::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background:linear-gradient(120deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.10) 30%, rgba(255,255,255,0) 60%);
   mix-blend-mode:screen;
 }
-/* Level text (top-right) */
 #dailyHero .level{
   position:absolute; top:12px; right:16px;
-  font-weight:800; font-size:18px; letter-spacing:.5px;
-  z-index:1;
+  font-weight:800; font-size:18px; letter-spacing:.5px; z-index:1;
 }
 
-/* Chips row pinned right & aligned with button centreline */
+/* Chips at bottom-right (row on large, vertical on small portrait) */
 #dailyHero .meta-chips{
   position:absolute; right:16px;
   bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
@@ -128,37 +118,35 @@ a{color:inherit; text-decoration:none}
   background:rgba(0,0,0,.45); border:1px solid var(--stroke);
   color:var(--ink); font-weight:700; font-size:13px;
 }
-.chip .k{ opacity:.75; font-weight:700; }
-.chip .v{ font-weight:900; }
+.chip .k{ opacity:.75; font-weight:700 } .chip .v{ font-weight:900 }
+
+/* Small portrait: stack chips vertically, largest on bottom (column-reverse) */
+@media (max-width:480px) and (orientation:portrait){
+  #dailyHero .meta-chips{
+    flex-direction:column-reverse; align-items:flex-end;
+    bottom:12px; right:12px;
+  }
+  .chip{ width: max-content; }
+}
 
 /* Skins */
-#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff; }
-#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111; }
-#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111; }
-#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22); }
+#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
+#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
+#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
+#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
 
-/* Embossed level for Bronze/Silver/Gold */
+/* Embossing */
 #dailyHero[data-skin="bronze"] .level,
 #dailyHero[data-skin="silver"] .level,
-#dailyHero[data-skin="gold"]   .level{
-  color:inherit;
-  text-shadow: 1px 1px 2px rgba(0,0,0,.6), -1px -1px 2px rgba(255,255,255,.3);
-}
-/* Expert = Gold fill on black */
-#dailyHero[data-skin="black"] .level{
-  background:linear-gradient(135deg,#ffd54a,#f6c400);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  text-shadow: 1px 1px 3px rgba(0,0,0,.9);
-}
+#dailyHero[data-skin="gold"]   .level{ color:inherit; text-shadow:1px 1px 2px rgba(0,0,0,.6), -1px -1px 2px rgba(255,255,255,.3) }
+#dailyHero[data-skin="black"] .level{ background:linear-gradient(135deg,#ffd54a,#f6c400); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:1px 1px 3px rgba(0,0,0,.9) }
 
-/* Completion ring + tick (daily) */
+/* Complete ring & tick */
 .hero.complete{ box-shadow:0 0 0 3px var(--green) inset }
 .hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900 }
 
-/* ===== WEEKLY HERO (single card) ===== */
-#weeklyHero{
-  background:linear-gradient(135deg,#0b0f16,#1b2230 60%, #0d1320 95%);
-}
+/* ===== Weekly hero (single) ===== */
+#weeklyHero{ background:linear-gradient(135deg,#0b0f16,#1b2230 60%, #0d1320 95%) }
 #weeklyHero .badge{
   position:absolute; top:12px; left:16px; font-weight:900; opacity:.95;
   background:rgba(255,255,255,.08); border:1px solid var(--stroke);
@@ -169,79 +157,53 @@ a{color:inherit; text-decoration:none}
   bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
   display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end;
 }
-
-/* Small-screen fallback: let chips flow under content */
-@media (max-width:540px){
-  #dailyHero .meta-chips, #weeklyHero .meta-chips{ position:static; margin-top:10px; justify-content:flex-start; }
+@media (max-width:480px) and (orientation:portrait){
+  #weeklyHero .meta-chips{ position:static; margin-top:10px; justify-content:flex-start }
 }
 
-/* ===== TRACKER ===== */
-.tracker .cards{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); }
-.tracker .card{
-  border:1px solid var(--stroke); border-radius:12px; padding:12px;
-  background:rgba(255,255,255,.03);
-}
-.medals{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; }
-.medal{
-  width:24px; height:24px; border-radius:50%; border:2px solid rgba(255,255,255,.18);
-  display:flex; align-items:center; justify-content:center;
-  font-size:13px; font-weight:900; line-height:1; color:#fff;
-}
-.medal.empty{ background:transparent; color:transparent; }
-.medal .tick{ transform:translateY(-.5px) }
-
-/* medal colorways */
-.m-bronze{ background:linear-gradient(135deg,#5e3515,#b86b2e 60%,#5e3515) }
-.m-silver{ background:linear-gradient(135deg,#7c838a,#cfd6dd 60%,#7c838a) ; color:#111}
-.m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00) ; color:#111}
-.m-black{ background:linear-gradient(135deg,#000,#333 60%,#000) }
-
+/* ===== Tracker ===== */
+.tracker .cards{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap) }
+@media (max-width:720px){ .tracker .cards{ grid-template-columns:1fr } } /* daily on top of weekly */
+.tracker .card{ border:1px solid var(--stroke); border-radius:12px; padding:12px; background:rgba(255,255,255,.03) }
 .tracker .kpi{ display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700 }
 .tracker .kpi .dot{ width:8px; height:8px; border-radius:50%; background:var(--green) }
 
-/* Weekly grid (not used now, but keep for responsive) */
-.weekly-grid{ display:grid; gap:var(--gap) }
-@media (orientation:portrait){
-  .weekly-grid{ grid-template-columns:1fr }
-  .hero.tall{ min-height: 360px }
-  #dailyHero, #weeklyHero{ min-height: 220px }
+.medals{ display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:10px }
+.medalWrap{ display:flex; flex-direction:column; align-items:center; gap:6px }
+.medal{
+  width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22);
+  display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#fff;
 }
-@media (orientation:landscape){
-  .weekly-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) }
-  .hero.tall{ min-height: 300px }
-  #dailyHero, #weeklyHero{ min-height: 220px }
-}
+.medal.empty{ background:transparent; color:transparent; border-color:rgba(255,255,255,.18) }
+.medal .tick{ transform:translateY(-.5px) }
+.medal-label{ font-size:11px; color:var(--ink-dim); letter-spacing:.2px }
 
-/* ===== SHEETS (Buy) ===== */
-.sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;z-index:60}
-.sheet-mask.open{display:block}
-.sheet{position:fixed;left:0;right:0;bottom:-100%;background:#0f1116;border-radius:16px 16px 0 0;
-       border:1px solid rgba(255,255,255,.15);padding:14px;z-index:61;transition:transform .2s ease, bottom .2s ease}
-.sheet.open{bottom:0}
-.sheet h3{margin:0 0 8px;font-size:18px;font-weight:900}
-.sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.sheet .meta{color:#cfd3e1}
+/* medal colorways */
+.m-bronze{ background:linear-gradient(135deg,#5e3515,#b86b2e 60%,#5e3515) }
+.m-silver{ background:linear-gradient(135deg,#7c838a,#cfd6dd 60%,#7c838a); color:#111 }
+.m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00); color:#111 }
+.m-black{ background:linear-gradient(135deg,#000,#333 60%,#000) }
 
-/* ===== AVATAR SHEET (unchanged structure) ===== */
-#avatarSheet{
-  position:fixed; inset:0; display:none; z-index:60;
-  background:radial-gradient(120% 80% at 90% 10%, rgba(10,132,255,.10), transparent 60%), rgba(0,0,0,.55);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-}
-#avatarSheet.open{ display:block; }
+/* Misc responsive heights */
+@media (orientation:portrait){ .hero.tall{ min-height:360px } #dailyHero,#weeklyHero{ min-height:220px } }
+@media (orientation:landscape){ .weekly-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) } .hero.tall{ min-height:300px } #dailyHero,#weeklyHero{ min-height:220px } }
+
+/* ===== Avatar Drawer (same on all devices) ===== */
+#avatarSheet{ position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px) }
+#avatarSheet.open{ display:block }
 #avatarSheet .panel{
-  position:absolute; left:0; right:0; bottom:-100%;
-  background:#0f1116;
-  border-top-left-radius:18px; border-top-right-radius:18px;
-  border-top:1px solid var(--stroke);
-  padding:18px;
-  max-height:80vh; overflow:auto;
-  transition:bottom .25s ease;
-  box-shadow:0 14px 36px rgba(0,0,0,.6), 0 0 0 1px rgba(10,132,255,.28) inset, 0 1px 0 rgba(255,255,255,.06) inset;
+  position:absolute; top:64px; right:12px; width:320px; max-height:70vh; overflow:auto;
+  background:#0f1116; border:1px solid var(--stroke); border-radius:14px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(10,132,255,.22) inset;
+  padding:12px; transform:translateY(-8px); opacity:0; transition:transform .18s ease, opacity .18s ease;
 }
-#avatarSheet.open .panel{ bottom:0; }
+#avatarSheet.open .panel{ transform:translateY(0); opacity:1 }
+.menu a{ display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08) }
+.menu a:last-child{ border-bottom:none }
+.brandfoot{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; padding:12px 10px 4px; color:#fff }
+.brandfoot .t1{ color:var(--blue); font-weight:900 }
+.brandfoot .t2{ opacity:.9; font-size:13px }
 
-/* Ensure templates never interfere with layout */
 #templates[hidden]{ display:none !important; visibility:hidden !important; }
 </style>
 </head>
@@ -249,7 +211,6 @@ a{color:inherit; text-decoration:none}
 
 <div class="bg" aria-hidden="true"></div>
 
-<!-- ===== HEADER (Tabs + Avatar) ===== -->
 <header class="nav">
   <div class="nav-left" role="tablist" aria-label="Primary">
     <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
@@ -264,7 +225,6 @@ a{color:inherit; text-decoration:none}
   </div>
 </header>
 
-<!-- ===== HOME / MAIN (tabs & panels) ===== -->
 <main class="wrap">
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
@@ -276,7 +236,6 @@ a{color:inherit; text-decoration:none}
 
       <!-- injected: <div class="level" id="dailyLevel">Beginner</div> -->
 
-      <!-- The snippet from challenges/daily/today.html is injected here -->
       <div id="dailyContent">
         <p class="desc">New prompt coming soon.</p>
         <div class="meta-chips"></div>
@@ -336,60 +295,21 @@ a{color:inherit; text-decoration:none}
   </section>
 </main>
 
-<!-- ===== TEMPLATES (hidden clones) ===== -->
-<div id="templates" hidden>
-  <!-- Foundation template -->
-  <article class="hero tall course" data-kind="foundation" data-id="__ID__">
-    <h3 class="title">
-      <svg class="padlock" aria-hidden="true" viewBox="0 0 24 24">
-        <path class="shackle" d="M7 11V8.5a5 5 0 0 1 10 0V11"/>
-        <rect class="body" x="3" y="11" width="18" height="10" rx="2"/>
-        <circle class="keyhole" cx="12" cy="16" r="1.3"/>
-        <rect class="keyhole" x="11.2" y="14.7" width="1.6" height="2.8" rx="0.6"/>
-      </svg>
-      <span class="t">__TITLE__</span>
-    </h3>
-    <p class="meta">Subscriber-only foundations.</p>
-    <p class="desc">Core drills to build accuracy and flow.</p>
-    <div class="cta-left"><button class="btn blue start-found" disabled>Start Course</button></div>
-  </article>
-
-  <!-- Paid course template -->
-  <article class="hero tall course" data-kind="paid" data-id="__ID__">
-    <h3 class="title"><span class="t">__TITLE__</span></h3>
-    <p class="meta">Structured, focused learning.</p>
-    <p class="desc">Replace with course description.</p>
-    <div class="cta-left"><button class="btn green buy">Buy</button></div>
-    <div class="pts" data-pts="0"><span>0</span> pts</div>
-    <div class="price" data-price="$—"><span>$—</span></div>
-  </article>
-
-  <!-- Demo placeholder -->
-  <article class="hero tall live" data-kind="demo" data-id="demo-coming" style="opacity:.55; filter:saturate(.7)">
-    <h3 class="title">Demonstrations (Coming soon)</h3>
-    <p class="meta">Live demo sessions will appear here.</p>
-    <p class="desc">We’re preparing a series of live demonstrations. Stay tuned.</p>
-    <div class="cta-left"><button class="btn grey" disabled>Coming soon</button></div>
-  </article>
-</div>
-
-<!-- ===== SHEETS (Buy & Avatar) ===== -->
-<div class="sheet-mask" id="buyMask" aria-hidden="true"></div>
-<div class="sheet" id="buySheet" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
-  <h3 id="buyTitle">Unlock</h3>
-  <p class="meta" id="buyMeta">Choose how you’d like to unlock this course.</p>
-  <div class="row">
-    <button class="btn green" id="buyPay">Proceed to payment</button>
-    <button class="btn gold" id="buyRedeem">Redeem with points</button>
-    <button class="btn grey" id="buyCancel">Cancel</button>
-  </div>
-</div>
-
-<!-- Avatar (no .sheet class; we control it separately) -->
+<!-- ===== AVATAR DRAWER (same on all devices) ===== -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
-    <h3>Account</h3>
-    <div class="row"><a href="#" id="uploadAvatar">Upload Avatar (soon)</a><span>›</span></div>
+    <nav class="menu">
+      <a href="profile.html">Profile<span>›</span></a>
+      <a href="bookings.html">Booked Classes<span>›</span></a>
+      <a href="#trackerHero">Challenge Tracker<span>›</span></a>
+      <a href="about.html">About<span>›</span></a>
+      <a href="contact.html">Contact Us<span>›</span></a>
+      <a href="settings.html">Settings<span>›</span></a>
+    </nav>
+    <div class="brandfoot">
+      <div class="t1">Online Art</div>
+      <div class="t2">by Jody Graham</div>
+    </div>
   </div>
 </div>
 
@@ -421,16 +341,17 @@ a{color:inherit; text-decoration:none}
     ]
   },
   "weekly": [
-    { "id": "W1", "title": "Ink Portrait", "expires": "2025-09-14", "showOnHome": true, "desc":"Design focus for the week." }
+    { "id": "W1", "title": "Ink Portrait", "desc":"Design focus for the week.", "expires": "2025-09-14", "showOnHome": true }
   ],
-  "live": [],
+  "live": [
+    { "id": "live-1", "title": "Saturday Studio", "price": "$29", "points": 1800, "starts": "2025-09-20T09:00:00+10:00", "showOnHome": true }
+  ],
   "demos": [
     { "id": "demo-coming", "title": "Demonstrations", "comingSoon": true, "showOnHome": true }
   ]
 }
 </script>
 
-<!-- ===== SCRIPT – STATE, HELPERS, TABS, DAILY/WEELY/ TRACKER ===== -->
 <script>
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
@@ -444,193 +365,205 @@ const K={
   sub:'ao_sub', points:'ao_points',
   purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses',
   weeklyDone:'ao_weekly_done', dailyDone:'ao_daily_done',
-  dailyMeta:'ao_daily_meta' /* { 'YYYY-MM-DD': {skin:'bronze|silver|gold|black'} } */
+  dailyMeta:'ao_daily_meta'
 };
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
-const compactK = n => (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n));
 
-/* ===== Tabs ===== */
-const tabBtns=$$('.btn-tab[data-tab]');
-const panels=$$('[data-panel]');
+let isSub=!!store.get(K.sub,false);
+let points=+store.get(K.points,0);
+let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[])); if(!Array.isArray(purchased)) purchased=[];
+let weeklyDone=store.get(K.weeklyDone,[]);
+let dailyDone=store.get(K.dailyDone,[]);
+let dailyMeta=store.get(K.dailyMeta,{});
+
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), pointsBadge=$('#pointsBadge');
+function compactK(n){ return (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n)); }
+function paintAvatar(){ pointsBadge.textContent = compactK(points); avatarBtn.classList.toggle('gold', isSub); avatarBtn.classList.toggle('silver', !isSub); }
+paintAvatar();
+avatarBtn.addEventListener('click', ()=>{
+  const open=!avatarSheet.classList.contains('open');
+  avatarSheet.classList.toggle('open',open);
+  avatarSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
+  avatarBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+avatarSheet.addEventListener('click', (e)=>{ if(e.target===avatarSheet){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
+window.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
+
+/* Tabs */
+const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   tabBtns.forEach(x=>{x.classList.toggle('is-active',x===b); x.setAttribute('aria-selected', x===b?'true':'false');});
   panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==b.dataset.tab));
   window.scrollTo({top:0,behavior:'smooth'});
 }));
 
-/* ===== Avatar + (simple) sheet ===== */
-let isSub=!!store.get(K.sub,false);
-let points=+store.get(K.points,0);
-let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[]));
-if(!Array.isArray(purchased)) purchased=[];
-let weeklyDone=store.get(K.weeklyDone,[]);
-let dailyDone=store.get(K.dailyDone,[]);
-let dailyMeta=store.get(K.dailyMeta,{});
-
-const avatarBtn = $('#avatarTab');
-const avatarSheet = $('#avatarSheet');
-const pointsBadge = $('#pointsBadge');
-
-function paintAvatar(){
-  pointsBadge.textContent = compactK(points);
-  avatarBtn.classList.toggle('gold', isSub);
-  avatarBtn.classList.toggle('silver', !isSub);
-}
-paintAvatar();
-
-avatarBtn.addEventListener('click', ()=>{
-  const willOpen = !avatarSheet.classList.contains('open');
-  avatarSheet.classList.toggle('open', willOpen);
-  avatarSheet.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
-  avatarBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-});
-avatarSheet.addEventListener('click', (e)=>{ if (e.target === avatarSheet) { avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
-window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') { avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
-
-/* ===== Dates ===== */
+/* Dates */
 const today=new Date(), isoToday=toISO(today);
-$('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
+$('#dailyDate').textContent=`${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
 
-/* ===== Daily done toggle (keeps green ring/tick) ===== */
+/* Daily done toggle */
 function paintDaily(){
   const done = dailyDone.includes(isoToday);
   $('#btnDaily').textContent = done?'Undo':'Complete';
   $('#btnDaily').className = 'btn ' + (done?'grey':'blue');
   $('#dailyHero').classList.toggle('complete', done);
-  paintTracker(); /* refresh medals */
+  paintTracker();
 }
 paintDaily();
 $('#btnDaily').addEventListener('click', ()=>{
-  const idx=dailyDone.indexOf(isoToday);
-  if(idx===-1){ dailyDone.push(isoToday); }
-  else{ dailyDone.splice(idx,1); }
+  const i=dailyDone.indexOf(isoToday);
+  if(i===-1) dailyDone.push(isoToday); else dailyDone.splice(i,1);
   store.set(K.dailyDone,dailyDone); paintDaily();
 });
 
-/* ===== Daily loader + skin & level injection (also persist skin per day) ===== */
+/* Daily loader + skin & level */
 async function loadDailyFromHTML(){
-  const target = document.getElementById('dailyContent');
+  const target=$('#dailyContent');
   try{
-    const res = await fetch('./challenges/daily/today.html', { cache:'no-store' });
-    if(!res.ok) throw new Error('today.html not found');
-    target.innerHTML = await res.text();
-  }catch(err){
-    console.warn('[Daily] Could not load challenges/daily/today.html', err);
-    target.innerHTML = `<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>`;
+    const res=await fetch('./challenges/daily/today.html',{cache:'no-store'});
+    if(!res.ok) throw 0;
+    target.innerHTML=await res.text();
+  }catch{
+    target.innerHTML=`<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>`;
   }
 }
 function applyDailySkinAndLevel(){
-  const host = document.getElementById('dailyHero');
-  const chips = Array.from(document.querySelectorAll('#dailyContent .chip'));
-  let lvl = '';
+  const host=$('#dailyHero');
+  const chips=[...document.querySelectorAll('#dailyContent .chip')];
+  let lvl='';
   chips.forEach(ch=>{
-    const k = (ch.querySelector('.k')?.textContent || '').toLowerCase();
-    if (k.includes('level')) {
-      lvl = (ch.querySelector('.v')?.textContent || '').trim().toLowerCase();
-      ch.remove(); /* remove Level chip from row */
-    }
+    const k=(ch.querySelector('.k')?.textContent||'').toLowerCase();
+    if(k.includes('level')){ lvl=(ch.querySelector('.v')?.textContent||'').trim().toLowerCase(); ch.remove(); }
   });
-  const map = { beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
-  const skin = map[lvl] || 'bronze';
+  const map={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
+  const skin=map[lvl]||'bronze';
   host.setAttribute('data-skin', skin);
-
-  /* inject/update level text */
   const label = lvl ? cap(lvl) : 'Beginner';
-  let el = document.getElementById('dailyLevel');
-  if(!el){ el = document.createElement('div'); el.id='dailyLevel'; el.className='level'; host.appendChild(el); }
-  el.textContent = label;
-
-  /* persist today's skin for tracker coloring */
-  dailyMeta[isoToday] = {skin};
-  store.set(K.dailyMeta, dailyMeta);
+  let el=$('#dailyLevel'); if(!el){ el=document.createElement('div'); el.id='dailyLevel'; el.className='level'; host.appendChild(el); }
+  el.textContent=label;
+  // persist skin for tracker medals
+  const iso=isoToday; dailyMeta[iso]={skin}; store.set(K.dailyMeta,dailyMeta);
 }
 (async()=>{ await loadDailyFromHTML(); applyDailySkinAndLevel(); })();
 
-/* ===== Weekly HERO (single) ===== */
+/* Weekly hero (single) */
 async function loadRegistry(){
   try{
-    const res = await fetch('./data/registry.json', {cache:'no-store'});
-    if(!res.ok) throw new Error('no registry');
+    const res=await fetch('./data/registry.json',{cache:'no-store'});
+    if(!res.ok) throw 0;
     return await res.json();
   }catch{
     try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }
     catch{ return {}; }
   }
 }
-function paintWeeklyHero(item){
-  const titleEl = $('#weeklyTitle'), metaEl=$('#weeklyMeta'), descEl=$('#weeklyDesc'), btn=$('#btnWeekly'), chips=$('#weeklyChips');
-  if(!item){ titleEl.textContent='Weekly Challenge'; metaEl.textContent='—'; btn.setAttribute('aria-disabled','true'); btn.removeAttribute('href'); chips.innerHTML=''; return; }
-  titleEl.textContent = item.title || 'Weekly Challenge';
-  const end = item.expires ? new Date(item.expires) : null;
-  if(end){
-    /* show ends Sun dd/mm */
-    metaEl.textContent = `Ends ${dayNames[end.getDay()]} ${pad(end.getDate())}/${pad(end.getMonth()+1)}`;
-  }else metaEl.textContent='This week';
-  descEl.textContent = item.desc || 'Design focus for the week.';
-  btn.removeAttribute('aria-disabled'); btn.href = `challenges/weekly-${item.id}.html`;
-  chips.innerHTML = ''; // placeholder if you later want chips
-}
-loadRegistry().then(reg=>{
-  const weekly = (reg.weekly||[]).find(x=>x.showOnHome!==false || x.showOnHome===true) || reg.weekly?.[0];
-  paintWeeklyHero(weekly||null);
-});
+function renderCourses(reg){
+  const fGrid=$('#foundationsGrid'); fGrid.innerHTML='';
+  (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
+    a.innerHTML=`<h3 class="title">${item.title}</h3>
+      <p class="meta">Subscriber-only foundations.</p>
+      <p class="desc">Core drills to build accuracy and flow.</p>
+      <div class="cta-left"><a class="btn blue" href="courses/${item.slug||item.id}.html">Start Course</a></div>`;
+    fGrid.appendChild(a);
+  });
+  const one=$('#oneDayGrid'); one.innerHTML='';
+  (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
+    a.innerHTML=`<h3 class="title">${item.title}</h3>
+      <p class="meta">Structured, focused learning.</p>
+      <p class="desc">Replace with course description.</p>
+      <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
+    one.appendChild(a);
+  });
+  const three=$('#threeDayGrid'); three.innerHTML='';
+  (reg.courses?.["3day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
+    a.innerHTML=`<h3 class="title">${item.title}</h3>
+      <p class="meta">Structured, focused learning.</p>
+      <p class="desc">Replace with course description.</p>
+      <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
+    three.appendChild(a);
+  });
+  const thirty=$('#thirtyDayGrid'); thirty.innerHTML='';
+  (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
+    a.innerHTML=`<h3 class="title">${item.title}</h3>
+      <p class="meta">Structured, focused learning.</p>
+      <p class="desc">Replace with course description.</p>
+      <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
+    thirty.appendChild(a);
+  });
 
-/* ===== TRACKER ===== */
-function startOfWeek(d){ // Monday start
-  const x = new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x;
+  const demoGrid=$('#demoGrid'); demoGrid.innerHTML='';
+  (reg.live||[]).filter(x=>x.showOnHome!==false).forEach(l=>{
+    const a=document.createElement('article'); a.className='hero tall live';
+    a.innerHTML=`<h3 class="title">${l.title}</h3>
+      <p class="meta">Starts ${new Date(l.starts||Date.now()).toLocaleString()}</p>
+      <p class="desc">Live session.</p>
+      <div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
+    demoGrid.appendChild(a);
+  });
 }
+function paintWeeklyHero(item){
+  const titleEl=$('#weeklyTitle'), metaEl=$('#weeklyMeta'), descEl=$('#weeklyDesc'), btn=$('#btnWeekly'), chips=$('#weeklyChips');
+  if(!item){ titleEl.textContent='Weekly Challenge'; metaEl.textContent='—'; btn.setAttribute('aria-disabled','true'); btn.removeAttribute('href'); chips.innerHTML=''; return; }
+  titleEl.textContent=item.title||'Weekly Challenge';
+  const end=item.expires? new Date(item.expires):null;
+  metaEl.textContent=end?`Ends ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][end.getDay()]} ${String(end.getDate()).padStart(2,'0')}/${String(end.getMonth()+1).padStart(2,'0')}`:'This week';
+  descEl.textContent=item.desc||'Design focus for the week.';
+  btn.removeAttribute('aria-disabled'); btn.href=`challenges/weekly-${item.id}.html`;
+  chips.innerHTML='';
+}
+loadRegistry().then(reg=>{ renderCourses(reg); const one=(reg.weekly||[])[0]||null; paintWeeklyHero(one); });
+
+/* ===== Tracker ===== */
+function startOfWeek(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-function weekKey(d){ const s=startOfWeek(d); return s.toISOString().slice(0,10); } // YYYY-MM-DD for Monday
+function weekKey(d){ const s=startOfWeek(d); return s.toISOString().slice(0,10); }
+
+function medalEl(done, label, skinClass){
+  const wrap=document.createElement('div'); wrap.className='medalWrap';
+  const m=document.createElement('div'); m.className='medal ' + (done?(skinClass||'m-silver'):'empty');
+  if(done) m.innerHTML='<span class="tick">✓</span>';
+  const l=document.createElement('div'); l.className='medal-label'; l.textContent=label;
+  wrap.appendChild(m); wrap.appendChild(l); return wrap;
+}
 
 function paintTracker(){
-  // Daily medals for current week (Mon..Sun)
-  const wrapD = $('#dailyMedals'); wrapD.innerHTML='';
-  const start = startOfWeek(new Date());
+  // Daily: Mon..Sun of current week
+  const wrapD=$('#dailyMedals'); wrapD.innerHTML='';
+  const start=startOfWeek(new Date());
+  const dayLbl=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   for(let i=0;i<7;i++){
-    const dt = addDays(start,i), iso = toISO(dt);
-    const done = dailyDone.includes(iso);
-    const skin = dailyMeta[iso]?.skin || null;
-    const span = document.createElement('span');
-    span.className = 'medal ' + (done ? (skin ? 'm-'+skin : '') : 'empty');
-    if(done){ span.innerHTML = '<span class="tick">✓</span>'; }
-    wrapD.appendChild(span);
+    const dt=addDays(start,i), iso=toISO(dt);
+    const done=dailyDone.includes(iso);
+    const skin=dailyMeta[iso]?.skin; const skinClass=skin?('m-'+skin):'m-bronze';
+    wrapD.appendChild(medalEl(done, dayLbl[i], skinClass));
   }
 
-  // Weekly medals for last 6 weeks (including current)
-  const wrapW = $('#weeklyMedals'); wrapW.innerHTML='';
-  const now = new Date(); const curStart = startOfWeek(now);
+  // Weekly: last 6 weeks (current last)
+  const wrapW=$('#weeklyMedals'); wrapW.innerHTML='';
+  const curStart=startOfWeek(new Date());
   for(let i=5;i>=0;i--){
-    const wk = addDays(curStart, -7*i); const key = weekKey(wk);
-    const done = weeklyDone.includes(key);
-    const span = document.createElement('span');
-    span.className = 'medal ' + (done ? 'm-silver' : 'empty'); // silver for weekly, adjust later if needed
-    if(done){ span.innerHTML = '<span class="tick">✓</span>'; }
-    wrapW.appendChild(span);
+    const wkStart=addDays(curStart,-7*i); const key=weekKey(wkStart);
+    const done=weeklyDone.includes(key);
+    wrapW.appendChild(medalEl(done, 'W'+(6-i), 'm-silver'));
   }
 }
 paintTracker();
 
-/* When weekly is marked complete elsewhere, push standardized key */
-window.AO_markWeeklyComplete = function(dateLike){
-  const key = weekKey(dateLike? new Date(dateLike): new Date());
+/* API to mark a weekly complete */
+window.AO_markWeeklyComplete=function(dateLike){
+  const key=weekKey(dateLike?new Date(dateLike):new Date());
   if(!weeklyDone.includes(key)){ weeklyDone.push(key); store.set(K.weeklyDone,weeklyDone); paintTracker(); }
 };
 
-/* ===== Safety badge ===== */
+/* Basic boot log */
+console.log('[FAOA] boot check OK');
 })();
 </script>
 
-<!-- Safety badge for debugging in prod -->
-<script>
-  window.onerror = function (msg, src, line, col) {
-    const b = document.createElement('div');
-    b.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;background:#300;padding:8px 10px;border:1px solid #a00;border-radius:6px;color:#fff;font:12px/1.3 system-ui';
-    b.textContent = 'JS error: ' + msg + ' @ ' + (src||'inline') + ':' + line + ':' + col;
-    document.body.appendChild(b);
-    console.error('[FAOA] JS error', msg, src, line, col);
-  };
-  console.log('[FAOA] boot check OK');
-</script>
 </body>
 </html>
