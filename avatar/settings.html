@@ -28,6 +28,11 @@ input:checked + .slider:before{transform:translateX(22px)}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 .chips{display:flex;gap:8px;flex-wrap:wrap;padding:12px}
 .chips button{padding:8px 12px;border:1px dashed rgba(255,255,255,.18);border-radius:999px;background:#0b0c10;color:#fff;cursor:grab}
+.groupTitle{font-weight:900;margin:14px 2px 6px}
+fieldset{border:0;margin:0;padding:8px 12px}
+label.checkbox{display:flex;align-items:center;gap:10px;margin:8px 0}
+label.checkbox input{width:20px;height:20px}
+footer.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 2px}
 small.note{color:var(--ink-dim);display:block;margin:8px 2px}
 </style>
 </head>
@@ -38,28 +43,76 @@ small.note{color:var(--ink-dim);display:block;margin:8px 2px}
 </div></header>
 
 <main>
+  <!-- Display -->
+  <div class="groupTitle">Display</div>
   <div class="card">
-    <div class="row"><strong>Show “Challenges” tab</strong><label class="switch"><input id="showChallenges" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Show “Courses” tab</strong><label class="switch"><input id="showCourses" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Show “Live” tab</strong><label class="switch"><input id="showLive" type="checkbox"><span class="slider"></span></label></div>
+    <div class="row">
+      <strong>Background</strong>
+      <select id="bgSelect">
+        <option value="photo1">Default Photo</option>
+        <option value="plain">Plain Black</option>
+      </select>
+    </div>
+    <div class="row">
+      <strong>Theme</strong>
+      <select id="themeSelect" disabled>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
   </div>
-  <small class="note">Hidden tabs disappear on Home; remaining tabs snap into place.</small>
 
+  <!-- Home Screen -->
+  <div class="groupTitle">Home Screen</div>
   <div class="card">
+    <div class="row"><strong>Show “Challenges”</strong><label class="switch"><input id="showChallenges" type="checkbox"><span class="slider"></span></label></div>
+    <div class="row"><strong>Show “Courses”</strong><label class="switch"><input id="showCourses" type="checkbox"><span class="slider"></span></label></div>
+    <div class="row"><strong>Show “Live”</strong><label class="switch"><input id="showLive" type="checkbox"><span class="slider"></span></label></div>
     <div class="row" style="justify-content:flex-start;gap:10px"><strong>Tab Order</strong></div>
     <div class="chips" id="orderChips"></div>
   </div>
+  <small class="note">Drag chips to reorder tabs.</small>
 
+  <!-- Challenges -->
+  <div class="groupTitle">Challenges</div>
   <div class="card">
-    <div class="row"><strong>Hide Weekly Challenge</strong><label class="switch"><input id="hideWeekly" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Gift Today’s Daily Challenge</strong><button class="btn" id="giftBtn" type="button">Gift</button></div>
+    <div class="row"><strong>Hide Daily</strong><label class="switch"><input id="hideDaily" type="checkbox"><span class="slider"></span></label></div>
+    <div class="row"><strong>Hide Weekly</strong><label class="switch"><input id="hideWeekly" type="checkbox"><span class="slider"></span></label></div>
+    <div class="row"><strong>Hide Tracker</strong>
+      <select id="hideTracker">
+        <option value="none">Show Both</option>
+        <option value="daily">Hide Daily Tracker</option>
+        <option value="weekly">Hide Weekly Tracker</option>
+        <option value="both">Hide Both</option>
+      </select>
+    </div>
+    <fieldset>
+      <legend class="groupTitle" style="margin:0">Show Daily for Levels</legend>
+      <label class="checkbox"><input type="checkbox" id="lvlMy"> My Level</label>
+      <label class="checkbox"><input type="checkbox" id="lvlBeginner"> Beginner</label>
+      <label class="checkbox"><input type="checkbox" id="lvlIntermediate"> Intermediate</label>
+      <label class="checkbox"><input type="checkbox" id="lvlAdvanced"> Advanced</label>
+      <label class="checkbox"><input type="checkbox" id="lvlExpert"> Expert</label>
+    </fieldset>
   </div>
 
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 2px">
-    <button class="btn blue" id="saveBtn" type="button">Save</button>
-    <a class="btn" href="profile.html">Profile</a>
-    <a class="btn" href="mydata.html">My Data</a>
+  <!-- Courses -->
+  <div class="groupTitle">Courses</div>
+  <div class="card">
+    <div class="row"><strong>Hide Completed Courses</strong><label class="switch"><input id="hideCompleted" type="checkbox"><span class="slider"></span></label></div>
+    <fieldset>
+      <legend class="groupTitle" style="margin:0">Show Courses For Levels</legend>
+      <label class="checkbox"><input type="checkbox" id="cMy"> My Level</label>
+      <label class="checkbox"><input type="checkbox" id="cBeginner"> Beginner</label>
+      <label class="checkbox"><input type="checkbox" id="cIntermediate"> Intermediate</label>
+      <label class="checkbox"><input type="checkbox" id="cAdvanced"> Advanced</label>
+      <label class="checkbox"><input type="checkbox" id="cExpert"> Expert</label>
+    </fieldset>
   </div>
+
+  <footer class="actions">
+    <button class="btn blue" id="saveBtn" type="button">Save</button>
+    <button class="btn" id="cancelBtn" type="button">Cancel</button>
+  </footer>
 </main>
 
 <script>
@@ -68,19 +121,30 @@ const KEY='ao_settings';
 const $=s=>document.querySelector(s);
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-const defaults={challenges:true,courses:true,live:true,order:['challenges','courses','live'],hideWeekly:false};
+const defaults={
+  display:{background:'photo1',theme:'dark'},
+  home:{tabs:{challenges:true,courses:true,live:true},order:['challenges','courses','live']},
+  challenges:{hideDaily:false,hideWeekly:false,hideTracker:'none',levels:['my']},
+  courses:{hideCompleted:false,levels:['my']}
+};
 
-function goBack(){ if(history.length>1) history.back(); }
-$('#backBtn').addEventListener('click', goBack);
+function back(){ if(history.length>1) history.back(); }
+$('#backBtn').addEventListener('click', back);
+$('#cancelBtn').addEventListener('click', back);
 
 function load(){
   const s=Object.assign({},defaults, store.get(KEY,{}));
-  $('#showChallenges').checked=s.challenges!==false;
-  $('#showCourses').checked=s.courses!==false;
-  $('#showLive').checked=s.live!==false;
-  $('#hideWeekly').checked=!!s.hideWeekly;
+  // display
+  $('#bgSelect').value=s.display?.background||'photo1';
+  $('#themeSelect').value=s.display?.theme||'dark';
+  // home toggles
+  const vis=s.home?.tabs||defaults.home.tabs;
+  $('#showChallenges').checked=vis.challenges!==false;
+  $('#showCourses').checked=vis.courses!==false;
+  $('#showLive').checked=vis.live!==false;
+  // order chips
   const chips=$('#orderChips'); chips.innerHTML='';
-  (s.order&&s.order.length?s.order:defaults.order).forEach(t=>{
+  (s.home?.order && s.home.order.length ? s.home.order : defaults.home.order).forEach(t=>{
     const b=document.createElement('button'); b.textContent=t[0].toUpperCase()+t.slice(1); b.dataset.tab=t; b.draggable=true; chips.appendChild(b);
   });
   chips.addEventListener('dragstart',e=>{ if(e.target.tagName!=='BUTTON') return; e.dataTransfer.setData('text/plain',e.target.dataset.tab); });
@@ -92,26 +156,53 @@ function load(){
     const fromEl=[...chips.children].find(x=>x.dataset.tab===from);
     chips.insertBefore(fromEl, target);
   });
+
+  // challenges
+  $('#hideDaily').checked=!!s.challenges?.hideDaily;
+  $('#hideWeekly').checked=!!s.challenges?.hideWeekly;
+  $('#hideTracker').value=s.challenges?.hideTracker||'none';
+  const L=s.challenges?.levels||['my'];
+  $('#lvlMy').checked=L.includes('my'); $('#lvlBeginner').checked=L.includes('beginner');
+  $('#lvlIntermediate').checked=L.includes('intermediate'); $('#lvlAdvanced').checked=L.includes('advanced'); $('#lvlExpert').checked=L.includes('expert');
+
+  // courses
+  $('#hideCompleted').checked=!!s.courses?.hideCompleted;
+  const LC=s.courses?.levels||['my'];
+  $('#cMy').checked=LC.includes('my'); $('#cBeginner').checked=LC.includes('beginner');
+  $('#cIntermediate').checked=LC.includes('intermediate'); $('#cAdvanced').checked=LC.includes('advanced'); $('#cExpert').checked=LC.includes('expert');
 }
 load();
 
 $('#saveBtn').addEventListener('click', ()=>{
   const order=[...document.querySelectorAll('#orderChips button')].map(b=>b.dataset.tab);
   const s={
-    challenges: $('#showChallenges').checked,
-    courses: $('#showCourses').checked,
-    live: $('#showLive').checked,
-    hideWeekly: $('#hideWeekly').checked,
-    order
+    display:{ background: $('#bgSelect').value, theme: $('#themeSelect').value },
+    home:{ tabs:{challenges:$('#showChallenges').checked, courses:$('#showCourses').checked, live:$('#showLive').checked}, order },
+    challenges:{
+      hideDaily: $('#hideDaily').checked,
+      hideWeekly: $('#hideWeekly').checked,
+      hideTracker: $('#hideTracker').value,
+      levels: [
+        $('#lvlMy').checked?'my':null,
+        $('#lvlBeginner').checked?'beginner':null,
+        $('#lvlIntermediate').checked?'intermediate':null,
+        $('#lvlAdvanced').checked?'advanced':null,
+        $('#lvlExpert').checked?'expert':null
+      ].filter(Boolean)
+    },
+    courses:{
+      hideCompleted: $('#hideCompleted').checked,
+      levels: [
+        $('#cMy').checked?'my':null,
+        $('#cBeginner').checked?'beginner':null,
+        $('#cIntermediate').checked?'intermediate':null,
+        $('#cAdvanced').checked?'advanced':null,
+        $('#cExpert').checked?'expert':null
+      ].filter(Boolean)
+    }
   };
   store.set(KEY,s);
   alert('Saved');
-});
-
-$('#giftBtn').addEventListener('click', ()=>{
-  const subject=encodeURIComponent('I’m gifting you today’s Daily Challenge');
-  const body=encodeURIComponent('Enjoy today’s challenge in FAOA!');
-  location.href=`mailto:?subject=${subject}&body=${body}`;
 });
 })();
 </script>
