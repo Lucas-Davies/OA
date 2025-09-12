@@ -1,57 +1,71 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="color-scheme" content="dark" />
-<title>Settings — Avatar</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Settings — FAOA</title>
 <style>
-  :root{--ink:#eef3ff;--bg:#000;--stroke:rgba(255,255,255,.18);--surface:rgba(255,255,255,.04);--blue:#0A84FF}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
-  h1{font-size:28px;font-weight:800;margin:8px 0 18px}
-  .card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:14px 0}
-  label{display:flex;align-items:center;gap:10px;margin:10px 0;font-weight:700}
-  input[type=checkbox]{width:20px;height:20px}
-  .btn{margin-top:16px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);background:var(--blue);color:#000;font-weight:800;cursor:pointer}
-  .hint{opacity:.8;font-size:.92rem;margin-top:6px}
+:root{
+  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
+  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF;
+}
+*{box-sizing:border-box}
+html,body{margin:0; background:var(--bg); color:var(--ink); font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+main{max-width:720px; margin:0 auto; padding:24px 14px 80px}
+h1{margin:0 0 16px; font-size:32px; font-weight:900}
+.card{background:var(--panel); border:1px solid var(--stroke); border-radius:14px; padding:14px; margin:14px 0}
+label{display:flex; align-items:center; gap:10px; font-weight:800; margin:10px 2px}
+input[type="checkbox"]{width:20px; height:20px}
+p.hint{color:var(--muted)}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:132px; height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
+.btn.blue{background:var(--blue); border-color:transparent; color:#000}
+.btn.grey{background:#3a3a3a}
+.flex{display:flex; gap:10px; flex-wrap:wrap}
 </style>
 </head>
 <body>
-<div class="wrap">
+<main>
   <h1>Settings</h1>
 
-  <div class="card">
-    <label><input type="checkbox" id="showChallenges"> Show “Challenges” tab</label>
-    <label><input type="checkbox" id="showCourses"> Show “Courses” tab</label>
-    <label><input type="checkbox" id="showLive"> Show “Live” tab</label>
-    <div class="hint">Uncheck to hide. Home will reflow the remaining tabs automatically.</div>
-  </div>
+  <form id="settingsForm" onsubmit="return false">
+    <div class="card">
+      <label><input type="checkbox" id="showChallenges"> Show “Challenges” tab</label>
+      <label><input type="checkbox" id="showCourses"> Show “Courses” tab</label>
+      <label><input type="checkbox" id="showLive"> Show “Live” tab</label>
+      <p class="hint">Uncheck to hide. Home will reflow the remaining tabs automatically.</p>
+    </div>
 
-  <button class="btn" id="saveBtn">Save</button>
-</div>
+    <div class="flex">
+      <button class="btn blue" id="saveBtn" type="button">Save</button>
+      <button class="btn grey" id="closeBtn" type="button">Close</button>
+    </div>
+  </form>
+</main>
 
 <script>
-(function(){
-  const $=s=>document.querySelector(s);
-  function load(){
-    const s = JSON.parse(localStorage.getItem('ao_settings')||'{}');
-    $('#showChallenges').checked = s.challenges !== false;
-    $('#showCourses').checked   = s.courses   !== false;
-    $('#showLive').checked      = s.live      !== false;
-  }
-  function save(){
-    const s = {
-      challenges: $('#showChallenges').checked,
-      courses: $('#showCourses').checked,
-      live: $('#showLive').checked
-    };
-    localStorage.setItem('ao_settings', JSON.stringify(s));
-    alert('Settings saved');
-  }
-  $('#saveBtn').addEventListener('click', save);
-  load();
+(()=>{'use strict';
+const K='ao_settings';
+const $=s=>document.querySelector(s);
+const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+
+function load(){
+  const s=store.get(K,{challenges:true,courses:true,live:true});
+  $('#showChallenges').checked = s.challenges!==false;
+  $('#showCourses').checked    = s.courses!==false;
+  $('#showLive').checked       = s.live!==false;
+}
+load();
+
+$('#saveBtn').addEventListener('click', ()=>{
+  const s={ challenges: $('#showChallenges').checked, courses: $('#showCourses').checked, live: $('#showLive').checked };
+  store.set(K,s);
+  alert('Saved!');
+});
+
+$('#closeBtn').addEventListener('click', ()=>{ if(window.top && window.top!==window){ /* returning to slide-over */ } window.history.back(); });
 })();
 </script>
 </body>
