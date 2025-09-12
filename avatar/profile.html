@@ -9,181 +9,254 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a;
+  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --black:#111;
 }
-*{box-sizing:border-box}
-html,body{margin:0; background:var(--bg); color:var(--ink); font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-main{max-width:960px; margin:0 auto; padding:24px 14px 80px}
-h1{margin:0 0 16px; font-size:32px; font-weight:900}
-.card{background:var(--panel); border:1px solid var(--stroke); border-radius:14px; padding:14px; margin:14px 0}
-label{display:block; font-weight:800; margin:12px 2px 6px}
-input[type="text"],input[type="email"],input[type="password"],input[type="url"],select{
-  width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--stroke); background:#0b0c10; color:var(--ink)
-}
-.row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-@media (max-width:700px){.row{grid-template-columns:1fr}}
-.hint{color:var(--ink-dim); font-size:.92rem}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:132px; height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
-.btn.blue{background:var(--blue); border-color:transparent; color:#000}
-.btn.grey{background:#3a3a3a}
-.btn.red{background:var(--red); border-color:transparent}
-.flex{display:flex; gap:10px; flex-wrap:wrap}
-.badge{display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:999px; font-weight:900; font-size:12px; border:1px solid rgba(0,0,0,.2); margin-left:8px}
-.badge-bronze{background:var(--bronze); color:#fff}
-.badge-silver{background:var(--silver); color:#0f1116}
-.badge-gold{background:var(--gold); color:#0f1116}
-.badge-black{background:#111; color:#fff; border-color:#333}
-#avatarPreview{width:112px; height:112px; border-radius:50%; border:3px solid var(--silver); background:#111 center/cover no-repeat}
-small.help{display:block; color:var(--muted); margin-top:6px}
-table{width:100%; border-collapse:collapse; margin-top:8px}
-th,td{padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left; font-size:14px}
-th{color:var(--ink-dim); font-weight:800}
-img.thumb{width:40px; height:40px; border-radius:8px; object-fit:cover; border:1px solid var(--stroke)}
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+main{max-width:980px;margin:0 auto;padding:18px 14px 80px}
+h1{margin:0 0 14px;font:900 28px/1.2 -apple-system,BlinkMacSystemFont,"SF Pro Display"}
+.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:12px;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:720px){.row{grid-template-columns:1fr}}
+label{display:block;margin:8px 2px 6px;font-weight:800}
+input,select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--stroke);background:#0a0b0f;color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);background:#16181f;color:#fff;font-weight:900;cursor:pointer}
+.btn.blue{background:var(--blue);border-color:transparent;color:#000}
+.btn.ghost{background:#222;border-color:var(--stroke)}
+.grid2{display:grid;grid-template-columns:112px 1fr;gap:12px} @media(max-width:580px){.grid2{grid-template-columns:1fr}}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;border:1px solid rgba(0,0,0,.2);font:900 12px/22px system-ui;margin-left:8px}
+.badge.bronze{background:var(--bronze);color:#fff}
+.badge.silver{background:var(--silver);color:#111}
+.badge.gold{background:var(--gold);color:#111}
+.badge.black{background:#111;color:#fff;border-color:#333}
+.help{margin-left:6px;width:18px;height:18px;border-radius:50%;border:1px solid var(--stroke);display:inline-flex;align-items:center;justify-content:center;font:900 12px/1 system-ui;opacity:.9}
+.help[title]{cursor:help}
+
+.avatarFrame{position:relative;width:112px;height:112px;border-radius:50%;overflow:hidden;border:3px solid var(--silver);background:#111}
+#cropStage{position:relative;width:100%;height:260px;border-radius:12px;border:1px dashed rgba(255,255,255,.12);overflow:hidden;background:#0b0c10;touch-action:none}
+#cropCanvas{position:absolute;left:0;top:0}
+.sliderRow{display:flex;align-items:center;gap:10px;margin-top:8px}
+.range{appearance:none;width:100%;height:4px;border-radius:999px;background:#2a2a2a;outline:none}
+.range::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid #000}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.switch{position:relative;display:inline-block;width:52px;height:30px;vertical-align:middle}
+.switch input{display:none}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#2a2a2a;border-radius:999px;border:1px solid var(--stroke);transition:.2s}
+.slider:before{content:"";position:absolute;height:24px;width:24px;left:3px;top:2px;background:white;border-radius:50%;transition:.2s}
+input:checked + .slider{background:var(--blue)}
+input:checked + .slider:before{transform:translateX(22px)}
+footer.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+small.note{color:var(--muted)}
 </style>
 </head>
 <body>
 <main>
   <h1>Profile</h1>
 
-  <form id="profileForm" onsubmit="return false">
-    <div class="card">
-      <div class="row">
-        <div>
-          <div id="avatarPreview" aria-label="Avatar preview"></div>
-          <small class="help">The ring colour reflects your skill level.</small>
+  <!-- Avatar + Crop -->
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <div class="avatarFrame" id="avatarFrame" aria-label="Avatar preview"></div>
+        <small class="note" id="ringNote">Ring reflects your level.</small>
+      </div>
+      <div>
+        <label>Avatar <span class="help" title="Pick an image, then pinch/zoom or scroll & drag to position. Crop saves a square avatar.">?</span></label>
+        <div id="cropStage"><canvas id="cropCanvas" width="10" height="10"></canvas></div>
+        <div class="sliderRow">
+          <span style="opacity:.7">Zoom</span>
+          <input type="range" id="zoom" class="range" min="0.6" max="3" step="0.01" value="1">
+          <input type="file" id="file" accept="image/*" style="width:auto">
+          <button class="btn ghost" id="btnCrop" type="button">Crop & Save</button>
         </div>
-        <div>
-          <label>Upload Avatar Image</label>
-          <input type="file" id="avatarFile" accept="image/*">
-          <small class="help">A private copy is stored locally on this device (no server upload).</small>
-
-          <label style="margin-top:10px">…or Image URL</label>
-          <input type="url" id="avatarUrl" placeholder="https://…">
-          <small class="help">If both are provided, the uploaded image takes priority.</small>
-        </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="row">
-        <div><label>First Name</label><input id="firstName" type="text" autocomplete="given-name"></div>
-        <div><label>Last Name</label><input id="lastName" type="text" autocomplete="family-name"></div>
-      </div>
-      <label>Display Name <span id="levelBadge" class="badge badge-silver">Intermediate</span></label>
-      <input id="displayName" type="text" placeholder="e.g. Jody Graham" autocomplete="name">
-
-      <label>Username</label>
-      <input id="username" type="text" placeholder="@username" autocomplete="nickname">
-    </div>
-
-    <div class="card">
-      <label>Skill Level</label>
-      <select id="skill">
-        <option value="beginner">Beginner (Bronze)</option>
-        <option value="intermediate">Intermediate (Silver)</option>
-        <option value="advanced">Advanced (Gold)</option>
-        <option value="expert">Expert (Black)</option>
-      </select>
-      <small class="help">Applies a matching badge in menus and changes the avatar pillbox ring on Home.</small>
-    </div>
-
-    <div class="card">
-      <label>Email</label>
-      <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
-      <div class="row" style="margin-top:10px">
-        <div><label>New Password</label><input id="newPass" type="password" autocomplete="new-password"></div>
-        <div><label>Confirm Password</label><input id="newPass2" type="password" autocomplete="new-password"></div>
-      </div>
-      <small class="help">Passwords here are just stored locally unless you wire a backend.</small>
-      <div class="flex" style="margin-top:10px">
-        <button class="btn" id="resetBtn" type="button">Send Password Reset Email</button>
-      </div>
-    </div>
-
-    <div class="flex" style="margin-top:6px">
-      <button class="btn blue" id="saveBtn" type="button">Save</button>
-      <button class="btn grey" id="closeBtn" type="button">Close</button>
-    </div>
-  </form>
-
-  <div class="card" id="uploadsCard" hidden>
-    <strong>Uploaded Images</strong>
-    <table>
-      <thead><tr><th>Preview</th><th>Name</th><th>Added</th></tr></thead>
-      <tbody id="uploadsBody"></tbody>
-    </table>
   </div>
+
+  <!-- Names / Username -->
+  <div class="card">
+    <div class="row">
+      <div><label>First Name</label><input id="firstName" type="text" autocomplete="given-name"></div>
+      <div><label>Last Name</label><input id="lastName" type="text" autocomplete="family-name"></div>
+    </div>
+    <div class="row">
+      <div><label>Display Name</label><input id="displayName" type="text" autocomplete="name"></div>
+      <div><label>Username</label><input id="username" type="text" autocomplete="nickname" placeholder="@username"></div>
+    </div>
+  </div>
+
+  <!-- Level / Email / Password reset shortcut -->
+  <div class="card">
+    <div class="kv">
+      <div>
+        <label>Skill Level <span id="levelBadge" class="badge silver">Intermediate</span></label>
+        <select id="skill">
+          <option value="beginner">Beginner (Bronze)</option>
+          <option value="intermediate">Intermediate (Silver)</option>
+          <option value="advanced">Advanced (Gold)</option>
+          <option value="expert">Expert (Black)</option>
+        </select>
+      </div>
+      <div>
+        <label>Email <span class="help" title="Used for password reset & confirmations.">?</span></label>
+        <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+      </div>
+    </div>
+    <footer class="actions">
+      <button class="btn" id="resetBtn" type="button">Password Reset</button>
+    </footer>
+    <small class="note">Tip: Level also controls which content you see on Home.</small>
+  </div>
+
+  <footer class="actions">
+    <button class="btn blue" id="saveBtn" type="button">Save</button>
+    <a class="btn ghost" href="mydata.html">My Data</a>
+  </footer>
 </main>
 
 <script>
 (()=>{'use strict';
-/* Keys */
+/* ===== Keys & helpers ===== */
 const K={ profile:'ao_profile', uploads:'ao_uploads' };
-
-/* Helpers */
 const $=s=>document.querySelector(s);
-const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
-const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
-const badgeClassByLevel={ beginner:'badge-bronze', intermediate:'badge-silver', advanced:'badge-gold', expert:'badge-black' };
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
+const badgeClass={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
+const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* Load existing */
-const p = store.get(K.profile,{ skill:'intermediate' });
-$('#firstName').value = p.firstName||'';
-$('#lastName').value  = p.lastName||'';
-$('#displayName').value = p.displayName||'';
-$('#username').value = p.username||'';
-$('#email').value = p.email||'';
-$('#skill').value = p.skill||'intermediate';
-$('#avatarUrl').value = p.avatarUrl||'';
-const avatarPreview = $('#avatarPreview');
-function paintAvatarPreview(){
-  const lvl=$('#skill').value||'intermediate';
-  avatarPreview.style.borderColor = ringByLevel[lvl]||'#0A84FF';
-  if(p.avatarDataUrl){ avatarPreview.style.backgroundImage=`url(${p.avatarDataUrl})`; }
-  else if(p.avatarUrl){ avatarPreview.style.backgroundImage=`url(${p.avatarUrl})`; }
-  else { avatarPreview.style.backgroundImage='none'; }
+/* ===== Load current profile ===== */
+const p = store.get(K.profile,{skill:'intermediate'});
+
+/* ===== UI fill ===== */
+$('#firstName').value=p.firstName||'';
+$('#lastName').value=p.lastName||'';
+$('#displayName').value=p.displayName||'';
+$('#username').value=p.username||'';
+$('#email').value=p.email||'';
+$('#skill').value=p.skill||'intermediate';
+const levelBadge=$('#levelBadge');
+function paintLevel(){
+  const v=$('#skill').value||'intermediate';
+  levelBadge.textContent=cap(v);
+  levelBadge.className='badge '+(badgeClass[v]||'silver');
+  $('#avatarFrame').style.borderColor=ringByLevel[v]||'#0A84FF';
 }
-paintAvatarPreview();
+paintLevel(); $('#skill').addEventListener('change', paintLevel);
 
-/* Badge preview */
-const badge = $('#levelBadge');
-function paintBadge(){
-  const lvl=$('#skill').value||'intermediate';
-  badge.textContent = cap(lvl);
-  badge.className = 'badge ' + (badgeClassByLevel[lvl]||'badge-silver');
+/* ===== Avatar preview in pill ===== */
+const frame=$('#avatarFrame');
+function paintFrame(){
+  if(p.avatarDataUrl){ frame.style.background=`url(${p.avatarDataUrl}) center/cover no-repeat`; }
+  else{
+    frame.style.background=ringByLevel[p.skill||'intermediate'];
+    // draw initials
+    const cn=document.createElement('canvas'); cn.width=112; cn.height=112; const ctx=cn.getContext('2d');
+    ctx.fillStyle=ringByLevel[p.skill||'intermediate']||'#333'; ctx.fillRect(0,0,112,112);
+    ctx.fillStyle = (p.skill==='expert')?'#fff':'#000'; ctx.font='bold 46px -apple-system,BlinkMacSystemFont,Helvetica';
+    const initials=(p.displayName||'JG').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const m=ctx.measureText(initials); ctx.fillText(initials, 56 - m.width/2, 68);
+    frame.style.background=`url(${cn.toDataURL()}) center/cover no-repeat`;
+  }
 }
-paintBadge();
-$('#skill').addEventListener('change', ()=>{ paintBadge(); paintAvatarPreview(); });
+paintFrame();
 
-/* File upload -> dataURL + save in ao_uploads list */
-let pendingDataUrl = null;
-$('#avatarFile').addEventListener('change', e=>{
+/* ===== Cropper (canvas zoom/drag, wheel & pinch) ===== */
+const stage=$('#cropStage'), canvas=$('#cropCanvas'), ctx=canvas.getContext('2d'), zoom=$('#zoom');
+let img=null, scale=1, cx=0, cy=0, dragging=false, lastX=0, lastY=0, baseScale=1;
+
+function resizeCanvas(){ canvas.width=stage.clientWidth; canvas.height=stage.clientHeight; draw(); }
+window.addEventListener('resize', resizeCanvas);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!img) return;
+  const iw=img.width, ih=img.height;
+  const s = Math.max(baseScale*scale, 0.1);
+  const dx = canvas.width/2 + cx, dy = canvas.height/2 + cy;
+  const dw = iw*s, dh = ih*s;
+  ctx.save();
+  ctx.translate(dx,dy);
+  ctx.drawImage(img, -dw/2, -dh/2, dw, dh);
+  ctx.restore();
+}
+
+function fitImage(){
+  if(!img) return;
+  const sw=canvas.width, sh=canvas.height;
+  baseScale = Math.min(sw/img.width, sh/img.height);
+  scale = 1; cx=0; cy=0; draw();
+}
+
+stage.addEventListener('pointerdown', e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove', e=>{
+  if(!dragging) return; cx += (e.clientX-lastX); cy += (e.clientY-lastY); lastX=e.clientX; lastY=e.clientY; draw();
+});
+stage.addEventListener('pointerup', e=>{ dragging=false; stage.releasePointerCapture(e.pointerId); });
+
+stage.addEventListener('wheel', e=>{ e.preventDefault(); const f=Math.exp(-e.deltaY/400); scale = Math.max(0.6, Math.min(3, scale*f)); zoom.value=scale.toFixed(2); draw(); }, {passive:false});
+
+let pinchDist=null;
+stage.addEventListener('touchstart', e=>{
+  if(e.touches.length===2){ pinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); }
+},{passive:true});
+stage.addEventListener('touchmove', e=>{
+  if(e.touches.length===2 && pinchDist){ const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); const f=d/pinchDist; scale = Math.max(0.6, Math.min(3, scale*f)); pinchDist=d; zoom.value=scale.toFixed(2); draw(); }
+},{passive:true});
+stage.addEventListener('touchend', ()=>{ pinchDist=null; });
+
+zoom.addEventListener('input', ()=>{ scale=parseFloat(zoom.value||'1'); draw(); });
+
+$('#file').addEventListener('change', e=>{
   const f=e.target.files?.[0]; if(!f) return;
   const reader=new FileReader();
   reader.onload=ev=>{
-    pendingDataUrl = ev.target.result;
-    avatarPreview.style.backgroundImage = `url(${pendingDataUrl})`;
+    img=new Image();
+    img.onload=()=>{ fitImage(); };
+    img.src=ev.target.result;
   };
   reader.readAsDataURL(f);
 });
 
-/* Render uploads list */
-function paintUploads(){
-  const list = store.get(K.uploads,[]);
-  const body = $('#uploadsBody'); body.innerHTML='';
-  if(!list.length){ $('#uploadsCard').hidden=true; return; }
-  $('#uploadsCard').hidden=false;
-  list.forEach(u=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td><img class="thumb" src="${u.dataUrl}"></td><td>${u.name}</td><td>${new Date(u.ts).toLocaleString()}</td>`;
-    body.appendChild(tr);
-  });
+function cropSquare(size=512){
+  if(!img){ alert('Choose an image first'); return null; }
+  // Render current view to offscreen square
+  const out=document.createElement('canvas'); out.width=size; out.height=size; const octx=out.getContext('2d');
+  const iw=img.width, ih=img.height;
+  const s = baseScale*scale;
+  // Map from output to source using same transform logic
+  const viewCx = canvas.width/2 + cx;
+  const viewCy = canvas.height/2 + cy;
+  // We want the central square of the stage; compute where that maps in image space
+  // Calculate destination rect in stage coords:
+  const side = Math.min(canvas.width, canvas.height);
+  const dstX = (canvas.width - side)/2, dstY = (canvas.height - side)/2;
+  // For each output pixel, compute source; easier is to draw same transform but scaled
+  // Compute how many stage pixels per output pixel
+  const stageToOut = side/size;
+  octx.save();
+  // Move output origin so stage square aligns
+  octx.scale(1/stageToOut, 1/stageToOut);
+  octx.translate(-dstX, -dstY);
+  // Same draw as main canvas
+  octx.translate(viewCx, viewCy);
+  octx.drawImage(img, -(iw*s)/2, -(ih*s)/2, iw*s, ih*s);
+  octx.restore();
+  return out.toDataURL('image/png');
 }
-paintUploads();
 
-/* Save */
+$('#btnCrop').addEventListener('click', ()=>{
+  const dataUrl=cropSquare(512);
+  if(!dataUrl) return;
+  // save to uploads list too
+  const uploads = store.get(K.uploads,[]);
+  uploads.unshift({id:Date.now(), name:`avatar-${new Date().toISOString()}`, dataUrl, ts:Date.now()});
+  store.set(K.uploads,uploads);
+  // attach to profile object immediately (preview)
+  p.avatarDataUrl=dataUrl; store.set(K.profile,p);
+  paintFrame();
+  alert('Avatar saved');
+});
+
+/* ===== Save basic fields ===== */
 $('#saveBtn').addEventListener('click', ()=>{
   const data={
     firstName: $('#firstName').value.trim(),
@@ -192,34 +265,23 @@ $('#saveBtn').addEventListener('click', ()=>{
     username: $('#username').value.trim(),
     email: $('#email').value.trim(),
     skill: $('#skill').value,
-    avatarUrl: $('#avatarUrl').value.trim()
+    avatarDataUrl: p.avatarDataUrl || undefined  // keep if set
   };
-  // password fields are local-only metadata
-  const n1=document.getElementById('newPass').value, n2=document.getElementById('newPass2').value;
-  if(n1||n2){ if(n1!==n2){ alert('Passwords do not match.'); return; } data._pwSetAt=Date.now(); }
-
-  // uploaded image wins
-  if(pendingDataUrl){ data.avatarDataUrl=pendingDataUrl;
-    const uploads = store.get(K.uploads,[]);
-    uploads.unshift({id: Date.now(), name:`avatar-${new Date().toISOString()}`, dataUrl: pendingDataUrl, ts: Date.now()});
-    store.set(K.uploads, uploads);
-  }else if(p.avatarDataUrl){ data.avatarDataUrl=p.avatarDataUrl; } // keep existing one unless URL is used
-
   store.set(K.profile, data);
-  alert('Saved!');
+  alert('Saved');
 });
 
-/* Close helper for slide-over use */
-$('#closeBtn').addEventListener('click', ()=>{ if(window.top && window.top!==window) { /* in iframe */ } window.history.back(); });
-
-/* Reset email (mailto fallback) */
 $('#resetBtn').addEventListener('click', ()=>{
-  const email = ($('#email').value||'').trim();
-  if(!email) return alert('Please enter your email first.');
-  const subject=encodeURIComponent('Password reset');
-  const body=encodeURIComponent('Hi,\n\nA password reset was requested for your account.\n\n(Configure a backend endpoint to send a real link.)');
+  const email=($('#email').value||'').trim(); if(!email) return alert('Enter your email first.');
+  const subject=encodeURIComponent('Password reset'); const body=encodeURIComponent('A password reset was requested.');
   location.href=`mailto:${email}?subject=${subject}&body=${body}`;
 });
+
+/* ===== Init crop canvas ===== */
+resizeCanvas();
+if(p.avatarDataUrl){ // load into cropper for quick re-crop if desired
+  img=new Image(); img.onload=()=>{ fitImage(); }; img.src=p.avatarDataUrl;
+}
 })();
 </script>
 </body>
