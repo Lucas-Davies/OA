@@ -10,12 +10,9 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --red:#ff453a;
+  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
-
-  --btn-h:44px;     /* button height */
-  --btn-bottom:14px;
-  --chip-h:36px;    /* chip visual height */
+  --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
 }
 *{box-sizing:border-box}
 html,body{height:100%; overflow-x:hidden}
@@ -36,10 +33,11 @@ a{color:inherit; text-decoration:none}
 
 /* Buttons */
 .btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:var(--btn-h); padding:0 16px;
-      border-radius:12px; border:0; font-weight:900; cursor:pointer; font-family:inherit; }
-.btn.blue{ background:var(--blue); color:#fff }
-.btn.green{ background:var(--green); color:#000 }
-.btn.gold{ background:var(--gold); color:#0f1116 }
+      border-radius:12px; border:1px solid var(--stroke); font-weight:900; cursor:pointer; font-family:inherit;
+      background:#0f1116; color:var(--ink) }
+.btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
+.btn.green{ background:var(--green); border-color:transparent; color:#000 }
+.btn.gold{ background:var(--gold); border-color:transparent; color:#0f1116 }
 .btn.grey{ background:#3a3a3a; color:#fff }
 .btn[disabled]{ opacity:.55; cursor:not-allowed }
 
@@ -64,9 +62,9 @@ a{color:inherit; text-decoration:none}
   font-size:clamp(13px, 3.2vw, 16px);
 }
 .btn-tab:active{transform:translateY(1px)}
-.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#fff}
+.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
-/* Avatar tab (initials perfectly centered) */
+/* Avatar pillbox */
 .avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
 .avatarTab .points{ font-weight:900 }
 .avatarTab .dot{
@@ -75,13 +73,19 @@ a{color:inherit; text-decoration:none}
   border-top-right-radius:22px; border-bottom-right-radius:22px;
   display:flex; align-items:center; justify-content:center; font-weight:900;
   transform: translateX(1px);
+  background-size:cover; background-position:center; /* avatar image support */
 }
-.avatarTab.silver{ background:var(--silver); color:#0f1116 }
-.avatarTab.silver .dot{ background:linear-gradient(135deg,#d9dee6,#b7bec9) }
-.avatarTab.gold{ background:var(--gold); color:#0f1116; border-color:transparent }
-.avatarTab.gold .dot{ background:linear-gradient(135deg,#ffe88a,#f6c400) }
+.avatarTab .skill-badge{
+  position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  height:22px; line-height:22px; padding:0 8px; border-radius:999px; font-weight:900; font-size:12px;
+  border:1px solid rgba(0,0,0,.2);
+}
+.badge-bronze{ background:var(--bronze); color:#fff }
+.badge-silver{ background:var(--silver); color:#0f1116 }
+.badge-gold{ background:var(--gold); color:#0f1116 }
+.badge-black{ background:#111; color:#fff; border-color:#333 }
 
-@media (max-width:390px){ .btn-tab{ max-width:96px; padding:0 10px } #avatarTab{ padding-right:52px } }
+@media (max-width:420px){ .avatarTab{ padding-right:50px } .avatarTab .skill-badge{ display:none } }
 
 /* ===== HERO base ===== */
 .hero{
@@ -94,40 +98,15 @@ a{color:inherit; text-decoration:none}
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px }
 
-/* ===== Daily hero (gloss + level) ===== */
+/* ===== Daily hero ===== */
 #dailyHero{ color:#eef3ff; position:relative; }
-#dailyHero::after{
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(120deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.10) 30%, rgba(255,255,255,0) 60%);
-  mix-blend-mode:screen;
-}
-#dailyHero .level{
-  position:absolute; top:12px; right:16px;
-  font-weight:800; font-size:18px; letter-spacing:.5px; z-index:1;
-}
+#dailyHero::after{ content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.10) 30%, rgba(255,255,255,0) 60%); mix-blend-mode:screen; }
+#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px; letter-spacing:.5px; z-index:1 }
 
-/* Chips at bottom-right (row on large, vertical on small portrait) */
-#dailyHero .meta-chips{
-  position:absolute; right:16px;
-  bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
-  display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end;
-}
-.chip{
-  display:inline-flex; align-items:center; gap:6px;
-  height:var(--chip-h); padding:0 12px; border-radius:999px;
-  background:rgba(0,0,0,.45); border:1px solid var(--stroke);
-  color:var(--ink); font-weight:700; font-size:13px;
-}
+/* Chips */
+#dailyHero .meta-chips{ position:absolute; right:16px; bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2)); display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end }
+.chip{ display:inline-flex; align-items:center; gap:6px; height:var(--chip-h); padding:0 12px; border-radius:999px; background:rgba(0,0,0,.45); border:1px solid var(--stroke); color:var(--ink); font-weight:700; font-size:13px }
 .chip .k{ opacity:.75; font-weight:700 } .chip .v{ font-weight:900 }
-
-/* Small portrait: stack chips vertically */
-@media (max-width:480px) and (orientation:portrait){
-  #dailyHero .meta-chips{
-    flex-direction:column-reverse; align-items:flex-end;
-    bottom:12px; right:12px;
-  }
-  .chip{ width:max-content; }
-}
 
 /* Skins */
 #dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
@@ -135,60 +114,24 @@ a{color:inherit; text-decoration:none}
 #dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
 #dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
 
-/* Embossing */
-#dailyHero[data-skin="bronze"] .level,
-#dailyHero[data-skin="silver"] .level,
-#dailyHero[data-skin="gold"]   .level{ color:inherit; text-shadow:1px 1px 2px rgba(0,0,0,.6), -1px -1px 2px rgba(255,255,255,.3) }
-#dailyHero[data-skin="black"] .level{ background:linear-gradient(135deg,#ffd54a,#f6c400); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:1px 1px 3px rgba(0,0,0,.9) }
-
-/* Complete ring & tick */
-.hero.complete{ box-shadow:0 0 0 3px var(--green) inset }
-.hero.complete .title::after{ content:" ✓"; color:var(--green); font-weight:900 }
-
-/* ===== Weekly hero (single) ===== */
-#weeklyHero{ background:linear-gradient(135deg,#0b0f16,#1b2230 60%, #0d1320 95%) }
-#weeklyHero .badge{
-  position:absolute; top:12px; left:16px; font-weight:900; opacity:.95;
-  background:rgba(255,255,255,.08); border:1px solid var(--stroke);
-  padding:6px 10px; border-radius:999px; font-size:13px;
-}
-#weeklyHero .meta-chips{
-  position:absolute; right:16px;
-  bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2));
-  display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end;
-}
-@media (max-width:480px) and (orientation:portrait){
-  #weeklyHero .meta-chips{ position:static; margin-top:10px; justify-content:flex-start }
-}
-
-/* ===== Tracker ===== */
+/* Tracker */
 .tracker .cards{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap) }
-@media (max-width:720px){ .tracker .cards{ grid-template-columns:1fr } } /* daily on top of weekly */
+@media (max-width:720px){ .tracker .cards{ grid-template-columns:1fr } }
 .tracker .card{ border:1px solid var(--stroke); border-radius:12px; padding:12px; background:rgba(255,255,255,.03) }
 .tracker .kpi{ display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700 }
 .tracker .kpi .dot{ width:8px; height:8px; border-radius:50%; background:var(--green) }
-
 .medals{ display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:10px }
 .medalWrap{ display:flex; flex-direction:column; align-items:center; gap:6px }
-.medal{
-  width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22);
-  display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#fff;
-}
+.medal{ width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#fff }
 .medal.empty{ background:transparent; color:transparent; border-color:rgba(255,255,255,.18) }
 .medal .tick{ transform:translateY(-.5px) }
 .medal-label{ font-size:11px; color:var(--ink-dim); letter-spacing:.2px }
-
-/* medal colorways */
 .m-bronze{ background:linear-gradient(135deg,#5e3515,#b86b2e 60%,#5e3515) }
 .m-silver{ background:linear-gradient(135deg,#7c838a,#cfd6dd 60%,#7c838a); color:#111 }
 .m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00); color:#111 }
 .m-black{ background:linear-gradient(135deg,#000,#333 60%,#000) }
 
-/* Misc responsive heights */
-@media (orientation:portrait){ .hero.tall{ min-height:360px } #dailyHero,#weeklyHero{ min-height:220px } }
-@media (orientation:landscape){ .weekly-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) } .hero.tall{ min-height:300px } #dailyHero,#weeklyHero{ min-height:220px } }
-
-/* ===== Avatar Drawer (same on all devices) ===== */
+/* ===== Avatar Drawer ===== */
 #avatarSheet{ position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px) }
 #avatarSheet.open{ display:block }
 #avatarSheet .panel{
@@ -198,13 +141,25 @@ a{color:inherit; text-decoration:none}
   padding:12px; transform:translateY(-8px); opacity:0; transition:transform .18s ease, opacity .18s ease;
 }
 #avatarSheet.open .panel{ transform:translateY(0); opacity:1 }
-.menu a{ display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08) }
-.menu a:last-child{ border-bottom:none }
+.menu a, .menu button.link{ display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08); background:none; color:inherit; width:100%; text-align:left; cursor:pointer; font:inherit }
+.menu a:last-child, .menu button.link:last-child{ border-bottom:none }
 .brandfoot{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; padding:12px 10px 4px; color:#fff }
 .brandfoot .t1{ color:var(--blue); font-weight:900 }
 .brandfoot .t2{ opacity:.9; font-size:13px }
 
-#templates[hidden]{ display:none !important; visibility:hidden !important; }
+/* ===== Sub Sheet (iframe slide-over) ===== */
+#subSheet{ position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+#subSheet.open{ display:block }
+#subSheet .inner{
+  position:absolute; top:64px; right:12px; width:min(820px, calc(100% - 24px)); height:min(78vh, calc(100% - 84px));
+  background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px;
+  transform:translateY(-8px); opacity:0; transition:transform .18s ease, opacity .18s ease; display:flex; flex-direction:column;
+}
+#subSheet.open .inner{ transform:translateY(0); opacity:1 }
+.sheet-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 4px 10px }
+.sheet-head h2{ margin:0; font-size:22px; font-weight:900 }
+.sheet-close{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer }
+#subFrame{ flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10 }
 </style>
 </head>
 <body>
@@ -218,8 +173,9 @@ a{color:inherit; text-decoration:none}
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
   </div>
   <div class="nav-right">
-    <button id="avatarTab" class="btn-tab avatarTab silver" aria-haspopup="dialog" aria-expanded="false">
-      <span class="points" id="pointsBadge">0</span>
+    <button id="avatarTab" class="btn-tab avatarTab" aria-haspopup="dialog" aria-expanded="false">
+      <span class="skill-badge badge-silver" id="skillBadge">Silver</span>
+      <span class="points" id="pointsBadge" style="padding-left:54px">0</span>
       <span class="dot" id="avatarInitials">JG</span>
     </button>
   </div>
@@ -228,23 +184,13 @@ a{color:inherit; text-decoration:none}
 <main class="wrap">
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
-
-    <!-- DAILY -->
     <article class="hero" id="dailyHero" aria-labelledby="dailyTitle" data-skin="bronze">
       <h2 class="title" id="dailyTitle">Daily Challenge</h2>
       <p class="meta" id="dailyDate">—</p>
-
-      <!-- injected: <div class="level" id="dailyLevel">Beginner</div> -->
-
-      <div id="dailyContent">
-        <p class="desc">New prompt coming soon.</p>
-        <div class="meta-chips"></div>
-      </div>
-
+      <div id="dailyContent"><p class="desc">New prompt coming soon.</p><div class="meta-chips"></div></div>
       <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
     </article>
 
-    <!-- WEEKLY (single hero) -->
     <article class="hero" id="weeklyHero" aria-labelledby="weeklyTitle">
       <div class="badge">Weekly Challenge</div>
       <h2 class="title" id="weeklyTitle">—</h2>
@@ -254,11 +200,9 @@ a{color:inherit; text-decoration:none}
       <div class="meta-chips" id="weeklyChips"></div>
     </article>
 
-    <!-- TRACKER -->
     <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
       <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
       <p class="meta">See your recent progress.</p>
-
       <div class="cards">
         <div class="card">
           <div class="kpi"><span class="dot"></span>Daily (7d)</div>
@@ -270,7 +214,6 @@ a{color:inherit; text-decoration:none}
         </div>
       </div>
     </article>
-
   </section>
 
   <!-- Courses -->
@@ -295,16 +238,15 @@ a{color:inherit; text-decoration:none}
   </section>
 </main>
 
-<!-- ===== AVATAR DRAWER (same on all devices) ===== -->
+<!-- ===== AVATAR DRAWER ===== -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu">
-      <a href="avatar/profile.html">Profile<span>›</span></a>
-      <a href="bookings.html">Booked Classes<span>›</span></a>
+      <!-- Keep hrefs so long-press/open-in-new works; JS intercepts to open as popup -->
+      <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
+      <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="#trackerHero">Challenge Tracker<span>›</span></a>
-      <a href="about.html">About<span>›</span></a>
-      <a href="contact.html">Contact Us<span>›</span></a>
-      <a href="avatar/settings.html">Settings<span>›</span></a>
+      <a href="bookings.html">Booked Classes<span>›</span></a>
     </nav>
     <div class="brandfoot">
       <div class="t1">Online Art</div>
@@ -313,15 +255,18 @@ a{color:inherit; text-decoration:none}
   </div>
 </div>
 
-<!-- ===== PRICING / REGISTRY (inline fallback) ===== -->
-<script id="pricingData" type="application/json">
-{
-  "1d-gesture":{"price":"$39","points":300},
-  "3d-portrait":{"price":"$79","points":500},
-  "30d-foundations":{"price":"$149","points":1500},
-  "live-1":{"price":"$29","points":1800}
-}
-</script>
+<!-- ===== Sub Sheet (iframe window to profile/settings) ===== -->
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="inner" role="document">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">—</h2>
+      <button class="sheet-close" id="sheetClose" aria-label="Close">×</button>
+    </div>
+    <iframe id="subFrame" title="Panel"></iframe>
+  </div>
+</div>
+
+<!-- ===== FALLBACK REGISTRY (unchanged) ===== -->
 <script id="registryData" type="application/json">
 {
   "foundations": [
@@ -345,52 +290,67 @@ a{color:inherit; text-decoration:none}
   ],
   "live": [
     { "id": "live-1", "title": "Saturday Studio", "price": "$29", "points": 1800, "starts": "2025-09-20T09:00:00+10:00", "showOnHome": true }
-  ],
-  "demos": [
-    { "id": "demo-coming", "title": "Demonstrations", "comingSoon": true, "showOnHome": true }
   ]
 }
 </script>
 
 <script>
 (()=>{'use strict';
+/* ===== Utils ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const pad=n=>String(n).padStart(2,'0');
 const toISO=d=>d.toISOString().slice(0,10);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-const K={
-  sub:'ao_sub', points:'ao_points',
-  purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses',
-  weeklyDone:'ao_weekly_done', dailyDone:'ao_daily_done',
-  dailyMeta:'ao_daily_meta'
-};
+const skinByLevel={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
+const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
+const K={ sub:'ao_sub', points:'ao_points', purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses',
+          weeklyDone:'ao_weekly_done', dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta',
+          profile:'ao_profile', settings:'ao_settings' };
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
-              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)), del:k=>localStorage.removeItem(k) };
+              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 
+/* ===== Avatar & points ===== */
 let isSub=!!store.get(K.sub,false);
 let points=+store.get(K.points,0);
-let purchased=(store.get(K.purchasedB,null)??store.get(K.purchasedA,[])); if(!Array.isArray(purchased)) purchased=[];
-let weeklyDone=store.get(K.weeklyDone,[]);
-let dailyDone=store.get(K.dailyDone,[]);
-let dailyMeta=store.get(K.dailyMeta,{});
-
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), pointsBadge=$('#pointsBadge');
 function compactK(n){ return (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n)); }
-function paintAvatar(){ pointsBadge.textContent = compactK(points); avatarBtn.classList.toggle('gold', isSub); avatarBtn.classList.toggle('silver', !isSub); }
-paintAvatar();
+function applyProfileToUI(){
+  const p = store.get(K.profile,{});
+  // points
+  $('#pointsBadge').textContent = compactK(points);
+  // badge text & color
+  const lvl = p.skill || 'intermediate';
+  const skin = skinByLevel[lvl] || 'silver';
+  const badge = $('#skillBadge');
+  badge.textContent = cap(lvl);
+  badge.className = `skill-badge badge-${skin}`;
+  // ring
+  $('#avatarTab').style.boxShadow = `0 0 0 2px ${ringByLevel[lvl]||'#0A84FF'} inset`;
+  // initials or image
+  const dot = $('#avatarInitials');
+  if(p.avatarDataUrl){ dot.style.backgroundImage=`url(${p.avatarDataUrl})`; dot.textContent=''; }
+  else if(p.avatarUrl){ dot.style.backgroundImage=`url(${p.avatarUrl})`; dot.textContent=''; }
+  else{
+    const initials=(p.displayName||'JG').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    dot.style.backgroundImage='none'; dot.textContent=initials||'JG';
+  }
+}
+applyProfileToUI();
+
+/* ===== Avatar drawer ===== */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 avatarBtn.addEventListener('click', ()=>{
   const open=!avatarSheet.classList.contains('open');
   avatarSheet.classList.toggle('open',open);
   avatarSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
   avatarBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
 });
-avatarSheet.addEventListener('click', (e)=>{ if(e.target===avatarSheet){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
-window.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }});
+avatarSheet.addEventListener('click', (e)=>{ if(e.target===avatarSheet){ closeDrawer(); }});
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+window.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeDrawer(); closeSubSheet(); }});
 
-/* Tabs */
+/* ===== Tabs ===== */
 const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   tabBtns.forEach(x=>{x.classList.toggle('is-active',x===b); x.setAttribute('aria-selected', x===b?'true':'false');});
@@ -398,11 +358,11 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
   window.scrollTo({top:0,behavior:'smooth'});
 }));
 
-/* Dates */
+/* ===== Dates / Daily state ===== */
+let dailyDone=store.get(K.dailyDone,[]), dailyMeta=store.get(K.dailyMeta,{});
 const today=new Date(), isoToday=toISO(today);
 $('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
 
-/* Daily done toggle */
 function paintDaily(){
   const done = dailyDone.includes(isoToday);
   $('#btnDaily').textContent = done?'Undo':'Complete';
@@ -414,206 +374,127 @@ paintDaily();
 $('#btnDaily').addEventListener('click', ()=>{
   const i=dailyDone.indexOf(isoToday);
   if(i===-1) dailyDone.push(isoToday); else dailyDone.splice(i,1);
-  store.set(K.dailyDone,dailyDone); paintDaily();
+  store.set(K.dailyDone,dailyDone);
+  paintDaily();
 });
 
-/* Daily loader + skin & level */
+/* ===== Daily skin from embedded content (optional) ===== */
 async function loadDailyFromHTML(){
   const target=$('#dailyContent');
-  try{
-    const res=await fetch('./challenges/daily/today.html',{cache:'no-store'});
-    if(!res.ok) throw 0;
-    target.innerHTML = await res.text();
-  }catch{
-    target.innerHTML = '<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>';
-  }
+  try{ const res=await fetch('./challenges/daily/today.html',{cache:'no-store'}); if(!res.ok) throw 0; target.innerHTML = await res.text(); }
+  catch{ target.innerHTML = '<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>'; }
 }
 function applyDailySkinAndLevel(){
   const host=$('#dailyHero');
   const chips=[...document.querySelectorAll('#dailyContent .chip')];
   let lvl='';
-  chips.forEach(ch=>{
-    const k=(ch.querySelector('.k')?.textContent||'').toLowerCase();
-    if(k.includes('level')){ lvl=(ch.querySelector('.v')?.textContent||'').trim().toLowerCase(); ch.remove(); }
-  });
-  const map={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
-  const skin=map[lvl]||'bronze';
+  chips.forEach(ch=>{ const k=(ch.querySelector('.k')?.textContent||'').toLowerCase();
+    if(k.includes('level')){ lvl=(ch.querySelector('.v')?.textContent||'').trim().toLowerCase(); ch.remove(); }});
+  const skin=skinByLevel[lvl]||'bronze';
   host.setAttribute('data-skin', skin);
-  const label = lvl ? cap(lvl) : 'Beginner';
   let el=$('#dailyLevel'); if(!el){ el=document.createElement('div'); el.id='dailyLevel'; el.className='level'; host.appendChild(el); }
-  el.textContent=label;
-  // persist skin for tracker medals
-  const iso=isoToday; dailyMeta[iso]={skin}; store.set(K.dailyMeta,dailyMeta);
+  el.textContent=cap(lvl||'beginner');
+  dailyMeta[isoToday]={skin}; store.set(K.dailyMeta,dailyMeta);
 }
 (async()=>{ await loadDailyFromHTML(); applyDailySkinAndLevel(); })();
 
-/* Weekly hero (single) */
+/* ===== Registry render (unchanged basics) ===== */
 async function loadRegistry(){
-  try{
-    const res=await fetch('./data/registry.json',{cache:'no-store'});
-    if(!res.ok) throw 0;
-    return await res.json();
-  }catch{
-    try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }
-    catch{ return {}; }
-  }
+  try{ const res=await fetch('./data/registry.json',{cache:'no-store'}); if(!res.ok) throw 0; return await res.json(); }
+  catch{ try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }catch{ return {}; } }
 }
-function renderCourses(reg){
-  const fGrid=$('#foundationsGrid'); fGrid.innerHTML='';
-  (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+loadRegistry().then(reg=>{
+  const fGrid=$('#foundationsGrid'); (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML = `
-      <h3 class="title">${item.title}</h3>
-      <p class="meta">Subscriber-only foundations.</p>
-      <p class="desc">Core drills to build accuracy and flow.</p>
-      <div class="cta-left"><a class="btn blue" href="courses/${item.slug||item.id}.html">Start Course</a></div>`;
+    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Subscriber-only foundations.</p><p class="desc">Core drills to build accuracy and flow.</p><div class="cta-left"><a class="btn blue" href="courses/${item.slug||item.id}.html">Start Course</a></div>`;
     fGrid.appendChild(a);
   });
-  const one=$('#oneDayGrid'); one.innerHTML='';
-  (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML = `
-      <h3 class="title">${item.title}</h3>
-      <p class="meta">Structured, focused learning.</p>
-      <p class="desc">Replace with course description.</p>
-      <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
+  const one=$('#oneDayGrid'); (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course';
+    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Structured, focused learning.</p><p class="desc">Replace with course description.</p><div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
     one.appendChild(a);
   });
-  const three=$('#threeDayGrid'); three.innerHTML='';
-  (reg.courses?.["3day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML = `
-      <h3 class="title">${item.title}</h3>
-      <p class="meta">Structured, focused learning.</p>
-      <p class="desc">Replace with course description.</p>
-      <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
+  const three=$('#threeDayGrid'); (reg.courses?.["3day"]||[]).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course';
+    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Structured, focused learning.</p><p class="desc">Replace with course description.</p><div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
     three.appendChild(a);
   });
-  const thirty=$('#thirtyDayGrid'); thirty.innerHTML='';
-  (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML = `
-      <h3 class="title">${item.title}</h3>
-      <p class="meta">Structured, focused learning.</p>
-      <p class="desc">Replace with course description.</p>
-      <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
+  const thirty=$('#thirtyDayGrid'); (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
+    const a=document.createElement('article'); a.className='hero tall course';
+    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Structured, focused learning.</p><p class="desc">Replace with course description.</p><div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
     thirty.appendChild(a);
   });
-
-  const demoGrid=$('#demoGrid'); demoGrid.innerHTML='';
-  (reg.live||[]).filter(x=>x.showOnHome!==false).forEach(l=>{
+  const demoGrid=$('#demoGrid'); (reg.live||[]).forEach(l=>{
     const a=document.createElement('article'); a.className='hero tall live';
-    const startTxt = l.starts ? new Date(l.starts).toLocaleString() : 'TBA';
-    a.innerHTML = `
-      <h3 class="title">${l.title}</h3>
-      <p class="meta">Starts ${startTxt}</p>
-      <p class="desc">Live session.</p>
-      <div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
+    a.innerHTML=`<h3 class="title">${l.title}</h3><p class="meta">Starts ${l.starts?new Date(l.starts).toLocaleString():'TBA'}</p><p class="desc">Live session.</p><div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
     demoGrid.appendChild(a);
   });
-}
-function paintWeeklyHero(item){
-  const titleEl=$('#weeklyTitle'), metaEl=$('#weeklyMeta'), descEl=$('#weeklyDesc'), btn=$('#btnWeekly'), chips=$('#weeklyChips');
-  if(!item){
-    titleEl.textContent='Weekly Challenge'; metaEl.textContent='—';
-    btn.setAttribute('aria-disabled','true'); btn.removeAttribute('href'); chips.innerHTML='';
-    return;
-  }
-  titleEl.textContent=item.title||'Weekly Challenge';
-  const end=item.expires? new Date(item.expires):null;
-  metaEl.textContent = end
-    ? `Ends ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][end.getDay()]} ${String(end.getDate()).padStart(2,'0')}/${String(end.getMonth()+1).padStart(2,'0')}`
-    : 'This week';
-  descEl.textContent=item.desc||'Design focus for the week.';
-  btn.removeAttribute('aria-disabled'); btn.href=`challenges/weekly-${item.id}.html`;
-  chips.innerHTML='';
-}
-loadRegistry().then(reg=>{ renderCourses(reg); const one=(reg.weekly||[])[0]||null; paintWeeklyHero(one); });
+  const w=(reg.weekly||[])[0]; if(w){ $('#weeklyTitle').textContent=w.title; $('#weeklyMeta').textContent=w.expires?`Ends ${new Date(w.expires).toLocaleDateString()}`:'This week'; $('#weeklyDesc').textContent=w.desc||$('#weeklyDesc').textContent; const b=$('#btnWeekly'); b.removeAttribute('aria-disabled'); b.href=`challenges/weekly-${w.id}.html`; }
+});
 
 /* ===== Tracker ===== */
+let weeklyDone=store.get(K.weeklyDone,[]);
 function startOfWeek(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-function weekKey(d){ const s=startOfWeek(d); return s.toISOString().slice(0,10); }
-
-function medalEl(done, label, skinClass){
-  const wrap=document.createElement('div'); wrap.className='medalWrap';
-  const m=document.createElement('div'); m.className='medal ' + (done?(skinClass||'m-silver'):'empty');
-  if(done) m.innerHTML='<span class="tick">✓</span>';
-  const l=document.createElement('div'); l.className='medal-label'; l.textContent=label;
-  wrap.appendChild(m); wrap.appendChild(l); return wrap;
-}
-
+function medalEl(done, label, skinClass){ const wrap=document.createElement('div'); wrap.className='medalWrap'; const m=document.createElement('div'); m.className='medal ' + (done?(skinClass||'m-silver'):'empty'); if(done) m.innerHTML='<span class="tick">✓</span>'; const l=document.createElement('div'); l.className='medal-label'; l.textContent=label; wrap.appendChild(m); wrap.appendChild(l); return wrap; }
 function paintTracker(){
-  // Daily: Mon..Sun of current week
-  const wrapD=$('#dailyMedals'); wrapD.innerHTML='';
-  const start=startOfWeek(new Date());
-  const dayLbl=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  for(let i=0;i<7;i++){
-    const dt=addDays(start,i), iso=toISO(dt);
-    const done=dailyDone.includes(iso);
-    const skin=dailyMeta[iso]?.skin; const skinClass=skin?('m-'+skin):'m-bronze';
-    wrapD.appendChild(medalEl(done, dayLbl[i], skinClass));
-  }
-
-  // Weekly: last 6 weeks (current last)
-  const wrapW=$('#weeklyMedals'); wrapW.innerHTML='';
-  const curStart=startOfWeek(new Date());
-  for(let i=5;i>=0;i--){
-    const wkStart=addDays(curStart,-7*i); const key=weekKey(wkStart);
-    const done=weeklyDone.includes(key);
-    wrapW.appendChild(medalEl(done, 'W'+(6-i), 'm-silver'));
-  }
+  const wrapD=$('#dailyMedals'); wrapD.innerHTML=''; const start=startOfWeek(new Date()); const dayLbl=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  for(let i=0;i<7;i++){ const dt=addDays(start,i), iso=toISO(dt); const done=dailyDone.includes(iso); const skin=(store.get(K.dailyMeta,{})[iso]?.skin)||'bronze'; wrapD.appendChild(medalEl(done, dayLbl[i], 'm-'+skin)); }
+  const wrapW=$('#weeklyMedals'); wrapW.innerHTML=''; const curStart=startOfWeek(new Date());
+  for(let i=5;i>=0;i--){ const wkStart=addDays(curStart,-7*i); const key=startOfWeek(wkStart).toISOString().slice(0,10); const done=weeklyDone.includes(key); wrapW.appendChild(medalEl(done, 'W'+(6-i), 'm-silver')); }
 }
 paintTracker();
 
-/* API to mark a weekly complete */
-window.AO_markWeeklyComplete=function(dateLike){
-  const key=weekKey(dateLike?new Date(dateLike):new Date());
-  if(!weeklyDone.includes(key)){ weeklyDone.push(key); store.set(K.weeklyDone,weeklyDone); paintTracker(); }
-};
-
-/* ======= SETTINGS + PROFILE HOOK (no shared JS) ======= */
-(function applySettingsAndProfile(){
-  const tabBtn = name => document.querySelector(`.btn-tab[data-tab="${name}"]`);
-  const panel  = name => document.querySelector(`[data-panel="${name}"]`);
-
-  // Settings: hide tabs/panels and ensure one stays active
-  const s = JSON.parse(localStorage.getItem('ao_settings')||'{}');
-  const hides = {
-    challenges: s.challenges === false,
-    courses:    s.courses    === false,
-    live:       s.live       === false
-  };
-  if(hides.challenges){ tabBtn('challenges')?.remove(); panel('challenges')?.remove(); }
-  if(hides.courses){    tabBtn('courses')?.remove();    panel('courses')?.remove(); }
-  if(hides.live){       tabBtn('live')?.remove();       panel('live')?.remove(); }
-
-  // If active tab was removed, activate the first available
+/* ===== Apply settings (hide tabs) at load and after closing sub sheet ===== */
+function applySettings(){
+  const s = store.get(K.settings,{});
+  const hide = (name)=>{ document.querySelector(`.btn-tab[data-tab="${name}"]`)?.remove(); document.querySelector(`[data-panel="${name}"]`)?.remove(); };
+  if(s.challenges===false) hide('challenges');
+  if(s.courses===false) hide('courses');
+  if(s.live===false) hide('live');
   const active = document.querySelector('.btn-tab.is-active[data-tab]');
   if(!active){
     const first = document.querySelector('.btn-tab[data-tab]');
-    const firstPanel = first ? panel(first.dataset.tab) : null;
+    const panel = first && document.querySelector(`[data-panel="${first.dataset.tab}"]`);
     if(first){ first.classList.add('is-active'); first.setAttribute('aria-selected','true'); }
-    if(firstPanel){ firstPanel.classList.remove('hide'); }
+    if(panel){ panel.classList.remove('hide'); }
   }
+}
+applySettings();
 
-  // Profile: initials + skill ring cue on avatar button
-  const p = JSON.parse(localStorage.getItem('ao_profile')||'{}');
-  if(p.displayName){
-    const initials = (p.initials && typeof p.initials==='string'
-                      ? p.initials
-                      : p.displayName.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase());
-    const initEl = document.getElementById('avatarInitials');
-    if(initEl) initEl.textContent = initials;
-  }
-  const borderMap={beginner:'#b87333',intermediate:'#c0c7d1',advanced:'#ffd700',expert:'#000'};
-  if(p.skill){
-    const btn=document.getElementById('avatarTab');
-    if(btn) btn.style.boxShadow = `0 0 0 2px ${borderMap[p.skill]||'#0A84FF'} inset`;
-  }
-})();
+/* ===== Sub sheet (iframe) ===== */
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function openSubSheet(title, url){
+  sheetTitle.textContent=title;
+  subFrame.src = url;
+  subSheet.classList.add('open');
+  subSheet.setAttribute('aria-hidden','false');
+}
+function closeSubSheet(){
+  subSheet.classList.remove('open');
+  subSheet.setAttribute('aria-hidden','true');
+  // Important: refresh UI from localStorage the external page just wrote
+  applyProfileToUI();
+  applySettings();
+  // Reset iframe to free memory on iOS
+  setTimeout(()=>{ subFrame.src='about:blank'; },180);
+}
+$('#sheetClose').addEventListener('click', closeSubSheet);
+subSheet.addEventListener('click', (e)=>{ if(e.target===subSheet){ closeSubSheet(); }});
 
-/* Basic boot log */
+/* Intercept menu links and open as popup */
+$$('#avatarSheet [data-pop]').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    // allow cmd/long-press to open normally
+    if(!(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)){
+      e.preventDefault();
+      closeDrawer();
+      openSubSheet(a.getAttribute('data-pop'), a.getAttribute('href'));
+    }
+  });
+});
+
+/* ===== Basic boot log ===== */
 console.log('[FAOA] home boot OK');
 })();
 </script>
