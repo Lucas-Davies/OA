@@ -6,91 +6,247 @@
 <meta name="color-scheme" content="dark">
 <title>My Data — FAOA</title>
 <style>
-:root{ --ink:#eef3ff; --ink-dim:#cfd3e1; --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --red:#ff3b30; }
-*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text"}
-main{max-width:980px;margin:0 auto;padding:18px 14px 80px}
-h1{margin:0 0 14px;font:900 28px/1.2 -apple-system}
+:root{
+  --bg:#000; --panel:#0f1116; --panel2:#121318; --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
+  --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --red:#ff3b30; --green:#32d74b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.65));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke)}
+.bar{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px}
+.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#15171f;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bar h1{margin:0;font:900 20px/1 -apple-system}
+main{max-width:980px;margin:0 auto;padding:12px 12px 80px}
+h2.section{margin:16px 4px 8px;font-weight:900}
 .card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:12px;margin:12px 0}
-table{width:100%;border-collapse:collapse;margin-top:8px} th,td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1);text-align:left;font-size:14px}
-th{color:var(--ink-dim)} img.thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid var(--stroke)}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--stroke);background:#16181f;color:#fff;font-weight:800;cursor:pointer}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:6px 2px 10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--stroke);background:#181b22;color:#fff;font-weight:800;cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 .btn.red{background:var(--red);border-color:transparent}
-.flex{display:flex;gap:8px;flex-wrap:wrap}
+.btn.ghost{background:#222}
 small.note{color:var(--ink-dim)}
+/* list style */
+.kv{display:grid;grid-template-columns:180px 1fr;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,.08)}
+.kv:first-child{border-top:none}
+.k{opacity:.9;font-weight:800}
+.v{opacity:.95}
+/* images grid */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+.thumb{position:relative;background:#0a0c11;border:1px solid var(--stroke);border-radius:12px;overflow:hidden}
+.thumb img{display:block;width:100%;height:160px;object-fit:cover}
+.thumb .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px}
+.thumb label{display:flex;align-items:center;gap:6px;font-size:13px}
+.thumb input[type="checkbox"]{width:18px;height:18px}
+.pill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;background:#1c1f28;border:1px solid var(--stroke);font-size:12px;opacity:.9}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:10px 0}
+footer.page{display:flex;gap:10px;flex-wrap:wrap;margin:20px 2px}
 </style>
 </head>
 <body>
+<header>
+  <div class="bar">
+    <button class="back" id="backBtn">‹</button>
+    <h1>My Data</h1>
+  </div>
+</header>
+
 <main>
-  <h1>My Data</h1>
-
-  <div class="card">
-    <div class="flex">
-      <button class="btn blue" id="exportBtn">Export JSON</button>
-      <label class="btn"><input id="importFile" type="file" accept="application/json" style="display:none">Import JSON</label>
-      <button class="btn red" id="wipeBtn">Delete ALL</button>
+  <!-- USER INFORMATION -->
+  <h2 class="section">User Information</h2>
+  <div class="card" id="userInfoCard">
+    <div class="actions">
+      <button class="btn blue" id="exportUser">Export</button>
     </div>
-    <small class="note">Export to back up your local data. Import restores the same structure on this device.</small>
+    <div id="userList"></div>
   </div>
 
+  <!-- IMAGES -->
+  <h2 class="section">Images</h2>
   <div class="card">
-    <strong>Profile (ao_profile)</strong>
-    <pre id="profilePre" style="white-space:pre-wrap;word-break:break-word;margin:8px 0 0"></pre>
+    <div class="actions">
+      <button class="btn blue" id="exportImages">Export Selected</button>
+      <button class="btn ghost" id="selectAll">Select All</button>
+      <button class="btn red" id="deleteSel">Delete Selected</button>
+      <button class="btn red" id="deleteAll">Delete All</button>
+    </div>
+    <div class="grid" id="imgGrid"></div>
+    <small class="note">Images include your avatar and any saved uploads. Selecting an image and pressing **Export Selected** downloads a JSON bundle with embedded data URLs.</small>
   </div>
 
+  <!-- APP INFORMATION -->
+  <h2 class="section">App Information</h2>
   <div class="card">
-    <strong>Settings (ao_settings)</strong>
-    <pre id="settingsPre" style="white-space:pre-wrap;word-break:break-word;margin:8px 0 0"></pre>
+    <div class="actions">
+      <button class="btn blue" id="exportApp">Export</button>
+    </div>
+    <div id="appList"></div>
   </div>
 
+  <!-- PURCHASES -->
+  <h2 class="section">Purchases</h2>
   <div class="card">
-    <strong>Uploaded Images (ao_uploads)</strong>
-    <table>
-      <thead><tr><th>Preview</th><th>Name</th><th>Added</th><th></th></tr></thead>
-      <tbody id="uploadsBody"></tbody>
-    </table>
+    <div class="actions">
+      <button class="btn blue" id="exportPurch">Export</button>
+    </div>
+    <div id="purchList"></div>
   </div>
+
+  <div class="hr"></div>
+
+  <footer class="page">
+    <button class="btn blue" id="exportAll">Export All</button>
+    <button class="btn red" id="wipeAll">Delete All Data</button>
+  </footer>
+
+  <small class="note">“Export” downloads human-readable JSON so you can keep a copy. “Delete All Data” wipes this device’s local data only.</small>
 </main>
 
 <script>
 (()=>{'use strict';
-const KEYS=['ao_profile','ao_settings','ao_uploads','ao_daily_done','ao_weekly_done','ao_daily_meta','ao_points','ao_sub','ao_purchased','ao_purchasedCourses'];
+/* ===== storage helpers ===== */
 const $=s=>document.querySelector(s);
-function jget(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch{return null}}
-function jset(k,v){localStorage.setItem(k,JSON.stringify(v))}
+const pad=n=>String(n).padStart(2,'0');
+const dt=t=>{ try{const d=new Date(t); return isFinite(+d)?`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`:'—';}catch{return '—';} };
+const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 
-function paint(){
-  $('#profilePre').textContent=JSON.stringify(jget('ao_profile'),null,2)||'(empty)';
-  $('#settingsPre').textContent=JSON.stringify(jget('ao_settings'),null,2)||'(empty)';
-  const list=jget('ao_uploads')||[];
-  const tbody=$('#uploadsBody'); tbody.innerHTML='';
-  if(!list.length){ const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=4; td.textContent='No uploads yet.'; tr.appendChild(td); tbody.appendChild(tr); }
-  list.forEach(u=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td><img class="thumb" src="${u.dataUrl}"></td><td>${u.name}</td><td>${new Date(u.ts).toLocaleString()}</td><td><button class="btn" data-del="${u.id}">Delete</button></td>`;
-    tbody.appendChild(tr);
+const K={
+  profile:'ao_profile', settings:'ao_settings',
+  uploads:'ao_uploads', points:'ao_points',
+  dailyDone:'ao_daily_done', weeklyDone:'ao_weekly_done', dailyMeta:'ao_daily_meta',
+  purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses'
+};
+
+/* ===== Back ===== */
+$('#backBtn').addEventListener('click', ()=>{ if(history.length>1) history.back(); });
+
+/* ===== Render: User Information ===== */
+function renderUser(){
+  const p=store.get(K.profile,{});
+  const list=$('#userList'); list.innerHTML='';
+  const rows=[
+    ['Display Name', p.displayName||'—'],
+    ['First Name', p.firstName||'—'],
+    ['Surname', p.lastName||'—'],
+    ['Email', p.email||'—'],
+    ['Username', p.username||'—'],
+    ['Skill Level', (p.skill||'—').replace(/\b\w/g,m=>m.toUpperCase())],
+    ['Avatar', p.avatarDataUrl ? 'Custom image' : 'Initials circle']
+  ];
+  rows.forEach(([k,v])=>{
+    const div=document.createElement('div'); div.className='kv'; div.innerHTML=`<div class="k">${k}</div><div class="v">${v}</div>`;
+    list.appendChild(div);
   });
-  tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
-    const id=+b.dataset.del; const cur=jget('ao_uploads')||[]; jset('ao_uploads',cur.filter(x=>x.id!==id)); paint();
-  }));
+  $('#exportUser').onclick=()=>downloadJSON('faoa_user.json', p);
 }
-paint();
 
-$('#exportBtn').addEventListener('click', ()=>{
-  const dump={}; KEYS.forEach(k=>dump[k]=jget(k));
-  const blob=new Blob([JSON.stringify(dump,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`faoa-data-${new Date().toISOString().slice(0,10)}.json`; a.click();
-  URL.revokeObjectURL(a.href);
+/* ===== Render: Images ===== */
+function renderImages(){
+  const grid=$('#imgGrid'); grid.innerHTML='';
+  const list=store.get(K.uploads,[]);
+  if(!list.length){ grid.innerHTML='<small class="note" style="padding:6px">No images saved yet.</small>'; return; }
+  list.forEach((u,i)=>{
+    const it=document.createElement('div'); it.className='thumb';
+    const date=dt(u.ts||Date.now());
+    it.innerHTML=`
+      <img src="${u.dataUrl}" alt="">
+      <div class="meta">
+        <label><input type="checkbox" data-idx="${i}"><span>${u.name||'Image'}</span></label>
+        <span class="pill">${date}</span>
+      </div>
+    `;
+    grid.appendChild(it);
+  });
+}
+$('#selectAll').addEventListener('click', ()=>{ document.querySelectorAll('#imgGrid input[type="checkbox"]').forEach(cb=>cb.checked=true); });
+$('#deleteSel').addEventListener('click', ()=>{
+  const list=store.get(K.uploads,[]), keep=[];
+  const checked=new Set([...document.querySelectorAll('#imgGrid input[type="checkbox"]:checked')].map(cb=>+cb.dataset.idx));
+  if(!checked.size) return alert('Select at least one image.');
+  list.forEach((u,i)=>{ if(!checked.has(i)) keep.push(u); });
+  store.set(K.uploads, keep); renderImages();
 });
-$('#importFile').addEventListener('change', e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const r=new FileReader(); r.onload=ev=>{ try{ const obj=JSON.parse(ev.target.result); Object.keys(obj||{}).forEach(k=>{ if(KEYS.includes(k)) jset(k,obj[k]); }); alert('Imported'); paint(); }catch{ alert('Invalid JSON'); } };
-  r.readAsText(f);
+$('#deleteAll').addEventListener('click', ()=>{
+  if(!confirm('Delete ALL saved images on this device?')) return;
+  localStorage.removeItem(K.uploads); renderImages();
 });
-$('#wipeBtn').addEventListener('click', ()=>{
-  if(!confirm('Delete ALL local data?')) return;
-  KEYS.forEach(k=>localStorage.removeItem(k)); paint();
+$('#exportImages').addEventListener('click', ()=>{
+  const list=store.get(K.uploads,[]);
+  const picked=[...document.querySelectorAll('#imgGrid input[type="checkbox"]:checked')].map(cb=>list[+cb.dataset.idx]);
+  if(!picked.length) return alert('Select at least one image.');
+  downloadJSON('faoa_images.json', picked);
 });
+
+/* ===== Render: App Information ===== */
+function renderApp(){
+  const points=+store.get(K.points,0);
+  const daily=store.get(K.dailyDone,[])||[];
+  const weekly=store.get(K.weeklyDone,[])||[];
+  const settings=store.get(K.settings,{});
+  const list=$('#appList'); list.innerHTML='';
+  const rows=[
+    ['Points', String(points)],
+    ['Daily Completed', daily.length ? daily.join(', ') : '—'],
+    ['Weekly Completed', weekly.length ? weekly.join(', ') : '—'],
+    ['Settings Keys', Object.keys(settings).length ? Object.keys(settings).join(', ') : '—']
+  ];
+  rows.forEach(([k,v])=>{ const div=document.createElement('div'); div.className='kv'; div.innerHTML=`<div class="k">${k}</div><div class="v">${v}</div>`; list.appendChild(div); });
+  $('#exportApp').onclick=()=>downloadJSON('faoa_app.json',{points,daily,weekly,settings});
+}
+
+/* ===== Render: Purchases ===== */
+function renderPurchases(){
+  const a=store.get(K.purchasedA,[]);
+  const b=store.get(K.purchasedB,[]);
+  const list=[...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])];
+  const box=$('#purchList'); box.innerHTML='';
+  if(!list.length){ box.innerHTML='<div class="kv"><div class="k">Purchases</div><div class="v">—</div></div>'; }
+  else{
+    list.forEach(item=>{
+      const line=document.createElement('div'); line.className='kv';
+      const when=dt(item.ts||Date.now());
+      line.innerHTML=`<div class="k">${item.id||'Item'}</div><div class="v">${item.title||''} <span class="pill" style="margin-left:8px">${when}</span></div>`;
+      box.appendChild(line);
+    });
+  }
+  $('#exportPurch').onclick=()=>downloadJSON('faoa_purchases.json', list);
+}
+
+/* ===== Export helpers ===== */
+function downloadJSON(filename, obj){
+  const blob=new Blob([JSON.stringify(obj,null,2)], {type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
+}
+
+$('#exportAll').addEventListener('click', ()=>{
+  const dump={
+    profile: store.get(K.profile,null),
+    uploads: store.get(K.uploads,[]),
+    app: {
+      points: store.get(K.points,0),
+      daily: store.get(K.dailyDone,[]),
+      weekly: store.get(K.weeklyDone,[]),
+      dailyMeta: store.get(K.dailyMeta,{})
+    },
+    settings: store.get(K.settings,{}),
+    purchasesA: store.get(K.purchasedA,[]),
+    purchasesB: store.get(K.purchasedB,[])
+  };
+  downloadJSON('faoa_all_data.json', dump);
+});
+
+/* ===== Wipe all data (device only) ===== */
+$('#wipeAll').addEventListener('click', ()=>{
+  if(!confirm('Delete ALL local data for FAOA on this device?')) return;
+  localStorage.clear();
+  alert('All local data removed. Reloading…');
+  location.reload();
+});
+
+/* ===== Boot ===== */
+renderUser(); renderImages(); renderApp(); renderPurchases();
 })();
 </script>
 </body>
