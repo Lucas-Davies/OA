@@ -6,254 +6,274 @@
 <meta name="color-scheme" content="dark">
 <title>Profile — FAOA</title>
 <style>
-:root{ --bg:#000; --panel:#0f1116; --panel2:#121318; --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78); --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --red:#ff3b30; --bronze:#b87333; --silver:#c0c7d1; --gold:#ffd700 }
+:root{
+  --bg:#000; --panel:#0f1116; --panel2:#121318; --ink:#eef3ff; --ink-dim:#cfd3e1;
+  --muted:rgba(238,243,255,.78); --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --red:#ff3b30; --green:#32d74b;
+  --bronze:#b87333; --silver:#c0c7d1; --gold:#ffd700; --black:#111;
+}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text"}
-header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.65));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke)}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+
+/* Header */
+header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.65));
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke)}
 .bar{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px}
-.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#15171f;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#15171f;color:#fff;
+  font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .bar h1{margin:0;font:900 20px/1 -apple-system}
-main{max-width:820px;margin:0 auto;padding:12px 12px 80px}
-.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:12px;margin:12px 0}
-.collapser{display:flex;align-items:center;justify-content:space-between;padding:14px 10px;border-radius:12px;cursor:pointer;background:var(--panel);border:1px solid var(--stroke);margin:12px 0}
-.collapser h3{margin:0;font-weight:900}
-.sectionBody{display:none}
-.open + .sectionBody{display:block}
-label{display:block;font-weight:800;margin:10px 4px 6px}
-input,select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:#0a0c11;color:var(--ink)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:700px){.row{grid-template-columns:1fr}}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);background:#181b22;color:#fff;font-weight:900;cursor:pointer}
+
+/* Layout */
+main{max-width:980px;margin:0 auto;padding:12px 12px 88px}
+
+/* Big pill hero */
+.hero{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:14px;margin:12px 0}
+#bigPill{display:inline-flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;
+  border:1px solid var(--stroke);background:#2a2a2a;color:#fff}
+#bigPill .lines{display:flex;flex-direction:column;line-height:1.06}
+#bigPill .name{font-weight:900;font-size:18px;max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bigPill .lvl{text-transform:capitalize;font-weight:800;font-size:13px;opacity:.95}
+
+/* Skill row */
+.skillRow{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(0,0,0,.18);font-weight:900}
+select, input[type="text"], input[type="email"], input[type="password"]{
+  width:100%;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--stroke);background:#0b0c12;color:#fff;font:inherit}
+
+/* Collapsibles */
+details{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;margin:12px 0;overflow:hidden}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 14px;font-weight:900}
+summary::-webkit-details-marker{display:none}
+.chev{width:24px;height:24px;border:1px solid var(--stroke);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#15171f}
+details[open] .chev{transform:rotate(90deg)}
+.section-body{padding:0 14px 14px}
+.field{margin:12px 0}
+.labelRow{display:flex;align-items:center;gap:8px;margin:0 2px 6px}
+.labelRow .q{width:18px;height:18px;border-radius:50%;border:1px solid var(--stroke);display:inline-flex;align-items:center;justify-content:center;font-size:12px;opacity:.85}
+.help{color:var(--ink-dim);font-size:13px}
+
+/* Buttons */
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 2px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);
+  background:#181b22;color:#fff;font-weight:900;cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
-.btn.ghost{background:#222}
 .btn.red{background:var(--red);border-color:transparent}
+.btn.ghost{background:#222}
 
-/* hero */
-.hero{background:var(--panel2);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
-.heroTop{display:flex;align-items:center;gap:14px}
-.circle{position:relative;width:108px;height:108px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.preview{position:absolute;inset:0;border-radius:50%;background:#111 center/cover no-repeat}
-.ring{position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--silver);pointer-events:none}
-.badge{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-weight:900}
-.badge.bronze{background:var(--bronze);color:#fff}
-.badge.silver{background:var(--silver);color:#111}
-.badge.gold{background:var(--gold);color:#111}
-.badge.black{background:#111;color:#fff;border-color:#333}
-.small{color:var(--muted);font-size:.92rem}
+/* Password sheet */
+#pwdSheet{display:none}
+#pwdSheet.open{display:block}
+.sheet{margin-top:8px;background:var(--panel2);border:1px solid var(--stroke);border-radius:12px;padding:12px}
 
-/* slider under circle */
-.editor{margin-top:10px;display:none}
-.sliderRow{display:flex;align-items:center;gap:10px}
-.range{appearance:none;width:100%;height:4px;border-radius:999px;background:#2a2a2a;outline:none}
-.range::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid #000}
-footer.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+/* Small text */
+small.note{color:var(--ink-dim)}
 </style>
 </head>
 <body>
-<header><div class="bar">
-  <button class="back" id="backTop">‹</button>
-  <h1>Profile</h1>
-</div></header>
+<header>
+  <div class="bar">
+    <button class="back" id="backBtn" aria-label="Back">‹</button>
+    <h1>Profile</h1>
+  </div>
+</header>
 
 <main>
   <!-- HERO -->
   <section class="hero">
-    <div class="heroTop">
-      <div class="circle" id="tapCircle" title="Change">
-        <div class="preview" id="preview"></div>
-        <div class="ring" id="ring"></div>
-      </div>
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <label style="margin:0">Skill Level</label>
-          <span class="badge silver" id="levelBadge">Intermediate</span>
-        </div>
-        <select id="skill" style="margin-top:6px">
-          <option value="beginner">Beginner (Bronze)</option>
-          <option value="intermediate">Intermediate (Silver)</option>
-          <option value="advanced">Advanced (Gold)</option>
-          <option value="expert">Expert (Black)</option>
-        </select>
+    <div id="bigPill">
+      <div class="lines">
+        <div class="name" id="pName">User</div>
+        <div class="lvl" id="pLvl">Intermediate</div>
       </div>
     </div>
 
-    <!-- slider appears only while editing -->
-    <div class="editor" id="editor">
-      <div class="sliderRow">
-        <span style="opacity:.8">Zoom</span>
-        <input type="range" class="range" id="zoom" min="0.7" max="3" step="0.01" value="1">
-        <button class="btn ghost" id="cancelEdit" type="button">Cancel</button>
-        <button class="btn blue" id="saveEdit" type="button">Save</button>
-      </div>
+    <div class="skillRow">
+      <div class="badge" id="lvlBadge">Intermediate</div>
+      <label for="skill" class="sr-only">Skill Level</label>
+      <select id="skill" aria-label="Skill Level">
+        <option value="beginner">Beginner (Bronze)</option>
+        <option value="intermediate">Intermediate (Silver)</option>
+        <option value="advanced">Advanced (Gold)</option>
+        <option value="expert">Expert (Black)</option>
+      </select>
     </div>
-    <input type="file" id="file" accept="image/*" style="display:none">
-    <div class="small">Tip: tap the circle to change your picture.</div>
   </section>
 
-  <!-- My Details (collapsed by default) -->
-  <div class="collapser" id="c1"><h3>My Details</h3><span>›</span></div>
-  <div class="sectionBody" id="s1">
-    <div class="card">
-      <div class="row">
-        <div><label>First Name</label><input id="firstName" type="text" autocomplete="given-name"></div>
-        <div><label>Surname</label><input id="lastName" type="text" autocomplete="family-name"></div>
+  <!-- MY DETAILS -->
+  <details>
+    <summary>
+      My Details
+      <span class="chev">›</span>
+    </summary>
+    <div class="section-body">
+      <div class="field">
+        <div class="labelRow"><label for="firstName">First Name</label><span class="q" title="Your given name">?</span></div>
+        <input id="firstName" type="text" autocomplete="given-name" placeholder="First name">
       </div>
-      <div class="row">
-        <div><label>Display Name</label><input id="displayName" type="text" autocomplete="name"></div>
-        <div><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+      <div class="field">
+        <div class="labelRow"><label for="lastName">Surname</label><span class="q" title="Your family name">?</span></div>
+        <input id="lastName" type="text" autocomplete="family-name" placeholder="Surname">
       </div>
-    </div>
-  </div>
-
-  <!-- Username & Password -->
-  <div class="collapser" id="c2"><h3>Username & Password</h3><span>›</span></div>
-  <div class="sectionBody" id="s2">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 2px">
-        <div><strong>Username</strong><div id="usernameText" style="opacity:.9;margin-top:6px">@username</div></div>
+      <div class="field">
+        <div class="labelRow"><label for="displayName">Display Name</label><span class="q" title="Shown on the avatar pill">?</span></div>
+        <input id="displayName" type="text" placeholder="Display name">
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 2px">
-        <div><strong>Password</strong></div>
-        <button class="btn" id="changePass" type="button">Change Password</button>
+      <div class="field">
+        <div class="labelRow"><label for="email">Email</label><span class="q" title="Used for receipts and notifications">?</span></div>
+        <input id="email" type="email" autocomplete="email" placeholder="name@example.com">
       </div>
     </div>
-  </div>
+  </details>
 
-  <!-- My Data -->
-  <div class="collapser" id="c3"><h3>My Data</h3><span>›</span></div>
-  <div class="sectionBody" id="s3">
-    <div class="card">
-      <a class="btn" href="mydata.html">Open My Data</a>
+  <!-- USERNAME & PASSWORD -->
+  <details>
+    <summary>
+      Username &amp; Password
+      <span class="chev">›</span>
+    </summary>
+    <div class="section-body">
+      <div class="field">
+        <div class="labelRow"><label for="username">Username</label><span class="q" title="Fixed identifier for this account">?</span></div>
+        <input id="username" type="text" placeholder="@username" disabled>
+        <small class="help">Username can’t be changed.</small>
+      </div>
+
+      <div class="field">
+        <button class="btn ghost" id="changePwdBtn" type="button">Change Password</button>
+        <div id="pwdSheet" class="sheet">
+          <div class="field">
+            <div class="labelRow"><label for="pwd1">New Password</label><span class="q" title="Minimum 8 characters">?</span></div>
+            <input id="pwd1" type="password" placeholder="New password" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="pwd2">Confirm Password</label><span class="q" title="Re-enter to confirm">?</span></div>
+            <input id="pwd2" type="password" placeholder="Confirm password" autocomplete="new-password">
+          </div>
+          <div class="actions">
+            <button class="btn blue" id="savePwdBtn" type="button">Save Password</button>
+            <button class="btn" id="cancelPwdBtn" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </details>
 
-  <footer class="actions">
-    <button class="btn blue" id="saveBtn" type="button">Save</button>
+  <!-- MY DATA -->
+  <details>
+    <summary>
+      My Data
+      <span class="chev">›</span>
+    </summary>
+    <div class="section-body">
+      <p class="help">View or export your local data.</p>
+      <div class="actions">
+        <a class="btn blue" href="mydata.html">Open My Data</a>
+        <button class="btn" id="exportProfileBtn" type="button">Export Profile</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Footer actions -->
+  <div class="actions">
     <button class="btn" id="cancelBtn" type="button">Cancel</button>
-  </footer>
+    <button class="btn blue" id="saveBtn" type="button">Save</button>
+  </div>
+
+  <small class="note">Saving updates this device only. Home will reflect changes as soon as you close this panel.</small>
 </main>
 
 <script>
 (()=>{'use strict';
+/* ===== Helpers & storage ===== */
 const $=s=>document.querySelector(s);
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-const K={ profile:'ao_profile', uploads:'ao_uploads' };
-const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
-const badgeCls={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
-const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
+const K={ profile:'ao_profile' };
 
-/* collapsers (closed by default) */
-['1','2','3'].forEach(i=>{
-  const h=$('#c'+i), b=$('#s'+i); h.addEventListener('click',()=>{ const open=h.classList.toggle('open'); b.style.display = open?'block':'none'; });
+const skinByLevel={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
+const colorByLevel={ beginner:'var(--bronze)', intermediate:'var(--silver)', advanced:'var(--gold)', expert:'var(--black)' };
+const textOn={ bronze:'#fff', black:'#fff', silver:'#0f1116', gold:'#0f1116' };
+
+function cap(s){ return (s||'').replace(/\b\w/g,m=>m.toUpperCase()); }
+
+/* ===== Page state ===== */
+let original = store.get(K.profile,{
+  firstName:'', lastName:'', displayName:'User', email:'', username:'@user',
+  skill:'intermediate', passwordHash:null
+});
+let working = JSON.parse(JSON.stringify(original));
+
+/* ===== Paint UI from working model ===== */
+function paint(){
+  $('#firstName').value = working.firstName||'';
+  $('#lastName').value = working.lastName||'';
+  $('#displayName').value = working.displayName||'';
+  $('#email').value = working.email||'';
+  $('#username').value = working.username||'';
+  $('#skill').value = (working.skill||'intermediate');
+  // hero pill
+  $('#pName').textContent = working.displayName||'User';
+  $('#pLvl').textContent = cap(working.skill||'intermediate');
+  const skin=skinByLevel[working.skill]||'silver';
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--'+skin).trim() || '#2a2a2a';
+  const txt = textOn[skin] || '#fff';
+  const pill=$('#bigPill'); pill.style.background=bg; pill.style.color=txt;
+  const badge=$('#lvlBadge'); badge.textContent=cap(working.skill);
+  badge.style.background=bg; badge.style.color=txt;
+}
+paint();
+
+/* ===== Bind inputs to working model ===== */
+['firstName','lastName','displayName','email'].forEach(id=>{
+  const el=$( '#'+id ); el.addEventListener('input', ()=>{ working[id]=el.value; liveHeroName(); });
+});
+function liveHeroName(){ $('#pName').textContent = (working.displayName||'User'); }
+$('#skill').addEventListener('change', e=>{ working.skill=e.target.value; paint(); });
+
+/* ===== Password change sheet ===== */
+const pwdSheet=$('#pwdSheet');
+$('#changePwdBtn').addEventListener('click',()=>{ pwdSheet.classList.add('open'); $('#pwd1').focus(); });
+$('#cancelPwdBtn').addEventListener('click',()=>{ pwdSheet.classList.remove('open'); $('#pwd1').value=''; $('#pwd2').value=''; });
+
+async function sha256(str){
+  const enc=new TextEncoder().encode(str);
+  const buf=await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+$('#savePwdBtn').addEventListener('click', async ()=>{
+  const a=$('#pwd1').value.trim(), b=$('#pwd2').value.trim();
+  if(a.length<8){ alert('Password must be at least 8 characters.'); return; }
+  if(a!==b){ alert('Passwords do not match.'); return; }
+  working.passwordHash = await sha256(a);
+  pwdSheet.classList.remove('open');
+  $('#pwd1').value=''; $('#pwd2').value='';
+  alert('Password updated (this device).');
 });
 
-/* load profile */
-let original=store.get(K.profile,{skill:'intermediate',username:'@username'});
-let working=JSON.parse(JSON.stringify(original));
-$('#firstName').value=working.firstName||''; $('#lastName').value=working.lastName||'';
-$('#displayName').value=working.displayName||''; $('#email').value=working.email||'';
-$('#usernameText').textContent=working.username||'@username';
-$('#skill').value=working.skill||'intermediate';
-
-function paintLevel(){
-  $('#levelBadge').textContent=cap($('#skill').value);
-  $('#levelBadge').className='badge '+(badgeCls[$('#skill').value]||'silver');
-  $('#ring').style.borderColor=ringByLevel[$('#skill').value]||'#c0c7d1';
-}
-paintLevel(); $('#skill').addEventListener('change', paintLevel);
-
-function paintAvatar(){
-  const el=$('#preview');
-  if(working.avatarDataUrl){ el.style.backgroundImage=`url(${working.avatarDataUrl})`; el.style.backgroundColor='transparent'; }
-  else{
-    // initials circle
-    const cn=document.createElement('canvas'); cn.width=256; cn.height=256;
-    const ctx=cn.getContext('2d');
-    ctx.fillStyle=ringByLevel[working.skill||'intermediate']||'#333'; ctx.beginPath(); ctx.arc(128,128,128,0,Math.PI*2); ctx.fill();
-    const initials=(working.displayName||'User').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'U';
-    ctx.fillStyle=(working.skill==='expert')?'#fff':'#000'; ctx.font='bold 86px -apple-system,BlinkMacSystemFont,Helvetica'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(initials,128,140);
-    el.style.backgroundImage=`url(${cn.toDataURL('image/png')})`;
-  }
-}
-paintAvatar();
-
-/* avatar editing: only circle + slider */
-let base=null, img=null, scale=1;
-$('#tapCircle').addEventListener('click', ()=>$('#file').click());
-$('#file').addEventListener('change', e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    const image=new Image();
-    image.onload=()=>{
-      img=image; base={w:256,h:256}; scale=1; $('#zoom').value='1';
-      $('#editor').style.display='block';
-      drawPreview();
-    };
-    image.src=ev.target.result;
-  };
-  r.readAsDataURL(f);
+/* ===== Save / Cancel / Back ===== */
+$('#saveBtn').addEventListener('click', ()=>{
+  original = JSON.parse(JSON.stringify(working));
+  store.set(K.profile, original);
+  alert('Saved.');
 });
-function drawPreview(){
-  if(!img){ paintAvatar(); return; }
-  // draw into a 256 circle then set as background
-  const out=document.createElement('canvas'); out.width=256; out.height=256; const ctx=out.getContext('2d');
-  ctx.save(); ctx.beginPath(); ctx.arc(128,128,128,0,Math.PI*2); ctx.clip();
-  // center-fit image @ current scale
-  const iw=img.width, ih=img.height; const k=Math.max(256/iw,256/ih)*scale;
-  const dw=iw*k, dh=ih*k; const dx=(256-dw)/2, dy=(256-dh)/2;
-  ctx.drawImage(img, dx, dy, dw, dh);
-  ctx.restore();
-  $('#preview').style.backgroundImage=`url(${out.toDataURL('image/png')})`;
-}
-$('#zoom').addEventListener('input', e=>{ scale=parseFloat(e.target.value); drawPreview(); });
-$('#saveEdit').addEventListener('click', ()=>{
-  if(!img) return;
-  // final render equals current preview
-  const out=document.createElement('canvas'); out.width=512; out.height=512; const ctx=out.getContext('2d');
-  ctx.save(); ctx.beginPath(); ctx.arc(256,256,256,0,Math.PI*2); ctx.clip();
-  const iw=img.width, ih=img.height; const k=Math.max(512/iw,512/ih)*scale;
-  const dw=iw*k, dh=ih*k; const dx=(512-dw)/2, dy=(512-dh)/2;
-  ctx.drawImage(img, dx, dy, dw, dh); ctx.restore();
-  working.avatarDataUrl=out.toDataURL('image/png');
-  $('#editor').style.display='none'; img=null; drawPreview();
-});
-$('#cancelEdit').addEventListener('click', ()=>{ $('#editor').style.display='none'; img=null; drawPreview(); });
-
-/* Save / Cancel (discard) */
-function save(){
-  const data={
-    firstName: $('#firstName').value.trim(),
-    lastName:  $('#lastName').value.trim(),
-    displayName: $('#displayName').value.trim(),
-    email: $('#email').value.trim(),
-    username: original.username||'@username',
-    skill: $('#skill').value,
-    avatarDataUrl: working.avatarDataUrl || original.avatarDataUrl || null
-  };
-  store.set(K.profile, data);
-  original = JSON.parse(JSON.stringify(data));
-  alert('Saved');
-}
-function cancel(){
-  // revert edits to original (discard unsaved)
+function resetWorking(){
   working = JSON.parse(JSON.stringify(original));
-  $('#firstName').value=working.firstName||''; $('#lastName').value=working.lastName||'';
-  $('#displayName').value=working.displayName||''; $('#email').value=working.email||'';
-  $('#skill').value=working.skill||'intermediate'; paintLevel(); paintAvatar();
-  $('#editor').style.display='none'; img=null;
+  paint();
 }
-$('#saveBtn').addEventListener('click', save);
-$('#cancelBtn').addEventListener('click', cancel);
-$('#backTop').addEventListener('click', ()=>history.back());
-
-/* change password (mailto stub) */
-$('#changePass').addEventListener('click', ()=>{
-  const email=($('#email').value||'').trim(); if(!email) return alert('Enter your email first.');
-  location.href=`mailto:${email}?subject=${encodeURIComponent('Password change')}&body=${encodeURIComponent('A password change was requested.')}`;
+$('#cancelBtn').addEventListener('click', ()=>{
+  if(!confirm('Discard your unsaved changes?')) return;
+  resetWorking();
 });
+$('#backBtn').addEventListener('click', ()=>{
+  // treat as close/back; do not auto-save
+  if(document.referrer){ history.back(); } else { window.parent && window.parent.postMessage({type:'closeSubSheet'}, '*'); }
+});
+
+/* ===== Listen for parent close message (optional, safe no-op on standalone) ===== */
+window.addEventListener('message', (ev)=>{ if(ev?.data?.type==='requestProfile'){ window.parent.postMessage({type:'profileSnapshot', profile:store.get(K.profile,original)}, '*'); } });
+
 })();
 </script>
 </body>
