@@ -6,66 +6,118 @@
 <meta name="color-scheme" content="dark">
 <title>Settings — FAOA</title>
 <style>
-:root{
-  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF;
-}
-*{box-sizing:border-box}
-html,body{margin:0; background:var(--bg); color:var(--ink); font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-main{max-width:720px; margin:0 auto; padding:24px 14px 80px}
-h1{margin:0 0 16px; font-size:32px; font-weight:900}
-.card{background:var(--panel); border:1px solid var(--stroke); border-radius:14px; padding:14px; margin:14px 0}
-label{display:flex; align-items:center; gap:10px; font-weight:800; margin:10px 2px}
-input[type="checkbox"]{width:20px; height:20px}
-p.hint{color:var(--muted)}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:132px; height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
-.btn.blue{background:var(--blue); border-color:transparent; color:#000}
-.btn.grey{background:#3a3a3a}
-.flex{display:flex; gap:10px; flex-wrap:wrap}
+:root{ --ink:#eef3ff; --ink-dim:#cfd3e1; --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18); --blue:#0A84FF; }
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text"}
+main{max-width:760px;margin:0 auto;padding:18px 14px 80px}
+h1{margin:0 0 14px;font:900 28px/1.2 -apple-system}
+.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:12px;margin:12px 0}
+.row{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--stroke);border-radius:12px;background:#0b0c10}
+.switch{position:relative;display:inline-block;width:52px;height:30px}
+.switch input{display:none}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#2a2a2a;border-radius:999px;border:1px solid var(--stroke);transition:.2s}
+.slider:before{content:"";position:absolute;height:24px;width:24px;left:3px;top:2px;background:white;border-radius:50%;transition:.2s}
+input:checked + .slider{background:var(--blue)}
+input:checked + .slider:before{transform:translateX(22px)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);background:#16181f;color:#fff;font-weight:900;cursor:pointer}
+.btn.blue{background:var(--blue);border-color:transparent;color:#000}
+ul.sort{list-style:none;margin:0;padding:0;display:flex;gap:8px;flex-wrap:wrap}
+.sort li{padding:8px 12px;border:1px dashed rgba(255,255,255,.18);border-radius:999px;background:#0b0c10;cursor:grab}
+.sort li:active{cursor:grabbing}
+small.note{color:#cfd3e1}
 </style>
 </head>
 <body>
 <main>
   <h1>Settings</h1>
 
-  <form id="settingsForm" onsubmit="return false">
-    <div class="card">
-      <label><input type="checkbox" id="showChallenges"> Show “Challenges” tab</label>
-      <label><input type="checkbox" id="showCourses"> Show “Courses” tab</label>
-      <label><input type="checkbox" id="showLive"> Show “Live” tab</label>
-      <p class="hint">Uncheck to hide. Home will reflow the remaining tabs automatically.</p>
+  <div class="card">
+    <div class="row">
+      <div class="item"><strong>Show “Challenges” tab</strong>
+        <label class="switch"><input id="showChallenges" type="checkbox"><span class="slider"></span></label>
+      </div>
+      <div class="item"><strong>Show “Courses” tab</strong>
+        <label class="switch"><input id="showCourses" type="checkbox"><span class="slider"></span></label>
+      </div>
+      <div class="item"><strong>Show “Live” tab</strong>
+        <label class="switch"><input id="showLive" type="checkbox"><span class="slider"></span></label>
+      </div>
     </div>
+    <small class="note">Hidden tabs disappear on Home; remaining tabs snap into place.</small>
+  </div>
 
-    <div class="flex">
-      <button class="btn blue" id="saveBtn" type="button">Save</button>
-      <button class="btn grey" id="closeBtn" type="button">Close</button>
+  <div class="card">
+    <strong>Tab order</strong>
+    <ul id="sortList" class="sort" aria-label="Drag to reorder"></ul>
+    <small class="note">Drag chips to set your preferred tab order.</small>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="item"><strong>Hide weekly challenge</strong>
+        <label class="switch"><input id="hideWeekly" type="checkbox"><span class="slider"></span></label>
+      </div>
+      <div class="item"><strong>Gift today’s daily challenge</strong>
+        <button class="btn" id="giftBtn" type="button">Gift</button>
+      </div>
     </div>
-  </form>
+    <small class="note">Gifting uses your email app (backend optional).</small>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+    <button class="btn blue" id="saveBtn" type="button">Save</button>
+    <a class="btn" href="profile.html">Profile</a>
+    <a class="btn" href="mydata.html">My Data</a>
+  </div>
 </main>
 
 <script>
 (()=>{'use strict';
-const K='ao_settings';
+const KEY='ao_settings';
 const $=s=>document.querySelector(s);
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 
+const defaults={challenges:true,courses:true,live:true, order:['challenges','courses','live'], hideWeekly:false};
+
 function load(){
-  const s=store.get(K,{challenges:true,courses:true,live:true});
+  const s=Object.assign({},defaults, store.get(KEY,{}));
   $('#showChallenges').checked = s.challenges!==false;
   $('#showCourses').checked    = s.courses!==false;
   $('#showLive').checked       = s.live!==false;
+  $('#hideWeekly').checked     = !!s.hideWeekly;
+
+  const list=$('#sortList'); list.innerHTML='';
+  (s.order && s.order.length?s.order:defaults.order).forEach(name=>{
+    const li=document.createElement('li'); li.textContent=name.charAt(0).toUpperCase()+name.slice(1); li.dataset.tab=name; list.appendChild(li);
+  });
+
+  // simple drag re-order
+  let dragging=null;
+  list.addEventListener('dragstart',e=>{ if(e.target.tagName!=='LI') return; dragging=e.target; e.dataTransfer.setData('text/plain',''); });
+  list.addEventListener('dragover',e=>{ e.preventDefault(); const li=[...list.children].find(x=>x===e.target); if(!dragging||!li||li===dragging) return; const rect=li.getBoundingClientRect(); const before = (e.clientX-rect.left) < rect.width/2; list.insertBefore(dragging, before?li:li.nextSibling); });
+  [...list.children].forEach(li=>li.setAttribute('draggable','true'));
 }
 load();
 
 $('#saveBtn').addEventListener('click', ()=>{
-  const s={ challenges: $('#showChallenges').checked, courses: $('#showCourses').checked, live: $('#showLive').checked };
-  store.set(K,s);
-  alert('Saved!');
+  const order=[...document.querySelectorAll('#sortList li')].map(li=>li.dataset.tab);
+  const s={
+    challenges: $('#showChallenges').checked,
+    courses:    $('#showCourses').checked,
+    live:       $('#showLive').checked,
+    hideWeekly: $('#hideWeekly').checked,
+    order
+  };
+  store.set(KEY,s);
+  alert('Saved');
 });
 
-$('#closeBtn').addEventListener('click', ()=>{ if(window.top && window.top!==window){ /* returning to slide-over */ } window.history.back(); });
+$('#giftBtn').addEventListener('click', ()=>{
+  const subject=encodeURIComponent('I’m gifting you today’s Daily Challenge');
+  const body=encodeURIComponent('Enjoy today’s challenge in FAOA! (You can wire this to a backend invite link later.)');
+  location.href=`mailto:?subject=${subject}&body=${body}`;
+});
 })();
 </script>
 </body>
