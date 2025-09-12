@@ -23,9 +23,10 @@ body{
 }
 a{color:inherit; text-decoration:none}
 
-/* Background */
+/* Background (can be themed from Settings) */
 .bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat; }
 
+/* common */
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
 .hide{ display:none !important }
 .section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
@@ -53,7 +54,7 @@ a{color:inherit; text-decoration:none}
 .nav-right{margin-left:auto; display:flex; align-items:center}
 .btn-tab{
   display:inline-flex; align-items:center; justify-content:center;
-  flex:1 1 0; min-width:0; max-width:120px;
+  flex:0 0 auto; min-width:0; max-width:160px;
   height:44px; padding:0 12px;
   border-radius:12px; border:1px solid var(--stroke);
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
@@ -64,55 +65,37 @@ a{color:inherit; text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
-/* Avatar pillbox */
-.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:10px; padding-right:56px; height:44px }
-.avatarTab .points{ font-weight:900 }
-.avatarTab .dot{
-  position:absolute; right:0; top:0; bottom:0; width:44px;
-  border-left:1px solid var(--stroke);
-  border-top-right-radius:22px; border-bottom-right-radius:22px;
-  display:flex; align-items:center; justify-content:center; font-weight:900;
-  transform: translateX(1px);
-  background-size:cover; background-position:center; /* avatar image support */
-}
-.avatarTab .skill-badge{
-  position:absolute; left:10px; top:50%; transform:translateY(-50%);
-  height:22px; line-height:22px; padding:0 8px; border-radius:999px; font-weight:900; font-size:12px;
-  border:1px solid rgba(0,0,0,.2);
-}
+/* Avatar pill */
+.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:8px; padding:0 10px 0 12px; height:44px }
+.avatarTab .points{ font-weight:900; padding-right:4px }
+.avatarTab .skill-badge{ height:22px; line-height:22px; padding:0 8px; border-radius:999px; font-weight:900; font-size:12px; border:1px solid rgba(0,0,0,.2) }
 .badge-bronze{ background:var(--bronze); color:#fff }
 .badge-silver{ background:var(--silver); color:#0f1116 }
 .badge-gold{ background:var(--gold); color:#0f1116 }
 .badge-black{ background:#111; color:#fff; border-color:#333 }
-
-@media (max-width:420px){ .avatarTab{ padding-right:50px } .avatarTab .skill-badge{ display:none } }
+#avatarInitials{ width:36px; height:36px; border-radius:50%; border:3px solid var(--silver); background:#111 center/cover no-repeat; display:inline-flex; align-items:center; justify-content:center; font-weight:900 }
 
 /* ===== HERO base ===== */
-.hero{
-  position:relative; overflow:hidden; background:#000;
-  border:1px solid var(--stroke); border-radius:16px;
-  padding:16px; margin:12px 0;
-}
+.hero{ position:relative; overflow:hidden; background:#000; border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0 }
 .hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
 .hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
 .hero .desc{ margin:8px 0 56px; color:var(--muted) }
 .cta-left{ position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px }
 
-/* ===== Daily hero ===== */
-#dailyHero{ color:#eef3ff; position:relative; }
-#dailyHero::after{ content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.10) 30%, rgba(255,255,255,0) 60%); mix-blend-mode:screen; }
-#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px; letter-spacing:.5px; z-index:1 }
+/* Daily hero skins */
+#dailyHeroTemplate[data-skin="bronze"], .dailyCard[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
+#dailyHeroTemplate[data-skin="silver"], .dailyCard[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
+#dailyHeroTemplate[data-skin="gold"],   .dailyCard[data-skin="gold"]  { background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
+#dailyHeroTemplate[data-skin="black"],  .dailyCard[data-skin="black"] { background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
+.levelTag{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px; letter-spacing:.5px }
 
-/* Chips */
-#dailyHero .meta-chips{ position:absolute; right:16px; bottom: calc(var(--btn-bottom) + (var(--btn-h)/2) - (var(--chip-h)/2)); display:flex; gap:8px; flex-wrap:wrap; margin:0; justify-content:flex-end }
-.chip{ display:inline-flex; align-items:center; gap:6px; height:var(--chip-h); padding:0 12px; border-radius:999px; background:rgba(0,0,0,.45); border:1px solid var(--stroke); color:var(--ink); font-weight:700; font-size:13px }
-.chip .k{ opacity:.75; font-weight:700 } .chip .v{ font-weight:900 }
-
-/* Skins */
-#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
-#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
-#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
-#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
+/* Daily carousel */
+.dailyRow{ position:relative; margin:12px 0 }
+.dailyScroller{ display:grid; grid-auto-flow:column; grid-auto-columns:100%; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; }
+.dailyCard{ scroll-snap-align:start; border-radius:16px; border:1px solid var(--stroke); padding:16px; min-height:220px; position:relative }
+.arrow{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:10px; border:1px solid var(--stroke); background:rgba(0,0,0,.6); color:#fff; font-weight:900; display:none; align-items:center; justify-content:center; z-index:3 }
+.arrow.left{ left:8px } .arrow.right{ right:8px }
+.dailyRow.multiple .arrow{ display:flex }
 
 /* Tracker */
 .tracker .cards{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap) }
@@ -131,7 +114,7 @@ a{color:inherit; text-decoration:none}
 .m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00); color:#111 }
 .m-black{ background:linear-gradient(135deg,#000,#333 60%,#000) }
 
-/* ===== Avatar Drawer ===== */
+/* Avatar Drawer + Subsheet (unchanged core) */
 #avatarSheet{ position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px) }
 #avatarSheet.open{ display:block }
 #avatarSheet .panel{
@@ -141,13 +124,12 @@ a{color:inherit; text-decoration:none}
   padding:12px; transform:translateY(-8px); opacity:0; transition:transform .18s ease, opacity .18s ease;
 }
 #avatarSheet.open .panel{ transform:translateY(0); opacity:1 }
-.menu a, .menu button.link{ display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08); background:none; color:inherit; width:100%; text-align:left; cursor:pointer; font:inherit }
-.menu a:last-child, .menu button.link:last-child{ border-bottom:none }
+.menu a{ display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08) }
+.menu a:last-child{ border-bottom:none }
 .brandfoot{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; padding:12px 10px 4px; color:#fff }
 .brandfoot .t1{ color:var(--blue); font-weight:900 }
 .brandfoot .t2{ opacity:.9; font-size:13px }
 
-/* ===== Sub Sheet (iframe slide-over) ===== */
 #subSheet{ position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
 #subSheet.open{ display:block }
 #subSheet .inner{
@@ -164,10 +146,10 @@ a{color:inherit; text-decoration:none}
 </head>
 <body>
 
-<div class="bg" aria-hidden="true"></div>
+<div class="bg" aria-hidden="true" id="bgImg"></div>
 
 <header class="nav">
-  <div class="nav-left" role="tablist" aria-label="Primary">
+  <div class="nav-left" role="tablist" aria-label="Primary" id="navTabs">
     <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
     <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
@@ -175,22 +157,23 @@ a{color:inherit; text-decoration:none}
   <div class="nav-right">
     <button id="avatarTab" class="btn-tab avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="skill-badge badge-silver" id="skillBadge">Silver</span>
-      <span class="points" id="pointsBadge" style="padding-left:54px">0</span>
+      <span class="points" id="pointsBadge">0</span>
       <span class="dot" id="avatarInitials">JG</span>
     </button>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- Challenges -->
+  <!-- CHALLENGES -->
   <section id="panel-challenges" data-panel="challenges">
-    <article class="hero" id="dailyHero" aria-labelledby="dailyTitle" data-skin="bronze">
-      <h2 class="title" id="dailyTitle">Daily Challenge</h2>
-      <p class="meta" id="dailyDate">—</p>
-      <div id="dailyContent"><p class="desc">New prompt coming soon.</p><div class="meta-chips"></div></div>
-      <div class="cta-left"><button class="btn blue" id="btnDaily">Complete</button></div>
-    </article>
+    <!-- Daily carousel wraps one or more daily cards -->
+    <div class="dailyRow" id="dailyRow">
+      <button class="arrow left" id="dPrev" aria-label="Previous">‹</button>
+      <div class="dailyScroller" id="dailyScroller"></div>
+      <button class="arrow right" id="dNext" aria-label="Next">›</button>
+    </div>
 
+    <!-- WEEKLY -->
     <article class="hero" id="weeklyHero" aria-labelledby="weeklyTitle">
       <div class="badge">Weekly Challenge</div>
       <h2 class="title" id="weeklyTitle">—</h2>
@@ -200,15 +183,16 @@ a{color:inherit; text-decoration:none}
       <div class="meta-chips" id="weeklyChips"></div>
     </article>
 
+    <!-- TRACKER -->
     <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
       <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
       <p class="meta">See your recent progress.</p>
       <div class="cards">
-        <div class="card">
+        <div class="card" id="dailyTrackCard">
           <div class="kpi"><span class="dot"></span>Daily (7d)</div>
           <div class="medals" id="dailyMedals"></div>
         </div>
-        <div class="card">
+        <div class="card" id="weeklyTrackCard">
           <div class="kpi"><span class="dot" style="background:#0A84FF"></span>Weekly (6w)</div>
           <div class="medals" id="weeklyMedals"></div>
         </div>
@@ -216,7 +200,7 @@ a{color:inherit; text-decoration:none}
     </article>
   </section>
 
-  <!-- Courses -->
+  <!-- COURSES -->
   <section id="panel-courses" class="hide" data-panel="courses">
     <h2 class="section-title">Foundations (Subscribers)</h2>
     <div class="weekly-grid" id="foundationsGrid"></div>
@@ -231,7 +215,7 @@ a{color:inherit; text-decoration:none}
     <div class="weekly-grid" id="thirtyDayGrid"></div>
   </section>
 
-  <!-- Live -->
+  <!-- LIVE -->
   <section id="panel-live" class="hide" data-panel="live">
     <h2 class="section-title">Demonstrations</h2>
     <div class="weekly-grid" id="demoGrid"></div>
@@ -242,11 +226,10 @@ a{color:inherit; text-decoration:none}
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu">
-      <!-- Keep hrefs so long-press/open-in-new works; JS intercepts to open as popup -->
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
+      <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="#trackerHero">Challenge Tracker<span>›</span></a>
-      <a href="bookings.html">Booked Classes<span>›</span></a>
     </nav>
     <div class="brandfoot">
       <div class="t1">Online Art</div>
@@ -255,7 +238,7 @@ a{color:inherit; text-decoration:none}
   </div>
 </div>
 
-<!-- ===== Sub Sheet (iframe window to profile/settings) ===== -->
+<!-- Sub Sheet -->
 <div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="inner" role="document">
     <div class="sheet-head">
@@ -266,7 +249,7 @@ a{color:inherit; text-decoration:none}
   </div>
 </div>
 
-<!-- ===== FALLBACK REGISTRY (unchanged) ===== -->
+<!-- Fallback registry (unchanged) -->
 <script id="registryData" type="application/json">
 {
   "foundations": [
@@ -296,7 +279,7 @@ a{color:inherit; text-decoration:none}
 
 <script>
 (()=>{'use strict';
-/* ===== Utils ===== */
+/* ===== Utils & Keys ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const pad=n=>String(n).padStart(2,'0');
@@ -305,41 +288,44 @@ const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const skinByLevel={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
 const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
-const K={ sub:'ao_sub', points:'ao_points', purchasedA:'ao_purchased', purchasedB:'ao_purchasedCourses',
-          weeklyDone:'ao_weekly_done', dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta',
-          profile:'ao_profile', settings:'ao_settings' };
+const orderList=['beginner','intermediate','advanced','expert'];
+const rank=v=>Math.max(0, orderList.indexOf((v||'').toLowerCase()));
+
+const K={
+  points:'ao_points',
+  dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta', weeklyDone:'ao_weekly_done',
+  profile:'ao_profile', settings:'ao_settings'
+};
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 
 /* ===== Avatar & points ===== */
-let isSub=!!store.get(K.sub,false);
 let points=+store.get(K.points,0);
 function compactK(n){ return (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n)); }
 function applyProfileToUI(){
   const p = store.get(K.profile,{});
-  // points
   $('#pointsBadge').textContent = compactK(points);
-  // badge text & color
   const lvl = p.skill || 'intermediate';
   const skin = skinByLevel[lvl] || 'silver';
   const badge = $('#skillBadge');
   badge.textContent = cap(lvl);
   badge.className = `skill-badge badge-${skin}`;
-  // ring
-  $('#avatarTab').style.boxShadow = `0 0 0 2px ${ringByLevel[lvl]||'#0A84FF'} inset`;
-  // initials or image
   const dot = $('#avatarInitials');
-  if(p.avatarDataUrl){ dot.style.backgroundImage=`url(${p.avatarDataUrl})`; dot.textContent=''; }
-  else if(p.avatarUrl){ dot.style.backgroundImage=`url(${p.avatarUrl})`; dot.textContent=''; }
+  dot.style.borderColor = ringByLevel[lvl]||'#c0c7d1';
+  if(p.avatarDataUrl){ dot.style.backgroundImage=`url(${p.avatarDataUrl})`; dot.style.backgroundColor='transparent'; dot.textContent=''; }
   else{
-    const initials=(p.displayName||'JG').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    dot.style.backgroundImage='none'; dot.textContent=initials||'JG';
+    dot.style.backgroundImage='none';
+    dot.style.backgroundColor = ringByLevel[lvl]||'#333';
+    const initials=(p.displayName||'User').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    dot.textContent=initials||'U';
   }
+  document.documentElement.dataset.userLevel = lvl;
 }
 applyProfileToUI();
 
-/* ===== Avatar drawer ===== */
+/* ===== Avatar drawer / sheet ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', ()=>{
   const open=!avatarSheet.classList.contains('open');
   avatarSheet.classList.toggle('open',open);
@@ -347,58 +333,91 @@ avatarBtn.addEventListener('click', ()=>{
   avatarBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
 });
 avatarSheet.addEventListener('click', (e)=>{ if(e.target===avatarSheet){ closeDrawer(); }});
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 window.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeDrawer(); closeSubSheet(); }});
 
 /* ===== Tabs ===== */
-const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
-tabBtns.forEach(b=>b.addEventListener('click', ()=>{
-  tabBtns.forEach(x=>{x.classList.toggle('is-active',x===b); x.setAttribute('aria-selected', x===b?'true':'false');});
-  panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==b.dataset.tab));
+const panels=$$('[data-panel]');
+function activateTab(name){
+  $$('.btn-tab[data-tab]').forEach(b=>{
+    const a=(b.dataset.tab===name);
+    b.classList.toggle('is-active',a);
+    b.setAttribute('aria-selected', a?'true':'false');
+  });
+  panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==name));
   window.scrollTo({top:0,behavior:'smooth'});
-}));
-
-/* ===== Dates / Daily state ===== */
-let dailyDone=store.get(K.dailyDone,[]), dailyMeta=store.get(K.dailyMeta,{});
-const today=new Date(), isoToday=toISO(today);
-$('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
-
-function paintDaily(){
-  const done = dailyDone.includes(isoToday);
-  $('#btnDaily').textContent = done?'Undo':'Complete';
-  $('#btnDaily').className = 'btn ' + (done?'grey':'blue');
-  $('#dailyHero').classList.toggle('complete', done);
-  paintTracker();
 }
-paintDaily();
-$('#btnDaily').addEventListener('click', ()=>{
-  const i=dailyDone.indexOf(isoToday);
-  if(i===-1) dailyDone.push(isoToday); else dailyDone.splice(i,1);
-  store.set(K.dailyDone,dailyDone);
-  paintDaily();
+document.getElementById('navTabs').addEventListener('click', e=>{
+  const btn=e.target.closest('.btn-tab[data-tab]'); if(!btn) return;
+  activateTab(btn.dataset.tab);
 });
 
-/* ===== Daily skin from embedded content (optional) ===== */
-async function loadDailyFromHTML(){
-  const target=$('#dailyContent');
-  try{ const res=await fetch('./challenges/daily/today.html',{cache:'no-store'}); if(!res.ok) throw 0; target.innerHTML = await res.text(); }
-  catch{ target.innerHTML = '<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>'; }
-}
-function applyDailySkinAndLevel(){
-  const host=$('#dailyHero');
-  const chips=[...document.querySelectorAll('#dailyContent .chip')];
-  let lvl='';
-  chips.forEach(ch=>{ const k=(ch.querySelector('.k')?.textContent||'').toLowerCase();
-    if(k.includes('level')){ lvl=(ch.querySelector('.v')?.textContent||'').trim().toLowerCase(); ch.remove(); }});
-  const skin=skinByLevel[lvl]||'bronze';
-  host.setAttribute('data-skin', skin);
-  let el=$('#dailyLevel'); if(!el){ el=document.createElement('div'); el.id='dailyLevel'; el.className='level'; host.appendChild(el); }
-  el.textContent=cap(lvl||'beginner');
-  dailyMeta[isoToday]={skin}; store.set(K.dailyMeta,dailyMeta);
-}
-(async()=>{ await loadDailyFromHTML(); applyDailySkinAndLevel(); })();
+/* ===== Date / Daily state ===== */
+let dailyDone=store.get(K.dailyDone,[]), dailyMeta=store.get(K.dailyMeta,{});
+const today=new Date(), isoToday=toISO(today);
+const friendlyDate=`${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
 
-/* ===== Registry render (unchanged basics) ===== */
+/* ===== Build Daily cards for selected levels ===== */
+function selectedDailyLevels(){
+  const s=store.get(K.settings,{});
+  const me=store.get(K.profile,{}).skill||'intermediate';
+  const L = (s?.challenges?.levels) || ['my'];   // array like ['my','beginner','advanced']
+  const extra = L.filter(x=>x!=='my');
+  const all = [me, ...extra];
+  // de-dup & valid
+  return [...new Set(all.filter(v=>orderList.includes(v)))];
+}
+
+function buildDaily(){
+  const levels = selectedDailyLevels();
+  const scroller=$('#dailyScroller'); scroller.innerHTML='';
+  levels.forEach(lvl=>{
+    const skin=skinByLevel[lvl]||'bronze';
+    const card=document.createElement('article');
+    card.className='dailyCard'; card.dataset.skin=skin;
+    card.innerHTML = `
+      <h2 class="title">Daily Challenge</h2>
+      <div class="levelTag">${cap(lvl)}</div>
+      <p class="meta">${friendlyDate}</p>
+      <p class="desc">New prompt coming soon.</p>
+      <div class="cta-left"><button class="btn blue dailyComplete">Complete</button></div>
+    `;
+    scroller.appendChild(card);
+  });
+  // arrows
+  const row=$('#dailyRow');
+  row.classList.toggle('multiple', levels.length>1);
+  $('#dPrev').onclick=()=>scroller.scrollBy({left:-scroller.clientWidth,behavior:'smooth'});
+  $('#dNext').onclick=()=>scroller.scrollBy({left: scroller.clientWidth,behavior:'smooth'});
+
+  // persist today's skin for tracker based on "my" level
+  const my=store.get(K.profile,{}).skill||'intermediate';
+  dailyMeta[isoToday]={skin:skinByLevel[my]||'bronze'};
+  store.set(K.dailyMeta,dailyMeta);
+
+  // wire complete buttons (per-card but single date)
+  scroller.querySelectorAll('.dailyComplete').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const done=dailyDone.includes(isoToday);
+      if(done){ dailyDone=dailyDone.filter(x=>x!==isoToday); } else { dailyDone.push(isoToday); }
+      store.set(K.dailyDone,dailyDone);
+      paintTracker();
+      // reflect text on all buttons
+      scroller.querySelectorAll('.dailyComplete').forEach(b=>{
+        const isDone=dailyDone.includes(isoToday);
+        b.textContent=isDone?'Undo':'Complete';
+        b.className='btn ' + (isDone?'grey':'blue') + ' dailyComplete';
+      });
+    });
+  });
+  // initial button state
+  const isDone=dailyDone.includes(isoToday);
+  scroller.querySelectorAll('.dailyComplete').forEach(b=>{
+    b.textContent=isDone?'Undo':'Complete';
+    b.className='btn ' + (isDone?'grey':'blue') + ' dailyComplete';
+  });
+}
+
+/* ===== Registry / Weekly ===== */
 async function loadRegistry(){
   try{ const res=await fetch('./data/registry.json',{cache:'no-store'}); if(!res.ok) throw 0; return await res.json(); }
   catch{ try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }catch{ return {}; } }
@@ -429,7 +448,14 @@ loadRegistry().then(reg=>{
     a.innerHTML=`<h3 class="title">${l.title}</h3><p class="meta">Starts ${l.starts?new Date(l.starts).toLocaleString():'TBA'}</p><p class="desc">Live session.</p><div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
     demoGrid.appendChild(a);
   });
-  const w=(reg.weekly||[])[0]; if(w){ $('#weeklyTitle').textContent=w.title; $('#weeklyMeta').textContent=w.expires?`Ends ${new Date(w.expires).toLocaleDateString()}`:'This week'; $('#weeklyDesc').textContent=w.desc||$('#weeklyDesc').textContent; const b=$('#btnWeekly'); b.removeAttribute('aria-disabled'); b.href=`challenges/weekly-${w.id}.html`; }
+  // weekly hero
+  const w=(reg.weekly||[])[0];
+  if(w){
+    $('#weeklyTitle').textContent=w.title;
+    $('#weeklyMeta').textContent=w.expires?`Ends ${new Date(w.expires).toLocaleDateString()}`:'This week';
+    $('#weeklyDesc').textContent=w.desc||$('#weeklyDesc').textContent;
+    const b=$('#btnWeekly'); b.removeAttribute('aria-disabled'); b.href=`challenges/weekly-${w.id}.html`;
+  }
 });
 
 /* ===== Tracker ===== */
@@ -445,24 +471,47 @@ function paintTracker(){
 }
 paintTracker();
 
-/* ===== Apply settings (hide tabs) at load and after closing sub sheet ===== */
+/* ===== Settings application ===== */
 function applySettings(){
   const s = store.get(K.settings,{});
-  const hide = (name)=>{ document.querySelector(`.btn-tab[data-tab="${name}"]`)?.remove(); document.querySelector(`[data-panel="${name}"]`)?.remove(); };
-  if(s.challenges===false) hide('challenges');
-  if(s.courses===false) hide('courses');
-  if(s.live===false) hide('live');
-  const active = document.querySelector('.btn-tab.is-active[data-tab]');
-  if(!active){
-    const first = document.querySelector('.btn-tab[data-tab]');
-    const panel = first && document.querySelector(`[data-panel="${first.dataset.tab}"]`);
-    if(first){ first.classList.add('is-active'); first.setAttribute('aria-selected','true'); }
-    if(panel){ panel.classList.remove('hide'); }
+  // display: background/theme (background only for now)
+  if(s?.display?.background){
+    const bg=$('#bgImg');
+    if(s.display.background==='plain') bg.style.background='var(--bg)';
+    else if(s.display.background==='photo1') bg.style.background='#000 url("./assets/home-bg.jpg") center/cover no-repeat';
+  }
+  // tabs visibility + order
+  const tabsWrap = $('#navTabs');
+  const vis = (s?.home?.tabs) || {challenges:true,courses:true,live:true};
+  ['challenges','courses','live'].forEach(name=>{
+    const btn=tabsWrap.querySelector(`.btn-tab[data-tab="${name}"]`);
+    const panel=document.querySelector(`[data-panel="${name}"]`);
+    const shown = vis[name]!==false;
+    if(btn) btn.style.display = shown ? '' : 'none';
+    if(panel) panel.style.display = shown ? '' : 'none';
+  });
+  const order = (s?.home?.order)&&s.home.order.length ? s.home.order : ['challenges','courses','live'];
+  order.forEach(name=>{ const btn=tabsWrap.querySelector(`.btn-tab[data-tab="${name}"]`); if(btn) tabsWrap.appendChild(btn); });
+
+  // challenges: hide daily/weekly/tracker + levels
+  const ch = s?.challenges || {};
+  $('#dailyRow').style.display = ch.hideDaily ? 'none' : '';
+  $('#weeklyHero').style.display = ch.hideWeekly ? 'none' : '';
+  $('#dailyTrackCard').style.display = ch.hideTracker==='daily' || ch.hideTracker==='both' ? 'none' : '';
+  $('#weeklyTrackCard').style.display = ch.hideTracker==='weekly' || ch.hideTracker==='both' ? 'none' : '';
+
+  buildDaily(); // rebuild daily row based on selected levels
+
+  // ensure an active tab exists
+  let active = tabsWrap.querySelector('.btn-tab.is-active[data-tab]');
+  if(!(active && active.style.display!=='none')){
+    const first = tabsWrap.querySelector('.btn-tab[data-tab]:not([style*="display: none"])');
+    if(first) activateTab(first.dataset.tab);
   }
 }
 applySettings();
 
-/* ===== Sub sheet (iframe) ===== */
+/* ===== Subsheet (Profile/Settings/My Data) ===== */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title, url){
   sheetTitle.textContent=title;
@@ -473,19 +522,15 @@ function openSubSheet(title, url){
 function closeSubSheet(){
   subSheet.classList.remove('open');
   subSheet.setAttribute('aria-hidden','true');
-  // Important: refresh UI from localStorage the external page just wrote
+  // refresh after possible edits
   applyProfileToUI();
   applySettings();
-  // Reset iframe to free memory on iOS
-  setTimeout(()=>{ subFrame.src='about:blank'; },180);
+  setTimeout(()=>{ subFrame.src='about:blank'; },150);
 }
 $('#sheetClose').addEventListener('click', closeSubSheet);
 subSheet.addEventListener('click', (e)=>{ if(e.target===subSheet){ closeSubSheet(); }});
-
-/* Intercept menu links and open as popup */
 $$('#avatarSheet [data-pop]').forEach(a=>{
   a.addEventListener('click', (e)=>{
-    // allow cmd/long-press to open normally
     if(!(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)){
       e.preventDefault();
       closeDrawer();
@@ -494,7 +539,6 @@ $$('#avatarSheet [data-pop]').forEach(a=>{
   });
 });
 
-/* ===== Basic boot log ===== */
 console.log('[FAOA] home boot OK');
 })();
 </script>
