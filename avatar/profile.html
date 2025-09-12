@@ -5,21 +5,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Profile — Avatar</title>
-<link rel="stylesheet" href="style.css">
+<style>
+  :root{
+    --ink:#eef3ff; --bg:#000; --stroke:rgba(255,255,255,.18);
+    --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --red:#ff453a;
+    --surface:rgba(0,0,0,.40);
+  }
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+  h1{font-size:28px;font-weight:800;margin:8px 0 18px}
+  .card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:14px 0}
+  .avatar{width:84px;height:84px;border-radius:50%;background:#111 center/cover no-repeat;border:3px solid var(--blue)}
+  label{display:block;font-weight:600;margin:8px 2px}
+  input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:#0a0a0a;color:var(--ink)}
+  .btn{margin-top:16px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);background:var(--blue);color:#000;font-weight:700;cursor:pointer}
+</style>
 </head>
 <body>
 <div class="wrap">
   <h1>Profile</h1>
 
-  <div class="card avatar-card">
-    <div class="avatar-wrap">
-      <div id="avatar" class="avatar"></div>
-      <div>
-        <label>Avatar Image URL</label>
-        <input type="url" id="avatarUrl" placeholder="Paste image URL">
-        <div class="hint">Updates instantly.</div>
-      </div>
-    </div>
+  <div class="card">
+    <div class="avatar" id="avatar"></div>
+    <label>Avatar Image URL</label>
+    <input type="url" id="avatarUrl" placeholder="Paste image URL">
   </div>
 
   <div class="card">
@@ -37,16 +46,35 @@
       <option value="advanced">Advanced</option>
       <option value="expert">Expert</option>
     </select>
-    <div class="hint">Avatar border colour changes with skill.</div>
   </div>
 
-  <div class="btns">
-    <button class="btn primary" onclick="saveProfile()">Save</button>
-  </div>
+  <button class="btn" onclick="saveProfile()">Save</button>
 </div>
 
-<script src="shared.js"></script>
 <script>
+function updateAvatarBorder(skill){
+  const colours={beginner:"#0A84FF",intermediate:"#32d74b",advanced:"#ffd700",expert:"#ff453a"};
+  document.getElementById("avatar").style.borderColor=colours[skill]||"#0A84FF";
+}
+function loadProfile(){
+  const p=JSON.parse(localStorage.getItem("profile")||"{}");
+  if(p.avatarUrl) document.getElementById("avatar").style.backgroundImage=`url(${p.avatarUrl})`;
+  if(p.displayName) document.getElementById("displayName").value=p.displayName;
+  if(p.username) document.getElementById("username").value=p.username;
+  if(p.skill){document.getElementById("skill").value=p.skill;updateAvatarBorder(p.skill);}
+}
+function saveProfile(){
+  const p={
+    avatarUrl:document.getElementById("avatarUrl").value,
+    displayName:document.getElementById("displayName").value,
+    username:document.getElementById("username").value,
+    skill:document.getElementById("skill").value
+  };
+  localStorage.setItem("profile",JSON.stringify(p));
+  updateAvatarBorder(p.skill);
+  if(p.avatarUrl) document.getElementById("avatar").style.backgroundImage=`url(${p.avatarUrl})`;
+  alert("Profile saved");
+}
 loadProfile();
 </script>
 </body>
