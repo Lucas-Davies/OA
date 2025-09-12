@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>Settings — Avatar</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Settings</h1>
+
+  <div class="card">
+    <label>
+      <input type="checkbox" id="toggleChallenges">
+      Show Challenges tab
+    </label>
+    <label>
+      <input type="checkbox" id="toggleCourses">
+      Show Courses tab
+    </label>
+    <label>
+      <input type="checkbox" id="toggleDemos">
+      Show Live Demos tab
+    </label>
+  </div>
+
+  <div class="btns">
+    <button class="btn primary" onclick="saveSettings()">Save</button>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+loadSettings();
+</script>
+</body>
+</html>
