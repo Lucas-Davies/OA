@@ -1,1 +1,97 @@
-r
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>My Data — FAOA</title>
+<style>
+:root{ --ink:#eef3ff; --ink-dim:#cfd3e1; --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --red:#ff3b30; }
+*{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text"}
+main{max-width:980px;margin:0 auto;padding:18px 14px 80px}
+h1{margin:0 0 14px;font:900 28px/1.2 -apple-system}
+.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:12px;margin:12px 0}
+table{width:100%;border-collapse:collapse;margin-top:8px} th,td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1);text-align:left;font-size:14px}
+th{color:var(--ink-dim)} img.thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid var(--stroke)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--stroke);background:#16181f;color:#fff;font-weight:800;cursor:pointer}
+.btn.blue{background:var(--blue);border-color:transparent;color:#000}
+.btn.red{background:var(--red);border-color:transparent}
+.flex{display:flex;gap:8px;flex-wrap:wrap}
+small.note{color:var(--ink-dim)}
+</style>
+</head>
+<body>
+<main>
+  <h1>My Data</h1>
+
+  <div class="card">
+    <div class="flex">
+      <button class="btn blue" id="exportBtn">Export JSON</button>
+      <label class="btn"><input id="importFile" type="file" accept="application/json" style="display:none">Import JSON</label>
+      <button class="btn red" id="wipeBtn">Delete ALL</button>
+    </div>
+    <small class="note">Export to back up your local data. Import restores the same structure on this device.</small>
+  </div>
+
+  <div class="card">
+    <strong>Profile (ao_profile)</strong>
+    <pre id="profilePre" style="white-space:pre-wrap;word-break:break-word;margin:8px 0 0"></pre>
+  </div>
+
+  <div class="card">
+    <strong>Settings (ao_settings)</strong>
+    <pre id="settingsPre" style="white-space:pre-wrap;word-break:break-word;margin:8px 0 0"></pre>
+  </div>
+
+  <div class="card">
+    <strong>Uploaded Images (ao_uploads)</strong>
+    <table>
+      <thead><tr><th>Preview</th><th>Name</th><th>Added</th><th></th></tr></thead>
+      <tbody id="uploadsBody"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+(()=>{'use strict';
+const KEYS=['ao_profile','ao_settings','ao_uploads','ao_daily_done','ao_weekly_done','ao_daily_meta','ao_points','ao_sub','ao_purchased','ao_purchasedCourses'];
+const $=s=>document.querySelector(s);
+function jget(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch{return null}}
+function jset(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+function paint(){
+  $('#profilePre').textContent=JSON.stringify(jget('ao_profile'),null,2)||'(empty)';
+  $('#settingsPre').textContent=JSON.stringify(jget('ao_settings'),null,2)||'(empty)';
+  const list=jget('ao_uploads')||[];
+  const tbody=$('#uploadsBody'); tbody.innerHTML='';
+  if(!list.length){ const tr=document.createElement('tr'); const td=document.createElement('td'); td.colSpan=4; td.textContent='No uploads yet.'; tr.appendChild(td); tbody.appendChild(tr); }
+  list.forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><img class="thumb" src="${u.dataUrl}"></td><td>${u.name}</td><td>${new Date(u.ts).toLocaleString()}</td><td><button class="btn" data-del="${u.id}">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+    const id=+b.dataset.del; const cur=jget('ao_uploads')||[]; jset('ao_uploads',cur.filter(x=>x.id!==id)); paint();
+  }));
+}
+paint();
+
+$('#exportBtn').addEventListener('click', ()=>{
+  const dump={}; KEYS.forEach(k=>dump[k]=jget(k));
+  const blob=new Blob([JSON.stringify(dump,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`faoa-data-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  URL.revokeObjectURL(a.href);
+});
+$('#importFile').addEventListener('change', e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const r=new FileReader(); r.onload=ev=>{ try{ const obj=JSON.parse(ev.target.result); Object.keys(obj||{}).forEach(k=>{ if(KEYS.includes(k)) jset(k,obj[k]); }); alert('Imported'); paint(); }catch{ alert('Invalid JSON'); } };
+  r.readAsText(f);
+});
+$('#wipeBtn').addEventListener('click', ()=>{
+  if(!confirm('Delete ALL local data?')) return;
+  KEYS.forEach(k=>localStorage.removeItem(k)); paint();
+});
+})();
+</script>
+</body>
+</html>
