@@ -10,7 +10,7 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a;
+  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a; --black:#111;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
   --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
 }
@@ -23,10 +23,10 @@ body{
 }
 a{color:inherit; text-decoration:none}
 
-/* Background (can be themed from Settings) */
+/* Background (theme-able) */
 .bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat; }
 
-/* common */
+/* helpers */
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
 .hide{ display:none !important }
 .section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
@@ -65,15 +65,16 @@ a{color:inherit; text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
-/* Avatar pill */
-.avatarTab{ position:relative; display:inline-flex; align-items:center; gap:8px; padding:0 10px 0 12px; height:44px }
-.avatarTab .points{ font-weight:900; padding-right:4px }
-.avatarTab .skill-badge{ height:22px; line-height:22px; padding:0 8px; border-radius:999px; font-weight:900; font-size:12px; border:1px solid rgba(0,0,0,.2) }
-.badge-bronze{ background:var(--bronze); color:#fff }
-.badge-silver{ background:var(--silver); color:#0f1116 }
-.badge-gold{ background:var(--gold); color:#0f1116 }
-.badge-black{ background:#111; color:#fff; border-color:#333 }
-#avatarInitials{ width:36px; height:36px; border-radius:50%; border:3px solid var(--silver); background:#111 center/cover no-repeat; display:inline-flex; align-items:center; justify-content:center; font-weight:900 }
+/* ===== AVATAR PILL (no image) ===== */
+#avatarTab{
+  display:flex; align-items:center; gap:10px; height:44px; padding:0 12px;
+  border-radius:12px; border:1px solid var(--stroke); cursor:pointer;
+  background:#1a1a1a; color:#fff;
+}
+#avatarTab .avatarLines{ display:flex; flex-direction:column; line-height:1.05 }
+#avatarTab .name{ font-weight:900; font-size:14px; white-space:nowrap; max-width:140px; overflow:hidden; text-overflow:ellipsis }
+#avatarTab .lvl{ font-weight:800; font-size:12px; opacity:.92; text-transform:capitalize }
+#avatarTab .pts{ margin-left:8px; height:22px; line-height:22px; padding:0 8px; border-radius:999px; border:1px solid rgba(0,0,0,.2); font-weight:900; font-size:12px; background:rgba(0,0,0,.18) }
 
 /* ===== HERO base ===== */
 .hero{ position:relative; overflow:hidden; background:#000; border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0 }
@@ -83,10 +84,10 @@ a{color:inherit; text-decoration:none}
 .cta-left{ position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px }
 
 /* Daily hero skins */
-#dailyHeroTemplate[data-skin="bronze"], .dailyCard[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
-#dailyHeroTemplate[data-skin="silver"], .dailyCard[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
-#dailyHeroTemplate[data-skin="gold"],   .dailyCard[data-skin="gold"]  { background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
-#dailyHeroTemplate[data-skin="black"],  .dailyCard[data-skin="black"] { background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
+.dailyCard[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
+.dailyCard[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
+.dailyCard[data-skin="gold"]  { background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
+.dailyCard[data-skin="black"] { background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
 .levelTag{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px; letter-spacing:.5px }
 
 /* Daily carousel */
@@ -114,7 +115,7 @@ a{color:inherit; text-decoration:none}
 .m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00); color:#111 }
 .m-black{ background:linear-gradient(135deg,#000,#333 60%,#000) }
 
-/* Avatar Drawer + Subsheet (unchanged core) */
+/* Avatar Drawer + Subsheet */
 #avatarSheet{ position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px) }
 #avatarSheet.open{ display:block }
 #avatarSheet .panel{
@@ -142,6 +143,11 @@ a{color:inherit; text-decoration:none}
 .sheet-head h2{ margin:0; font-size:22px; font-weight:900 }
 .sheet-close{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer }
 #subFrame{ flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10 }
+
+/* responsive tweaks */
+@media (max-width:420px){
+  #avatarTab .name{ max-width:120px }
+}
 </style>
 </head>
 <body>
@@ -154,11 +160,15 @@ a{color:inherit; text-decoration:none}
     <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
   </div>
+
   <div class="nav-right">
-    <button id="avatarTab" class="btn-tab avatarTab" aria-haspopup="dialog" aria-expanded="false">
-      <span class="skill-badge badge-silver" id="skillBadge">Silver</span>
-      <span class="points" id="pointsBadge">0</span>
-      <span class="dot" id="avatarInitials">JG</span>
+    <!-- Avatar pill: display name over level, solid skill colour background -->
+    <button id="avatarTab" aria-haspopup="dialog" aria-expanded="false">
+      <div class="avatarLines">
+        <span class="name" id="avatarName">User</span>
+        <span class="lvl" id="avatarLevel">Intermediate</span>
+      </div>
+      <span class="pts" id="pointsBadge">0</span>
     </button>
   </div>
 </header>
@@ -166,7 +176,7 @@ a{color:inherit; text-decoration:none}
 <main class="wrap">
   <!-- CHALLENGES -->
   <section id="panel-challenges" data-panel="challenges">
-    <!-- Daily carousel wraps one or more daily cards -->
+    <!-- Daily carousel (1+ levels) -->
     <div class="dailyRow" id="dailyRow">
       <button class="arrow left" id="dPrev" aria-label="Previous">‹</button>
       <div class="dailyScroller" id="dailyScroller"></div>
@@ -287,9 +297,9 @@ const toISO=d=>d.toISOString().slice(0,10);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const skinByLevel={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
-const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
+const colorByLevel={ beginner:'var(--bronze)', intermediate:'var(--silver)', advanced:'var(--gold)', expert:'#111' };
+const textOn={ bronze:'#fff', black:'#fff', silver:'#0f1116', gold:'#0f1116' };
 const orderList=['beginner','intermediate','advanced','expert'];
-const rank=v=>Math.max(0, orderList.indexOf((v||'').toLowerCase()));
 
 const K={
   points:'ao_points',
@@ -299,26 +309,21 @@ const K={
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 
-/* ===== Avatar & points ===== */
+/* ===== Avatar pill (no image) ===== */
 let points=+store.get(K.points,0);
 function compactK(n){ return (n>=1000? ((Math.round(n/100)/10).toFixed(1).replace(/\.0$/,'')+'k'): String(n)); }
 function applyProfileToUI(){
   const p = store.get(K.profile,{});
-  $('#pointsBadge').textContent = compactK(points);
-  const lvl = p.skill || 'intermediate';
+  const lvl = (p.skill||'intermediate').toLowerCase();
   const skin = skinByLevel[lvl] || 'silver';
-  const badge = $('#skillBadge');
-  badge.textContent = cap(lvl);
-  badge.className = `skill-badge badge-${skin}`;
-  const dot = $('#avatarInitials');
-  dot.style.borderColor = ringByLevel[lvl]||'#c0c7d1';
-  if(p.avatarDataUrl){ dot.style.backgroundImage=`url(${p.avatarDataUrl})`; dot.style.backgroundColor='transparent'; dot.textContent=''; }
-  else{
-    dot.style.backgroundImage='none';
-    dot.style.backgroundColor = ringByLevel[lvl]||'#333';
-    const initials=(p.displayName||'User').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    dot.textContent=initials||'U';
-  }
+  const bg = colorByLevel[lvl] || 'var(--silver)';
+  const txt = textOn[skin] || '#fff';
+  $('#avatarName').textContent = (p.displayName||'User');
+  $('#avatarLevel').textContent = cap(lvl);
+  const pill=$('#avatarTab');
+  pill.style.background = bg;
+  pill.style.color = txt;
+  $('#pointsBadge').textContent = compactK(points);
   document.documentElement.dataset.userLevel = lvl;
 }
 applyProfileToUI();
@@ -360,13 +365,11 @@ const friendlyDate=`${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(to
 function selectedDailyLevels(){
   const s=store.get(K.settings,{});
   const me=store.get(K.profile,{}).skill||'intermediate';
-  const L = (s?.challenges?.levels) || ['my'];   // array like ['my','beginner','advanced']
+  const L = (s?.challenges?.levels) || ['my'];
   const extra = L.filter(x=>x!=='my');
   const all = [me, ...extra];
-  // de-dup & valid
   return [...new Set(all.filter(v=>orderList.includes(v)))];
 }
-
 function buildDaily(){
   const levels = selectedDailyLevels();
   const scroller=$('#dailyScroller'); scroller.innerHTML='';
@@ -383,25 +386,22 @@ function buildDaily(){
     `;
     scroller.appendChild(card);
   });
-  // arrows
   const row=$('#dailyRow');
   row.classList.toggle('multiple', levels.length>1);
   $('#dPrev').onclick=()=>scroller.scrollBy({left:-scroller.clientWidth,behavior:'smooth'});
   $('#dNext').onclick=()=>scroller.scrollBy({left: scroller.clientWidth,behavior:'smooth'});
 
-  // persist today's skin for tracker based on "my" level
+  // persist today's skin for tracker based on current user's level
   const my=store.get(K.profile,{}).skill||'intermediate';
   dailyMeta[isoToday]={skin:skinByLevel[my]||'bronze'};
   store.set(K.dailyMeta,dailyMeta);
 
-  // wire complete buttons (per-card but single date)
   scroller.querySelectorAll('.dailyComplete').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const done=dailyDone.includes(isoToday);
       if(done){ dailyDone=dailyDone.filter(x=>x!==isoToday); } else { dailyDone.push(isoToday); }
       store.set(K.dailyDone,dailyDone);
       paintTracker();
-      // reflect text on all buttons
       scroller.querySelectorAll('.dailyComplete').forEach(b=>{
         const isDone=dailyDone.includes(isoToday);
         b.textContent=isDone?'Undo':'Complete';
@@ -409,7 +409,6 @@ function buildDaily(){
       });
     });
   });
-  // initial button state
   const isDone=dailyDone.includes(isoToday);
   scroller.querySelectorAll('.dailyComplete').forEach(b=>{
     b.textContent=isDone?'Undo':'Complete';
@@ -417,7 +416,7 @@ function buildDaily(){
   });
 }
 
-/* ===== Registry / Weekly ===== */
+/* ===== Registry / Weekly (unchanged) ===== */
 async function loadRegistry(){
   try{ const res=await fetch('./data/registry.json',{cache:'no-store'}); if(!res.ok) throw 0; return await res.json(); }
   catch{ try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }catch{ return {}; } }
@@ -448,7 +447,6 @@ loadRegistry().then(reg=>{
     a.innerHTML=`<h3 class="title">${l.title}</h3><p class="meta">Starts ${l.starts?new Date(l.starts).toLocaleString():'TBA'}</p><p class="desc">Live session.</p><div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
     demoGrid.appendChild(a);
   });
-  // weekly hero
   const w=(reg.weekly||[])[0];
   if(w){
     $('#weeklyTitle').textContent=w.title;
@@ -474,7 +472,7 @@ paintTracker();
 /* ===== Settings application ===== */
 function applySettings(){
   const s = store.get(K.settings,{});
-  // display: background/theme (background only for now)
+  // background
   if(s?.display?.background){
     const bg=$('#bgImg');
     if(s.display.background==='plain') bg.style.background='var(--bg)';
@@ -502,7 +500,7 @@ function applySettings(){
 
   buildDaily(); // rebuild daily row based on selected levels
 
-  // ensure an active tab exists
+  // ensure active tab exists
   let active = tabsWrap.querySelector('.btn-tab.is-active[data-tab]');
   if(!(active && active.style.display!=='none')){
     const first = tabsWrap.querySelector('.btn-tab[data-tab]:not([style*="display: none"])');
@@ -511,11 +509,12 @@ function applySettings(){
 }
 applySettings();
 
-/* ===== Subsheet (Profile/Settings/My Data) ===== */
+/* ===== Subsheet (Profile/Settings/My Data) with cache-bust ===== */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title, url){
   sheetTitle.textContent=title;
-  subFrame.src = url;
+  const bust = (url.indexOf('?')>-1 ? '&' : '?') + 'v=' + Date.now();
+  subFrame.src = url + bust;
   subSheet.classList.add('open');
   subSheet.setAttribute('aria-hidden','false');
 }
@@ -539,7 +538,7 @@ $$('#avatarSheet [data-pop]').forEach(a=>{
   });
 });
 
-console.log('[FAOA] home boot OK');
+console.log('[FAOA] home boot OK (no avatar image)');
 })();
 </script>
 
