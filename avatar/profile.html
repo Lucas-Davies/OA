@@ -7,18 +7,30 @@
 <title>Profile — Avatar</title>
 <style>
   :root{
-    --ink:#eef3ff; --bg:#000; --stroke:rgba(255,255,255,.18);
-    --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --red:#ff453a;
-    --surface:rgba(0,0,0,.40);
+    --ink:#eef3ff; --ink-dim:#cfd3e1; --bg:#000; --stroke:rgba(255,255,255,.18);
+    --surface:rgba(255,255,255,.04);
+    /* skill colours aligned to your hero skins */
+    --bronze:#b87333; --silver:#c0c7d1; --gold:#ffd700; --black:#000;
+    --blue:#0A84FF;
   }
-  body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
   .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
-  h1{font-size:28px;font-weight:800;margin:8px 0 18px}
+  h1{font-size:28px;font-weight:800;letter-spacing:.2px;margin:8px 0 18px}
   .card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:14px 0}
-  .avatar{width:84px;height:84px;border-radius:50%;background:#111 center/cover no-repeat;border:3px solid var(--blue)}
-  label{display:block;font-weight:600;margin:8px 2px}
+  label{display:block;font-weight:700;margin:8px 2px}
   input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:#0a0a0a;color:var(--ink)}
-  .btn{margin-top:16px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);background:var(--blue);color:#000;font-weight:700;cursor:pointer}
+  .row{display:grid;grid-template-columns:120px 1fr;gap:14px}
+  @media (max-width:640px){ .row{grid-template-columns:1fr} }
+  .avatar{
+    width:96px;height:96px;border-radius:50%;
+    background:#111 center/cover no-repeat;
+    border:3px solid var(--blue); box-shadow:0 0 0 4px rgba(10,132,255,.12);
+  }
+  .hint{color:var(--ink-dim);font-size:.9rem;margin-top:6px}
+  .btns{display:flex;gap:10px;margin-top:16px}
+  .btn{height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);background:#101010;color:var(--ink);cursor:pointer}
+  .btn.primary{background:var(--blue);color:#000;border-color:transparent;font-weight:800}
 </style>
 </head>
 <body>
@@ -26,14 +38,19 @@
   <h1>Profile</h1>
 
   <div class="card">
-    <div class="avatar" id="avatar"></div>
-    <label>Avatar Image URL</label>
-    <input type="url" id="avatarUrl" placeholder="Paste image URL">
+    <div class="row">
+      <div><div id="avatarPreview" class="avatar"></div></div>
+      <div>
+        <label>Avatar Image URL</label>
+        <input type="url" id="avatarUrl" placeholder="Paste image URL">
+        <div class="hint">Paste a direct image URL (PNG/JPG/SVG). Updates on Save.</div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
     <label>Display Name</label>
-    <input type="text" id="displayName" placeholder="Your name">
+    <input type="text" id="displayName" placeholder="e.g. Jody Graham">
     <label>Username</label>
     <input type="text" id="username" placeholder="@username">
   </div>
@@ -41,41 +58,59 @@
   <div class="card">
     <label>Skill Level</label>
     <select id="skill">
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="advanced">Advanced</option>
-      <option value="expert">Expert</option>
+      <option value="beginner">Beginner (Bronze)</option>
+      <option value="intermediate">Intermediate (Silver)</option>
+      <option value="advanced">Advanced (Gold)</option>
+      <option value="expert">Expert (Black)</option>
     </select>
+    <div class="hint">Your avatar ring colour changes with skill.</div>
   </div>
 
-  <button class="btn" onclick="saveProfile()">Save</button>
+  <div class="btns">
+    <button class="btn primary" id="saveBtn">Save</button>
+  </div>
 </div>
 
 <script>
-function updateAvatarBorder(skill){
-  const colours={beginner:"#0A84FF",intermediate:"#32d74b",advanced:"#ffd700",expert:"#ff453a"};
-  document.getElementById("avatar").style.borderColor=colours[skill]||"#0A84FF";
-}
-function loadProfile(){
-  const p=JSON.parse(localStorage.getItem("profile")||"{}");
-  if(p.avatarUrl) document.getElementById("avatar").style.backgroundImage=`url(${p.avatarUrl})`;
-  if(p.displayName) document.getElementById("displayName").value=p.displayName;
-  if(p.username) document.getElementById("username").value=p.username;
-  if(p.skill){document.getElementById("skill").value=p.skill;updateAvatarBorder(p.skill);}
-}
-function saveProfile(){
-  const p={
-    avatarUrl:document.getElementById("avatarUrl").value,
-    displayName:document.getElementById("displayName").value,
-    username:document.getElementById("username").value,
-    skill:document.getElementById("skill").value
-  };
-  localStorage.setItem("profile",JSON.stringify(p));
-  updateAvatarBorder(p.skill);
-  if(p.avatarUrl) document.getElementById("avatar").style.backgroundImage=`url(${p.avatarUrl})`;
-  alert("Profile saved");
-}
-loadProfile();
+(function(){
+  const $=s=>document.querySelector(s);
+  const borderMap={beginner:'var(--bronze)',intermediate:'var(--silver)',advanced:'var(--gold)',expert:'var(--black)'};
+
+  function initialsFromName(name){
+    if(!name) return '';
+    return name.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  }
+
+  function applyPreviewBorder(skill){
+    $('#avatarPreview').style.borderColor = borderMap[skill] || 'var(--blue)';
+  }
+
+  function load(){
+    const p = JSON.parse(localStorage.getItem('ao_profile')||'{}');
+    if(p.avatarUrl) $('#avatarPreview').style.backgroundImage = `url(${p.avatarUrl})`;
+    if(p.displayName) $('#displayName').value = p.displayName;
+    if(p.username) $('#username').value = p.username;
+    if(p.skill){ $('#skill').value = p.skill; applyPreviewBorder(p.skill); }
+  }
+
+  function save(){
+    const displayName = $('#displayName').value.trim();
+    const data = {
+      avatarUrl: $('#avatarUrl').value.trim(),
+      displayName,
+      username: $('#username').value.trim(),
+      skill: $('#skill').value
+    };
+    data.initials = initialsFromName(displayName) || 'JG';
+    localStorage.setItem('ao_profile', JSON.stringify(data));
+    if(data.avatarUrl) $('#avatarPreview').style.backgroundImage = `url(${data.avatarUrl})`;
+    applyPreviewBorder(data.skill);
+    alert('Profile saved');
+  }
+
+  $('#saveBtn').addEventListener('click', save);
+  load();
+})();
 </script>
 </body>
 </html>
