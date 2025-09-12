@@ -6,44 +6,53 @@
 <meta name="color-scheme" content="dark" />
 <title>Settings — Avatar</title>
 <style>
-  :root{--ink:#eef3ff;--bg:#000;--stroke:rgba(255,255,255,.18);--surface:rgba(0,0,0,.40);--blue:#0A84FF}
-  body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+  :root{--ink:#eef3ff;--bg:#000;--stroke:rgba(255,255,255,.18);--surface:rgba(255,255,255,.04);--blue:#0A84FF}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
   .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
   h1{font-size:28px;font-weight:800;margin:8px 0 18px}
   .card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:14px 0}
-  label{display:block;margin:12px 0;font-weight:600}
-  input[type=checkbox]{margin-right:8px}
-  .btn{margin-top:16px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);background:var(--blue);color:#000;font-weight:700;cursor:pointer}
+  label{display:flex;align-items:center;gap:10px;margin:10px 0;font-weight:700}
+  input[type=checkbox]{width:20px;height:20px}
+  .btn{margin-top:16px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);background:var(--blue);color:#000;font-weight:800;cursor:pointer}
+  .hint{opacity:.8;font-size:.92rem;margin-top:6px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Settings</h1>
+
   <div class="card">
-    <label><input type="checkbox" id="toggleChallenges"> Show Challenges tab</label>
-    <label><input type="checkbox" id="toggleCourses"> Show Courses tab</label>
-    <label><input type="checkbox" id="toggleDemos"> Show Live Demos tab</label>
+    <label><input type="checkbox" id="showChallenges"> Show “Challenges” tab</label>
+    <label><input type="checkbox" id="showCourses"> Show “Courses” tab</label>
+    <label><input type="checkbox" id="showLive"> Show “Live” tab</label>
+    <div class="hint">Uncheck to hide. Home will reflow the remaining tabs automatically.</div>
   </div>
-  <button class="btn" onclick="saveSettings()">Save</button>
+
+  <button class="btn" id="saveBtn">Save</button>
 </div>
 
 <script>
-function loadSettings(){
-  const s=JSON.parse(localStorage.getItem("settings")||"{}");
-  document.getElementById("toggleChallenges").checked=s.challenges!==false;
-  document.getElementById("toggleCourses").checked=s.courses!==false;
-  document.getElementById("toggleDemos").checked=s.demos!==false;
-}
-function saveSettings(){
-  const s={
-    challenges:document.getElementById("toggleChallenges").checked,
-    courses:document.getElementById("toggleCourses").checked,
-    demos:document.getElementById("toggleDemos").checked
-  };
-  localStorage.setItem("settings",JSON.stringify(s));
-  alert("Settings saved");
-}
-loadSettings();
+(function(){
+  const $=s=>document.querySelector(s);
+  function load(){
+    const s = JSON.parse(localStorage.getItem('ao_settings')||'{}');
+    $('#showChallenges').checked = s.challenges !== false;
+    $('#showCourses').checked   = s.courses   !== false;
+    $('#showLive').checked      = s.live      !== false;
+  }
+  function save(){
+    const s = {
+      challenges: $('#showChallenges').checked,
+      courses: $('#showCourses').checked,
+      live: $('#showLive').checked
+    };
+    localStorage.setItem('ao_settings', JSON.stringify(s));
+    alert('Settings saved');
+  }
+  $('#saveBtn').addEventListener('click', save);
+  load();
+})();
 </script>
 </body>
 </html>
