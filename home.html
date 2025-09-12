@@ -299,12 +299,12 @@ a{color:inherit; text-decoration:none}
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu">
-      <a href="profile.html">Profile<span>›</span></a>
+      <a href="/avatar/profile.html">Profile<span>›</span></a>
       <a href="bookings.html">Booked Classes<span>›</span></a>
       <a href="#trackerHero">Challenge Tracker<span>›</span></a>
       <a href="about.html">About<span>›</span></a>
       <a href="contact.html">Contact Us<span>›</span></a>
-      <a href="settings.html">Settings<span>›</span></a>
+      <a href="/avatar/settings.html">Settings<span>›</span></a>
     </nav>
     <div class="brandfoot">
       <div class="t1">Online Art</div>
@@ -400,7 +400,7 @@ tabBtns.forEach(b=>b.addEventListener('click', ()=>{
 
 /* Dates */
 const today=new Date(), isoToday=toISO(today);
-$('#dailyDate').textContent=`${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
+$('#dailyDate').textContent = `${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
 
 /* Daily done toggle */
 function paintDaily(){
@@ -423,9 +423,9 @@ async function loadDailyFromHTML(){
   try{
     const res=await fetch('./challenges/daily/today.html',{cache:'no-store'});
     if(!res.ok) throw 0;
-    target.innerHTML=await res.text();
+    target.innerHTML = await res.text();
   }catch{
-    target.innerHTML=`<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>`;
+    target.innerHTML = '<p class="desc">New prompt coming soon.</p><div class="meta-chips"></div>';
   }
 }
 function applyDailySkinAndLevel(){
@@ -462,7 +462,8 @@ function renderCourses(reg){
   const fGrid=$('#foundationsGrid'); fGrid.innerHTML='';
   (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML=`<h3 class="title">${item.title}</h3>
+    a.innerHTML = `
+      <h3 class="title">${item.title}</h3>
       <p class="meta">Subscriber-only foundations.</p>
       <p class="desc">Core drills to build accuracy and flow.</p>
       <div class="cta-left"><a class="btn blue" href="courses/${item.slug||item.id}.html">Start Course</a></div>`;
@@ -471,7 +472,8 @@ function renderCourses(reg){
   const one=$('#oneDayGrid'); one.innerHTML='';
   (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML=`<h3 class="title">${item.title}</h3>
+    a.innerHTML = `
+      <h3 class="title">${item.title}</h3>
       <p class="meta">Structured, focused learning.</p>
       <p class="desc">Replace with course description.</p>
       <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
@@ -480,7 +482,8 @@ function renderCourses(reg){
   const three=$('#threeDayGrid'); three.innerHTML='';
   (reg.courses?.["3day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML=`<h3 class="title">${item.title}</h3>
+    a.innerHTML = `
+      <h3 class="title">${item.title}</h3>
       <p class="meta">Structured, focused learning.</p>
       <p class="desc">Replace with course description.</p>
       <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
@@ -489,7 +492,8 @@ function renderCourses(reg){
   const thirty=$('#thirtyDayGrid'); thirty.innerHTML='';
   (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
     const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML=`<h3 class="title">${item.title}</h3>
+    a.innerHTML = `
+      <h3 class="title">${item.title}</h3>
       <p class="meta">Structured, focused learning.</p>
       <p class="desc">Replace with course description.</p>
       <div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
@@ -499,8 +503,10 @@ function renderCourses(reg){
   const demoGrid=$('#demoGrid'); demoGrid.innerHTML='';
   (reg.live||[]).filter(x=>x.showOnHome!==false).forEach(l=>{
     const a=document.createElement('article'); a.className='hero tall live';
-    a.innerHTML=`<h3 class="title">${l.title}</h3>
-      <p class="meta">Starts ${new Date(l.starts||Date.now()).toLocaleString()}</p>
+    const startTxt = l.starts ? new Date(l.starts).toLocaleString() : 'TBA';
+    a.innerHTML = `
+      <h3 class="title">${l.title}</h3>
+      <p class="meta">Starts ${startTxt}</p>
       <p class="desc">Live session.</p>
       <div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
     demoGrid.appendChild(a);
@@ -508,10 +514,16 @@ function renderCourses(reg){
 }
 function paintWeeklyHero(item){
   const titleEl=$('#weeklyTitle'), metaEl=$('#weeklyMeta'), descEl=$('#weeklyDesc'), btn=$('#btnWeekly'), chips=$('#weeklyChips');
-  if(!item){ titleEl.textContent='Weekly Challenge'; metaEl.textContent='—'; btn.setAttribute('aria-disabled','true'); btn.removeAttribute('href'); chips.innerHTML=''; return; }
+  if(!item){
+    titleEl.textContent='Weekly Challenge'; metaEl.textContent='—';
+    btn.setAttribute('aria-disabled','true'); btn.removeAttribute('href'); chips.innerHTML='';
+    return;
+  }
   titleEl.textContent=item.title||'Weekly Challenge';
   const end=item.expires? new Date(item.expires):null;
-  metaEl.textContent=end?`Ends ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][end.getDay()]} ${String(end.getDate()).padStart(2,'0')}/${String(end.getMonth()+1).padStart(2,'0')}`:'This week';
+  metaEl.textContent = end
+    ? `Ends ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][end.getDay()]} ${String(end.getDate()).padStart(2,'0')}/${String(end.getMonth()+1).padStart(2,'0')}`
+    : 'This week';
   descEl.textContent=item.desc||'Design focus for the week.';
   btn.removeAttribute('aria-disabled'); btn.href=`challenges/weekly-${item.id}.html`;
   chips.innerHTML='';
@@ -560,8 +572,49 @@ window.AO_markWeeklyComplete=function(dateLike){
   if(!weeklyDone.includes(key)){ weeklyDone.push(key); store.set(K.weeklyDone,weeklyDone); paintTracker(); }
 };
 
+/* ======= SETTINGS + PROFILE HOOK (no shared JS) ======= */
+(function applySettingsAndProfile(){
+  const tabBtn = name => document.querySelector(`.btn-tab[data-tab="${name}"]`);
+  const panel  = name => document.querySelector(`[data-panel="${name}"]`);
+
+  // Settings: hide tabs/panels and ensure one stays active
+  const s = JSON.parse(localStorage.getItem('ao_settings')||'{}');
+  const hides = {
+    challenges: s.challenges === false,
+    courses:    s.courses    === false,
+    live:       s.live       === false
+  };
+  if(hides.challenges){ tabBtn('challenges')?.remove(); panel('challenges')?.remove(); }
+  if(hides.courses){    tabBtn('courses')?.remove();    panel('courses')?.remove(); }
+  if(hides.live){       tabBtn('live')?.remove();       panel('live')?.remove(); }
+
+  // If active tab was removed, activate the first available
+  const active = document.querySelector('.btn-tab.is-active[data-tab]');
+  if(!active){
+    const first = document.querySelector('.btn-tab[data-tab]');
+    const firstPanel = first ? panel(first.dataset.tab) : null;
+    if(first){ first.classList.add('is-active'); first.setAttribute('aria-selected','true'); }
+    if(firstPanel){ firstPanel.classList.remove('hide'); }
+  }
+
+  // Profile: initials + skill ring cue on avatar button
+  const p = JSON.parse(localStorage.getItem('ao_profile')||'{}');
+  if(p.displayName){
+    const initials = (p.initials && typeof p.initials==='string'
+                      ? p.initials
+                      : p.displayName.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase());
+    const initEl = document.getElementById('avatarInitials');
+    if(initEl) initEl.textContent = initials;
+  }
+  const borderMap={beginner:'#b87333',intermediate:'#c0c7d1',advanced:'#ffd700',expert:'#000'};
+  if(p.skill){
+    const btn=document.getElementById('avatarTab');
+    if(btn) btn.style.boxShadow = `0 0 0 2px ${borderMap[p.skill]||'#0A84FF'} inset`;
+  }
+})();
+
 /* Basic boot log */
-console.log('[FAOA] boot check OK');
+console.log('[FAOA] home boot OK');
 })();
 </script>
 
