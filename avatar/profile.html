@@ -6,78 +6,62 @@
 <meta name="color-scheme" content="dark">
 <title>Profile — FAOA</title>
 <style>
-:root{
-  --bg:#000; --panel:#0f1116; --panel2:#121318; --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --red:#ff3b30;
-  --bronze:#b87333; --silver:#c0c7d1; --gold:#ffd700; --black:#111;
-}
+:root{ --bg:#000; --panel:#0f1116; --panel2:#121318; --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78); --stroke:rgba(255,255,255,.18); --blue:#0A84FF; --red:#ff3b30; --bronze:#b87333; --silver:#c0c7d1; --gold:#ffd700 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-header{
-  position:sticky; top:0; z-index:5; background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.65));
-  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-bottom:1px solid var(--stroke);
-}
-.bar{display:flex;align-items:center;gap:8px; height:52px; padding:0 10px}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text"}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.65));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke)}
+.bar{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px}
 .back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#15171f;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .bar h1{margin:0;font:900 20px/1 -apple-system}
 main{max-width:820px;margin:0 auto;padding:12px 12px 80px}
 .card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:12px;margin:12px 0}
-.group-title{margin:14px 6px 6px;font-weight:900;color:var(--ink)}
+.collapser{display:flex;align-items:center;justify-content:space-between;padding:14px 10px;border-radius:12px;cursor:pointer;background:var(--panel);border:1px solid var(--stroke);margin:12px 0}
+.collapser h3{margin:0;font-weight:900}
+.sectionBody{display:none}
+.open + .sectionBody{display:block}
+label{display:block;font-weight:800;margin:10px 4px 6px}
+input,select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:#0a0c11;color:var(--ink)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:700px){.row{grid-template-columns:1fr}}
-label{display:block; font-weight:800; margin:10px 4px 6px}
-input,select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:#0a0c11;color:var(--ink)}
-.note{color:var(--muted);font-size:.92rem;margin:6px 4px 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);background:#181b22;color:#fff;font-weight:900;cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 .btn.ghost{background:#222}
 .btn.red{background:var(--red);border-color:transparent}
 
-/* ==== Hero: avatar + level ==== */
+/* hero */
 .hero{background:var(--panel2);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
 .heroTop{display:flex;align-items:center;gap:14px}
-.avatarWrap{position:relative;width:96px;height:96px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.avatarImg{position:absolute;inset:0;border-radius:50%;background:#111 center/cover no-repeat}
-.avatarRing{position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--silver);pointer-events:none}
-.avatarHint{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);background:rgba(0,0,0,.6);border:1px solid var(--stroke);color:#fff;border-radius:999px;padding:2px 8px;font-weight:800;font-size:12px}
+.circle{position:relative;width:108px;height:108px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.preview{position:absolute;inset:0;border-radius:50%;background:#111 center/cover no-repeat}
+.ring{position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--silver);pointer-events:none}
 .badge{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-weight:900}
 .badge.bronze{background:var(--bronze);color:#fff}
 .badge.silver{background:var(--silver);color:#111}
 .badge.gold{background:var(--gold);color:#111}
 .badge.black{background:#111;color:#fff;border-color:#333}
+.small{color:var(--muted);font-size:.92rem}
 
-/* Editor (appears only when changing picture) */
-.editor{margin-top:12px;display:none}
-.editor .stage{position:relative;height:240px;border-radius:12px;border:1px dashed rgba(255,255,255,.18);background:#0b0c10;overflow:hidden;touch-action:none}
-.editor canvas{position:absolute;left:0;top:0}
-.sliderRow{display:flex;align-items:center;gap:10px;margin-top:10px}
+/* slider under circle */
+.editor{margin-top:10px;display:none}
+.sliderRow{display:flex;align-items:center;gap:10px}
 .range{appearance:none;width:100%;height:4px;border-radius:999px;background:#2a2a2a;outline:none}
 .range::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid #000}
-
-/* iOS list rows */
-.list{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;overflow:hidden}
-.rowItem{display:flex;align-items:center;justify-content:space-between;padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
-.rowItem:last-child{border-bottom:none}
-.rowLeft{font-weight:800}
-.rowRight{opacity:.9}
 footer.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-small.help{color:var(--ink-dim)}
 </style>
 </head>
 <body>
 <header><div class="bar">
-  <button class="back" id="backBtn">‹</button>
+  <button class="back" id="backTop">‹</button>
   <h1>Profile</h1>
 </div></header>
 
 <main>
-  <!-- HERO: avatar + level -->
+  <!-- HERO -->
   <section class="hero">
     <div class="heroTop">
-      <div class="avatarWrap" id="avatarTap" title="Change photo">
-        <div class="avatarImg" id="avatarImg" aria-hidden="true"></div>
-        <div class="avatarRing" id="avatarRing" aria-hidden="true"></div>
-        <div class="avatarHint" id="avatarHint">Change</div>
+      <div class="circle" id="tapCircle" title="Change">
+        <div class="preview" id="preview"></div>
+        <div class="ring" id="ring"></div>
       </div>
       <div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -93,9 +77,8 @@ small.help{color:var(--ink-dim)}
       </div>
     </div>
 
-    <!-- Editor appears only while changing avatar -->
+    <!-- slider appears only while editing -->
     <div class="editor" id="editor">
-      <div class="stage" id="stage"><canvas id="cv"></canvas></div>
       <div class="sliderRow">
         <span style="opacity:.8">Zoom</span>
         <input type="range" class="range" id="zoom" min="0.7" max="3" step="0.01" value="1">
@@ -103,223 +86,173 @@ small.help{color:var(--ink-dim)}
         <button class="btn blue" id="saveEdit" type="button">Save</button>
       </div>
     </div>
-
-    <!-- hidden file input -->
     <input type="file" id="file" accept="image/*" style="display:none">
-    <div class="note">Tip: tap the circle to change your picture.</div>
+    <div class="small">Tip: tap the circle to change your picture.</div>
   </section>
 
-  <!-- My details -->
-  <h3 class="group-title">My Details</h3>
-  <div class="card">
-    <div class="row">
-      <div>
-        <label>First Name</label>
-        <input id="firstName" type="text" autocomplete="given-name">
+  <!-- My Details (collapsed by default) -->
+  <div class="collapser" id="c1"><h3>My Details</h3><span>›</span></div>
+  <div class="sectionBody" id="s1">
+    <div class="card">
+      <div class="row">
+        <div><label>First Name</label><input id="firstName" type="text" autocomplete="given-name"></div>
+        <div><label>Surname</label><input id="lastName" type="text" autocomplete="family-name"></div>
       </div>
-      <div>
-        <label>Surname</label>
-        <input id="lastName" type="text" autocomplete="family-name">
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>Display Name</label>
-        <input id="displayName" type="text" autocomplete="name">
-      </div>
-      <div>
-        <label>Email</label>
-        <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+      <div class="row">
+        <div><label>Display Name</label><input id="displayName" type="text" autocomplete="name"></div>
+        <div><label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
       </div>
     </div>
   </div>
 
   <!-- Username & Password -->
-  <h3 class="group-title">Username & Password</h3>
-  <div class="list">
-    <div class="rowItem">
-      <div class="rowLeft">Username</div>
-      <div class="rowRight" id="usernameText">@username</div>
-    </div>
-    <div class="rowItem">
-      <div class="rowLeft">Password</div>
-      <button class="btn" id="changePass" type="button">Change Password</button>
+  <div class="collapser" id="c2"><h3>Username & Password</h3><span>›</span></div>
+  <div class="sectionBody" id="s2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 2px">
+        <div><strong>Username</strong><div id="usernameText" style="opacity:.9;margin-top:6px">@username</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 2px">
+        <div><strong>Password</strong></div>
+        <button class="btn" id="changePass" type="button">Change Password</button>
+      </div>
     </div>
   </div>
-  <small class="help">Username can’t be changed.</small>
 
   <!-- My Data -->
-  <h3 class="group-title">My Data</h3>
-  <div class="list">
-    <a class="rowItem" href="mydata.html#user"><div class="rowLeft">User Information</div>›</a>
-    <a class="rowItem" href="mydata.html#images"><div class="rowLeft">Images</div>›</a>
-    <a class="rowItem" href="mydata.html#app"><div class="rowLeft">App Information</div>›</a>
-    <a class="rowItem" href="mydata.html#purchases"><div class="rowLeft">Purchases</div>›</a>
-    <button class="rowItem" id="wipeAll" type="button"><div class="rowLeft" style="color:#ff7b72">Delete All Data</div>›</button>
+  <div class="collapser" id="c3"><h3>My Data</h3><span>›</span></div>
+  <div class="sectionBody" id="s3">
+    <div class="card">
+      <a class="btn" href="mydata.html">Open My Data</a>
+    </div>
   </div>
 
   <footer class="actions">
     <button class="btn blue" id="saveBtn" type="button">Save</button>
-    <button class="btn" id="backBtn2" type="button">Back</button>
+    <button class="btn" id="cancelBtn" type="button">Cancel</button>
   </footer>
 </main>
 
 <script>
 (()=>{'use strict';
-/* ===== Keys & helpers ===== */
-const ADMIN_EMAIL='admin@example.com';        // change to your address
-const K={ profile:'ao_profile', uploads:'ao_uploads' };
 const $=s=>document.querySelector(s);
 const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
               set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+const K={ profile:'ao_profile', uploads:'ao_uploads' };
 const ringByLevel={ beginner:'#b87333', intermediate:'#c0c7d1', advanced:'#ffd700', expert:'#111' };
 const badgeCls={ beginner:'bronze', intermediate:'silver', advanced:'gold', expert:'black' };
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* ===== Load profile ===== */
-const p=store.get(K.profile,{skill:'intermediate',username:'@username'});
-$('#firstName').value=p.firstName||'';
-$('#lastName').value=p.lastName||'';
-$('#displayName').value=p.displayName||'';
-$('#email').value=p.email||'';
-$('#usernameText').textContent=p.username||'@username';
-$('#skill').value=p.skill||'intermediate';
+/* collapsers (closed by default) */
+['1','2','3'].forEach(i=>{
+  const h=$('#c'+i), b=$('#s'+i); h.addEventListener('click',()=>{ const open=h.classList.toggle('open'); b.style.display = open?'block':'none'; });
+});
 
-function paintLevelUI(){
-  const lvl=$('#skill').value||'intermediate';
-  $('#levelBadge').textContent=cap(lvl);
-  $('#levelBadge').className='badge '+(badgeCls[lvl]||'silver');
-  $('#avatarRing').style.borderColor=ringByLevel[lvl]||'#c0c7d1';
+/* load profile */
+let original=store.get(K.profile,{skill:'intermediate',username:'@username'});
+let working=JSON.parse(JSON.stringify(original));
+$('#firstName').value=working.firstName||''; $('#lastName').value=working.lastName||'';
+$('#displayName').value=working.displayName||''; $('#email').value=working.email||'';
+$('#usernameText').textContent=working.username||'@username';
+$('#skill').value=working.skill||'intermediate';
+
+function paintLevel(){
+  $('#levelBadge').textContent=cap($('#skill').value);
+  $('#levelBadge').className='badge '+(badgeCls[$('#skill').value]||'silver');
+  $('#ring').style.borderColor=ringByLevel[$('#skill').value]||'#c0c7d1';
 }
+paintLevel(); $('#skill').addEventListener('change', paintLevel);
+
 function paintAvatar(){
-  const el=$('#avatarImg');
-  if(p.avatarDataUrl){ el.style.backgroundImage=`url(${p.avatarDataUrl})`; el.style.backgroundColor='transparent'; }
+  const el=$('#preview');
+  if(working.avatarDataUrl){ el.style.backgroundImage=`url(${working.avatarDataUrl})`; el.style.backgroundColor='transparent'; }
   else{
-    // initials-on-solid circle
+    // initials circle
     const cn=document.createElement('canvas'); cn.width=256; cn.height=256;
     const ctx=cn.getContext('2d');
-    ctx.fillStyle=ringByLevel[p.skill||'intermediate']||'#333'; ctx.beginPath(); ctx.arc(128,128,128,0,Math.PI*2); ctx.fill();
-    const initials=(p.displayName||'User').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'U';
-    ctx.fillStyle=(p.skill==='expert')?'#fff':'#000'; ctx.font='bold 86px -apple-system,BlinkMacSystemFont,Helvetica'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=ringByLevel[working.skill||'intermediate']||'#333'; ctx.beginPath(); ctx.arc(128,128,128,0,Math.PI*2); ctx.fill();
+    const initials=(working.displayName||'User').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'U';
+    ctx.fillStyle=(working.skill==='expert')?'#fff':'#000'; ctx.font='bold 86px -apple-system,BlinkMacSystemFont,Helvetica'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(initials,128,140);
     el.style.backgroundImage=`url(${cn.toDataURL('image/png')})`;
   }
 }
-paintLevelUI(); paintAvatar();
-$('#skill').addEventListener('change', paintLevelUI);
+paintAvatar();
 
-/* ===== Back ===== */
-function goBack(){ if(history.length>1) history.back(); else window.top && window.top!==window ? null : location.href='../home.html'; }
-$('#backBtn').addEventListener('click', goBack);
-$('#backBtn2').addEventListener('click', goBack);
-
-/* ===== Change password (mailto stub) ===== */
-$('#changePass').addEventListener('click', ()=>{
-  const email=($('#email').value||'').trim(); if(!email) return alert('Enter your email first.');
-  location.href=`mailto:${email}?subject=${encodeURIComponent('Password change')}&body=${encodeURIComponent('A password change was requested.')}`;
-});
-
-/* ===== Delete all data (with confirmation email) ===== */
-$('#wipeAll').addEventListener('click', ()=>{
-  if(!confirm('Are you sure you want to delete ALL local data?')) return;
-  const dump = JSON.stringify(localStorage,null,2);
-  localStorage.clear();
-  alert('Local data deleted on this device.');
-  const mail = `mailto:${encodeURIComponent(p.email||'')},${ADMIN_EMAIL}?subject=${encodeURIComponent('User requested data deletion')}&body=${encodeURIComponent(dump.slice(0,4000))}`;
-  location.href=mail;
-});
-
-/* ===== Avatar editing (tap to open, vertical drag + zoom slider) ===== */
-let img=null, scale=1, baseScale=1, offsetY=0, dragging=false, lastY=0;
-const stage=$('#stage'), cv=$('#cv'), ctx=cv.getContext('2d');
-
-function resize(){ cv.width=stage.clientWidth; cv.height=stage.clientHeight; draw(); }
-function fit(){ if(!img) return; const sW=cv.width, sH=cv.height; baseScale=Math.min(sW/img.width, sH/img.height); scale=1; offsetY=0; draw(); }
-function draw(){
-  ctx.clearRect(0,0,cv.width,cv.height);
-  if(!img) return;
-  const iw=img.width, ih=img.height, s=baseScale*scale;
-  const dx=(cv.width - iw*s)/2, dy=(cv.height - ih*s)/2 + offsetY;
-  ctx.drawImage(img, dx, dy, iw*s, ih*s);
-}
-window.addEventListener('resize', resize);
-
-function openEditor(){
-  $('#editor').style.display='block';
-  $('#avatarHint').style.display='none';
-}
-function closeEditor(){
-  $('#editor').style.display='none';
-  $('#zoom').value='1';
-  img=null; draw();
-  $('#avatarHint').style.display='block';
-}
-
-/* tap avatar -> choose file (iOS will offer Photos/Camera/Files) */
-$('#avatarTap').addEventListener('click', ()=>$('#file').click());
+/* avatar editing: only circle + slider */
+let base=null, img=null, scale=1;
+$('#tapCircle').addEventListener('click', ()=>$('#file').click());
 $('#file').addEventListener('change', e=>{
   const f=e.target.files?.[0]; if(!f) return;
   const r=new FileReader();
-  r.onload=ev=>{ img=new Image(); img.onload=()=>{ openEditor(); resize(); fit(); }; img.src=ev.target.result; };
+  r.onload=ev=>{
+    const image=new Image();
+    image.onload=()=>{
+      img=image; base={w:256,h:256}; scale=1; $('#zoom').value='1';
+      $('#editor').style.display='block';
+      drawPreview();
+    };
+    image.src=ev.target.result;
+  };
   r.readAsDataURL(f);
 });
-
-/* vertical drag */
-stage.addEventListener('pointerdown', e=>{ dragging=true; lastY=e.clientY; stage.setPointerCapture(e.pointerId); });
-stage.addEventListener('pointermove', e=>{ if(!dragging) return; offsetY += (e.clientY-lastY); lastY=e.clientY; draw(); });
-stage.addEventListener('pointerup', e=>{ dragging=false; stage.releasePointerCapture(e.pointerId); });
-
-/* zoom slider */
-$('#zoom').addEventListener('input', e=>{ scale=parseFloat(e.target.value); draw(); });
-
-/* save: crop to circle PNG 512x512 */
+function drawPreview(){
+  if(!img){ paintAvatar(); return; }
+  // draw into a 256 circle then set as background
+  const out=document.createElement('canvas'); out.width=256; out.height=256; const ctx=out.getContext('2d');
+  ctx.save(); ctx.beginPath(); ctx.arc(128,128,128,0,Math.PI*2); ctx.clip();
+  // center-fit image @ current scale
+  const iw=img.width, ih=img.height; const k=Math.max(256/iw,256/ih)*scale;
+  const dw=iw*k, dh=ih*k; const dx=(256-dw)/2, dy=(256-dh)/2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+  ctx.restore();
+  $('#preview').style.backgroundImage=`url(${out.toDataURL('image/png')})`;
+}
+$('#zoom').addEventListener('input', e=>{ scale=parseFloat(e.target.value); drawPreview(); });
 $('#saveEdit').addEventListener('click', ()=>{
   if(!img) return;
-  const out=document.createElement('canvas'); out.width=512; out.height=512; const o=out.getContext('2d');
-  // clip circle
-  o.clearRect(0,0,512,512);
-  o.save(); o.beginPath(); o.arc(256,256,256,0,Math.PI*2); o.clip();
-  // map stage view to output square (use the smaller side of stage)
-  const side=Math.min(cv.width,cv.height);
-  const scaleToOut = 512/side;
-  // render same transform into output:
-  o.scale(scaleToOut, scaleToOut);
-  // draw current view to the central square of the stage
-  const sX=(cv.width - side)/2, sY=(cv.height - side)/2;
-  o.translate(-sX, -sY);
-  drawTo(o); // draw with current transform
-  o.restore();
-
-  function drawTo(ctx2){
-    const iw=img.width, ih=img.height, s=baseScale*scale;
-    const dx=(cv.width - iw*s)/2, dy=(cv.height - ih*s)/2 + offsetY;
-    ctx2.drawImage(img, dx, dy, iw*s, ih*s);
-  }
-
-  const dataUrl=out.toDataURL('image/png');
-  // save
-  p.avatarDataUrl=dataUrl;
-  store.set(K.profile,p);
-  const uploads=store.get(K.uploads,[]); uploads.unshift({id:Date.now(),name:'avatar',dataUrl,ts:Date.now()}); store.set(K.uploads,uploads);
-  // paint hero and close editor
-  paintAvatar(); closeEditor();
-  alert('Avatar saved');
+  // final render equals current preview
+  const out=document.createElement('canvas'); out.width=512; out.height=512; const ctx=out.getContext('2d');
+  ctx.save(); ctx.beginPath(); ctx.arc(256,256,256,0,Math.PI*2); ctx.clip();
+  const iw=img.width, ih=img.height; const k=Math.max(512/iw,512/ih)*scale;
+  const dw=iw*k, dh=ih*k; const dx=(512-dw)/2, dy=(512-dh)/2;
+  ctx.drawImage(img, dx, dy, dw, dh); ctx.restore();
+  working.avatarDataUrl=out.toDataURL('image/png');
+  $('#editor').style.display='none'; img=null; drawPreview();
 });
-$('#cancelEdit').addEventListener('click', closeEditor);
+$('#cancelEdit').addEventListener('click', ()=>{ $('#editor').style.display='none'; img=null; drawPreview(); });
 
-/* ===== Save fields ===== */
-$('#saveBtn').addEventListener('click', ()=>{
+/* Save / Cancel (discard) */
+function save(){
   const data={
     firstName: $('#firstName').value.trim(),
     lastName:  $('#lastName').value.trim(),
     displayName: $('#displayName').value.trim(),
     email: $('#email').value.trim(),
-    username: p.username||'@username',
+    username: original.username||'@username',
     skill: $('#skill').value,
-    avatarDataUrl: p.avatarDataUrl
+    avatarDataUrl: working.avatarDataUrl || original.avatarDataUrl || null
   };
-  store.set(K.profile,data);
+  store.set(K.profile, data);
+  original = JSON.parse(JSON.stringify(data));
   alert('Saved');
+}
+function cancel(){
+  // revert edits to original (discard unsaved)
+  working = JSON.parse(JSON.stringify(original));
+  $('#firstName').value=working.firstName||''; $('#lastName').value=working.lastName||'';
+  $('#displayName').value=working.displayName||''; $('#email').value=working.email||'';
+  $('#skill').value=working.skill||'intermediate'; paintLevel(); paintAvatar();
+  $('#editor').style.display='none'; img=null;
+}
+$('#saveBtn').addEventListener('click', save);
+$('#cancelBtn').addEventListener('click', cancel);
+$('#backTop').addEventListener('click', ()=>history.back());
+
+/* change password (mailto stub) */
+$('#changePass').addEventListener('click', ()=>{
+  const email=($('#email').value||'').trim(); if(!email) return alert('Enter your email first.');
+  location.href=`mailto:${email}?subject=${encodeURIComponent('Password change')}&body=${encodeURIComponent('A password change was requested.')}`;
 });
 })();
 </script>
