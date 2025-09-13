@@ -13,11 +13,16 @@
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
 }
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+/* ----- GLOBAL RESET / iOS anti-highlight ----- */
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{
+  height:100%; margin:0; background:var(--bg); color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain; overflow-x:hidden}
-a{color:inherit;text-decoration:none}
+  overscroll-behavior-y:contain; overflow-x:hidden;
+  user-select:none; -webkit-user-select:none; /* <- stop text selection */
+}
+a{color:inherit; text-decoration:none}
+button{user-select:none; -webkit-user-select:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
@@ -25,7 +30,6 @@ a{color:inherit;text-decoration:none}
 .nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;
   padding:8px 12px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.nav-left{display:flex;gap:8px;align-items:center}
 .title-tab{font-weight:900;opacity:.92}
 
 /* Config toolbar */
@@ -44,19 +48,19 @@ a{color:inherit;text-decoration:none}
 /* Layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid of items (heroes + headings) */
+/* Grid */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
 @media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
 @media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
-/* Draggable chrome (config mode only) */
+/* Draggable chrome (config) */
 .item[draggable="true"]{touch-action:none}
 .drag-ghost{opacity:.5}
 .drag-over{outline:2px dashed var(--blue); outline-offset:3px; border-radius:14px}
 
-/* Hero card — 2x height */
+/* Hero – 2x height */
 .hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
 .hero .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center}
@@ -64,27 +68,29 @@ a{color:inherit;text-decoration:none}
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Admin chips (top-right of hero) */
+/* Admin chips (top-right) */
 .ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5;pointer-events:auto}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* Move popover */
+/* Menus (very high z-index to beat iOS select callout) */
 .move{position:relative}
-.menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:2000;min-width:220px}
+.menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:3000;min-width:220px}
 .menu.open{display:block}
 .menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
 
-/* Audience popover */
+/* Audience */
 .aud{position:relative}
-.aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:2000;min-width:220px}
+.aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:3000;min-width:220px}
 .aud-menu.open{display:block}
+/* allow selection & taps inside checkboxes */
+.aud-menu, .aud-menu *{user-select:auto; -webkit-user-select:auto}
 .aud-menu label{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
 .aud-menu .row{display:flex;gap:8px;margin-top:8px}
 
-/* Section headings */
+/* Heading divider */
 .divider{border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px;min-height:58px;display:flex;align-items:center;justify-content:space-between}
 .divider .htext{font-weight:900;opacity:.92}
 .divider .dctrls{display:none;gap:8px}
@@ -111,7 +117,7 @@ a{color:inherit;text-decoration:none}
 .menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
 .menu-list a:last-child{border-bottom:none}
 
-/* Archive Footer (Admin only) */
+/* Archive Footer */
 #archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
   transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain}
 #archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900}
@@ -128,7 +134,7 @@ a{color:inherit;text-decoration:none}
 body.lock{position:fixed;inset:0;overflow:hidden}
 </style>
 </head>
-<body>
+<body ontouchstart="">
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav" role="navigation" aria-label="Primary">
@@ -143,8 +149,8 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 
 <!-- Config toolbar -->
 <div id="cfgbar" class="cfgbar" aria-hidden="true">
-  <button class="cfgbtn blue" id="addHeadingBtn">Add Heading</button>
-  <button class="cfgbtn" id="exitCfgBtn">Exit Config</button>
+  <button class="cfgbtn blue" id="addHeadingBtn" type="button">Add Heading</button>
+  <button class="cfgbtn" id="exitCfgBtn" type="button">Exit Config</button>
 </div>
 
 <main class="wrap">
@@ -170,7 +176,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   <div class="inner" role="document">
     <div class="sheet-head">
       <h2 id="sheetTitle">—</h2>
-      <button class="sheet-close" id="sheetClose" aria-label="Close">×</button>
+      <button class="sheet-close" id="sheetClose" aria-label="Close" type="button">×</button>
     </div>
     <iframe id="subFrame" title="Panel"></iframe>
   </div>
@@ -181,7 +187,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   <div class="bar">
     <span>Archived</span>
     <span class="count" id="countArchive">0</span>
-    <button class="chip" id="archiveToggle">Open</button>
+    <button class="chip" id="archiveToggle" type="button">Open</button>
   </div>
   <div class="content">
     <div class="list" id="archiveList"></div>
@@ -213,12 +219,12 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
 })();
 
-/* Avatar drawer + subsheet (unchanged) */
+/* Avatar drawer + subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', openDrawer);
-avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
+avatarBtn.addEventListener('click', openDrawer, {passive:true});
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
@@ -228,24 +234,20 @@ function openSubSheet(title,url){
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; }
-$('#sheetClose').addEventListener('click', closeSubSheet);
-subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
+$('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
 $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
-}));
+}, {passive:false}));
 $('#cfgToggle').addEventListener('click', e=>{
   e.preventDefault();
   document.body.classList.toggle('config-on');
   const on=document.body.classList.contains('config-on');
   $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
   setDraggable(on);
-});
+}, {passive:false});
 
-/* ===== settings & flags =====
-   heroFlags[id] = { state:'live'|'off', place:'page'|'archive', aud:{bronze,silver,gold} }
-   heroLabels[id] = 'Custom label'
-   pageOrder = [{type:'hero',id:'co-1'}, {type:'divider', id:'div_x', title:'Heading'}, ...]
-*/
+/* ===== settings & flags ===== */
 function uuid(){ return 'div_'+Math.random().toString(36).slice(2,9); }
 function defaults(){
   const heroFlags={}, pageOrder=[];
@@ -261,15 +263,13 @@ function defaults(){
   return { heroFlags, heroLabels:{}, pageOrder, _seeded:true };
 }
 function migrate(cfg){
-  // migrate old pageOrder that was array of ids/objects without ids
   const po=cfg.pageOrder||[];
   const fixed=po.map(it=>{
     if(typeof it==='string') return {type:'hero', id:it};
     if(it && it.type==='divider' && !it.id) return {...it, id:uuid()};
     return it;
   });
-  cfg.pageOrder=fixed;
-  return cfg;
+  cfg.pageOrder=fixed; return cfg;
 }
 function sanitize(cfg){
   if(!cfg || typeof cfg!=='object') return defaults();
@@ -297,30 +297,30 @@ function heroCard(id){
   const wrap=document.createElement('div'); wrap.className='item'; wrap.dataset.key=`hero:${id}`;
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
-    <button class="cfg-pin" title="Rename" data-cfg-rename="${id}">✎</button>
+    <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
     <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
-      <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
-      <div class="move"><button class="chip" data-act="move">Move</button>
+      <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
+      <div class="move"><button class="chip" data-act="move" type="button">Move</button>
         <div class="menu">
           ${f.place==='page'
-            ? '<button data-to="archive">Move to Archive</button>'
-            : '<button data-to="page">Move to Page</button>'}
+            ? '<button data-to="archive" type="button">Move to Archive</button>'
+            : '<button data-to="page" type="button">Move to Page</button>'}
         </div>
       </div>
     </div>
     <div class="cta-left">
-      <button class="btn blue" data-act="enter">Start</button>
+      <button class="btn blue" data-act="enter" type="button">Start</button>
       ${isAdminLike()?`
         <div class="aud">
-          <button class="chip" data-act="aud">Audience</button>
+          <button class="chip" data-act="aud" type="button">Audience</button>
           <div class="aud-menu">
             <label><input type="checkbox" data-aud="bronze" ${f.aud.bronze?'checked':''}> Bronze</label>
             <label><input type="checkbox" data-aud="silver" ${f.aud.silver?'checked':''}> Silver</label>
             <label><input type="checkbox" data-aud="gold"   ${f.aud.gold  ?'checked':''}> Gold</label>
             <div class="row" style="justify-content:flex-end">
-              <button class="chip" data-act="aud-cancel">Cancel</button>
-              <button class="chip" data-act="aud-save">Save</button>
+              <button class="chip" data-act="aud-cancel" type="button">Cancel</button>
+              <button class="chip" data-act="aud-save" type="button">Save</button>
             </div>
           </div>
         </div>`:''}
@@ -333,14 +333,14 @@ function dividerEl(obj){
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>
     <div class="dctrls">
-      <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}">Rename</button>
-      <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}">Remove</button>
+      <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
+      <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
     </div>`;
   wrap.appendChild(el);
   return wrap;
 }
 
-/* Paint page with visibility rules */
+/* Paint page respecting visibility */
 function paintPage(){
   const grid=$('#pageGrid'); grid.innerHTML='';
   const s=getSettings(); const role=getRole();
@@ -352,9 +352,7 @@ function paintPage(){
         if(!f.aud[role]) return;
       }
       const card=heroCard(id); if(card) grid.appendChild(card);
-    }else if(it.type==='divider'){
-      grid.appendChild(dividerEl(it));
-    }
+    }else if(it.type==='divider'){ grid.appendChild(dividerEl(it)); }
   });
   setDraggable(document.body.classList.contains('config-on'));
 }
@@ -378,10 +376,10 @@ function paintArchive(){
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     row.innerHTML=`<span class="num">${labelFor(id)}</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">`+(f.state==='live'?'Live':'Offline')+`</button>
+        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">`+(f.state==='live'?'Live':'Offline')+`</button>
         <div class="move">
-          <button class="chip" data-act="move">Move</button>
-          <div class="menu"><button data-to="page">Move to Page</button></div>
+          <button class="chip" data-act="move" type="button">Move</button>
+          <div class="menu"><button data-to="page" type="button">Move to Page</button></div>
         </div>
       </div>`;
     archiveList.appendChild(row);
@@ -398,102 +396,106 @@ $('#archiveToggle').addEventListener('click',()=>{
   dock.classList.toggle('collapsed', isOpen);
   $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
   if(!isOpen) lockBody(); else unlockBody();
-});
+}, {passive:true});
 
 /* Config toolbar */
 $('#addHeadingBtn').addEventListener('click',()=>{
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuid(), title:title.trim()||'Section'});
   saveSettings(s); paintPage();
-});
-$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); setDraggable(false); });
+}, {passive:false});
+$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); setDraggable(false); }, {passive:true});
 
-/* ===== Global events (robust selectors) ===== */
-document.addEventListener('click',(e)=>{
-  // Start (placeholder)
-  const start = e.target.closest('[data-act="enter"]');
-  if(start){
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
-    openSubSheet(`Course ${labelFor(id)}`, null); return;
-  }
-
-  // Toggle live/off
-  const tgl = e.target.closest('[data-act="toggle"]');
-  if(tgl){
-    if(!isAdminLike()) return;
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-    saveSettings(s); paintPage(); paintArchive(); return;
-  }
-
-  // Open/close move menu
-  const mv = e.target.closest('[data-act="move"]');
-  if(mv){
-    const menu = mv.parentElement.querySelector('.menu');
-    const open=!menu.classList.contains('open');
-    $$('.menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open');
-    e.stopPropagation(); return;
-  }
-
-  // Move destination (iOS-safe)
-  const toBtn = e.target.closest('button[data-to]');
-  if(toBtn){
-    const to = toBtn.getAttribute('data-to');
-    const host = toBtn.closest('[data-hero-id], .row');
-    const id = host.dataset.heroId;
-    moveHero(id,to);
-    $$('.menu.open').forEach(m=>m.classList.remove('open'));
-    e.stopPropagation(); return;
-  }
-
-  // Audience popup
-  const audBtn = e.target.closest('[data-act="aud"]');
-  if(audBtn){
-    const menu=audBtn.parentElement.querySelector('.aud-menu');
-    const open=!menu.classList.contains('open');
-    $$('.aud-menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open');
-    e.stopPropagation(); return;
-  }
-  if(e.target.matches('[data-act="aud-cancel"]')){
-    const menu=e.target.closest('.aud-menu'); if(menu) menu.classList.remove('open'); return;
-  }
-  if(e.target.matches('[data-act="aud-save"]')){
-    const menu=e.target.closest('.aud-menu'); const host=e.target.closest('.hero');
-    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
-    const aud={
-      bronze: menu.querySelector('[data-aud="bronze"]').checked,
-      silver: menu.querySelector('[data-aud="silver"]').checked,
-      gold:   menu.querySelector('[data-aud="gold"]').checked
-    };
-    s.heroFlags[id]={...cur, aud}; saveSettings(s); menu.classList.remove('open'); paintPage(); return;
-  }
-
-  // Rename hero label (config)
-  if(e.target.matches('[data-cfg-rename]')){
-    const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
-    const next=prompt('Hero label', cur);
-    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
-  }
-
-  // Divider rename/remove
-  if(e.target.dataset.divAct){
-    const id=e.target.getAttribute('data-div-id'); const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-    if(e.target.dataset.divAct==='rename'){
-      const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
-      if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
-    }else{
-      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+/* ===== Robust tap handler (click + pointerup + touchend) ===== */
+['click','pointerup','touchend'].forEach(evt=>{
+  document.addEventListener(evt,(e)=>{
+    // Start (placeholder)
+    const start = e.target.closest('[data-act="enter"]');
+    if(start){
+      const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
+      openSubSheet(`Course ${labelFor(id)}`, null); return;
     }
-  }
+
+    // Toggle live/off
+    const tgl = e.target.closest('[data-act="toggle"]');
+    if(tgl){
+      if(!isAdminLike()) return;
+      const host=e.target.closest('[data-hero-id], .row');
+      const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
+      s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
+      saveSettings(s); paintPage(); paintArchive(); return;
+    }
+
+    // Open/close move menu
+    const mv = e.target.closest('[data-act="move"]');
+    if(mv){
+      const menu = mv.parentElement.querySelector('.menu');
+      const open=!menu.classList.contains('open');
+      $$('.menu.open').forEach(m=>m.classList.remove('open'));
+      if(open) menu.classList.add('open');
+      e.stopPropagation(); return;
+    }
+
+    // Move destination
+    const toBtn = e.target.closest('button[data-to]');
+    if(toBtn){
+      const to = toBtn.getAttribute('data-to');
+      const host = toBtn.closest('[data-hero-id], .row');
+      const id = host.dataset.heroId;
+      moveHero(id,to);
+      $$('.menu.open').forEach(m=>m.classList.remove('open'));
+      e.stopPropagation(); return;
+    }
+
+    // Audience popup
+    const audBtn = e.target.closest('[data-act="aud"]');
+    if(audBtn){
+      const menu=audBtn.parentElement.querySelector('.aud-menu');
+      const open=!menu.classList.contains('open');
+      $$('.aud-menu.open').forEach(m=>m.classList.remove('open'));
+      if(open) menu.classList.add('open');
+      e.stopPropagation(); return;
+    }
+    if(e.target.matches('[data-act="aud-cancel"]')){
+      const menu=e.target.closest('.aud-menu'); if(menu) menu.classList.remove('open'); return;
+    }
+    if(e.target.matches('[data-act="aud-save"]')){
+      const menu=e.target.closest('.aud-menu'); const host=e.target.closest('.hero');
+      const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
+      const aud={
+        bronze: menu.querySelector('[data-aud="bronze"]').checked,
+        silver: menu.querySelector('[data-aud="silver"]').checked,
+        gold:   menu.querySelector('[data-aud="gold"]').checked
+      };
+      s.heroFlags[id]={...cur, aud}; saveSettings(s); menu.classList.remove('open'); paintPage(); return;
+    }
+
+    // Rename hero label (config)
+    if(e.target.matches('[data-cfg-rename]')){
+      const id=e.target.getAttribute('data-cfg-rename');
+      const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+      const next=prompt('Hero label', cur);
+      if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
+      return;
+    }
+
+    // Divider rename/remove
+    if(e.target.dataset.divAct){
+      const id=e.target.getAttribute('data-div-id'); const s=getSettings();
+      const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
+      if(e.target.dataset.divAct==='rename'){
+        const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
+        if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
+      }else{
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      }
+      return;
+    }
+  }, {passive:false});
 });
 
 // close popovers on outside click / ESC
-document.addEventListener('click',()=>{ $$('.menu.open').forEach(m=>m.classList.remove('open')); $$('.aud-menu.open').forEach(m=>m.classList.remove('open')); });
+document.addEventListener('click',()=>{ $$('.menu.open').forEach(m=>m.classList.remove('open')); $$('.aud-menu.open').forEach(m=>m.classList.remove('open')); }, {passive:true});
 window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.menu.open,.aud-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); }});
 
 /* Movement (page <-> archive) + keep pageOrder sane */
@@ -508,50 +510,25 @@ function moveHero(id, dest){
   saveSettings(s); paintPage(); paintArchive();
 }
 
-/* ===== Lightweight sortable (config mode only) ===== */
+/* Sortable (config) */
 let draggingKey=null;
-function setDraggable(on){
-  $$('#pageGrid .item').forEach(el=>{ el.setAttribute('draggable', on?'true':'false'); });
-}
-$('#pageGrid').addEventListener('dragstart',e=>{
-  const item=e.target.closest('.item'); if(!item) return;
-  draggingKey=item.dataset.key; item.classList.add('drag-ghost');
-});
-$('#pageGrid').addEventListener('dragend',e=>{
-  const item=e.target.closest('.item'); if(item) item.classList.remove('drag-ghost');
-  draggingKey=null; $$('#pageGrid .item').forEach(i=>i.classList.remove('drag-over'));
-});
-$('#pageGrid').addEventListener('dragover',e=>{
-  if(!draggingKey) return;
-  e.preventDefault();
-  const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return;
-  over.classList.add('drag-over');
-});
-$('#pageGrid').addEventListener('dragleave',e=>{
-  const over=e.target.closest('.item'); if(over) over.classList.remove('drag-over');
-});
+function setDraggable(on){ $$('#pageGrid .item').forEach(el=>{ el.setAttribute('draggable', on?'true':'false'); }); }
+$('#pageGrid').addEventListener('dragstart',e=>{ const item=e.target.closest('.item'); if(!item) return; draggingKey=item.dataset.key; item.classList.add('drag-ghost'); });
+$('#pageGrid').addEventListener('dragend',e=>{ const item=e.target.closest('.item'); if(item) item.classList.remove('drag-ghost'); draggingKey=null; $$('#pageGrid .item').forEach(i=>i.classList.remove('drag-over')); });
+$('#pageGrid').addEventListener('dragover',e=>{ if(!draggingKey) return; e.preventDefault(); const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return; over.classList.add('drag-over'); });
+$('#pageGrid').addEventListener('dragleave',e=>{ const over=e.target.closest('.item'); if(over) over.classList.remove('drag-over'); });
 $('#pageGrid').addEventListener('drop',e=>{
-  if(!draggingKey) return;
-  e.preventDefault();
+  if(!draggingKey) return; e.preventDefault();
   const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return;
   const s=getSettings();
-  const keyToObj = key=>{
-    const [type,id]=key.split(':');
-    return type==='hero' ? {type, id} : {type:'divider', id};
-  };
+  const keyToObj = key=>{ const [type,id]=key.split(':'); return type==='hero' ? {type, id} : {type:'divider', id}; };
   const orderDom=[...$('#pageGrid').children].map(n=>n.dataset.key);
   const from = orderDom.indexOf(draggingKey);
   const to   = orderDom.indexOf(over.dataset.key);
   if(from<0||to<0||from===to) return;
-  const orderObjs=s.pageOrder.slice();
-  // convert current s.pageOrder to keys list
-  const keys = orderObjs.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-  // move
-  const [moved]=keys.splice(from,1);
-  keys.splice(to,0,moved);
-  // back to objects
-  s.pageOrder = keys.map(keyToObj);
-  saveSettings(s); paintPage();
+  const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+  const [moved]=keys.splice(from,1); keys.splice(to,0,moved);
+  s.pageOrder = keys.map(keyToObj); saveSettings(s); paintPage();
 });
 
 /* Initial paint */
