@@ -8,214 +8,413 @@
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0b0d12; --stroke:rgba(255,255,255,.18);
+  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333;
-  --support:#6a4cff; --director:#444; --danger:#ff3b30;
-  --r:14px; --gap:12px; --btn-h:44px;
+  --support:#6a4cff; --director:#333; --danger:#ff3b30;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-a{color:inherit;text-decoration:none}
 
-/* Page wrap */
-.wrap{max-width:820px;margin:0 auto;padding:12px 14px 24px}
+/* Header */
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;
+  padding:12px;background:#111;border-bottom:1px solid var(--stroke)}
+header h1{margin:0;font-size:20px;font-weight:900}
+.btn{background:var(--blue);color:#000;padding:8px 12px;border-radius:10px;border:1px solid transparent;font-weight:900;cursor:pointer}
+.btn.grey{background:#222;color:#fff;border-color:var(--stroke)}
+.btn.ghost{background:#14161c;color:#fff;border:1px solid var(--stroke)}
+.btn.danger{background:var(--danger);color:#fff;border-color:transparent}
+.btn.small{height:36px;padding:6px 10px;border-radius:8px;font-size:13px}
 
-/* Top bar */
-.top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
-  padding:10px 6px 12px;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,0));
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.back{height:36px;min-width:36px;border-radius:12px;border:1px solid var(--stroke);background:#101218;color:#fff;font-weight:900;cursor:pointer}
-.title{margin:0;font-size:20px;font-weight:900}
+/* Layout */
+.container{max-width:840px;margin:0 auto;padding:12px}
 
-/* Avatar banner (text pill, no photo) */
-.banner{margin:8px 0 14px;padding:14px;border:1px solid var(--stroke);border-radius:16px;background:var(--panel);display:flex;align-items:center;justify-content:space-between;gap:12px}
-.pill{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:12px;border:1px solid var(--stroke);min-width:160px}
-.pill .name{font-size:16px;font-weight:900}
-.pill .lvl{font-size:12px;opacity:.95}
+/* Avatar pill (text-only) */
+.avatarPill{display:inline-flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:10px 14px;border-radius:14px;border:1px solid var(--stroke);background:#222;min-width:180px;
+  box-shadow:0 0 0 2px var(--silver) inset}
+.avatarPill .name{font-size:18px;font-weight:900}
+.avatarPill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
 
-/* Level control */
-.level-box{display:flex;align-items:center;gap:10px}
-.level{appearance:none;-webkit-appearance:none;background:#0f1218;border:1px solid var(--stroke);color:var(--ink);
-  border-radius:10px;height:36px;padding:0 12px;font-weight:800;cursor:pointer}
+/* Simple selects/inputs */
+.inlineControls{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.label{font-size:12px;color:var(--ink-dim)}
+.select{appearance:none;-webkit-appearance:none;height:40px;border-radius:10px;border:1px solid var(--stroke);
+  background:#111;color:var(--ink);padding:0 12px;font:inherit;font-weight:800;cursor:pointer}
+input, select{font:inherit}
 
-/* Sections (collapsible-friendly styling if you add more later) */
-.card{border:1px solid var(--stroke);border-radius:16px;background:var(--panel);padding:14px;margin:12px 0}
-.row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center;margin:10px 0}
-.label{color:var(--ink-dim);font-weight:700}
-.input{height:40px;border-radius:10px;border:1px solid var(--stroke);background:#0f1218;color:var(--ink);padding:0 12px;font:inherit}
-.input[readonly]{opacity:.8}
+/* Sections */
+.section{border:1px solid var(--stroke);border-radius:14px;background:#0b0c10;margin:12px 0}
+.section>button.section-head{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;
+  padding:12px 14px;cursor:pointer;font-weight:900}
+.section>button.section-head .chev{opacity:.85}
+.section .content{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.section.collapsed .content{display:none}
 
-/* Actions */
-.actions{display:flex;gap:10px;justify-content:space-between;margin-top:16px}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:var(--btn-h);padding:0 16px;border-radius:12px;border:1px solid var(--stroke);
-  font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
-.btn.blue{background:var(--blue);border-color:transparent;color:#000}
-.btn.ghost{background:#14161c}
-.btn.danger{background:var(--danger);border-color:transparent}
+/* Inputs */
+label{display:block;font-size:12px;color:var(--ink-dim);margin:10px 2px 6px}
+input[type="text"],input[type="email"],input[type="password"]{
+  width:100%;height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);
+  background:#111;color:var(--ink)}
+input[disabled]{opacity:.7}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){ .row{grid-template-columns:1fr} }
 
-/* Role colors applied to pill */
-.role-admin{background:var(--blue);color:#0b0c10}
-.role-director{background:var(--director);color:#fff}
-.role-support{background:var(--support);color:#fff}
-.role-gold{background:var(--gold);color:#0b0c10}
-.role-silver{background:var(--silver);color:#0b0c10}
-.role-bronze{background:var(--bronze);color:#fff}
+.actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 0}
 
-/* Helper */
-.small{font-size:12px;color:var(--ink-dim)}
+/* Permissions list */
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){ .perm-grid{grid-template-columns:1fr} }
+.perm-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:10px;background:#111}
+.perm-item label{margin:0;font-size:14px;color:var(--ink)}
+
+/* Save confirmation overlay */
+#saveConfirm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
+  background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#saveConfirm.open{display:flex}
+#saveConfirm .card{background:#101217;border:1px solid var(--stroke);border-radius:12px;padding:14px 16px;font-weight:900}
+
+/* mono */
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.small{font-size:12px;opacity:.85}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <button class="back" id="btnBack" aria-label="Back">‹</button>
-    <h1 class="title">Profile</h1>
-  </div>
+<header>
+  <button class="btn grey" type="button" id="backBtn">‹ Back</button>
+  <h1>Profile</h1>
+</header>
 
-  <!-- Avatar text pill + Level selector -->
-  <section class="banner">
-    <div class="pill" id="pill">
-      <div class="name" id="pillName">User</div>
-      <div class="lvl" id="pillLvl">Admin</div>
-    </div>
-    <div class="level-box">
-      <label for="level" class="label">Level</label>
-      <select id="level" class="level" aria-label="User level">
-        <option value="admin">Admin</option>
-        <option value="director">Director</option>
-        <option value="support">Support</option>
-        <option value="gold">Gold</option>
-        <option value="silver">Silver</option>
-        <option value="bronze">Bronze</option>
-      </select>
+<main class="container">
+  <!-- Avatar & Level -->
+  <section class="section" aria-labelledby="sec-avatar">
+    <button class="section-head" id="sec-avatar">
+      <span>Avatar</span><span class="chev">›</span>
+    </button>
+    <div class="content">
+      <div id="avatarPill" class="avatarPill">
+        <div class="name" id="avatarName">User</div>
+        <div class="lvl" id="avatarLvl">Silver</div>
+      </div>
+
+      <div class="inlineControls">
+        <span class="label">Level</span>
+        <select id="level" class="select" aria-label="User level">
+          <option value="admin">Admin</option>
+          <option value="director">Director</option>
+          <option value="support">Support</option>
+          <option value="gold">Gold</option>
+          <option value="silver">Silver</option>
+          <option value="bronze">Bronze</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="btn grey small" type="button" data-close="avatar">Close</button>
+        <button class="btn small" type="button" data-save="avatar">Save</button>
+      </div>
+      <p class="small" style="margin:-6px 2px 0">
+        Avatar is text-only and uses your level colour. No photo is used.
+      </p>
     </div>
   </section>
 
-  <!-- Basic details (kept minimal; you can expand later) -->
-  <section class="card">
-    <div class="row">
-      <div class="label">First name</div>
-      <input id="firstName" class="input" type="text" autocomplete="given-name" />
+  <!-- Permissions (ADMIN ONLY) -->
+  <section class="section collapsed" id="permSection" aria-labelledby="sec-perms" hidden>
+    <button class="section-head" id="sec-perms"><span>Permissions</span><span class="chev">›</span></button>
+    <div class="content">
+      <div class="row">
+        <div>
+          <label for="rolePreset">Role preset</label>
+          <select id="rolePreset" class="select">
+            <option value="custom">Custom</option>
+            <option value="bronze">Bronze</option>
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="support">Support</option>
+            <option value="director">Director</option>
+            <option value="admin">Admin</option>
+          </select>
+          <p class="small">Use a preset as a starting point, then fine-tune below.</p>
+        </div>
+        <div>
+          <label>Current username</label>
+          <div class="mono" id="permUser" style="height:42px;display:flex;align-items:center;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#111"></div>
+        </div>
+      </div>
+
+      <div class="perm-grid" style="margin-top:6px">
+        <div class="perm-item"><input type="checkbox" id="permMove"   /><label for="permMove">Move heroes (page/dev/archive/templates)</label></div>
+        <div class="perm-item"><input type="checkbox" id="permHide"   /><label for="permHide">Toggle Live/Offline</label></div>
+        <div class="perm-item"><input type="checkbox" id="permDock"   /><label for="permDock">Open Working Drawer</label></div>
+        <div class="perm-item"><input type="checkbox" id="permRearr"  /><label for="permRearr">Rearrange heroes on page</label></div>
+        <div class="perm-item"><input type="checkbox" id="permTabs"   /><label for="permTabs">Rearrange / hide tabs (config)</label></div>
+        <div class="perm-item"><input type="checkbox" id="permConfig"/><label for="permConfig">Config mode (inline edit)</label></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn grey small" type="button" data-close="perms">Close</button>
+        <button class="btn small" type="button" data-save="perms">Save</button>
+      </div>
     </div>
-    <div class="row">
-      <div class="label">Surname</div>
-      <input id="lastName" class="input" type="text" autocomplete="family-name" />
-    </div>
-    <div class="row">
-      <div class="label">Display name</div>
-      <input id="displayName" class="input" type="text" autocomplete="nickname" />
-    </div>
-    <div class="row">
-      <div class="label">Email</div>
-      <input id="email" class="input" type="email" autocomplete="email" />
-    </div>
-    <div class="row">
-      <div class="label">Username</div>
-      <input id="username" class="input" type="text" readonly />
-    </div>
-    <div class="row">
-      <div class="label">Password</div>
-      <button id="btnChangePw" class="btn ghost" type="button">Change Password</button>
-    </div>
-    <div class="small">Password change flow to be implemented later.</div>
   </section>
 
-  <div class="actions">
-    <button class="btn ghost" id="btnCancel" type="button">Cancel</button>
-    <button class="btn blue" id="btnSave" type="button">Save</button>
-  </div>
-</div>
+  <!-- My Details (collapsed by default) -->
+  <section class="section collapsed" aria-labelledby="sec-details">
+    <button class="section-head" id="sec-details"><span>My Details</span><span class="chev">›</span></button>
+    <div class="content">
+      <div class="row">
+        <div><label for="firstName">First name</label><input id="firstName" autocomplete="given-name" type="text"></div>
+        <div><label for="lastName">Surname</label><input id="lastName" autocomplete="family-name" type="text"></div>
+      </div>
+      <div class="row">
+        <div><label for="displayName">Display name</label><input id="displayName" autocomplete="nickname" type="text"></div>
+        <div><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+      </div>
+      <div class="actions">
+        <button class="btn grey small" type="button" data-close="details">Close</button>
+        <button class="btn small" type="button" data-save="details">Save</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Username & Password (collapsed) -->
+  <section class="section collapsed" aria-labelledby="sec-auth">
+    <button class="section-head" id="sec-auth"><span>Username & Password</span><span class="chev">›</span></button>
+    <div class="content">
+      <div class="row">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" class="mono" disabled type="text">
+          <p class="small">Usernames are permanent.</p>
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="new-password" placeholder="••••••••">
+          <button class="btn ghost small" id="changePw" type="button" style="margin-top:8px">Change Password</button>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn grey small" type="button" data-close="auth">Close</button>
+        <button class="btn small" type="button" data-save="auth">Save</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Data (collapsed) -->
+  <section class="section collapsed" aria-labelledby="sec-data">
+    <button class="section-head" id="sec-data"><span>My Data</span><span class="chev">›</span></button>
+    <div class="content">
+      <p class="small">Headlines only (groups & latest timestamps). Export is admin-only.</p>
+      <div id="dataSummary" class="small"></div>
+      <div class="actions">
+        <button class="btn grey small" type="button" id="viewData">View Details</button>
+        <button class="btn small" type="button" id="exportData" style="display:none">Export (Admin)</button>
+        <button class="btn grey small" type="button" data-close="data">Close</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Save confirm (tap anywhere outside to dismiss) -->
+<div id="saveConfirm" aria-hidden="true"><div class="card">Saved ✓</div></div>
 
 <script>
 (()=>{'use strict';
-/* Storage helpers (shared with Home) */
+/* Storage helpers */
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile' };
+const K={profile:'ao_profile',settings:'ao_settings',perms:'ao_permissions'};
+const $=s=>document.querySelector(s);
+const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
+
+/* Role colours for avatar ring */
+const RING={admin:'var(--blue)',director:'var(--director)',support:'var(--support)',gold:'var(--gold)',silver:'var(--silver)',bronze:'var(--bronze)'};
 
 /* Elements */
-const pill=document.getElementById('pill');
-const pillName=document.getElementById('pillName');
-const pillLvl=document.getElementById('pillLvl');
-const levelSel=document.getElementById('level');
-const first=document.getElementById('firstName');
-const last=document.getElementById('lastName');
-const displayName=document.getElementById('displayName');
-const email=document.getElementById('email');
-const username=document.getElementById('username');
+const pill=$('#avatarPill'), pillName=$('#avatarName'), pillLvl=$('#avatarLvl');
+const levelSel=$('#level');
+const first=$('#firstName'), last=$('#lastName'), displayName=$('#displayName'),
+      email=$('#email'), username=$('#username'), password=$('#password');
+const saveConfirm=$('#saveConfirm');
 
-/* Role → pill class */
-const ROLE_CLASS={
-  admin:'role-admin',
-  director:'role-director',
-  support:'role-support',
-  gold:'role-gold',
-  silver:'role-silver',
-  bronze:'role-bronze'
-};
-
-/* Load into form */
-let original = store.get(K.profile,{
-  firstName:'', lastName:'', displayName:'User', email:'', username:'user',
-  skill:'admin'
+/* Load profile (defaults) */
+let p=store.get(K.profile,{
+  firstName:'', lastName:'', displayName:'User', email:'', username:'user', skill:'silver'
 });
-function paintFrom(p){
-  // pill
+
+/* Permissions state (per-user entry) */
+function getPerms(username){ const all=store.get(K.perms,{}); return all[username]||null; }
+function setPerms(username, perms){ const all=store.get(K.perms,{}); all[username]=perms; store.set(K.perms,all); }
+
+/* Paint avatar */
+function paintPill(role, name){
+  pill.style.boxShadow = `0 0 0 2px ${RING[role]||RING.silver} inset`;
+  pillName.textContent = name || 'User';
+  pillLvl.textContent  = cap(role);
+}
+
+/* Role preset → permissions */
+function presetPerms(role){
+  const base = {move:false, hide:false, dock:false, rearr:false, tabs:false, config:false};
+  switch((role||'silver').toLowerCase()){
+    case 'bronze': return {...base};
+    case 'silver': return {...base};
+    case 'gold':   return {...base};
+    case 'support':return {...base, dock:true};
+    case 'director':return {...base, move:true, hide:true, dock:true};
+    case 'admin':  return {move:true, hide:true, dock:true, rearr:true, tabs:true, config:true};
+    default: return {...base};
+  }
+}
+
+/* Show/hide Permissions section for admin */
+function isAdmin(){ return (p.skill||'').toLowerCase()==='admin'; }
+function showPermsIfAdmin(){
+  const sec=$('#permSection');
+  if(isAdmin()){ sec.hidden=false; } else { sec.hidden=true; }
+}
+showPermsIfAdmin();
+
+/* Paint form from profile */
+function paintForm(){
   const role=(p.skill||'silver').toLowerCase();
-  pill.className='pill ' + (ROLE_CLASS[role]||ROLE_CLASS.silver);
-  pillName.textContent = p.displayName || 'User';
-  pillLvl.textContent = role.charAt(0).toUpperCase()+role.slice(1);
-
-  // form
+  paintPill(role, p.displayName||'User');
   levelSel.value = role;
-  first.value = p.firstName || '';
-  last.value = p.lastName || '';
-  displayName.value = p.displayName || '';
-  email.value = p.email || '';
-  username.value = p.username || 'user';
-}
-paintFrom(original);
+  first.value = p.firstName||'';
+  last.value  = p.lastName||'';
+  displayName.value = p.displayName||'';
+  email.value = p.email||'';
+  username.value = p.username||'user';
 
-/* Update pill live when level or display name changes */
-levelSel.addEventListener('change',()=>{
-  const role=levelSel.value;
-  pill.className='pill ' + (ROLE_CLASS[role]||ROLE_CLASS.silver);
-  pillLvl.textContent= role.charAt(0).toUpperCase()+role.slice(1);
+  // permissions UI (admin only)
+  if(isAdmin()){
+    $('#permUser').textContent = p.username||'user';
+    const cur = getPerms(p.username) || presetPerms(role);
+    $('#rolePreset').value = 'custom';
+    $('#permMove').checked   = !!cur.move;
+    $('#permHide').checked   = !!cur.hide;
+    $('#permDock').checked   = !!cur.dock;
+    $('#permRearr').checked  = !!cur.rearr;
+    $('#permTabs').checked   = !!cur.tabs;
+    $('#permConfig').checked = !!cur.config;
+  }
+}
+paintForm();
+
+/* Collapsibles */
+document.querySelectorAll('.section-head').forEach(btn=>{
+  btn.addEventListener('click',()=>btn.parentElement.classList.toggle('collapsed'));
 });
-displayName.addEventListener('input',()=>{ pillName.textContent=displayName.value||'User'; });
 
-/* Save / Cancel / Back */
-function gather(){
-  return {
-    firstName:first.value.trim(),
-    lastName:last.value.trim(),
-    displayName:displayName.value.trim()||'User',
-    email:email.value.trim(),
-    username:username.value.trim()||'user',
-    skill:levelSel.value  // <- this is what Home reads to set role/skin/admin controls
-  };
-}
-function save(){
-  const next=gather();
-  store.set(K.profile,next);
-  // Notify opener so Home can repaint immediately
-  try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
-  // Small haptic: change button text briefly
-  const btn=document.getElementById('btnSave');
-  const t=btn.textContent; btn.textContent='Saved ✓'; setTimeout(()=>btn.textContent=t,1000);
-}
-function cancel(){
-  paintFrom(original);
-}
-document.getElementById('btnSave').addEventListener('click', save);
-document.getElementById('btnCancel').addEventListener('click', cancel);
-document.getElementById('btnBack').addEventListener('click', ()=>{ history.back(); });
+/* Live avatar updates */
+levelSel.addEventListener('change',()=> paintPill(levelSel.value, displayName.value||'User'));
+displayName.addEventListener('input',()=> paintPill(levelSel.value, displayName.value||'User'));
 
-/* Password placeholder */
-document.getElementById('btnChangePw').addEventListener('click', ()=>{
-  alert('Password change flow coming soon.');
+/* Save confirmation helper */
+function flashSaved(){
+  saveConfirm.classList.add('open'); saveConfirm.setAttribute('aria-hidden','false');
+  const close = (e)=>{ if(e.target===saveConfirm){ saveConfirm.classList.remove('open'); saveConfirm.setAttribute('aria-hidden','true'); window.removeEventListener('click', close); } };
+  setTimeout(()=>{ window.addEventListener('click', close, {once:true}); }, 0);
+}
+
+/* Section Save/Close handlers */
+function saveSection(which){
+  if(which==='avatar'){
+    p.skill = levelSel.value;
+    p.displayName = (displayName.value||p.displayName||'User').trim() || 'User';
+    store.set(K.profile,p);
+    // inform parent (home) to repaint immediately
+    try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
+  }
+  if(which==='perms' && isAdmin()){
+    const perms={
+      move:   $('#permMove').checked,
+      hide:   $('#permHide').checked,
+      dock:   $('#permDock').checked,
+      rearr:  $('#permRearr').checked,
+      tabs:   $('#permTabs').checked,
+      config: $('#permConfig').checked
+    };
+    setPerms(p.username||'user', perms);
+    // also mirror a convenience flag into settings for the active user (optional)
+    const s=store.get(K.settings,{}); s.permsCurrent=perms; store.set(K.settings,s);
+    try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.settings})); }catch{}
+  }
+  if(which==='details'){
+    p.firstName = first.value.trim();
+    p.lastName  = last.value.trim();
+    p.displayName = (displayName.value||'User').trim() || 'User';
+    p.email = email.value.trim();
+    store.set(K.profile,p);
+    try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
+  }
+  if(which==='auth'){
+    const pw=password.value.trim();
+    if(pw){ p.password=pw; store.set(K.profile,p); }
+  }
+  if(which==='data'){
+    // nothing to persist here
+  }
+  flashSaved();
+}
+function closeSection(which){
+  const map={avatar:'sec-avatar', perms:'sec-perms', details:'sec-details', auth:'sec-auth', data:'sec-data'};
+  const id=map[which]; if(!id) return;
+  const sec=document.getElementById(id)?.closest('.section');
+  if(sec) sec.classList.add('collapsed');
+}
+
+/* Wire Save/Close buttons (event delegation) */
+document.body.addEventListener('click',(e)=>{
+  const sBtn=e.target.closest('[data-save]'); if(sBtn){ saveSection(sBtn.dataset.save); return; }
+  const cBtn=e.target.closest('[data-close]'); if(cBtn){ closeSection(cBtn.dataset.close); return; }
 });
+
+/* Role preset → apply to checkboxes */
+$('#rolePreset').addEventListener('change',()=>{
+  const role=$('#rolePreset').value;
+  if(role==='custom') return;
+  const perms=presetPerms(role);
+  $('#permMove').checked   = perms.move;
+  $('#permHide').checked   = perms.hide;
+  $('#permDock').checked   = perms.dock;
+  $('#permRearr').checked  = perms.rearr;
+  $('#permTabs').checked   = perms.tabs;
+  $('#permConfig').checked = perms.config;
+});
+
+/* My Data summary */
+function paintDataSummary(){
+  const s=store.get(K.settings,{});
+  const now=new Date().toLocaleString();
+  const lines=[
+    `• User information — updated ${now}`,
+    `• Heroes config — ${s.heroFlags ? Object.keys(s.heroFlags).length : 0} items`,
+    `• Text overrides — ${s.textOverrides ? Object.keys(s.textOverrides).length : 0} groups`
+  ];
+  document.getElementById('dataSummary').textContent = lines.join('\n');
+}
+paintDataSummary();
+
+/* Export (admin only) */
+if(isAdmin()) document.getElementById('exportData').style.display='inline-block';
+document.getElementById('exportData').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify({profile:store.get(K.profile,{}),settings:store.get(K.settings,{}),permissions:store.get(K.perms,{})},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='faoa-export.json'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* View details */
+document.getElementById('viewData').addEventListener('click',()=>{ window.location.href='mydata.html'; });
+
+/* Change password placeholder */
+document.getElementById('changePw').addEventListener('click',()=>{
+  if(!password.value.trim()){ alert('Enter a new password first.'); return; }
+  flashSaved();
+});
+
+/* Back */
+document.getElementById('backBtn').addEventListener('click',()=>history.back());
 })();
 </script>
 </body>
