@@ -11,15 +11,14 @@
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
 }
 /* iOS anti-highlight + reset */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
   height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain;overflow-x:hidden;
-  user-select:none;-webkit-user-select:none;
+  overscroll-behavior-y:contain;overflow-x:hidden;user-select:none;-webkit-user-select:none;
 }
 a{color:inherit;text-decoration:none}
 button{user-select:none;-webkit-user-select:none}
@@ -31,7 +30,7 @@ button{user-select:none;-webkit-user-select:none}
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .title-tab{font-weight:900;opacity:.92}
 
-/* Avatar pill */
+/* Avatar pill (colour by role) */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
   font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
 .avatarTab .name{font-size:15px;font-weight:900}
@@ -60,7 +59,7 @@ button{user-select:none;-webkit-user-select:none}
 
 /* Chips & buttons */
 .ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
-.chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
@@ -69,24 +68,29 @@ button{user-select:none;-webkit-user-select:none}
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Audience chips (bottom of hero) */
+/* Audience chips (bottom of hero/heading) */
 .aud-line{display:flex;gap:8px;align-items:center}
-.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.85}
-.aud-chip.on{filter:brightness(1.15);opacity:1}
+.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
+.aud-chip.on{opacity:1;filter:brightness(1.22)}
+.aud-chip.on::after{content:" ✓";font-weight:900}
 .aud-chip.bronze{box-shadow:inset 0 0 0 2px #b87333}
 .aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
 .aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
 
-/* Divider */
-.divider{border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px;min-height:58px;display:flex;align-items:center;justify-content:space-between}
+/* Divider (Heading) */
+.divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px}
 .divider .htext{font-weight:900;opacity:.92}
-.divider .dctrls{display:none;gap:8px}
+.divider .dctrls{position:absolute;top:10px;right:10px;display:none;gap:6px}
 .config-on .divider .dctrls{display:flex}
+.divider .aud-line{position:absolute;left:16px;bottom:14px}
 
-/* Rename pin */
+/* Config affordances on heroes */
 .cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
+.cfg-arrows{display:none;position:absolute;top:10px;left:42px;gap:6px;z-index:6}
+.config-on .cfg-arrows{display:flex}
+.cfg-arrow{height:24px;padding:0 8px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer}
 
 /* Avatar Drawer */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -117,12 +121,7 @@ button{user-select:none;-webkit-user-select:none}
 #archiveDock.collapsed{max-height:48px}
 #archiveDock.open{max-height:60vh}
 
-/* Dragging (config) */
-.item[draggable="true"]{touch-action:none}
-.drag-ghost{opacity:.5}
-.drag-over{outline:2px dashed var(--blue); outline-offset:3px; border-radius:14px}
-
-/* Body lock when drawer open */
+/* Lock body when drawer open */
 body.lock{position:fixed;inset:0;overflow:hidden}
 </style>
 </head>
@@ -174,7 +173,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   </div>
 </div>
 
-<!-- Archive Footer (Admin/Director only visible) -->
+<!-- Archive Footer (Admin/Director only) -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
     <span>Archived</span>
@@ -236,7 +235,6 @@ $('#cfgToggle').addEventListener('click', e=>{
   document.body.classList.toggle('config-on');
   const on=document.body.classList.contains('config-on');
   $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
-  setDraggable(on);
 }, {passive:false});
 
 /* ===== settings & flags ===== */
@@ -255,18 +253,8 @@ function defaults(){
   }
   return { heroFlags, heroLabels:{}, pageOrder, _seeded:true };
 }
-function migrate(cfg){
-  const po=cfg.pageOrder||[];
-  const fixed=po.map(it=>{
-    if(typeof it==='string') return {type:'hero', id:it};
-    if(it && it.type==='divider' && !it.id) return {...it, id:uuid()};
-    return it;
-  });
-  cfg.pageOrder=fixed; return cfg;
-}
 function sanitize(cfg){
   if(!cfg || typeof cfg!=='object') return defaults();
-  cfg=migrate(cfg);
   cfg.heroFlags=cfg.heroFlags||{};
   cfg.heroLabels=cfg.heroLabels||{};
   cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
@@ -274,8 +262,11 @@ function sanitize(cfg){
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
-    if(!cfg.pageOrder.some(it=>it.type==='hero' && it.id===id) && cfg.heroFlags[id].place==='page') cfg.pageOrder.push({type:'hero',id});
+    const onPage = cfg.heroFlags[id].place==='page';
+    if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
   }
+  // ensure dividers have audience
+  cfg.pageOrder=cfg.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
   return cfg;
 }
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
@@ -288,14 +279,17 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 /* DOM builders */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
-  const wrap=document.createElement('div'); wrap.className='item'; wrap.dataset.key=`hero:${id}`;
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
+    <div class="cfg-arrows">
+      <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
+      <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
+    </div>
     <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
       <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
-      <button class="chip" data-act="move" type="button">Move</button>
+      <button class="chip" data-act="move" type="button">${f.place==='page'?'Move':'Move'}</button>
     </div>
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
@@ -306,19 +300,24 @@ function heroCard(id){
           <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
         </div>`:''}
     </div>`;
-  wrap.appendChild(el);
-  return wrap;
+  return el;
 }
 function dividerEl(obj){
-  const wrap=document.createElement('div'); wrap.className='item'; wrap.dataset.key=`div:${obj.id}`;
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
+      <button class="cfgbtn" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
+      <button class="cfgbtn" data-div-act="down" data-div-id="${obj.id}" type="button">▼</button>
       <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
-    </div>`;
-  wrap.appendChild(el);
-  return wrap;
+    </div>
+    ${isAdminLike()?`
+      <div class="aud-line">
+        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
+        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
+        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
+      </div>`:''}`;
+  return el;
 }
 
 /* Paint page respecting visibility */
@@ -332,10 +331,13 @@ function paintPage(){
         if(f.state!=='live') return;
         if(!f.aud[role]) return;
       }
-      const card=heroCard(id); if(card) grid.appendChild(card);
-    }else if(it.type==='divider'){ grid.appendChild(dividerEl(it)); }
+      grid.appendChild(heroCard(id));
+    }else if(it.type==='divider'){
+      const aud=it.aud || {bronze:true,silver:true,gold:true};
+      if(!seesAll()){ if(!aud[role]) return; }
+      grid.appendChild(dividerEl(it));
+    }
   });
-  setDraggable(document.body.classList.contains('config-on'));
 }
 
 /* Archive footer visibility */
@@ -380,14 +382,14 @@ $('#archiveToggle').addEventListener('click',()=>{
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section'});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
 }, {passive:false});
-$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); setDraggable(false); }, {passive:true});
+$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); }, {passive:true});
 
-/* Tap handlers */
+/* Tap handlers with confirmations */
 document.addEventListener('click',(e)=>{
-  // Start placeholder
+  // Start (placeholder)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     openSubSheet(`Course ${labelFor(id)}`, null); return;
@@ -397,32 +399,41 @@ document.addEventListener('click',(e)=>{
     if(!isAdminLike()) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
+    const next = cur.state==='live' ? 'off' : 'live';
+    if(!confirm(`Are you sure you want to set this to ${next==='live'?'LIVE':'OFFLINE'}?`)) return;
+    s.heroFlags[id]={...cur, state:next};
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // Move (page->archive) (archive->page)
+  // Move (page<->archive)
   if(e.target.closest('[data-act="move"]')){
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
+    if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
     s.heroFlags[id]={...cur, place:dest};
-    // ensure appears in pageOrder when returning
-    if(dest==='page'){
-      const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id);
-      if(!exists) s.pageOrder.push({type:'hero',id});
-    }
+    if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
+    else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // Audience chips (admin/director only)
+  // Audience chips on heroes
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
     if(!isAdminLike()) return;
     const key=audBtn.getAttribute('data-aud');
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]; const next={...cur.aud, [key]:!cur.aud[key]};
-    s.heroFlags[id]={...cur, aud:next}; saveSettings(s);
-    audBtn.classList.toggle('on', next[key]);
-    return;
+    const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
+    paintPage(); paintArchive(); return;
+  }
+  // Audience chips on headings
+  if(e.target.dataset.divAud){
+    if(!isAdminLike()) return;
+    const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
+    const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
+    s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
   }
   // Rename hero label
   if(e.target.matches('[data-cfg-rename]')){
@@ -432,40 +443,45 @@ document.addEventListener('click',(e)=>{
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
-  // Divider controls
+  // Divider actions (rename / remove / arrows)
   if(e.target.dataset.divAct){
     const id=e.target.getAttribute('data-div-id'); const s=getSettings();
     const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-    if(e.target.dataset.divAct==='rename'){
+    const act=e.target.dataset.divAct;
+    if(act==='rename'){
       const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
       if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
-    }else{
-      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+    }else if(act==='remove'){
+      if(confirm('Remove this heading?')){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); }
+    }else if(act==='up' || act==='down'){
+      const to = act==='up' ? Math.max(0, idx-1) : Math.min(s.pageOrder.length-1, idx+1);
+      if(to!==idx){ const [it]=s.pageOrder.splice(idx,1); s.pageOrder.splice(to,0,it); saveSettings(s); paintPage(); }
+    }
+    return;
+  }
+  // Hero sort arrows
+  if(e.target.matches('.cfg-arrow')){
+    const key=e.target.dataset.key; const s=getSettings();
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf(key); if(from<0) return;
+    const dir = e.target.dataset.sort==='up' ? -1 : 1;
+    const to = Math.min(Math.max(0, from+dir), keys.length-1);
+    if(to!==from){
+      const objFrom = s.pageOrder[from];
+      s.pageOrder.splice(from,1);
+      s.pageOrder.splice(to,0,objFrom);
+      saveSettings(s); paintPage();
     }
     return;
   }
 }, {passive:false});
 
-/* Sortable (config) */
-let draggingKey=null;
-function setDraggable(on){ $$('#pageGrid .item').forEach(el=>{ el.setAttribute('draggable', on?'true':'false'); }); }
-$('#pageGrid').addEventListener('dragstart',e=>{ const item=e.target.closest('.item'); if(!item) return; draggingKey=item.dataset.key; item.classList.add('drag-ghost'); });
-$('#pageGrid').addEventListener('dragend',e=>{ const item=e.target.closest('.item'); if(item) item.classList.remove('drag-ghost'); draggingKey=null; $$('#pageGrid .item').forEach(i=>i.classList.remove('drag-over')); });
-$('#pageGrid').addEventListener('dragover',e=>{ if(!draggingKey) return; e.preventDefault(); const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return; over.classList.add('drag-over'); });
-$('#pageGrid').addEventListener('dragleave',e=>{ const over=e.target.closest('.item'); if(over) over.classList.remove('drag-over'); });
-$('#pageGrid').addEventListener('drop',e=>{
-  if(!draggingKey) return; e.preventDefault();
-  const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return;
-  const s=getSettings();
-  const keyToObj = key=>{ const [type,id]=key.split(':'); return type==='hero' ? {type, id} : {type:'divider', id}; };
-  const orderDom=[...$('#pageGrid').children].map(n=>n.dataset.key);
-  const from = orderDom.indexOf(draggingKey);
-  const to   = orderDom.indexOf(over.dataset.key);
-  if(from<0||to<0||from===to) return;
-  const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-  const [moved]=keys.splice(from,1); keys.splice(to,0,moved);
-  s.pageOrder = keys.map(keyToObj); saveSettings(s); paintPage();
-});
+/* Archive lock/unlock */
+const dockEl=$('#archiveDock');
+let savedScrollY=0;
+function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
+dockEl.addEventListener('transitionend',()=>{}, {passive:true});
 
 /* Initial render */
 paintPage(); paintArchive();
