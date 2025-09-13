@@ -40,12 +40,16 @@ a{color:inherit;text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue);border-color:transparent;color:#000}
 
-/* Avatar pill */
+/* Avatar pill (no image; solid role colour) */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-  padding:6px 12px;border-radius:12px;min-width:120px;height:44px;
-  font-weight:900;line-height:1.1;text-align:left;cursor:pointer}
+  padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
+  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;
+  border:1px solid var(--stroke);background:#222}
 .avatarTab .name{font-size:15px;font-weight:900}
-.avatarTab .lvl{font-size:12px;opacity:.9;text-transform:capitalize}
+.avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
+
+/* Content containers */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:10px 14px 80px}
 
 /* Hero */
 .hero{position:relative;overflow:hidden;background:#000;
@@ -71,10 +75,11 @@ a{color:inherit;text-decoration:none}
 .m-bronze{background:var(--bronze)}
 .m-silver{background:var(--silver);color:#111}
 .m-gold{background:var(--gold);color:#111}
-.m-black{background:var(--black);color:#fff}
-.m-blue{background:var(--blue);color:#000}
+.m-support{background:#6a4cff}
+.m-director{background:#444}
+.m-admin{background:var(--blue);color:#000}
 
-/* Avatar drawer + subSheet */
+/* Drawer + Subsheet */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);
   -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
@@ -82,6 +87,8 @@ a{color:inherit;text-decoration:none}
   background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
 .menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;
   border-bottom:1px solid rgba(255,255,255,.08)}
+.menu a:last-child{border-bottom:none}
+
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
@@ -96,16 +103,16 @@ a{color:inherit;text-decoration:none}
 </style>
 </head>
 <body>
-<div class="bg"></div>
+<div class="bg" aria-hidden="true"></div>
 
 <header class="nav">
-  <div class="nav-left" role="tablist">
-    <button class="btn-tab is-active" data-tab="challenges">Challenges</button>
-    <button class="btn-tab" data-tab="courses">Courses</button>
-    <button class="btn-tab" data-tab="live">Live</button>
+  <div class="nav-left" role="tablist" aria-label="Primary">
+    <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
+    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
+    <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
   </div>
   <div class="nav-right">
-    <button id="avatarTab" class="avatarTab">
+    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
       <span class="lvl" id="avatarLvl">Intermediate</span>
     </button>
@@ -115,8 +122,8 @@ a{color:inherit;text-decoration:none}
 <main class="wrap">
   <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
-    <article class="hero tracker" id="trackerHero">
-      <h2 class="title">Challenge Tracker</h2>
+    <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
+      <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
       <p class="meta">Daily 7d • Weekly 6w</p>
       <div class="cards">
         <div class="card">
@@ -133,18 +140,20 @@ a{color:inherit;text-decoration:none}
 
   <!-- Courses -->
   <section id="panel-courses" class="hide" data-panel="courses">
-    <h2 class="section-title">Courses</h2>
+    <h2 class="title">Courses</h2>
+    <p class="meta">Your courses will appear here.</p>
   </section>
 
   <!-- Live -->
   <section id="panel-live" class="hide" data-panel="live">
-    <h2 class="section-title">Live Sessions</h2>
+    <h2 class="title">Live Sessions</h2>
+    <p class="meta">Live demos & sessions.</p>
   </section>
 </main>
 
 <!-- Avatar drawer -->
-<div id="avatarSheet">
-  <div class="panel">
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
     <nav class="menu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
@@ -155,11 +164,11 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <!-- Sub sheet -->
-<div id="subSheet">
-  <div class="inner">
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="inner" role="document">
     <div class="sheet-head">
       <h2 id="sheetTitle">—</h2>
-      <button class="sheet-close" id="sheetClose">×</button>
+      <button class="sheet-close" id="sheetClose" aria-label="Close">×</button>
     </div>
     <iframe id="subFrame" title="Panel"></iframe>
   </div>
@@ -167,61 +176,123 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
+/* ===== utilities & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
-const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={profile:'ao_profile',dailyDone:'ao_daily_done',weeklyDone:'ao_weekly_done',dailyMeta:'ao_daily_meta'};
+const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+             set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const K={profile:'ao_profile',settings:'ao_settings',dailyDone:'ao_daily_done',weeklyDone:'ao_weekly_done',dailyMeta:'ao_daily_meta'};
 
-const skinByLevel={bronze:'var(--bronze)',silver:'var(--silver)',gold:'var(--gold)',
-                   support:'#663399',director:'#444',admin:'var(--blue)'};
+/* ===== role → skin mapping ===== */
+const skinByLevel={
+  bronze:'var(--bronze)',
+  silver:'var(--silver)',
+  gold:'var(--gold)',
+  support:'#6a4cff',
+  director:'#444',
+  admin:'var(--blue)'
+};
+function cap(s){return (s||'').replace(/\b\w/g,m=>m.toUpperCase())}
 
-/* Apply profile to avatar */
+/* ===== avatar paint ===== */
 function applyProfile(){
   const p=store.get(K.profile,{displayName:'User',skill:'silver'});
+  const lvl=(p.skill||'silver').toLowerCase();
   $('#avatarName').textContent=p.displayName||'User';
-  $('#avatarLvl').textContent=(p.skill||'intermediate');
-  $('#avatarTab').style.background=skinByLevel[p.skill]||'var(--silver)';
+  $('#avatarLvl').textContent=cap(lvl);
+  $('#avatarTab').style.background=skinByLevel[lvl]||'var(--silver)';
+  // ensure readable text on light backgrounds
+  const light = (lvl==='gold'||lvl==='silver'||lvl==='admin');
+  $('#avatarTab').style.color = light ? '#0b0c10' : '#eef3ff';
 }
 applyProfile();
 
-/* Avatar drawer */
-$('#avatarTab').addEventListener('click',()=>$('#avatarSheet').classList.add('open'));
-$('#avatarSheet').addEventListener('click',e=>{if(e.target.id==='avatarSheet')$('#avatarSheet').classList.remove('open')});
+/* Update when other pages modify localStorage */
+window.addEventListener('storage',e=>{
+  if(e.key===K.profile||e.key===K.settings){ applyProfile(); applySettings(); }
+});
 
-/* Sub sheet open/close */
+/* ===== avatar drawer ===== */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+avatarBtn.addEventListener('click', openDrawer);
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
+window.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeDrawer(); closeSubSheet(); }});
+
+/* ===== tabs ===== */
+const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
+function showTab(name){
+  tabBtns.forEach(b=>{
+    const on=b.dataset.tab===name;
+    b.classList.toggle('is-active',on);
+    b.setAttribute('aria-selected',on?'true':'false');
+  });
+  panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+
+/* ===== settings: hide tabs if needed ===== */
+function applySettings(){
+  const s = store.get(K.settings,{});
+  // Reset (ensure all tabs exist before possibly removing)
+  tabBtns.forEach(b=>b.classList.remove('hide'));
+  panels.forEach(p=>p.classList.remove('hide'));
+  // Apply hide flags
+  if(s.challenges===false){ $('[data-tab="challenges"]')?.classList.add('hide'); $('[data-panel="challenges"]')?.classList.add('hide'); }
+  if(s.courses===false){ $('[data-tab="courses"]')?.classList.add('hide'); $('[data-panel="courses"]')?.classList.add('hide'); }
+  if(s.live===false){ $('[data-tab="live"]')?.classList.add('hide'); $('[data-panel="live"]')?.classList.add('hide'); }
+  // Ensure an active visible tab
+  const current=document.querySelector('.btn-tab.is-active');
+  if(current && current.classList.contains('hide')){
+    const first=tabBtns.find(x=>!x.classList.contains('hide'));
+    if(first) showTab(first.dataset.tab);
+  }
+}
+applySettings();
+
+/* ===== subsheet (iframe) ===== */
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
-  $('#sheetTitle').textContent=title;
-  $('#subFrame').src=url+'?v='+Date.now();
-  $('#subSheet').classList.add('open');
+  sheetTitle.textContent=title;
+  subFrame.src=url+(url.includes('?')?'&':'?')+'v='+(Date.now());
+  subSheet.classList.add('open');
+  subSheet.setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){
-  $('#subSheet').classList.remove('open');
-  $('#subFrame').src='about:blank';
-  applyProfile();
+  subSheet.classList.remove('open');
+  subSheet.setAttribute('aria-hidden','true');
+  subFrame.src='about:blank';
+  // re-read profile/settings changed inside the iframe
+  applyProfile(); applySettings();
 }
-$('#sheetClose').addEventListener('click',closeSubSheet);
-$('#subSheet').addEventListener('click',e=>{if(e.target.id==='subSheet')closeSubSheet()});
+$('#sheetClose').addEventListener('click', closeSubSheet);
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
 
-/* Intercept drawer links */
+/* open profile/settings/mydata/tracker in subsheet */
 $$('#avatarSheet [data-pop]').forEach(a=>{
-  a.addEventListener('click',e=>{
+  a.addEventListener('click', e=>{
     e.preventDefault();
-    $('#avatarSheet').classList.remove('open');
-    openSubSheet(a.dataset.pop,a.getAttribute('href'));
+    closeDrawer();
+    openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
 });
 
-/* Tracker click opens challenge tracker */
+/* ===== tracker hero → open challenge tracker ===== */
 $('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
 
-/* Tracker medals (placeholder demo) */
+/* ===== simple tracker placeholders (kept minimal) ===== */
 function paintTracker(){
-  const wrapD=$('#dailyMedals');wrapD.innerHTML='';
-  for(let i=0;i<7;i++){const m=document.createElement('div');m.className='medal empty';wrapD.appendChild(m)}
-  const wrapW=$('#weeklyMedals');wrapW.innerHTML='';
-  for(let i=0;i<6;i++){const m=document.createElement('div');m.className='medal empty';wrapW.appendChild(m)}
+  const wrapD=$('#dailyMedals'); wrapD.innerHTML='';
+  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal empty'; wrapD.appendChild(m); }
+  const wrapW=$('#weeklyMedals'); wrapW.innerHTML='';
+  for(let i=0;i<6;i++){ const m=document.createElement('div'); m.className='medal empty'; wrapW.appendChild(m); }
 }
 paintTracker();
+
+/* ===== boot log ===== */
+console.log('[FAOA] home loaded');
 })();
 </script>
 </body>
