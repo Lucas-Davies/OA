@@ -65,7 +65,7 @@ a{color:inherit;text-decoration:none}
 .btn.grey{background:#3a3a3a;color:#fff}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:900;background:#333;margin-left:6px}
 
-/* Admin-only per-hero controls (tiny) */
+/* Admin-only per-hero controls */
 .adminControls{position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center; background:rgba(0,0,0,.5); border:1px solid var(--stroke); padding:6px 8px; border-radius:10px}
 .adminControls select{height:28px; border-radius:8px; border:1px solid var(--stroke); background:#111; color:#fff; font:inherit; padding:0 6px}
 
@@ -304,7 +304,6 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
-/* ultra-defensive error guard so wiring still happens */
 window.addEventListener('error', e=>{ try{ console.log('[home] runtime error:', e.message); }catch{} });
 
 /* ===== utils & storage ===== */
@@ -318,7 +317,6 @@ const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 /* ===== Role helpers ===== */
 function role(){const p=store.get(K.profile,{skill:'silver'});return(p.skill||'silver').toLowerCase();}
 const isAdmin = ()=> role()==='admin';
-const isDirector = ()=> role()==='director';
 
 /* ===== default settings scaffold ===== */
 let settings = store.get(K.settings,null);
@@ -338,7 +336,7 @@ if(!settings){
   store.set(K.settings,settings);
 }
 
-/* ===== Tabs (wire ASAP) ===== */
+/* ===== Tabs ===== */
 const tabBtns=$$('.btn-tab[data-tab]');
 const panels=$$('[data-panel]');
 function showTab(name){
@@ -350,10 +348,11 @@ function showTab(name){
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
   window.scrollTo({top:0,behavior:'smooth'});
 }
+window.showTab = showTab; /* expose for hot-fix */
 tabBtns.forEach(b=>b?.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('news');
 
-/* ===== Avatar drawer (wire ASAP) ===== */
+/* ===== Avatar drawer ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ if(!avatarSheet) return; avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn?.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ if(!avatarSheet) return; avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn?.setAttribute('aria-expanded','false'); }
@@ -427,7 +426,7 @@ function paintConfigMode(){
 }
 paintConfigMode();
 
-/* ===== Tab hides ===== */
+/* ===== Tabs visibility ===== */
 function applyTabHides(){
   const hide=(tab,flag)=>{ const btn=document.querySelector(`.btn-tab[data-tab="${tab}"]`); const pnl=document.querySelector(`[data-panel="${tab}"]`); if(btn) btn.style.display = flag?'none':'inline-flex'; if(pnl) pnl.style.display = flag?'none':''; };
   if(!settings) return;
@@ -446,7 +445,7 @@ function withinWindow(cfg){
 }
 function heroVisibleForRole(cfg){
   const st=(cfg?.state)||'active'; if(st==='active') return true;
-  if(!withinWindow(cfg)) return false; return false; // non-active go to admin footer only
+  if(!withinWindow(cfg)) return false; return false; // non-active: admin footer only
 }
 function applyTextOverrides(){
   const map=settings?.textOverrides?.heroes||{}; Object.entries(map).forEach(([id,t])=>{
@@ -531,6 +530,55 @@ window.addEventListener('storage',e=>{
   if(e.key===K.profile){ applyProfile(); }
   if(e.key===K.settings){ settings=store.get(K.settings,settings); applyVis(); paintConfigMode(); renderAdminFooter(); }
 });
+})();
+</script>
+
+<!-- ===== HOT-FIX: delegated clicks & overlay guard ===== -->
+<script>
+(function(){
+  // Guard against invisible overlays blocking taps
+  ['#subSheet','#avatarSheet','#adminHidden'].forEach(sel=>{
+    const el=document.querySelector(sel);
+    if(el && !el.classList.contains('open')) el.style.pointerEvents='none';
+  });
+
+  // Tabs (delegated)
+  document.addEventListener('click',(e)=>{
+    const t=e.target.closest('.btn-tab[data-tab]'); if(!t) return;
+    e.preventDefault();
+    (window.showTab||function(name){
+      document.querySelectorAll('.btn-tab[data-tab]').forEach(b=>{
+        const on=b.dataset.tab===name;
+        b.classList.toggle('is-active',on);
+        b.setAttribute('aria-selected',on?'true':'false');
+      });
+      document.querySelectorAll('[data-panel]').forEach(p=>{
+        p.classList.toggle('panel-active', p.dataset.panel===name);
+      });
+      window.scrollTo({top:0,behavior:'smooth'});
+    })(t.dataset.tab);
+  });
+
+  // Avatar open/close (delegated)
+  document.addEventListener('click',(e)=>{
+    const btn=e.target.closest('#avatarTab');
+    if(btn){
+      e.preventDefault();
+      const sheet=document.getElementById('avatarSheet'); if(!sheet) return;
+      const open=!sheet.classList.contains('open');
+      sheet.classList.toggle('open',open);
+      sheet.setAttribute('aria-hidden',open?'false':'true');
+      btn.setAttribute('aria-expanded',open?'true':'false');
+    }
+    const sheet=document.getElementById('avatarSheet');
+    if(sheet && e.target===sheet){
+      sheet.classList.remove('open');
+      sheet.setAttribute('aria-hidden','true');
+      const b=document.getElementById('avatarTab'); if(b) b.setAttribute('aria-expanded','false');
+    }
+  });
+
+  console.log('[FAOA] hot-fix wiring active');
 })();
 </script>
 </body>
