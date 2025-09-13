@@ -8,207 +8,503 @@
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --stroke:rgba(255,255,255,.18);
+  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1;
   --bronze:#b87333; --red:#ff453a; --black:#111;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
   --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+html,body{height:100%; margin:0; background:var(--bg); color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   overscroll-behavior:contain}
-a{color:inherit;text-decoration:none}
+a{color:inherit; text-decoration:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
-/* Top nav */
-.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:8px 12px;z-index:40;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.5));
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.nav-left{display:flex;gap:8px;align-items:center}
-.btn-tab{display:inline-flex;align-items:center;justify-content:center;min-width:100px;height:44px;padding:0 12px;
-  border-radius:12px;border:1px solid var(--stroke);background:rgba(0,0,0,.55);
-  color:var(--ink);font-weight:900;cursor:pointer;font-size:15px}
-.btn-tab.is-active{background:var(--blue);border-color:transparent;color:#000}
+/* Background (optional) */
+.bg{position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* Avatar pill */
-.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-  padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
-  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;
-  border:1px solid var(--stroke);background:#222}
-.avatarTab .name{font-size:15px;font-weight:900}
-.avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
+/* ===== FIXED HEADER ===== */
+.nav{
+  position:fixed; top:0; left:0; right:0; height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 12px; z-index:50;
+  background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.nav-left{display:flex; gap:8px; align-items:center}
+.btn-tab{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:100px; height:44px; padding:0 12px;
+  border-radius:12px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer; font-size:15px;
+  transition:filter .15s ease, transform .06s ease;
+}
+.btn-tab:active{ transform:translateY(1px) }
+.btn-tab.is-active{ background:var(--blue); border-color:transparent; color:#000 }
+.btn-tab .edit{ display:none; margin-left:6px; opacity:.7; cursor:pointer; font-weight:900 }
+
+/* Avatar pill (no photo) */
+.avatarTab{
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+  padding:6px 12px; border-radius:12px; min-width:140px; height:44px;
+  font-weight:900; line-height:1.1; text-align:left; cursor:pointer;
+  border:1px solid var(--stroke); background:#222; position:relative;
+}
+.avatarTab .name{ font-size:15px; font-weight:900 }
+.avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
+.avatarTab .edit{ display:none; position:absolute; top:4px; right:6px; background:#0b0c10; border:1px solid var(--stroke); border-radius:6px; padding:2px 6px }
 
 /* Content wrap */
-.wrap{max-width:var(--maxw);margin:0 auto;
-  padding:calc(var(--nav-h) + 10px) 14px 80px}
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + 10px) 14px 120px }
 
-/* Heroes */
-.hero{position:relative;overflow:hidden;background:#000;
-  border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
-.hero .title{margin:0 0 6px;font-weight:900;font-size:20px}
-.hero .meta{margin:0 0 6px;color:var(--ink-dim)}
-.hero .desc{margin:8px 0 56px;color:var(--muted)}
-.hero[data-state="newRelease"]::before{
-  content:"NEW";position:absolute;top:8px;right:12px;background:var(--red);
-  color:#fff;font-size:11px;font-weight:900;padding:2px 6px;border-radius:8px}
+/* ===== HERO CARDS ===== */
+.hero{
+  position:relative; overflow:hidden; background:#000;
+  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0;
+}
+.hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
+.hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
+.hero .desc{ margin:8px 0 4px; color:var(--muted) }
+.hero .adminControls{ display:none; margin-top:10px; gap:8px; flex-wrap:wrap }
+.hero .badge{ display:none; font-size:11px; font-weight:900; padding:2px 6px; border-radius:8px; margin-left:6px }
+.hero[data-state="newRelease"] .badge{ display:inline-block; background:var(--red); color:#fff }
 
-/* Panels */
-[data-panel]{display:none}
-[data-panel].panel-active{display:block}
+/* Edit pencil for hero titles (config mode) */
+.hero .edit{ display:none; font-weight:900; opacity:.7; cursor:pointer; border:1px solid var(--stroke); border-radius:6px; padding:1px 6px; }
 
-/* Admin bar */
-#adminBar{position:fixed;bottom:0;left:0;right:0;height:44px;
-  background:#111;border-top:1px solid var(--stroke);display:none;
-  align-items:center;justify-content:center;gap:12px;z-index:90}
-#adminBar button{background:var(--blue);color:#000;border:none;
-  padding:6px 12px;border-radius:8px;font-weight:900;cursor:pointer}
+/* Panels (one visible) */
+[data-panel]{ display:none }
+[data-panel].panel-active{ display:block }
 
-/* Admin-only hidden heroes */
-#adminHidden{display:none;position:fixed;bottom:44px;left:0;right:0;
-  max-height:40vh;overflow:auto;background:#0a0a0a;border-top:2px solid var(--red);z-index:80}
-#adminHidden .hero{opacity:.6}
+/* ===== AVATAR DRAWER ===== */
+#avatarSheet{ position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px) }
+#avatarSheet.open{ display:block }
+#avatarSheet .panel{
+  position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:320px; max-height:70vh; overflow:auto;
+  background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px
+}
+.menu a, .menu button.link{
+  display:flex; align-items:center; justify-content:space-between; width:100%;
+  padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08);
+  background:none; color:inherit; text-align:left; cursor:pointer; font:inherit;
+}
+.menu a:last-child, .menu button.link:last-child{ border-bottom:none }
+
+/* ===== ADMIN-ONLY HIDDEN DRAWER ===== */
+#adminHidden{
+  position:fixed; left:0; right:0; bottom:0; max-height:44vh; overflow:auto;
+  background:#0a0a0a; border-top:2px solid var(--red); z-index:40; display:none; padding:10px 12px 64px;
+}
+#adminHidden h3{ margin:2px 0 10px; font-size:14px; font-weight:900; color:#ffdede }
+#adminHidden .hero{ opacity:.75 }
+
+/* Small helper UI */
+.small{ font-size:12px; opacity:.8 }
+
+/* Focus outlines for accessibility */
+:focus-visible{ outline:2px solid var(--blue); outline-offset:2px }
 </style>
 </head>
 <body>
-<header class="nav">
-  <div class="nav-left" role="tablist">
-    <button class="btn-tab is-active" data-tab="news">News</button>
-    <button class="btn-tab" data-tab="challenges">Challenges</button>
-    <button class="btn-tab" data-tab="courses">Courses</button>
-    <button class="btn-tab" data-tab="live">Live</button>
+<div class="bg" aria-hidden="true"></div>
+
+<header class="nav" role="navigation" aria-label="Primary">
+  <div class="nav-left" role="tablist" aria-label="Sections">
+    <button class="btn-tab is-active" data-tab="news"><span class="txt" data-ovr="tabs.news">News</span><span class="edit" title="Rename tab">✎</span></button>
+    <button class="btn-tab" data-tab="challenges"><span class="txt" data-ovr="tabs.challenges">Challenges</span><span class="edit" title="Rename tab">✎</span></button>
+    <button class="btn-tab" data-tab="courses"><span class="txt" data-ovr="tabs.courses">Courses</span><span class="edit" title="Rename tab">✎</span></button>
+    <button class="btn-tab" data-tab="live"><span class="txt" data-ovr="tabs.live">Live</span><span class="edit" title="Rename tab">✎</span></button>
   </div>
   <div class="nav-right">
-    <button id="avatarTab" class="avatarTab">
-      <span class="name" id="avatarName">User</span>
-      <span class="lvl" id="avatarLvl">Silver</span>
+    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
+      <span class="name" id="avatarName" data-ovr="user.display">User</span>
+      <span class="lvl" id="avatarLvl" data-ovr="user.level">Silver</span>
+      <span class="edit" id="avatarEditBtn">✎</span>
     </button>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- News -->
+  <!-- NEWS -->
   <section id="panel-news" class="panel-active" data-panel="news"></section>
 
-  <!-- Challenges -->
+  <!-- CHALLENGES -->
   <section id="panel-challenges" data-panel="challenges"></section>
 
-  <!-- Courses -->
+  <!-- COURSES -->
   <section id="panel-courses" data-panel="courses"></section>
 
-  <!-- Live -->
+  <!-- LIVE -->
   <section id="panel-live" data-panel="live"></section>
 </main>
 
-<!-- Admin bottom bar -->
-<div id="adminBar"><button id="toggleConfig">Toggle Config Mode</button></div>
+<!-- ===== AVATAR DRAWER ===== -->
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
+    <nav class="menu">
+      <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
+      <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
+      <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
+      <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
+      <button class="link" id="toggleConfig" style="display:none">Config Mode<span id="cfgState">Off</span></button>
+      <button class="link" id="jumpHidden" style="display:none">Manage Hidden Heroes<span>↓</span></button>
+    </nav>
+  </div>
+</div>
 
-<!-- Admin hidden heroes -->
-<div id="adminHidden"></div>
+<!-- ===== ADMIN HIDDEN DRAWER ===== -->
+<div id="adminHidden" aria-hidden="true">
+  <h3>Admin: Hidden / Under Development / Set to Expire</h3>
+  <div id="hiddenWrap"></div>
+</div>
+
+<!-- ===== SUB SHEET FOR PROFILE/SETTINGS/MYDATA/TRACKER ===== -->
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:70; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)">
+  <div class="inner" role="document" style="position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:min(820px, calc(100% - 24px)); height:min(78vh, calc(100% - (var(--nav-h) + 24px))); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; display:flex; flex-direction:column">
+    <div class="sheet-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px">
+      <h2 id="sheetTitle" style="margin:0;font-size:22px;font-weight:900">—</h2>
+      <button class="sheet-close" id="sheetClose" aria-label="Close" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer">×</button>
+    </div>
+    <iframe id="subFrame" title="Panel" style="flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10"></iframe>
+  </div>
+</div>
 
 <script>
 (()=>{'use strict';
+/* ===== Utilities & Storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-
-const K={profile:'ao_profile',settings:'ao_settings'};
+const K={profile:'ao_profile', settings:'ao_settings'};
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* Roles */
-function getRole(){const p=store.get(K.profile,{skill:'silver'});return(p.skill||'silver').toLowerCase();}
-function isAdmin(){return getRole()==='admin';}
-function isDirector(){return getRole()==='director';}
-function isSupport(){return getRole()==='support';}
+/* ===== Roles ===== */
+function role(){ const p=store.get(K.profile,{skill:'silver'}); return (p.skill||'silver').toLowerCase(); }
+const isAdmin = ()=> role()==='admin';
+const isDirector = ()=> role()==='director';
+const isSupport = ()=> role()==='support';
 
-/* Settings scaffold */
-function getSettings(){
-  const def={configMode:false,heroes:{}};
-  const cur=store.get(K.settings,null);if(!cur){store.set(K.settings,def);return def;}
-  return Object.assign({},def,cur);
+/* ===== Settings scaffold with text overrides & hero states ===== */
+function defaults(){
+  // Pre-seed 5 heroes per tab
+  const ids = ['news','challenges','courses','live'].flatMap(tab=>Array.from({length:5},(_,i)=>`${tab}-hero${i+1}`));
+  const heroes = {};
+  ids.forEach(id=>heroes[id]={ state:'active', title:`Placeholder ${id}`, desc:'Coming Soon' });
+  return {
+    admin:{ configMode:false },
+    textOverrides:{ tabs:{}, heroes:{}, user:{} },
+    heroes
+  };
 }
-let settings=getSettings();
+let settings = (()=>{
+  const def = defaults();
+  const cur = store.get(K.settings, null);
+  if(!cur){ store.set(K.settings, def); return def; }
+  // merge shallow (preserve new hero slots if added)
+  const merged = Object.assign({}, def, cur);
+  merged.textOverrides = Object.assign({}, def.textOverrides, cur?.textOverrides||{});
+  merged.heroes = Object.assign({}, def.heroes, cur?.heroes||{});
+  merged.admin = Object.assign({}, def.admin, cur?.admin||{});
+  return merged;
+})();
 
-/* Hero creation */
-function createHero(id,tab){
-  const h=document.createElement('article');
-  h.className='hero';
-  h.dataset.heroId=id;
-  h.dataset.state='active';
-  h.innerHTML=`<h2 class="title">Placeholder Hero ${id}</h2>
-    <p class="meta">Coming Soon</p>
-    <p class="desc">Content will appear here once configured.</p>`;
-  $(\`#panel-\${tab}\`).appendChild(h);
-  return h;
+/* ===== Avatar paint (colour by level) ===== */
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'silver'});
+  $('#avatarName').textContent = settings.textOverrides?.user?.display || (p.displayName||'User');
+  $('#avatarLvl').textContent  = settings.textOverrides?.user?.level   || cap(p.skill||'silver');
+
+  const map={ bronze:'var(--bronze)', silver:'var(--silver)', gold:'var(--gold)', support:'#6a4cff', director:'#333', admin:'var(--blue)' };
+  const light = ['silver','gold','admin'].includes((p.skill||'silver').toLowerCase());
+  const pill=$('#avatarTab');
+  pill.style.background = map[(p.skill||'silver').toLowerCase()] || '#222';
+  pill.style.color = light ? '#0b0c10' : '#eef3ff';
 }
+paintAvatar();
 
-/* Build heroes: 5 per tab */
-['news','challenges','courses','live'].forEach(tab=>{
-  for(let i=1;i<=5;i++){
-    const id=\`\${tab}-hero\${i}\`;
-    const hero=createHero(id,tab);
-    const st=settings.heroes[id]||{state:'active'};
-    hero.dataset.state=st.state;
-    if(st.title) hero.querySelector('.title').textContent=st.title;
-    if(st.desc) hero.querySelector('.desc').textContent=st.desc;
+/* ===== Tabs ===== */
+const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
+function showTab(name){
+  tabBtns.forEach(b=>{
+    const on=b.dataset.tab===name;
+    b.classList.toggle('is-active',on);
+    b.setAttribute('aria-selected', on?'true':'false');
+  });
+  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+showTab('news'); // default
+
+/* Apply tab text overrides */
+(function applyTabText(){
+  const o=settings.textOverrides?.tabs||{};
+  tabBtns.forEach(b=>{
+    const key=`tabs.${b.dataset.tab}`;
+    const span=b.querySelector('.txt');
+    if(o[b.dataset.tab]) span.textContent=o[b.dataset.tab];
+  });
+})();
+
+/* ===== Build hero placeholders ===== */
+function mountHeroes(){
+  ['news','challenges','courses','live'].forEach(tab=>{
+    const host=$(`#panel-${tab}`); host.innerHTML='';
+    for(let i=1;i<=5;i++){
+      const id=`${tab}-hero${i}`;
+      const cfg=settings.heroes[id]||{ state:'active', title:`Placeholder ${id}`, desc:'Coming Soon' };
+      const h=document.createElement('article'); h.className='hero'; h.dataset.heroId=id; h.dataset.state=cfg.state;
+      h.innerHTML=`
+        <h2 class="title"><span class="t">${settings.textOverrides?.heroes?.[id]?.title || cfg.title}</span>
+          <span class="badge">NEW</span>
+          <button class="edit" title="Edit title">✎</button>
+        </h2>
+        <p class="meta">${ cfg.state==='setToExpire' && cfg.expiryDate ? `Expires ${new Date(cfg.expiryDate).toLocaleDateString()}` : 'Coming Soon' }</p>
+        <p class="desc">${settings.textOverrides?.heroes?.[id]?.desc || cfg.desc}</p>
+        <div class="adminControls" aria-hidden="true">
+          <label class="small">State:
+            <select class="stateSel">
+              <option value="active">active</option>
+              <option value="hidden">hidden</option>
+              <option value="underDevelopment">underDevelopment</option>
+              <option value="newRelease">newRelease</option>
+              <option value="setToExpire">setToExpire</option>
+            </select>
+          </label>
+          <label class="small">Release:
+            <input type="date" class="relDate" value="${cfg.releaseDate?String(cfg.releaseDate).slice(0,10):''}">
+          </label>
+          <label class="small">Expiry:
+            <input type="date" class="expDate" value="${cfg.expiryDate?String(cfg.expiryDate).slice(0,10):''}">
+          </label>
+          <button class="small" data-act="editDesc" style="border:1px solid var(--stroke);background:#111;color:var(--ink);border-radius:8px;padding:4px 8px">Edit Description</button>
+        </div>
+      `;
+      // set selects
+      h.querySelector('.stateSel').value = cfg.state;
+      host.appendChild(h);
+    }
+  });
+}
+mountHeroes();
+
+/* ===== Role-based hero visibility & admin drawer ===== */
+function heroVisibleForRole(cfg){
+  const r=role();
+  const now=Date.now();
+  const relOk = cfg.releaseDate ? now >= Date.parse(cfg.releaseDate) : true;
+  const expOk = cfg.expiryDate  ? now <= Date.parse(cfg.expiryDate)  : true;
+
+  if(isAdmin()) return true; // Admin sees everything in main list; we'll also list non-active in drawer
+  if(cfg.state==='active') return relOk && expOk;
+  if(cfg.state==='newRelease') return relOk && expOk;
+  if(cfg.state==='setToExpire') return relOk && expOk;
+  if(isDirector()){
+    if(cfg.state==='underDevelopment' || cfg.state==='hidden') return false;
+    return relOk && expOk;
   }
-});
+  if(isSupport()){
+    return (cfg.state==='active' || cfg.state==='newRelease') && relOk && expOk;
+  }
+  // bronze/silver/gold
+  return (cfg.state==='active' || cfg.state==='newRelease') && relOk && expOk;
+}
 
-/* Apply visibility per role */
 function applyHeroVisibility(){
+  const hiddenWrap=$('#hiddenWrap'); hiddenWrap.innerHTML='';
   $$('.hero').forEach(h=>{
     const id=h.dataset.heroId;
     const cfg=settings.heroes[id]||{state:'active'};
-    const role=getRole();
-    let show=false;
-    if(cfg.state==='active') show=true;
-    if(cfg.state==='newRelease') show=true;
-    if(cfg.state==='setToExpire'){if(!cfg.expiryDate||Date.now()<Date.parse(cfg.expiryDate)) show=true;}
-    if(isAdmin()){show=true;}
-    if(isDirector()&&cfg.state==='underDevelopment') show=false;
-    if(isSupport()&&cfg.state!=='active'&&cfg.state!=='newRelease') show=false;
-    h.style.display=show?'':'none';
+    const show = heroVisibleForRole(cfg);
+    h.style.display = show ? '' : 'none';
+
+    // NEW badge
+    h.querySelector('.badge').style.display = (cfg.state==='newRelease') ? 'inline-block':'none';
+
+    // Admin drawer population for non-active states
+    if(isAdmin()){
+      const state=cfg.state;
+      const nonActive = (state!=='active' && (state==='hidden' || state==='underDevelopment' || state==='setToExpire' || state==='newRelease'));
+      // We’ll mirror into the drawer *only* when they’re not visible to non-admins or not active
+      if(nonActive){
+        const clone=h.cloneNode(true);
+        clone.querySelectorAll('.adminControls,.edit').forEach(el=>el.remove()); // drawer is readonly view
+        hiddenWrap.appendChild(clone);
+      }
+      $('#adminHidden').style.display='block';
+    }else{
+      $('#adminHidden').style.display='none';
+    }
   });
-  if(isAdmin()){$('#adminBar').style.display='flex';$('#adminHidden').style.display='block';}
 }
 applyHeroVisibility();
 
-/* Tabs */
-const tabBtns=$$('.btn-tab');
-function showTab(name){
-  tabBtns.forEach(b=>b.classList.toggle('is-active',b.dataset.tab===name));
-  $$('[data-panel]').forEach(p=>p.classList.toggle('panel-active',p.dataset.panel===name));
-  window.scrollTo({top:0});
+/* ===== Config Mode ===== */
+function paintConfigMode(){
+  const on = !!settings.admin?.configMode;
+  // Show pencils on tabs & avatar & heroes
+  const showEdit = on && isAdmin();
+  $$('.btn-tab .edit').forEach(el=>el.style.display = showEdit ? 'inline' : 'none');
+  $('#avatarEditBtn').style.display = showEdit ? 'inline' : 'none';
+  $$('.hero .edit').forEach(el=>el.style.display = showEdit ? 'inline' : 'none');
+  $$('.hero .adminControls').forEach(el=>el.style.display = showEdit ? 'flex' : 'none');
+  // Drawer controls link + config toggle in avatar menu
+  $('#toggleConfig').style.display = isAdmin() ? 'flex' : 'none';
+  $('#cfgState').textContent = on ? 'On' : 'Off';
+  $('#jumpHidden').style.display = isAdmin() ? 'flex' : 'none';
 }
-tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+paintConfigMode();
 
-/* Config mode */
-$('#toggleConfig').addEventListener('click',()=>{
-  settings.configMode=!settings.configMode;
-  store.set(K.settings,settings);
-  location.reload();
+/* Editing handlers (pencils) */
+function promptText(label, value){ const v=window.prompt(label, value||''); return (v!==null)?v:null; }
+// Tab labels
+$$('.btn-tab').forEach(btn=>{
+  const key = btn.dataset.tab;
+  const pencil = btn.querySelector('.edit');
+  pencil?.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const cur = btn.querySelector('.txt').textContent;
+    const val = promptText('Tab label', cur);
+    if(val===null) return;
+    btn.querySelector('.txt').textContent = val;
+    settings.textOverrides = settings.textOverrides||{tabs:{},heroes:{},user:{}};
+    settings.textOverrides.tabs[key]=val;
+    store.set(K.settings, settings);
+  });
 });
-if(settings.configMode&&isAdmin()){
+// Avatar display + level
+$('#avatarEditBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const nameCur=$('#avatarName').textContent;
+  const lvlCur=$('#avatarLvl').textContent;
+  const name=promptText('Display name', nameCur); if(name===null) return;
+  const lvl =promptText('Level label (display text only)', lvlCur); if(lvl===null) return;
+  settings.textOverrides = settings.textOverrides||{tabs:{},heroes:{},user:{}};
+  settings.textOverrides.user.display=name;
+  settings.textOverrides.user.level=lvl;
+  store.set(K.settings, settings);
+  paintAvatar();
+});
+// Hero title/desc
+function bindHeroEditors(){
   $$('.hero').forEach(h=>{
-    const t=h.querySelector('.title');
-    const btn=document.createElement('button');btn.textContent='✎';btn.style.marginLeft='8px';
-    btn.addEventListener('click',()=>{
-      const val=prompt('Edit title',t.textContent);if(val){t.textContent=val;settings.heroes[h.dataset.heroId]={...(settings.heroes[h.dataset.heroId]||{}),title:val};store.set(K.settings,settings);}
+    const id=h.dataset.heroId;
+    h.querySelector('.edit')?.addEventListener('click',()=>{
+      const cur=h.querySelector('.t').textContent;
+      const val=promptText('Hero title', cur);
+      if(val===null) return;
+      h.querySelector('.t').textContent=val;
+      settings.textOverrides.heroes = settings.textOverrides.heroes || {};
+      settings.textOverrides.heroes[id] = Object.assign({}, settings.textOverrides.heroes[id]||{}, { title:val });
+      store.set(K.settings, settings);
     });
-    t.appendChild(btn);
-    const sel=document.createElement('select');
-    ['active','hidden','underDevelopment','newRelease','setToExpire'].forEach(s=>{
-      const o=document.createElement('option');o.value=s;o.textContent=s;o.selected=h.dataset.state===s;sel.appendChild(o);
+    // Desc via adminControls button
+    h.querySelector('[data-act="editDesc"]')?.addEventListener('click',()=>{
+      const cur=h.querySelector('.desc').textContent;
+      const val=promptText('Hero description', cur);
+      if(val===null) return;
+      h.querySelector('.desc').textContent=val;
+      settings.textOverrides.heroes = settings.textOverrides.heroes || {};
+      settings.textOverrides.heroes[id] = Object.assign({}, settings.textOverrides.heroes[id]||{}, { desc:val });
+      store.set(K.settings, settings);
     });
-    sel.addEventListener('change',()=>{
-      h.dataset.state=sel.value;
-      settings.heroes[h.dataset.heroId]={...(settings.heroes[h.dataset.heroId]||{}),state:sel.value};
-      store.set(K.settings,settings);applyHeroVisibility();
-    });
-    h.appendChild(sel);
+    // State + dates
+    const sel=h.querySelector('.stateSel'), rel=h.querySelector('.relDate'), exp=h.querySelector('.expDate');
+    if(sel){ sel.addEventListener('change',()=>{ upHeroCfg(id,{state:sel.value}); }); }
+    if(rel){ rel.addEventListener('change',()=>{ upHeroCfg(id,{releaseDate:rel.value||null}); }); }
+    if(exp){ exp.addEventListener('change',()=>{ upHeroCfg(id,{expiryDate:exp.value||null}); }); }
   });
 }
+bindHeroEditors();
+function upHeroCfg(id,patch){
+  settings.heroes[id] = Object.assign({}, settings.heroes[id]||{}, patch);
+  store.set(K.settings, settings);
+  applyHeroVisibility();
+}
+
+/* ===== Avatar Drawer & Subsheet ===== */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+avatarBtn.addEventListener('click', openDrawer);
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
+
+// Show config toggle & hidden manager only for admin
+if(isAdmin()){ $('#toggleConfig').style.display='flex'; $('#jumpHidden').style.display='flex'; }
+
+$('#toggleConfig').addEventListener('click', ()=>{
+  settings.admin = settings.admin || {};
+  settings.admin.configMode = !settings.admin.configMode;
+  store.set(K.settings, settings);
+  closeDrawer();
+  paintConfigMode();
+  // Re-bind editors visibility
+  paintConfigMode();
+});
+
+$('#jumpHidden').addEventListener('click', ()=>{
+  closeDrawer();
+  const y = $('#adminHidden').getBoundingClientRect().top + window.scrollY - 20;
+  window.scrollTo({top:y, behavior:'smooth'});
+});
+
+// Subsheet for avatar links
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function openSubSheet(title,url){
+  sheetTitle.textContent=title;
+  subFrame.src = url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  subSheet.style.display='block';
+  subSheet.setAttribute('aria-hidden','false');
+}
+function closeSubSheet(){
+  subSheet.style.display='none';
+  subSheet.setAttribute('aria-hidden','true');
+  subFrame.src='about:blank';
+  // refresh UI on return
+  paintAvatar(); applyHeroVisibility(); paintConfigMode();
+}
+$('#sheetClose').addEventListener('click', closeSubSheet);
+subSheet.addEventListener('click', (e)=>{ if(e.target===subSheet) closeSubSheet(); });
+
+$$('#avatarSheet [data-pop]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    closeDrawer();
+    openSubSheet(a.dataset.pop, a.getAttribute('href'));
+  });
+});
+
+/* ===== Live react to external changes (profile/settings) ===== */
+window.addEventListener('storage', (e)=>{
+  if(e.key===K.profile){ paintAvatar(); }
+  if(e.key===K.settings){
+    settings = (()=>{
+      const def=defaults(); const cur=store.get(K.settings,{});
+      const merged=Object.assign({}, def, cur);
+      merged.textOverrides=Object.assign({},def.textOverrides,cur.textOverrides||{});
+      merged.heroes=Object.assign({},def.heroes,cur.heroes||{});
+      merged.admin=Object.assign({},def.admin,cur.admin||{});
+      return merged;
+    })();
+    // re-mount to pick new hero set if any
+    mountHeroes(); bindHeroEditors(); applyHeroVisibility(); paintConfigMode();
+    // reapply tab text overrides
+    (function applyTabText(){
+      const o=settings.textOverrides?.tabs||{};
+      tabBtns.forEach(b=>{
+        const span=b.querySelector('.txt');
+        if(o[b.dataset.tab]) span.textContent=o[b.dataset.tab];
+      });
+    })();
+  }
+});
+
+/* ===== Initial config-mode-dependent UI ===== */
+paintConfigMode();
+
 })();
 </script>
 </body>
