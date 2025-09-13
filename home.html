@@ -246,7 +246,7 @@ a{color:inherit;text-decoration:none}
 </main>
 
 <!-- ===== AVATAR DRAWER ===== -->
-<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true" style="pointer-events:none">
   <div class="panel" role="document">
     <nav class="menu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
@@ -259,7 +259,7 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <!-- ===== SUB SHEET ===== -->
-<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true" style="pointer-events:none">
   <div class="inner" role="document">
     <div class="sheet-head">
       <h2 id="sheetTitle">—</h2>
@@ -270,7 +270,7 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <!-- ===== ADMIN FOOTER (full-screen) ===== -->
-<div id="adminHidden" aria-hidden="true">
+<div id="adminHidden" aria-hidden="true" style="pointer-events:none">
   <div class="adminHeader">
     <h3>Admin • Hidden / Under Development / Release Windows</h3>
     <button id="adminClose" aria-label="Close">×</button>
@@ -304,8 +304,6 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
-window.addEventListener('error', e=>{ try{ console.log('[home] runtime error:', e.message); }catch{} });
-
 /* ===== utils & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
@@ -348,14 +346,24 @@ function showTab(name){
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
   window.scrollTo({top:0,behavior:'smooth'});
 }
-window.showTab = showTab; /* expose for hot-fix */
+window.showTab = showTab;
 tabBtns.forEach(b=>b?.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('news');
 
 /* ===== Avatar drawer ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){ if(!avatarSheet) return; avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn?.setAttribute('aria-expanded','true'); }
-function closeDrawer(){ if(!avatarSheet) return; avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn?.setAttribute('aria-expanded','false'); }
+function openDrawer(){
+  if(!avatarSheet) return;
+  avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false');
+  avatarSheet.style.pointerEvents='auto';
+  avatarBtn?.setAttribute('aria-expanded','true');
+}
+function closeDrawer(){
+  if(!avatarSheet) return;
+  avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true');
+  avatarSheet.style.pointerEvents='none';
+  avatarBtn?.setAttribute('aria-expanded','false');
+}
 avatarBtn?.addEventListener('click', openDrawer);
 avatarSheet?.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
@@ -366,18 +374,26 @@ function openSubSheet(title,url){
   sheetTitle.textContent=title||'—';
   subFrame.src=(url||'about:blank')+((url||'').includes('?')?'&':'?')+'v='+Date.now();
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
+  subSheet.style.pointerEvents='auto';
 }
 function closeSubSheet(){
   if(!subSheet||!subFrame) return;
-  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank';
+  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
+  subSheet.style.pointerEvents='none';
+  subFrame.src='about:blank';
   applyProfile(); applyVis(); renderAdminFooter();
 }
 $('#sheetClose')?.addEventListener('click', closeSubSheet);
 subSheet?.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
-$$('#avatarSheet [data-pop]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
-  });
+
+/* Delegated: avatarSheet menu open as subsheet */
+document.addEventListener('click', (e)=>{
+  const a=e.target.closest('#avatarSheet [data-pop]');
+  if(!a) return;
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return; // allow modifiers
+  e.preventDefault();
+  closeDrawer();
+  openSubSheet(a.dataset.pop, a.getAttribute('href'));
 });
 
 /* ===== Avatar paint ===== */
@@ -451,8 +467,8 @@ function applyTextOverrides(){
   const map=settings?.textOverrides?.heroes||{}; Object.entries(map).forEach(([id,t])=>{
     const host=document.querySelector(`.hero[data-hero-id="${id}"]`); if(!host) return;
     if(t.title){ const el=host.querySelector('.title .t')||host.querySelector('.title'); if(el) el.textContent=t.title; }
-    if(t.meta){  const el=host.querySelector('.meta .t'); if(el) el.textContent=t.meta; }
-    if(t.desc){  const el=host.querySelector('.desc .t'); if(el) el.textContent=t.desc; }
+    if(t.meta){  const el=host.querySelector('.meta .t')||host.querySelector('.meta'); if(el) el.textContent=t.meta; }
+    if(t.desc){  const el=host.querySelector('.desc .t')||host.querySelector('.desc'); if(el) el.textContent=t.desc; }
   });
 }
 function applyVis(){
@@ -471,12 +487,14 @@ function applyVis(){
 applyVis();
 
 /* ===== Admin footer (Working Drawer) ===== */
+const adminPane = $('#adminHidden');
 function toggleAdminFooter(open){
-  const pane = document.getElementById('adminHidden'); if(!pane) return;
-  if(!isAdmin()){ pane.classList.remove('open'); return; }
-  if(open){ pane.classList.add('open'); } else { pane.classList.remove('open'); }
+  if(!adminPane) return;
+  if(!isAdmin()){ adminPane.classList.remove('open'); adminPane.style.pointerEvents='none'; return; }
+  if(open){ adminPane.classList.add('open'); adminPane.style.pointerEvents='auto'; }
+  else{ adminPane.classList.remove('open'); adminPane.style.pointerEvents='none'; }
 }
-document.getElementById('adminClose')?.addEventListener('click', ()=>toggleAdminFooter(false));
+$('#adminClose')?.addEventListener('click', ()=>toggleAdminFooter(false));
 function liRow(id,cfg){
   const li=document.createElement('li');
   const left=document.createElement('div');
@@ -533,15 +551,9 @@ window.addEventListener('storage',e=>{
 })();
 </script>
 
-<!-- ===== HOT-FIX: delegated clicks & overlay guard ===== -->
+<!-- ===== HOT-FIX: delegated clicks (tabs + avatar) ===== -->
 <script>
 (function(){
-  // Guard against invisible overlays blocking taps
-  ['#subSheet','#avatarSheet','#adminHidden'].forEach(sel=>{
-    const el=document.querySelector(sel);
-    if(el && !el.classList.contains('open')) el.style.pointerEvents='none';
-  });
-
   // Tabs (delegated)
   document.addEventListener('click',(e)=>{
     const t=e.target.closest('.btn-tab[data-tab]'); if(!t) return;
@@ -549,8 +561,8 @@ window.addEventListener('storage',e=>{
     (window.showTab||function(name){
       document.querySelectorAll('.btn-tab[data-tab]').forEach(b=>{
         const on=b.dataset.tab===name;
-        b.classList.toggle('is-active',on);
-        b.setAttribute('aria-selected',on?'true':'false');
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on?'true':'false');
       });
       document.querySelectorAll('[data-panel]').forEach(p=>{
         p.classList.toggle('panel-active', p.dataset.panel===name);
@@ -565,16 +577,35 @@ window.addEventListener('storage',e=>{
     if(btn){
       e.preventDefault();
       const sheet=document.getElementById('avatarSheet'); if(!sheet) return;
-      const open=!sheet.classList.contains('open');
-      sheet.classList.toggle('open',open);
-      sheet.setAttribute('aria-hidden',open?'false':'true');
-      btn.setAttribute('aria-expanded',open?'true':'false');
+      const willOpen=!sheet.classList.contains('open');
+      sheet.classList.toggle('open', willOpen);
+      sheet.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+      sheet.style.pointerEvents = willOpen ? 'auto' : 'none';
+      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     }
     const sheet=document.getElementById('avatarSheet');
     if(sheet && e.target===sheet){
       sheet.classList.remove('open');
       sheet.setAttribute('aria-hidden','true');
+      sheet.style.pointerEvents='none';
       const b=document.getElementById('avatarTab'); if(b) b.setAttribute('aria-expanded','false');
+    }
+  });
+
+  // Avatar menu -> subsheet (delegated)
+  document.addEventListener('click',(e)=>{
+    const a=e.target.closest('#avatarSheet [data-pop]');
+    if(!a) return;
+    if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return;
+    e.preventDefault();
+    const title=a.dataset.pop, url=a.getAttribute('href');
+    const sheet=document.getElementById('avatarSheet');
+    if(sheet){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); sheet.style.pointerEvents='none'; }
+    const sub=document.getElementById('subSheet'); const frame=document.getElementById('subFrame'); const titleEl=document.getElementById('sheetTitle');
+    if(sub && frame && titleEl){
+      titleEl.textContent=title||'—';
+      frame.src=(url||'about:blank')+((url||'').includes('?')?'&':'?')+'v='+Date.now();
+      sub.classList.add('open'); sub.setAttribute('aria-hidden','false'); sub.style.pointerEvents='auto';
     }
   });
 
