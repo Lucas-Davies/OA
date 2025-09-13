@@ -11,21 +11,18 @@
   --bg:#000; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a; --black:#111;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
-  --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
+  --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-html,body{margin:0;background:var(--bg);color:var(--ink);
-  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;}
-/* Stop iOS rubber-band around header */
-html,body{overscroll-behavior:contain}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;overscroll-behavior:contain}
 a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
 /* Background */
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* ===== TOP BAR (fixed) ===== */
+/* ===== FIXED TOP BAR ===== */
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -44,7 +41,7 @@ a{color:inherit;text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
-/* Avatar pill (no image; solid role colour) */
+/* Avatar pill (no photo; solid colour by role) */
 .avatarTab{
   display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
   padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
@@ -54,45 +51,46 @@ a{color:inherit;text-decoration:none}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
-/* Content wrap (adds safe area for fixed header) */
+/* Content wrap (safe area for fixed header) */
 .wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 80px}
 
 /* ===== HERO ===== */
 .hero{position:relative;overflow:hidden;background:#000;
   border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
-.hero .title{margin:0 0 6px;font-weight:900;font-size:20px}
+.hero .title{margin:0 0 6px;font-weight:900;font-size:20px;display:flex;align-items:center;gap:8px}
 .hero .meta{margin:0 0 6px;color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px;color:var(--muted)}
 .cta-left{position:absolute;left:16px;bottom:var(--btn-bottom);display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:130px;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
+.btn.blue{background:var(--blue);border-color:transparent;color:#000}
+.btn.grey{background:#3a3a3a;color:#fff}
 
-/* ===== TRACKER ===== */
+/* Daily skin (kept for nice gloss) */
+#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
+#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
+#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
+#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
+#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px }
+
+/* ===== TRACKER (Daily only) ===== */
 .tracker{cursor:pointer}
-.tracker .cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+.tracker .cards{display:grid;grid-template-columns:1fr;gap:var(--gap)}
 .tracker .card{border:1px solid var(--stroke);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
 .tracker .kpi{display:flex;align-items:center;gap:8px;color:var(--ink-dim);font-weight:700}
 .medals{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
-.medal{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.22);
-  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff}
-.medal.empty{background:transparent;color:transparent;border-color:rgba(255,255,255,.18)}
-.m-bronze{background:var(--bronze)}
-.m-silver{background:var(--silver);color:#111}
-.m-gold{background:var(--gold);color:#111}
-.m-support{background:#6a4cff}
-.m-director{background:#444}
-.m-admin{background:var(--blue);color:#000}
+.medal{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.22);background:transparent}
 
-/* ===== PANELS (only active one is displayed) ===== */
+/* PANELS (only active displayed) */
 [data-panel]{display:none}
 [data-panel].panel-active{display:block}
 
-/* ===== Drawer + Subsheet ===== */
+/* Drawer + Subsheet */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);
   -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
 #avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;
   background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
-.menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;
-  border-bottom:1px solid rgba(255,255,255,.08)}
+.menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
 .menu a:last-child{border-bottom:none}
 
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);
@@ -128,17 +126,26 @@ a{color:inherit;text-decoration:none}
 <main class="wrap">
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" class="panel-active" data-panel="challenges">
+    <!-- Daily Hero -->
+    <article class="hero" id="dailyHero" data-skin="bronze" aria-labelledby="dailyTitle">
+      <h2 class="title" id="dailyTitle">Daily Challenge</h2>
+      <p class="meta" id="dailyMeta">Begins today</p>
+      <p class="desc">A focused prompt matched to your level. Finish it to earn your streak.</p>
+      <div class="cta-left">
+        <button class="btn blue" id="btnDailyStart">Start</button>
+        <button class="btn grey" id="btnDailyComplete">Complete</button>
+      </div>
+      <div class="level" id="dailyLevel">Beginner</div>
+    </article>
+
+    <!-- Challenge Tracker (Daily only) -->
     <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
       <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
-      <p class="meta">Daily 7d • Weekly 6w</p>
+      <p class="meta">Daily 7d</p>
       <div class="cards">
         <div class="card">
           <div class="kpi">Daily 7d</div>
           <div class="medals" id="dailyMedals"></div>
-        </div>
-        <div class="card">
-          <div class="kpi">Weekly 6w</div>
-          <div class="medals" id="weeklyMedals"></div>
         </div>
       </div>
     </article>
@@ -146,19 +153,19 @@ a{color:inherit;text-decoration:none}
 
   <!-- ===== COURSES ===== -->
   <section id="panel-courses" data-panel="courses">
-    <article class="hero">
+    <article class="hero" id="coursesHero">
       <h2 class="title">Courses</h2>
-      <p class="meta">Your courses will appear here.</p>
-      <p class="desc">Coming soon.</p>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">Structured learning content will appear here when linked to your HTMLs or JSON registry.</p>
     </article>
   </section>
 
   <!-- ===== LIVE ===== -->
   <section id="panel-live" data-panel="live">
-    <article class="hero">
+    <article class="hero" id="liveHero">
       <h2 class="title">Live Sessions</h2>
-      <p class="meta">Live demos & sessions.</p>
-      <p class="desc">Coming soon.</p>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">Live demos & studio sessions will be available here when linked.</p>
     </article>
   </section>
 </main>
@@ -193,7 +200,34 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={profile:'ao_profile',settings:'ao_settings'};
+
+/* Keys */
+const K={
+  profile:'ao_profile',
+  settings:'ao_settings',      // includes tab hides + hero controls
+  dailyDone:'ao_daily_done',
+  dailyMeta:'ao_daily_meta'
+};
+
+/* Default settings scaffold, including hero release control */
+function getSettings(){
+  const def={
+    // tab visibility (admin can override; director if delegated later)
+    challenges:true, courses:true, live:true,
+    // hero control
+    heroes:{
+      daily:{ hidden:false },               // Daily hero
+      tracker:{ hidden:false },             // Tracker
+      courses:{ hidden:false },             // Courses hero
+      live:{ hidden:false }                 // Live hero
+      // Admin can add custom heroes later and we’ll render them if present
+    }
+  };
+  const cur=store.get(K.settings,null);
+  if(!cur){ store.set(K.settings,def); return def; }
+  // merge shallowly to be future-proof
+  return Object.assign({},def,{...cur, heroes:{...def.heroes, ...(cur.heroes||{})}});
+}
 
 /* role → skin mapping */
 const skinByLevel={
@@ -204,6 +238,7 @@ const skinByLevel={
   director:'#444',
   admin:'var(--blue)'
 };
+const dailySkinByLevel={ beginner:'bronze', intermediate:'silver', advanced:'gold', support:'black', director:'black', admin:'black' };
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
 /* ===== avatar paint ===== */
@@ -215,19 +250,16 @@ function applyProfile(){
   const bg=skinByLevel[lvl]||'var(--silver)';
   const light=(lvl==='gold'||lvl==='silver'||lvl==='admin');
   const pill=$('#avatarTab'); pill.style.background=bg; pill.style.color= light ? '#0b0c10' : '#eef3ff';
+
+  // Daily hero level gloss (beginner/silver/gold)
+  const map={silver:'intermediate', bronze:'beginner', gold:'advanced', support:'advanced', director:'advanced', admin:'advanced'};
+  const dailyLvl = map[lvl] || 'beginner';
+  $('#dailyHero').setAttribute('data-skin', dailySkinByLevel[dailyLvl]);
+  $('#dailyLevel').textContent = cap(dailyLvl);
 }
 applyProfile();
-window.addEventListener('storage',e=>{ if(e.key===K.profile||e.key===K.settings){ applyProfile(); applySettings(); }});
 
-/* ===== avatar drawer ===== */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', openDrawer);
-avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
-window.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeDrawer(); closeSubSheet(); }});
-
-/* ===== tabs ===== */
+/* ===== Tabs ===== */
 const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 function showTab(name){
   tabBtns.forEach(b=>{
@@ -239,30 +271,15 @@ function showTab(name){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-showTab('challenges'); // ensure initial state
+showTab('challenges');
 
-/* ===== apply settings: hide tabs if needed ===== */
-function applySettings(){
-  const s=store.get(K.settings,{});
-  const setHidden=(name,hide)=>{
-    const btn=$(`[data-tab="${name}"]`), pnl=$(`[data-panel="${name}"]`);
-    if(btn) btn.style.display = hide?'none':'inline-flex';
-    if(pnl) pnl.style.display = hide?'none':''; // hide at source to avoid headings bleed
-  };
-  setHidden('challenges', s.challenges===false);
-  setHidden('courses',    s.courses===false);
-  setHidden('live',       s.live===false);
+/* ===== Drawer & Subsheet ===== */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+avatarBtn.addEventListener('click', openDrawer);
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
-  // If the active tab was hidden, switch to the first visible
-  const active=document.querySelector('.btn-tab.is-active');
-  if(!active || active.style.display==='none'){
-    const first=tabBtns.find(b=>b.style.display!=='none');
-    if(first) showTab(first.dataset.tab);
-  }
-}
-applySettings();
-
-/* ===== sub sheet (iframe) ===== */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
@@ -272,28 +289,101 @@ function openSubSheet(title,url){
 function closeSubSheet(){
   subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
   subFrame.src='about:blank';
-  applyProfile(); applySettings();
+  // re-read updated settings/profile written by iframe pages
+  applyProfile(); applySettings(); applyHeroVisibility();
 }
 $('#sheetClose').addEventListener('click', closeSubSheet);
 subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
-
-/* drawer links -> subsheet */
 $$('#avatarSheet [data-pop]').forEach(a=>{
   a.addEventListener('click',e=>{
     e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
 });
 
-/* tracker -> open challenge tracker */
+/* ===== Settings (tab hides) and Hero Visibility (hidden/release/expiry) ===== */
+function isAdminOrDirector(){
+  const p=store.get(K.profile,{skill:'silver'}); const lvl=(p.skill||'silver').toLowerCase();
+  return (lvl==='admin'||lvl==='director');
+}
+function isAdmin(){ const p=store.get(K.profile,{skill:'silver'}); return (p.skill||'').toLowerCase()==='admin'; }
+
+function applySettings(){
+  const s=getSettings();
+  // tabs visibility
+  const setHidden=(name,hide)=>{
+    const btn=document.querySelector(`[data-tab="${name}"]`);
+    const pnl=document.querySelector(`[data-panel="${name}"]`);
+    if(btn) btn.style.display = hide?'none':'inline-flex';
+    if(pnl) pnl.style.display = hide?'none':'';
+  };
+  setHidden('challenges', s.challenges===false);
+  setHidden('courses',    s.courses===false);
+  setHidden('live',       s.live===false);
+
+  // ensure a visible tab is active
+  const active=document.querySelector('.btn-tab.is-active');
+  if(!active || active.style.display==='none'){
+    const first=Array.from(document.querySelectorAll('.btn-tab')).find(b=>b.style.display!=='none');
+    if(first) showTab(first.dataset.tab);
+  }
+}
+
+function withinWindow(cfg){
+  if(!cfg) return true;
+  const now=Date.now();
+  const rel = cfg.releaseDate ? Date.parse(cfg.releaseDate) : null;
+  const exp = cfg.expiryDate  ? Date.parse(cfg.expiryDate)  : null;
+  if(rel && now<rel) return false;
+  if(exp && now>exp) return false;
+  return true;
+}
+function applyHeroVisibility(){
+  const s=getSettings(); const heroes=s.heroes||{};
+  // A Director/Admin can reveal/hide; release windows also apply (Director/Admin can override by saving hidden:false + valid windows)
+  const canOverride=isAdminOrDirector();
+
+  const control=(id, el)=>{
+    const cfg=heroes[id]||{};
+    let show = !cfg.hidden && withinWindow(cfg);
+    if(canOverride){
+      // Director/Admin follow stored flags; if they set hidden:true in settings, it hides for everyone.
+      // (Admin could later get a per-user dev-mode override—scaffold is ready)
+      show = !cfg.hidden && withinWindow(cfg);
+    }
+    el.style.display = show ? '' : 'none';
+  };
+
+  control('daily',   document.getElementById('dailyHero'));
+  control('tracker', document.getElementById('trackerHero'));
+  control('courses', document.getElementById('panel-courses'));
+  control('live',    document.getElementById('panel-live'));
+}
+applySettings();
+applyHeroVisibility();
+
+/* React to profile/settings changes from other pages */
+window.addEventListener('storage',e=>{
+  if(e.key===K.profile){ applyProfile(); }
+  if(e.key===K.settings){ applySettings(); applyHeroVisibility(); }
+});
+
+/* ===== Daily medals placeholder ===== */
+(function paintEmpty(){
+  const dm=$('#dailyMedals'); dm.innerHTML='';
+  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+})();
+
+/* ===== Daily meta pretty text ===== */
+(function bootDailyMeta(){
+  const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  $('#dailyMeta').textContent = `Begins ${dayNames[today.getDay()]}`;
+})();
+
+/* ===== Tracker hero click -> iframe ===== */
 $('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
 
-/* simple placeholder medals (empty state) */
-(function paintEmpty(){
-  const dm=$('#dailyMedals'), wm=$('#weeklyMedals');
-  dm.innerHTML=''; wm.innerHTML='';
-  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal empty'; dm.appendChild(m); }
-  for(let i=0;i<6;i++){ const m=document.createElement('div'); m.className='medal empty'; wm.appendChild(m); }
-})();
+/* ===== Boot log ===== */
+console.log('[FAOA] home loaded with release-control scaffolding');
 })();
 </script>
 </body>
