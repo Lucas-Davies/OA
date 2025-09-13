@@ -9,7 +9,7 @@
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
+  --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.22);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
 }
@@ -48,7 +48,8 @@ a{color:inherit;text-decoration:none}
 @media (min-width:1201px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
 /* Hero card */
-.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:120px}
+.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:120px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06) inset}
 .hero .num{font-weight:900;font-size:16px;opacity:.9}
 .hero .cta-left{position:absolute;left:16px;bottom:16px}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
@@ -56,15 +57,17 @@ a{color:inherit;text-decoration:none}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
 /* Admin chips (top-right of hero) */
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:10}
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:100}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* Move popover */
+/* Move popover (floats so it never gets clipped) */
 .move{position:relative}
-.move-menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:20;min-width:220px}
-.move-menu.open{display:block}
+.move-menu{position:fixed;top:0;left:0;transform:translate(-9999px,-9999px); /* offscreen until opened */
+  background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:block;visibility:hidden;opacity:0;
+  z-index:9999;min-width:220px;transition:opacity .12s ease,visibility .12s ease}
+.move-menu.open{visibility:visible;opacity:1}
 .move-menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
 
@@ -90,10 +93,11 @@ a{color:inherit;text-decoration:none}
 #adminDock{position:fixed;inset:0;transform:translateY(100%);transition:transform .2s ease;z-index:89;background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
 #adminDock header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#160b0b;color:#fff;font-weight:900;position:sticky;top:0;z-index:2}
-#adminDock header .title{color:#ff5a52}
+#adminDock header .title{display:flex;align-items:center;gap:10px}
+#adminDock header .title .dockTab{background:var(--red);color:#fff;border:0;border-radius:10px;padding:6px 10px;font-weight:900}
 #adminDock .dev{padding:12px}
-#adminDock .dev h3{margin:0 0 8px;color:#ff5a52}
 .dev .grid{gap:12px}
+/* single red heading retained (header). Removed interior duplicate heading */
 .bin{border-top:1px solid rgba(255,255,255,.14)}
 .bin>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:12px 14px;list-style:none;font-weight:900}
 .bin>summary::-webkit-details-marker{display:none}
@@ -160,13 +164,15 @@ a{color:inherit;text-decoration:none}
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock">
   <header>
-    <div class="title">Development</div>
+    <div class="title">
+      <button class="dockTab" id="closeDockTab">Close</button>
+      <span>Development</span>
+    </div>
     <button class="chip" id="closeDock">Close</button>
   </header>
 
   <!-- Development area -->
   <div class="dev">
-    <h3>Development</h3>
     <section class="grid" id="devGrid"></section>
   </div>
 
@@ -190,22 +196,20 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
+const K={ profile:'ao_profile', settings:'ao_settings' };
 
-/* Force Admin during build */
-function currentRole(){ 
-  const p=store.get(K.profile,{skill:'admin'}); 
-  return p.skill||'admin'; 
-}
+/* Role helpers */
+function currentRole(){ const p=store.get(K.profile,{skill:'admin'}); return (p.skill||'admin').toLowerCase(); }
 function isAdmin(){ return currentRole()==='admin'; }
 
-/* Avatar paint */
+/* Avatar paint (+ live update when profile changes elsewhere) */
 function applyProfile(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent=p.displayName||'User';
-  $('#avatarLvl').textContent=p.skill.charAt(0).toUpperCase()+p.skill.slice(1);
+  $('#avatarLvl').textContent=(p.skill||'admin').replace(/\b\w/g,m=>m.toUpperCase());
 }
 applyProfile();
+window.addEventListener('storage',e=>{ if(e.key===K.profile){ applyProfile(); }});
 
 /* Avatar drawer + subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
@@ -235,52 +239,40 @@ $('#cfgToggle').addEventListener('click', e=>{ e.preventDefault(); document.body
 function defaults(){
   const heroFlags={};
   for(let i=1;i<=10;i++) heroFlags[`co-${i}`]={state:'live',place:'page'};
-  return { heroFlags };
+  for(let i=11;i<=50;i++) heroFlags[`co-${i}`]={state:'off',place:'tpl'};
+  return { heroFlags, _tplSeeded:true };
 }
-function getSettings(){
-  const cur=store.get(K.settings,null);
-  if(!cur){ const def=defaults(); seedTemplates(def); store.set(K.settings,def); return def; }
-  if(!cur._tplSeeded){ seedTemplates(cur); }
-  return cur;
-}
-function seedTemplates(cfg){
-  for(let i=11;i<=50;i++){
-    const id=`co-${i}`;
-    if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:'tpl'};
-  }
-  cfg._tplSeeded=true;
-  store.set(K.settings,cfg);
-}
+function getSettings(){ return store.get(K.settings, defaults()); }
 function saveSettings(s){ store.set(K.settings,s); }
 
-function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
+const idNum= id => (id.match(/\d+/)||['?'])[0];
 
 /* Build a hero card (Page or Dev) */
 function heroCard(id, place){
-  const n=numberFromId(id);
+  const n=idNum(id);
   const s=getSettings(); const flag=s.heroFlags[id]||{state:'off',place:'tpl'};
   const live=flag.state==='live';
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=place;
   el.innerHTML=`
     <span class="num">#${n}</span>
     <div class="ctrls">
-      <button class="chip ${live?'badge-live':'badge-off'}" data-act="toggle">${live?'Live':'Offline'}</button>
+      <button class="chip ${live?'badge-live':'badge-off'}" data-act="toggle" ${isAdmin()?'':'style="display:none"'}>${live?'Live':'Offline'}</button>
       <div class="move">
-        <button class="chip" data-act="move">Move</button>
+        <button class="chip" data-act="move" ${isAdmin()?'':'style="display:none"'}>Move</button>
         <div class="move-menu"></div>
       </div>
     </div>
     <div class="cta-left"><button class="btn blue" data-act="enter">Start</button></div>`;
   const menu=el.querySelector('.move-menu');
-  getMoveOptions(place).forEach(opt=>{
+  moveOptionsFor(place).forEach(opt=>{
     const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
   });
   return el;
 }
-function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
 
-/* Where you can move from each place */
-function getMoveOptions(place){
+/* Allowed moves */
+function moveOptionsFor(place){
   if(place==='page') return ['dev','archive'];
   if(place==='dev') return ['page','tpl'];
   if(place==='archive') return ['page','dev'];
@@ -291,28 +283,22 @@ function getMoveOptions(place){
 /* Paint page heroes */
 function paintPage(){
   const s=getSettings(); const grid=$('#pageGrid'); grid.innerHTML='';
-  for(let i=1;i<=10;i++){
-    const id=`co-${i}`; const flag=s.heroFlags[id];
-    if(!flag) continue;
-    grid.appendChild(heroCard(id,'page'));
-  }
+  for(let i=1;i<=10;i++){ grid.appendChild(heroCard(`co-${i}`,'page')); }
 }
 
 /* Working drawer */
-const adminDock=$('#adminDock'), toggleDockBtn=$('#toggleDockBtn'), closeDockBtn=$('#closeDock');
+const adminDock=$('#adminDock'), toggleDockBtn=$('#toggleDockBtn'), closeDockBtn=$('#closeDock'), closeDockTab=$('#closeDockTab');
 function openDock(){ adminDock.classList.add('open'); $('#adminTab').style.display='none'; }
 function closeDock(){ adminDock.classList.remove('open'); $('#adminTab').style.display='flex'; }
 toggleDockBtn.addEventListener('click', openDock);
 closeDockBtn.addEventListener('click', closeDock);
+closeDockTab.addEventListener('click', closeDock);
 
 /* Only one bin open at once */
 ['binArchive','binTpl'].forEach(id=>{
   const d=$('#'+id);
   d.addEventListener('toggle',()=>{
-    if(d.open){
-      ['binArchive','binTpl'].forEach(oid=>{ if(oid!==id) $('#'+oid).open=false; });
-      d.scrollIntoView({behavior:'smooth',block:'start'});
-    }
+    if(d.open){ ['binArchive','binTpl'].forEach(oid=>{ if(oid!==id) $('#'+oid).open=false; }); d.scrollIntoView({behavior:'smooth',block:'start'}); }
     paintCounts();
   });
 });
@@ -321,21 +307,19 @@ closeDockBtn.addEventListener('click', closeDock);
 function paintDrawer(){
   const s=getSettings(), flags=s.heroFlags;
   const dev=$('#devGrid'); dev.innerHTML='';
-  Object.entries(flags).forEach(([id,flag])=>{
-    if(flag.place==='dev') dev.appendChild(heroCard(id,'dev'));
-  });
+  Object.entries(flags).forEach(([id,flag])=>{ if(flag.place==='dev') dev.appendChild(heroCard(id,'dev')); });
 
   const la=$('#listArchive'); la.innerHTML='';
   Object.entries(flags).forEach(([id,flag])=>{
     if(flag.place==='archive'){
       const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-      row.innerHTML=`<span class="num">#${numberFromId(id)}</span>
+      row.innerHTML=`<span class="num">#${idNum(id)}</span>
         <div class="move">
-          <button class="chip" data-act="move">Move</button>
+          <button class="chip" data-act="move" ${isAdmin()?'':'style="display:none"'}>Move</button>
           <div class="move-menu"></div>
         </div>`;
       const menu=row.querySelector('.move-menu');
-      getMoveOptions('archive').forEach(opt=>{
+      moveOptionsFor('archive').forEach(opt=>{
         const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
       });
       la.appendChild(row);
@@ -346,13 +330,13 @@ function paintDrawer(){
   Object.entries(flags).forEach(([id,flag])=>{
     if(flag.place==='tpl'){
       const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='tpl';
-      row.innerHTML=`<span class="num">#${numberFromId(id)}</span>
+      row.innerHTML=`<span class="num">#${idNum(id)}</span>
         <div class="move">
-          <button class="chip" data-act="move">Move</button>
+          <button class="chip" data-act="move" ${isAdmin()?'':'style="display:none"'}>Move</button>
           <div class="move-menu"></div>
         </div>`;
       const menu=row.querySelector('.move-menu');
-      getMoveOptions('tpl').forEach(opt=>{
+      moveOptionsFor('tpl').forEach(opt=>{
         const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
       });
       lt.appendChild(row);
@@ -367,53 +351,89 @@ function paintCounts(){
   $('#countTpl').textContent     = Object.values(flags).filter(f=>f.place==='tpl').length;
 }
 
-/* Global click handlers */
+/* ===== Floating move menu logic (Safari/DDG safe) ===== */
+let openMenuRef=null;
+function openMoveMenu(btn, menu){
+  // position offscreen to measure
+  menu.classList.add('open');
+  menu.style.visibility='hidden';
+  menu.style.transform='translate(-9999px,-9999px)';
+  // compute anchor rect
+  const r=btn.getBoundingClientRect();
+  // place right-aligned under the chip
+  const top = r.bottom + 6;
+  const left = Math.max(8, r.right - Math.max(220, menu.offsetWidth)); // 220 is min-width
+  menu.style.top = `${top}px`;
+  menu.style.left = `${left}px`;
+  menu.style.visibility='visible';
+  menu.style.transform='none';
+  openMenuRef=menu;
+}
+function closeMoveMenu(){
+  if(openMenuRef){
+    openMenuRef.classList.remove('open');
+    openMenuRef.style.visibility='hidden';
+    openMenuRef=null;
+  }
+}
+window.addEventListener('scroll', closeMoveMenu, true);
+window.addEventListener('resize', closeMoveMenu);
+
+/* ===== Global click handlers ===== */
 document.addEventListener('click',(e)=>{
+  // Enter (Start)
   const enter = e.target.closest('[data-act="enter"]');
   if(enter){
-    const host = e.target.closest('[data-hero-id]');
-    openSubSheet(`Course #${numberFromId(host.dataset.heroId)}`, null);
+    const host = e.target.closest('[data-hero-id], .row');
+    const id = host?.dataset.heroId || '';
+    openSubSheet(`Course #${idNum(id)}`, null); // 401 until linked
     return;
   }
 
+  // Live/Offline toggle (admin only)
   const tgl = e.target.closest('[data-act="toggle"]');
   if(tgl && isAdmin()){
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-    saveSettings(s);
-    paintPage(); paintDrawer();
-    return;
+    saveSettings(s); paintPage(); paintDrawer(); return;
   }
 
+  // Open move menu
   const mvBtn=e.target.closest('[data-act="move"]');
-  if(mvBtn){
-    const menu=mvBtn.parentElement.querySelector('.move-menu');
-    const open=!menu.classList.contains('open');
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open');
+  if(mvBtn && isAdmin()){
     e.stopPropagation();
+    const wrap = mvBtn.closest('.move');
+    const menu = wrap.querySelector('.move-menu');
+    if(menu.classList.contains('open')){ closeMoveMenu(); }
+    else{ closeMoveMenu(); openMoveMenu(mvBtn, menu); }
     return;
   }
 
+  // Choose destination
   if(e.target.matches('.move-menu button')){
-    const to=e.target.dataset.to;
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId;
-    moveHero(id, to);
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
     e.stopPropagation();
+    const to=e.target.dataset.to;
+    // anchor menu belongs to either a hero card or a list row
+    const holder = (openMenuRef && openMenuRef.closest('[data-hero-id], .row')) || e.target.closest('[data-hero-id], .row');
+    const id=holder.dataset.heroId;
+    moveHero(id, to);
+    closeMoveMenu();
     return;
+  }
+
+  // Click-away
+  if(openMenuRef && !e.target.closest('.move-menu') && !e.target.closest('[data-act="move"]')){
+    closeMoveMenu();
   }
 });
-document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'));});
 
 /* Movement engine */
 function moveHero(id, dest){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'off',place:'tpl'};
   const from=cur.place;
-  const allowed=getMoveOptions(from);
+  const allowed=moveOptionsFor(from);
   if(!allowed.includes(dest)) return;
   s.heroFlags[id]={...cur, place:dest};
   saveSettings(s);
@@ -422,7 +442,6 @@ function moveHero(id, dest){
 
 /* Init */
 paintPage(); paintDrawer();
-
 })();
 </script>
 </body>
