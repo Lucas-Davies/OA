@@ -13,6 +13,8 @@
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff3b30; --black:#111;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
+
+/* RESET / BASE */
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
@@ -31,28 +33,26 @@ a{color:inherit;text-decoration:none}
   background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
-.nav-left{display:flex; gap:8px; align-items:center}
+.nav-left{display:flex; gap:8px; align-items:center; flex-wrap:nowrap}
 .btn-tab{
   position:relative;
   display:inline-flex; align-items:center; justify-content:center;
   min-width:104px; height:44px; padding:0 14px;
   border-radius:12px; border:1px solid var(--stroke);
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
-  transition:transform .06s ease, filter .15s ease; font-size:15px;
+  transition:transform .06s ease, filter .15s ease; font-size:15px; white-space:nowrap;
 }
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
-/* Config pin on tabs */
-.tab-pin{display:none; position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:6px;
-  background:#111; border:1px solid var(--stroke); font-size:11px; font-weight:900; color:#fff; align-items:center; justify-content:center}
+/* Config affordances on tabs */
 .config-on .btn-tab .tab-pin{display:flex}
+.tab-pin{display:none; position:absolute; top:-6px; right:-6px; width:22px; height:22px;
+  border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:12px;
+  font-weight:900; color:#fff; align-items:center; justify-content:center}
 
-/* Portrait: slim tabs; Landscape/desktop normal */
-@media (orientation:portrait) and (max-width:900px){
-  .btn-tab{min-width:auto; padding:0 10px; font-size:14px}
-}
-@media (orientation:landscape){
-  .btn-tab{min-width:104px; padding:0 14px; font-size:15px}
+/* Portrait: compact tabs; Landscape normal */
+@media (orientation:portrait){
+  .btn-tab{ min-width:auto; padding:0 10px; font-size:14px }
 }
 
 /* Avatar pill (no photo; solid colour by role) */
@@ -66,7 +66,7 @@ a{color:inherit;text-decoration:none}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
 /* Content wrap (safe area for fixed header) */
-.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
 
 /* ===== HERO ===== */
 .hero{position:relative; overflow:hidden; background:#060708;
@@ -75,12 +75,12 @@ a{color:inherit;text-decoration:none}
 .hero .meta{margin:0 0 6px; color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px; color:var(--muted)}
 .cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#ink; cursor:pointer}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
 .btn.grey{background:#3a3a3a; color:#fff}
 .badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
 
-/* Daily skin gloss */
+/* Daily skin gloss (kept for look) */
 #dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
 #dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
 #dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
@@ -100,7 +100,7 @@ a{color:inherit;text-decoration:none}
 [data-panel].panel-active{display:block}
 
 /* ===== Admin inline controls on hero ===== */
-.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:8px}
+.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:8px; z-index:2}
 .admin-on .admin-ctrls{display:flex}
 .admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
 .admin-ctrls .state-live{background:#0a0}
@@ -108,10 +108,14 @@ a{color:inherit;text-decoration:none}
 .admin-ctrls .move{background:#1b1f2a; position:relative}
 
 /* Move popover */
-.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:3}
+.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:3; min-width:210px}
 .move-menu.open{display:block}
 .move-menu button{display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer}
 .move-menu button:hover{filter:brightness(1.1)}
+
+/* ===== Config pencil ===== */
+.cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center; z-index:2}
+.config-on .cfg-pin{display:flex}
 
 /* ===== Avatar Drawer ===== */
 #avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
@@ -129,22 +133,16 @@ a{color:inherit;text-decoration:none}
 .sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
 #subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
 
-/* ===== Config pencil (heroes) ===== */
-.cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
-.config-on .cfg-pin{display:flex}
-
 /* ===== Admin footer / Working Drawer ===== */
-#adminTab{
-  position:fixed; left:0; right:0; bottom:0; /* force lock to bottom on all tabs */
-  height:48px; display:flex; align-items:center; justify-content:center; z-index:90;
-  pointer-events:auto;
-}
-#adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
+#adminTab{position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90}
+#adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900; cursor:pointer}
 #adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
 #adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
-#adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
-#adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:180px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
+#adminDock header .title{color:var(--blue)}
+#adminDock header .closeBtn{background:var(--red); border:0; color:#fff; font-weight:900; padding:8px 12px; border-radius:10px; cursor:pointer}
+#adminDock .space{position:absolute; top:52px; bottom:190px; left:0; right:0; overflow:auto; padding:12px}
+#adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:190px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
 .admin-group{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px; margin-bottom:14px}
 .admin-group h3{margin:0 0 10px; font-size:15px}
 .bin{border:1px dashed rgba(255,255,255,.18); border-radius:10px; margin:8px 0}
@@ -156,17 +154,21 @@ a{color:inherit;text-decoration:none}
 .small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
 .small.open{background:#0A84FF; color:#000}
 .small.link{background:#222}
+
+/* Swipe hint (optional, subtle) */
+.swipe-hint{position:absolute; right:12px; top:12px; font-size:12px; opacity:.7}
 </style>
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav" role="navigation" aria-label="Primary">
-  <div class="nav-left" role="tablist" aria-label="Sections">
-    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed<span class="tab-pin">✎</span></button>
-    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges<span class="tab-pin">✎</span></button>
-    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses<span class="tab-pin">✎</span></button>
-    <button class="btn-tab" data-tab="live" aria-selected="false">Live<span class="tab-pin">✎</span></button>
+  <div class="nav-left" role="tablist" aria-label="Sections" id="tabsBar">
+    <!-- Order is persisted; default below will be re-painted by JS if changed -->
+    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed<span class="tab-pin" data-tab-pin="feed">✎</span></button>
+    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges<span class="tab-pin" data-tab-pin="challenges">✎</span></button>
+    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses<span class="tab-pin" data-tab-pin="courses">✎</span></button>
+    <button class="btn-tab" data-tab="live" aria-selected="false">Live<span class="tab-pin" data-tab-pin="live">✎</span></button>
   </div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
@@ -180,7 +182,7 @@ a{color:inherit;text-decoration:none}
   <!-- ===== FEED ===== -->
   <section id="panel-feed" class="panel-active" data-panel="feed">
     <!-- five placeholders -->
-    <article class="hero" data-hero-id="feed-1">
+    <article class="hero" data-hero-id="feed-1" data-hero-tab="feed">
       <button class="cfg-pin" data-cfg="feed-title-1">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -190,13 +192,14 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
       <h2 class="title" data-cfg-target="feed-title-1">Placeholder news-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="feed-2">
+    <article class="hero" data-hero-id="feed-2" data-hero-tab="feed">
       <button class="cfg-pin" data-cfg="feed-title-2">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -206,13 +209,14 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
       <h2 class="title" data-cfg-target="feed-title-2">Placeholder news-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="feed-3">
+    <article class="hero" data-hero-id="feed-3" data-hero-tab="feed">
       <button class="cfg-pin" data-cfg="feed-title-3">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -222,13 +226,14 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
       <h2 class="title" data-cfg-target="feed-title-3">Placeholder news-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="feed-4">
+    <article class="hero" data-hero-id="feed-4" data-hero-tab="feed">
       <button class="cfg-pin" data-cfg="feed-title-4">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -238,13 +243,14 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
       <h2 class="title" data-cfg-target="feed-title-4">Placeholder news-hero4</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="feed-5">
+    <article class="hero" data-hero-id="feed-5" data-hero-tab="feed">
       <button class="cfg-pin" data-cfg="feed-title-5">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -254,6 +260,7 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
@@ -264,7 +271,8 @@ a{color:inherit;text-decoration:none}
 
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" data-panel="challenges">
-    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" aria-labelledby="trackerTitle">
+    <!-- Tracker -->
+    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" data-hero-tab="challenges" aria-labelledby="trackerTitle">
       <button class="cfg-pin" data-cfg="tracker-title">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -274,6 +282,7 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
@@ -287,7 +296,8 @@ a{color:inherit;text-decoration:none}
       </div>
     </article>
 
-    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" aria-labelledby="dailyTitle">
+    <!-- Daily -->
+    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" data-hero-tab="challenges" aria-labelledby="dailyTitle">
       <button class="cfg-pin" data-cfg="daily-title">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
@@ -297,6 +307,7 @@ a{color:inherit;text-decoration:none}
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>
         </button>
       </div>
@@ -310,95 +321,136 @@ a{color:inherit;text-decoration:none}
       <div class="level" id="dailyLevel">Beginner</div>
     </article>
 
-    <!-- three more placeholders for 5 total -->
-    <article class="hero" data-hero-id="ch-extra-1">
-      <button class="cfg-pin" data-cfg="chx-1">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><span>Move</span>
+    <!-- three more placeholders to make five total on this tab -->
+    <article class="hero" data-hero-id="ch-2" data-hero-tab="challenges">
+      <button class="cfg-pin" data-cfg="ch-title-2">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-          </div></button></div>
-      <h2 class="title" data-cfg-target="chx-1">Challenge hero 3</h2>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="ch-title-2">Placeholder challenge-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
-    <article class="hero" data-hero-id="ch-extra-2">
-      <button class="cfg-pin" data-cfg="chx-2">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><span>Move</span>
+    <article class="hero" data-hero-id="ch-3" data-hero-tab="challenges">
+      <button class="cfg-pin" data-cfg="ch-title-3">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-          </div></button></div>
-      <h2 class="title" data-cfg-target="chx-2">Challenge hero 4</h2>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="ch-title-3">Placeholder challenge-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
-    <article class="hero" data-hero-id="ch-extra-3">
-      <button class="cfg-pin" data-cfg="chx-3">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><span>Move</span>
+    <article class="hero" data-hero-id="ch-4" data-hero-tab="challenges">
+      <button class="cfg-pin" data-cfg="ch-title-4">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-          </div></button></div>
-      <h2 class="title" data-cfg-target="chx-3">Challenge hero 5</h2>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="ch-title-4">Placeholder challenge-hero4</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
   </section>
 
   <!-- ===== COURSES ===== -->
   <section id="panel-courses" data-panel="courses">
-    <article class="hero" data-hero-id="co-1">
+    <article class="hero" data-hero-id="co-1" data-hero-tab="courses">
       <button class="cfg-pin" data-cfg="cr-1">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
-    <article class="hero" data-hero-id="co-2">
+    <article class="hero" data-hero-id="co-2" data-hero-tab="courses">
       <button class="cfg-pin" data-cfg="cr-2">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
-    <article class="hero" data-hero-id="co-3">
+    <article class="hero" data-hero-id="co-3" data-hero-tab="courses">
       <button class="cfg-pin" data-cfg="cr-3">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
-    <article class="hero" data-hero-id="co-4">
+    <article class="hero" data-hero-id="co-4" data-hero-tab="courses">
       <button class="cfg-pin" data-cfg="cr-4">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><div class="move-menu">
-          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-        </div>Move</button></div>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
       <h2 class="title" data-cfg-target="cr-4">Placeholder course-hero4</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
-    <article class="hero" data-hero-id="co-5">
+    <article class="hero" data-hero-id="co-5" data-hero-tab="courses">
       <button class="cfg-pin" data-cfg="cr-5">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><div class="move-menu">
-          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-        </div>Move</button></div>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
       <h2 class="title" data-cfg-target="cr-5">Placeholder course-hero5</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
@@ -406,56 +458,83 @@ a{color:inherit;text-decoration:none}
 
   <!-- ===== LIVE ===== -->
   <section id="panel-live" data-panel="live">
-    <article class="hero" data-hero-id="lv-1">
+    <article class="hero" data-hero-id="lv-1" data-hero-tab="live">
       <button class="cfg-pin" data-cfg="lv-1">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="lv-2">
+    <article class="hero" data-hero-id="lv-2" data-hero-tab="live">
       <button class="cfg-pin" data-cfg="lv-2">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
           </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="lv-3">
+    <article class="hero" data-hero-id="lv-3" data-hero-tab="live">
       <button class="cfg-pin" data-cfg="lv-3">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><div class="move-menu">
-          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-        </div>Move</button></div>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
       <h2 class="title" data-cfg-target="lv-3">Placeholder live-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="lv-4">
+    <article class="hero" data-hero-id="lv-4" data-hero-tab="live">
       <button class="cfg-pin" data-cfg="lv-4">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><div class="move-menu">
-          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-        </div>Move</button></div>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
       <h2 class="title" data-cfg-target="lv-4">Placeholder live-hero4</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
-    <article class="hero" data-hero-id="lv-5">
+    <article class="hero" data-hero-id="lv-5" data-hero-tab="live">
       <button class="cfg-pin" data-cfg="lv-5">✎</button>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move><div class="move-menu">
-          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
-        </div>Move</button></div>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>Move
+        </button>
+      </div>
       <h2 class="title" data-cfg-target="lv-5">Placeholder live-hero5</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
@@ -492,7 +571,9 @@ a{color:inherit;text-decoration:none}
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header>
-    <div>Development Space</div>
+    <div class="title" id="dockTitle">Development Space — Feed</div>
+    <div class="swipe-hint">‹ swipe ›</div>
+    <button class="closeBtn" id="closeDockBtn">Close</button>
   </header>
   <div class="space" id="devSpace"></div>
   <div class="bins">
@@ -503,15 +584,18 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
-/* Utils / storage */
+/* ===================== Utils / storage ===================== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
 
-/* Roles (force admin during build) */
+/* Force Admin role during build; show admin UI */
+document.body.classList.add('admin-on');
 function currentRole(){ return 'admin'; }
+
+/* Role skins (placeholders for future) */
 const ROLE_SKINS={
   bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
   silver:{pill:'var(--silver)', text:'#0b0c10', daily:'silver'},
@@ -532,27 +616,66 @@ function applyProfile(){
 }
 applyProfile();
 
-/* Tabs */
-const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
+/* ===================== Tab order & labels ===================== */
+const DEFAULT_TABS=['feed','challenges','courses','live'];
+const DEFAULT_LABELS={feed:'Feed',challenges:'Challenges',courses:'Courses',live:'Live'};
+
+function getSettings(){
+  const def={ tabs:[...DEFAULT_TABS], tabLabels:{...DEFAULT_LABELS}, heroFlags:{} };
+  const cur=store.get(K.settings,null);
+  if(!cur){ store.set(K.settings,def); return def; }
+  // merge carefully
+  return {
+    ...def,
+    ...(cur||{}),
+    tabs: Array.isArray(cur?.tabs)&&cur.tabs.length ? cur.tabs : [...DEFAULT_TABS],
+    tabLabels: {...DEFAULT_LABELS, ...(cur?.tabLabels||{})},
+    heroFlags: {...(cur?.heroFlags||{})}
+  };
+}
+function saveSettings(s){ store.set(K.settings,s); }
+
+/* Paint tabs according to order/labels */
+function paintTabs(){
+  const s=getSettings(); const bar=$('#tabsBar');
+  bar.innerHTML='';
+  s.tabs.forEach((name,i)=>{
+    const btn=document.createElement('button');
+    btn.className='btn-tab';
+    btn.dataset.tab=name;
+    btn.setAttribute('aria-selected','false');
+    btn.textContent=s.tabLabels[name]||DEFAULT_LABELS[name]||name;
+    // config pin on tabs for renaming
+    const pin=document.createElement('span');
+    pin.className='tab-pin'; pin.dataset.tabPin=name; pin.textContent='✎';
+    btn.appendChild(pin);
+
+    bar.appendChild(btn);
+  });
+  // rebind events
+  $$('.btn-tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+}
+paintTabs();
+
+/* ===================== Panels switching ===================== */
 function showTab(name){
-  tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
-  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
+  // activate tab button
+  $$('.btn-tab').forEach(b=>{
+    const on=b.dataset.tab===name;
+    b.classList.toggle('is-active',on);
+    b.setAttribute('aria-selected',on?'true':'false');
+  });
+  // show panel
+  $$('[data-panel]').forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
+  // update dock title scope
+  updateDockTitle(name);
+  // refresh drawer content if open
+  if($('#adminDock').classList.contains('open')) paintWorkingDrawer();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-showTab('feed');
+showTab(getSettings().tabs[0]||'feed');
 
-/* Tab text editing (Config Mode) */
-document.body.addEventListener('click',(e)=>{
-  const pin=e.target.closest('.tab-pin');
-  if(!pin) return;
-  const btn=pin.closest('.btn-tab');
-  const cur=btn.childNodes[0].nodeValue.trim();
-  const next=prompt('Rename tab', cur);
-  if(next!=null && next.trim()!==''){ btn.childNodes[0].nodeValue = next.trim() + ' '; }
-});
-
-/* Avatar Drawer & Subsheet */
+/* ===================== Avatar Drawer & Subsheet ===================== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
@@ -560,6 +683,13 @@ avatarBtn.addEventListener('click', openDrawer);
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function injectNoHorizontalScroll(){
+  try{
+    const d=subFrame.contentDocument||subFrame.contentWindow.document;
+    const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}';
+    d.head.appendChild(st);
+  }catch{}
+}
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
@@ -581,62 +711,74 @@ $('#cfgToggle').addEventListener('click', (e)=>{
   e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
 });
 
-/* Prevent horizontal scroll inside iframe (same-origin) */
-function injectNoHorizontalScroll(){
-  try{
-    const d=subFrame.contentDocument||subFrame.contentWindow.document;
-    const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}';
-    d.head.appendChild(st);
-  }catch{}
-}
+/* ===================== Hero state (Live/Offline) + Move ===================== */
 
-/* Settings & hero flags
-   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
+/*
+ heroFlags[id] = {
+   state:'live'|'off',
+   place:'page'|'dev'|'archive'|'tpl',
+   tab:'feed'|'challenges'|'courses'|'live'
+ }
 */
-function defaults(){ return { heroFlags:{} }; }
-function getSettings(){
-  const cur=store.get(K.settings,null);
-  if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
-  return {...defaults(), ...cur, heroFlags:{...(cur.heroFlags||{})}};
+function heroDefaultFor(el){
+  return {state:'live', place:'page', tab: el?.dataset?.heroTab || findHostTabFor(el) || 'feed'};
 }
-function saveSettings(s){ store.set(K.settings,s); }
+function findHostTabFor(el){
+  const host=el?.closest('[data-panel]'); return host?host.dataset.panel:'feed';
+}
+function getHeroFlags(){ return getSettings().heroFlags; }
+function setHeroFlag(id, patch){
+  const s=getSettings();
+  const current=s.heroFlags[id] || heroDefaultFor(document.querySelector(`[data-hero-id="${id}"]`));
+  s.heroFlags[id] = {...current, ...patch};
+  saveSettings(s);
+}
 
-/* Map: hero id -> URL (used by Archived/Templates list to open HTML) */
-function getLinks(){ return store.get(K.heroLinks,{}); }
-function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
-
-/* Visibility & admin button paint */
+/* Apply visibility on page per flags; offline visible only to admin */
 function applyHeroVisibility(){
-  const flags=getSettings().heroFlags;
+  const flags=getHeroFlags();
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
-    const f=flags[id]||{state:'live',place:'page'};
-    el.style.display = (f.place==='page') ? '' : 'none';
+    const f=flags[id] || heroDefaultFor(el);
+    // Keep hero in DOM if place==='page', else hide from page
+    const onPage = f.place==='page';
+    el.style.display = onPage ? '' : 'none';
+
+    // Paint state button
     const btn=el.querySelector('[data-toggle-state]');
     if(btn){
       btn.textContent = (f.state==='live'?'Live':'Offline');
       btn.classList.toggle('state-live', f.state==='live');
       btn.classList.toggle('state-off', f.state!=='live');
     }
+
+    // If hero is on page but offline and viewer is not admin, hide — we are admin now, but keep rule
+    const isAdmin = true; // forced during build
+    if(onPage && f.state==='off' && !isAdmin){
+      el.style.display='none';
+    }
   });
 }
 applyHeroVisibility();
 
-/* Toggle Live/Offline + Move */
+/* Wire clicks for toggles + move */
 document.body.addEventListener('click',(e)=>{
   const hero=e.target.closest('[data-hero-id]');
+  // Toggle Live/Offline
   if(hero && e.target.matches('[data-toggle-state]')){
     const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    const next= (cur.state==='live'?'off':'live');
-    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`);
+    const flags=getHeroFlags(); const cur=flags[id] || heroDefaultFor(hero);
+    const next=(cur.state==='live'?'off':'live');
+    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden to non-admin)'}?`);
     if(!ok) return;
-    s.heroFlags[id]={...cur, state:next}; saveSettings(s);
+    setHeroFlag(id,{state:next});
     applyHeroVisibility(); paintWorkingDrawer();
   }
-  if(hero && e.target.matches('[data-move], .move *')){
-    const menu=hero.querySelector('.move-menu'); menu.classList.toggle('open');
+  // Open/close move menu
+  if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move]'))){
+    const menu=hero.querySelector('.move-menu'); if(menu) menu.classList.toggle('open');
   }
+  // Move destination
   if(hero && e.target.matches('.move-menu [data-move-to]')){
     const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
     moveHero(id, dest);
@@ -644,36 +786,53 @@ document.body.addEventListener('click',(e)=>{
   }
 });
 document.addEventListener('click', (e)=>{ if(!e.target.closest('.move')) $$('.move-menu.open').forEach(m=>m.classList.remove('open')); });
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') $$('.move-menu.open').forEach(m=>m.classList.remove('open')); });
 
 function moveHero(id, place){
-  const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+  const s=getSettings(); const cur=s.heroFlags[id] || heroDefaultFor(document.querySelector(`[data-hero-id="${id}"]`));
   if(place==='dev'){
-    const countDev = Object.values(s.heroFlags).filter(v=>v?.place==='dev').length;
-    if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
+    const curTab=cur.tab;
+    const countDev = Object.entries(s.heroFlags).filter(([hid,f])=> (f?.place==='dev' && f?.tab===curTab)).length;
+    if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards for this tab.'); return; }
   }
-  s.heroFlags[id]={...cur, place}; saveSettings(s);
+  s.heroFlags[id]={...cur, place};
+  saveSettings(s);
   applyHeroVisibility(); paintWorkingDrawer();
 }
 
-/* ===== Working Drawer ===== */
+/* ===================== Working Drawer (tab-scoped) ===================== */
 const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('#devSpace');
+const closeDockBtn=$('#closeDockBtn');
 function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
 function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
 toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
+closeDockBtn.addEventListener('click', closeDock);
+function updateDockTitle(activeTab){
+  const labels=getSettings().tabLabels||DEFAULT_LABELS;
+  $('#dockTitle').textContent = `Development Space — ${labels[activeTab]||activeTab}`;
+}
+updateDockTitle(getSettings().tabs[0]||'feed');
 
+/* Links store */
+function getLinks(){ return store.get(K.heroLinks,{}); }
+function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
+
+/* Paint drawer content for current tab */
+function currentTabName(){
+  const active=document.querySelector('.btn-tab.is-active'); return active?active.dataset.tab:'feed';
+}
 function paintWorkingDrawer(){
-  const flags=getSettings().heroFlags||{};
-  const links=getLinks();
+  const tab=currentTabName(); const flags=getHeroFlags(); const links=getLinks();
   devSpace.innerHTML='';
+  const LA=$('#listArchive'); const LT=$('#listTpl'); LA.innerHTML=''; LT.innerHTML='';
 
-  const archive=[], tpl=[];
-  $$('[data-hero-id]').forEach(el=>{
-    const id=el.dataset.heroId;
-    const t=el.querySelector('.title')?.textContent?.trim()||id;
-    const f=flags[id]||{state:'live',place:'page'};
+  // Dev
+  Object.entries(flags).forEach(([id,f])=>{
+    if(f.tab!==tab) return;
+    const title = document.querySelector(`[data-hero-id="${id}"] .title`)?.textContent?.trim() || id;
     if(f.place==='dev'){
       const card=document.createElement('article'); card.className='hero';
-      card.innerHTML=`<h2 class="title">${t}</h2>
+      card.innerHTML=`<h2 class="title">${title}</h2>
         <div class="admin-ctrls" style="display:flex">
           <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
           <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
@@ -686,35 +845,37 @@ function paintWorkingDrawer(){
         </div>
         <p class="meta">Dev preview only</p>`;
       devSpace.appendChild(card);
-    }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
-    else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
+    }
   });
 
-  // paint lists
-  const LA=$('#listArchive'); const LT=$('#listTpl');
-  LA.innerHTML=''; LT.innerHTML='';
-  const renderRow=(host,it,bin)=>{
+  // Bins
+  const renderRow=(host,id,f)=>{
+    const title = document.querySelector(`[data-hero-id="${id}"] .title`)?.textContent?.trim() || id;
+    const link=links[id]||'';
     const row=document.createElement('div'); row.className='item';
-    row.innerHTML=`<div class="name">${it.title}</div>
+    row.innerHTML=`<div class="name">${title}</div>
       <div>
-        <button class="small link" data-link-id="${it.id}">${it.link?'Change Link':'Set Link'}</button>
-        <button class="small open" data-open-id="${it.id}">Open</button>
-        <button class="small" data-move-id="${it.id}" data-place="page">To Page</button>
-        <button class="small" data-move-id="${it.id}" data-place="${bin==='archive'?'tpl':'archive'}">To ${bin==='archive'?'Templates':'Archive'}</button>
+        <button class="small link" data-link-id="${id}">${link?'Change Link':'Set Link'}</button>
+        <button class="small open" data-open-id="${id}">Open</button>
+        <button class="small" data-move-id="${id}" data-place="page">To Page</button>
+        <button class="small" data-move-id="${id}" data-place="${f.place==='archive'?'tpl':'archive'}">To ${f.place==='archive'?'Templates':'Archive'}</button>
       </div>`;
     host.appendChild(row);
   };
-  archive.forEach(it=>renderRow(LA,it,'archive'));
-  tpl.forEach(it=>renderRow(LT,it,'tpl'));
+  Object.entries(flags).forEach(([id,f])=>{
+    if(f.tab!==tab) return;
+    if(f.place==='archive') renderRow(LA,id,f);
+    if(f.place==='tpl') renderRow(LT,id,f);
+  });
 }
 paintWorkingDrawer();
 
-/* Drawer interactions */
+/* Drawer interactions (buttons inside) */
 $('#adminDock').addEventListener('click',(e)=>{
   // toggle live/off
   if(e.target.matches('[data-dock-act="toggle"]')){
-    const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
+    const id=e.target.dataset.dockId; const flags=getHeroFlags(); const cur=flags[id];
+    setHeroFlag(id,{state:(cur.state==='live'?'off':'live')});
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
   // open/close move menu
@@ -744,7 +905,34 @@ $('#adminDock').addEventListener('click',(e)=>{
   }
 });
 
-/* Config title editing for hero titles */
+/* Swipe across drawers: left/right to switch active tab while dock open */
+(function enableDrawerSwipe(){
+  let startX=0, startY=0, swiping=false;
+  const THRESH=40, ANGLE=25; // px, degrees
+  adminDock.addEventListener('touchstart',(e)=>{
+    if(!adminDock.classList.contains('open')) return;
+    const t=e.touches[0]; startX=t.clientX; startY=t.clientY; swiping=true;
+  },{passive:true});
+  adminDock.addEventListener('touchmove',(e)=>{
+    if(!swiping) return;
+    const t=e.touches[0]; const dx=t.clientX-startX; const dy=t.clientY-startY;
+    const adx=Math.abs(dx), ady=Math.abs(dy);
+    if(adx<THRESH || adx<ady*Math.tan(ANGLE*Math.PI/180)) return; // ignore if mostly vertical or short
+    // Determine direction
+    const s=getSettings(); const order=s.tabs; const cur=currentTabName(); const idx=order.indexOf(cur);
+    if(dx>0 && idx>0){ // swipe right -> previous tab
+      showTab(order[idx-1]); paintWorkingDrawer();
+    }else if(dx<0 && idx<order.length-1){ // swipe left -> next tab
+      showTab(order[idx+1]); paintWorkingDrawer();
+    }
+    swiping=false;
+  },{passive:true});
+  adminDock.addEventListener('touchend',()=>{ swiping=false; },{passive:true});
+})();
+
+/* Hide admin tab while avatar drawer open (already handled in open/close) */
+
+/* ===================== Config Mode: edit titles & tab labels / reorder ===================== */
 document.body.addEventListener('click', (e)=>{
   const pin=e.target.closest('.cfg-pin'); if(!pin) return;
   const id=pin.dataset.cfg; const tgt=document.querySelector(`[data-cfg-target="${id}"]`);
@@ -753,6 +941,61 @@ document.body.addEventListener('click', (e)=>{
   const next=prompt('Edit title', cur);
   if(next!=null){ tgt.textContent=next; }
 });
+
+/* Edit tab labels via pin */
+document.addEventListener('click',(e)=>{
+  const pin=e.target.closest('[data-tab-pin]'); if(!pin) return;
+  if(!document.body.classList.contains('config-on')) return;
+  const tab=pin.dataset.tabPin; const s=getSettings();
+  const cur=s.tabLabels[tab]||DEFAULT_LABELS[tab]||tab;
+  const next=prompt('Rename tab', cur);
+  if(next!=null && next.trim()!==''){
+    s.tabLabels[tab]=next.trim(); saveSettings(s); paintTabs();
+    // keep current tab active
+    const active=currentTabName(); showTab(active);
+  }
+});
+
+/* Reorder tabs: press-and-hold on a tab label to nudge left/right prompts */
+let holdTimer=null;
+document.addEventListener('mousedown',(e)=>{
+  const btn=e.target.closest('.btn-tab'); if(!btn) return;
+  if(!document.body.classList.contains('config-on')) return;
+  holdTimer=setTimeout(()=>{
+    const s=getSettings(); const order=s.tabs; const name=btn.dataset.tab;
+    const action=prompt('Move tab:\nType "<" to move left, ">" to move right', '');
+    if(action==='<'||action==='>'){
+      const idx=order.indexOf(name);
+      if(action==='<' && idx>0){ [order[idx-1],order[idx]]=[order[idx],order[idx-1]]; }
+      if(action==='>' && idx<order.length-1){ [order[idx+1],order[idx]]=[order[idx],order[idx+1]]; }
+      s.tabs=order; saveSettings(s); paintTabs(); showTab(name); // keep same active
+      updateDockTitle(name);
+    }
+  },600);
+});
+document.addEventListener('mouseup',()=>{ if(holdTimer){clearTimeout(holdTimer); holdTimer=null;} });
+document.addEventListener('mouseleave',()=>{ if(holdTimer){clearTimeout(holdTimer); holdTimer=null;} });
+
+/* ===================== Tracker placeholder & clicks ===================== */
+(function paintEmptyMedals(){
+  const dm=$('#dailyMedals'); if(!dm) return;
+  dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+})();
+$('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
+
+/* ===================== Boot: attach hero tab metadata (safety) ===================== */
+$$('[data-hero-id]').forEach(el=>{
+  if(!el.dataset.heroTab) el.dataset.heroTab = findHostTabFor(el);
+  const id=el.dataset.heroId; const flags=getHeroFlags();
+  if(!flags[id]) setHeroFlag(id,{tab:el.dataset.heroTab});
+});
+applyHeroVisibility(); paintWorkingDrawer();
+
+/* ===================== QoL: ensure admin footer is pinned bottom on all tabs ===================== */
+/* Already fixed by position:fixed; no-op here, but we relabel title when tab changes */
+
+/* ===================== End boot ===================== */
+console.log('[FAOA] home loaded — admin framework with Live/Offline + Working Drawer + swipe drawers ready.');
 })();
 </script>
 </body>
