@@ -5,16 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
+
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
+  --bg:#000; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a; --black:#111;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
-  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;overscroll-behavior:contain}
+html,body{height:100%; margin:0; background:var(--bg); color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  overscroll-behavior:contain}
 a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
@@ -32,7 +34,7 @@ a{color:inherit;text-decoration:none}
 .nav-left{display:flex; gap:8px; align-items:center}
 .btn-tab{
   display:inline-flex; align-items:center; justify-content:center;
-  min-width:110px; height:44px; padding:0 12px;
+  min-width:104px; height:44px; padding:0 14px;
   border-radius:12px; border:1px solid var(--stroke);
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
   transition:transform .06s ease, filter .15s ease; font-size:15px;
@@ -40,36 +42,32 @@ a{color:inherit;text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
-/* Avatar pill (no photo; ring shows role) */
+/* Avatar pill (no photo; solid colour by role) */
 .avatarTab{
-  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-  padding:6px 12px;border-radius:12px;min-width:150px;height:44px;
-  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;
-  border:1px solid var(--stroke);background:#222
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+  padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
+  font-weight:900; line-height:1.1; text-align:left; cursor:pointer;
+  border:1px solid var(--stroke); background:#222;
 }
-.avatarTab .name{font-size:15px;font-weight:900}
-.avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
+.avatarTab .name{font-size:15px; font-weight:900}
+.avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
-/* Content wrap */
-.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 110px}
+/* Content wrap (safe area for fixed header) */
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 120px}
 
 /* ===== HERO ===== */
-.hero{position:relative;overflow:hidden;background:#000;
-  border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
-.hero .title{margin:0 0 6px;font-weight:900;font-size:20px;display:flex;align-items:center;gap:8px}
-.hero .meta{margin:0 0 6px;color:var(--ink-dim)}
-.hero .desc{margin:8px 0 56px;color:var(--muted)}
-.cta-left{position:absolute;left:16px;bottom:var(--btn-bottom);display:flex;gap:10px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-width:130px;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
-.btn.blue{background:var(--blue);border-color:transparent;color:#000}
-.btn.grey{background:#3a3a3a;color:#fff}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:900;background:#333;margin-left:6px}
+.hero{position:relative; overflow:hidden; background:#060708;
+  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0}
+.hero .title{margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px}
+.hero .meta{margin:0 0 6px; color:var(--ink-dim)}
+.hero .desc{margin:8px 0 56px; color:var(--muted)}
+.cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
+.btn.blue{background:var(--blue); border-color:transparent; color:#000}
+.btn.grey{background:#3a3a3a; color:#fff}
+.badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
 
-/* Admin-only per-hero controls */
-.adminControls{position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center; background:rgba(0,0,0,.5); border:1px solid var(--stroke); padding:6px 8px; border-radius:10px}
-.adminControls select{height:28px; border-radius:8px; border:1px solid var(--stroke); background:#111; color:#fff; font:inherit; padding:0 6px}
-
-/* Level-driven gloss for Daily */
+/* Daily skin gloss */
 #dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
 #dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
 #dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
@@ -78,86 +76,49 @@ a{color:inherit;text-decoration:none}
 
 /* ===== TRACKER (Daily only) ===== */
 .tracker{cursor:pointer}
-.tracker .cards{display:grid;grid-template-columns:1fr;gap:var(--gap)}
-.tracker .card{border:1px solid var(--stroke);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
-.tracker .kpi{display:flex;align-items:center;gap:8px;color:var(--ink-dim);font-weight:700}
-.medals{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
-.medal{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.22);background:transparent}
+.tracker .cards{display:grid; grid-template-columns:1fr; gap:var(--gap)}
+.tracker .card{border:1px solid var(--stroke); border-radius:12px; padding:12px; background:rgba(255,255,255,.03)}
+.tracker .kpi{display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700}
+.medals{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:10px}
+.medal{width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22); background:transparent}
 
-/* PANELS (only active displayed) */
+/* PANELS */
 [data-panel]{display:none}
 [data-panel].panel-active{display:block}
 
-/* Drawer + Subsheet */
-#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);
-  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+/* Avatar Drawer */
+#avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
-#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;
-  background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
-.menu a, .menu button.link{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08);background:none;color:inherit;cursor:pointer;font:inherit}
-.menu a:last-child,.menu button.link:last-child{border-bottom:none}
+#avatarSheet .panel{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:320px; max-height:70vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px}
+.menu a{display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+.menu a:last-child{border-bottom:none}
 
-/* Sub-sheet */
-#subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);
-  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+/* Subsheet (iframe) */
+#subSheet{position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
-#subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));
-  height:min(78vh,calc(100% - (var(--nav-h) + 24px)));background:#0f1116;border:1px solid var(--stroke);
-  border-radius:14px;padding:12px;display:flex;flex-direction:column}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
-.sheet-head h2{margin:0;font-size:22px;font-weight:900}
-.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);
-  background:#121212;color:#fff;font-weight:900;cursor:pointer}
-#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10}
+#subSheet .inner{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:min(820px,calc(100% - 24px)); height:min(78vh,calc(100% - (var(--nav-h) + 24px))); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; display:flex; flex-direction:column}
+.sheet-head{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 4px 10px}
+.sheet-head h2{margin:0; font-size:22px; font-weight:900}
+.sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
+#subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10}
 
-/* ===== ADMIN FOOTER (red pill + full-screen slide-up) ===== */
-#adminDock{
-  position:fixed; left:50%; transform:translateX(-50%);
-  bottom: max(8px, env(safe-area-inset-bottom));
-  z-index:85;
-  padding:10px 16px; font-weight:900;
-  border-radius:999px; border:1px solid rgba(0,0,0,.2);
-  background:var(--red); color:#000; cursor:pointer;
-  box-shadow:0 8px 22px rgba(0,0,0,.55);
-  display:none;
-}
-#adminDock:active{ transform:translateX(-50%) translateY(1px); }
+/* ===== Config pencil ===== */
+.cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
+.config-on .cfg-pin{display:flex}
 
-#adminHidden{
-  position:fixed; left:0; right:0; bottom:0; top:0;
-  background:#0a0a0a; z-index:80; display:none;
-  transform:translateY(100%); transition:transform .24s ease;
-  border-top:3px solid var(--red);
-}
-#adminHidden.open{ display:block; transform:translateY(0) }
-#adminHidden .adminHeader{
-  position:sticky; top:0; display:flex; align-items:center; justify-content:space-between;
-  gap:10px; padding:12px; background:#111; border-bottom:1px solid var(--stroke);
-}
-#adminHidden .adminHeader h3{ margin:0; font-size:14px; font-weight:900; color:#ffdede }
-#adminHidden #adminClose{
-  width:34px; height:34px; border-radius:8px; border:1px solid var(--stroke);
-  background:#181818; color:#fff; font-weight:900; cursor:pointer;
-}
-#adminHidden .adminBody{ padding:10px 12px 20px; max-height:calc(100% - 60px); overflow:auto }
-#adminHidden .adminGroup{ margin:10px 0 18px }
-#adminHidden .adminGroup h4{ margin:0 0 8px; font-size:13px; opacity:.9 }
-#adminHidden .cards .hero{ margin:8px 0 }
-#adminHidden .list{ list-style:none; margin:6px 0 0; padding:0; }
-#adminHidden .list li{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:10px 12px; border:1px solid var(--stroke); border-radius:10px; background:#111; margin-bottom:6px;
-}
-#adminHidden .list .title{ font-weight:800 }
-#adminHidden .list .metaSmall{ font-size:12px; opacity:.85 }
-#adminHidden .list .open{ border:1px solid var(--stroke); background:#0b0b0b; color:#fff; border-radius:8px; padding:4px 8px; cursor:pointer }
-
-/* Config-mode pencil overlay */
-.editable{ position:relative }
-.editable[data-config="on"] .pencil{
-  position:absolute; top:-8px; left:-8px; width:20px; height:20px; border-radius:50%;
-  background:#000; border:1px solid var(--stroke); display:flex; align-items:center; justify-content:center; font-size:12px
-}
+/* ===== Admin footer (working drawer) ===== */
+#adminOpen{position:fixed; left:0; right:0; bottom:0; height:42px; display:none; align-items:center; justify-content:center; z-index:45}
+#adminOpen button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
+#adminDock{position:fixed; left:0; right:0; bottom:0; height:78vh; transform:translateY(100%); transition:transform .18s ease; z-index:80; background:#120c0c; border-top:2px solid var(--red); border-top-left-radius:14px; border-top-right-radius:14px; display:flex; flex-direction:column}
+#adminDock.open{transform:translateY(0)}
+#adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e}
+#adminDock .lists{flex:1 1 auto; overflow:auto; padding:10px 12px; display:grid; gap:16px; grid-template-columns:1fr}
+.admin-bin{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px}
+.admin-bin h3{margin:0 0 8px; font-size:15px}
+.bin-item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
+.bin-item .s{font-size:12px; opacity:.85}
+.chk{display:flex; align-items:center; gap:8px}
+.chk input{width:16px; height:16px}
 </style>
 </head>
 <body>
@@ -165,7 +126,7 @@ a{color:inherit;text-decoration:none}
 
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left" role="tablist" aria-label="Sections">
-    <button class="btn-tab is-active" data-tab="news" aria-selected="true">Feed</button>
+    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed</button>
     <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges</button>
     <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
@@ -173,31 +134,37 @@ a{color:inherit;text-decoration:none}
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
-      <span class="lvl" id="avatarLvl">Silver</span>
+      <span class="lvl" id="avatarLvl">Admin</span>
     </button>
   </div>
 </header>
 
 <main class="wrap">
   <!-- ===== FEED ===== -->
-  <section id="panel-news" class="panel-active" data-panel="news">
-    <article class="hero" data-hero-id="news-hero1">
-      <div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div>
-      <h2 class="title editable"><span class="t">Placeholder news-hero1</span> <span class="badge" hidden id="badge-news-hero1">New</span></h2>
-      <p class="meta editable"><span class="t">Coming Soon</span></p>
-      <p class="desc editable"><span class="t">Coming Soon</span></p>
-    </article>
-    <article class="hero" data-hero-id="news-hero2"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder news-hero2</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero" data-hero-id="news-hero3"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder news-hero3</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero" data-hero-id="news-hero4"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder news-hero4</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero" data-hero-id="news-hero5"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder news-hero5</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+  <section id="panel-feed" class="panel-active" data-panel="feed">
+    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-1">✎</button>
+      <h2 class="title" data-cfg-target="feed-title-1">Placeholder news-hero1</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-2">✎</button>
+      <h2 class="title" data-cfg-target="feed-title-2">Placeholder news-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-3">✎</button>
+      <h2 class="title" data-cfg-target="feed-title-3">Placeholder news-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-4">✎</button>
+      <h2 class="title" data-cfg-target="feed-title-4">Placeholder news-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-5">✎</button>
+      <h2 class="title" data-cfg-target="feed-title-5">Placeholder news-hero5</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
   </section>
 
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" data-panel="challenges">
-    <article class="hero tracker" id="trackerHero" data-hero-id="challenges-tracker">
-      <div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div>
-      <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
+    <!-- Tracker (daily only) -->
+    <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
+      <button class="cfg-pin" data-cfg="tracker-title">✎</button>
+      <h2 class="title" id="trackerTitle" data-cfg-target="tracker-title">Challenge Tracker</h2>
       <p class="meta">Daily 7d</p>
       <div class="cards">
         <div class="card">
@@ -207,9 +174,10 @@ a{color:inherit;text-decoration:none}
       </div>
     </article>
 
-    <article class="hero" id="dailyHero" data-hero-id="challenges-hero1" data-skin="bronze" aria-labelledby="dailyTitle">
-      <div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div>
-      <h2 class="title" id="dailyTitle">Daily Challenge</h2>
+    <!-- Daily Hero -->
+    <article class="hero" id="dailyHero" data-skin="bronze" aria-labelledby="dailyTitle">
+      <button class="cfg-pin" data-cfg="daily-title">✎</button>
+      <h2 class="title" id="dailyTitle" data-cfg-target="daily-title">Daily Challenge</h2>
       <p class="meta" id="dailyMeta">Begins today</p>
       <p class="desc">A focused prompt matched to your level. Finish it to earn your streak.</p>
       <div class="cta-left">
@@ -219,60 +187,75 @@ a{color:inherit;text-decoration:none}
       <div class="level" id="dailyLevel">Beginner</div>
     </article>
 
-    <article class="hero" data-hero-id="challenges-hero2"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder challenge-hero2</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero" data-hero-id="challenges-hero3"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder challenge-hero3</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero" data-hero-id="challenges-hero4"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder challenge-hero4</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero" data-hero-id="challenges-hero5"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder challenge-hero5</h2><p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <!-- Four more placeholder heroes (admin can hide/release later) -->
+    <article class="hero"><button class="cfg-pin" data-cfg="ch-2">✎</button>
+      <h2 class="title" data-cfg-target="ch-2">Placeholder challenge-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="ch-3">✎</button>
+      <h2 class="title" data-cfg-target="ch-3">Placeholder challenge-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="ch-4">✎</button>
+      <h2 class="title" data-cfg-target="ch-4">Placeholder challenge-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="ch-5">✎</button>
+      <h2 class="title" data-cfg-target="ch-5">Placeholder challenge-hero5</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
   </section>
 
   <!-- ===== COURSES ===== -->
   <section id="panel-courses" data-panel="courses">
-    <article class="hero" data-hero-id="courses-hero1"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder course-hero1</h2><p class="meta">Coming Soon</p><p class="desc">Structured content will appear here when linked.</p></article>
-    <article class="hero" data-hero-id="courses-hero2"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder course-hero2</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="courses-hero3"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder course-hero3</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="courses-hero4"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder course-hero4</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="courses-hero5"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder course-hero5</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="cr-1">✎</button>
+      <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="cr-2">✎</button>
+      <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="cr-3">✎</button>
+      <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="cr-4">✎</button>
+      <h2 class="title" data-cfg-target="cr-4">Placeholder course-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="cr-5">✎</button>
+      <h2 class="title" data-cfg-target="cr-5">Placeholder course-hero5</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
   </section>
 
   <!-- ===== LIVE ===== -->
   <section id="panel-live" data-panel="live">
-    <article class="hero" data-hero-id="live-hero1"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder live-hero1</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="live-hero2"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder live-hero2</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="live-hero3"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder live-hero3</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="live-hero4"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder live-hero4</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero" data-hero-id="live-hero5"><div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div><h2 class="title">Placeholder live-hero5</h2><p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="lv-1">✎</button>
+      <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="lv-2">✎</button>
+      <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="lv-3">✎</button>
+      <h2 class="title" data-cfg-target="lv-3">Placeholder live-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="lv-4">✎</button>
+      <h2 class="title" data-cfg-target="lv-4">Placeholder live-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+    <article class="hero"><button class="cfg-pin" data-cfg="lv-5">✎</button>
+      <h2 class="title" data-cfg-target="lv-5">Placeholder live-hero5</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
   </section>
 </main>
 
 <!-- ===== AVATAR DRAWER ===== -->
-<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true" style="pointer-events:none">
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
-      <a href="#" id="toggleConfig" style="display:none">Toggle Config Mode<span>›</span></a>
-
-      <!-- DEV fail-safe: revealed via Shift+Alt+D -->
-      <div id="roleTester" style="display:none; padding:10px 10px 6px">
-        <label class="sr-only" for="devRole">Role</label>
-        <select id="devRole" style="width:100%;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#111;color:#fff">
-          <option value="bronze">bronze</option>
-          <option value="silver" selected>silver</option>
-          <option value="gold">gold</option>
-          <option value="support">support</option>
-          <option value="director">director</option>
-          <option value="admin">admin</option>
-        </select>
-        <button class="link" id="applyDevRole" style="margin-top:6px">Apply Role (DEV)</button>
-      </div>
+      <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
     </nav>
   </div>
 </div>
 
 <!-- ===== SUB SHEET ===== -->
-<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true" style="pointer-events:none">
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="inner" role="document">
     <div class="sheet-head">
       <h2 id="sheetTitle">—</h2>
@@ -282,373 +265,283 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- ===== ADMIN FOOTER (full-screen) ===== -->
-<div id="adminHidden" aria-hidden="true" style="pointer-events:none">
-  <div class="adminHeader">
-    <h3>Admin • Hidden / Under Development / Release Windows</h3>
-    <button id="adminClose" aria-label="Close">×</button>
-  </div>
-  <div class="adminBody">
-    <section class="adminGroup" data-tab="news">
-      <h4>News</h4>
-      <div class="cards underDev" data-kind="underDevelopment"></div>
-      <ul class="list compact" data-kind="others"></ul>
-    </section>
-    <section class="adminGroup" data-tab="challenges">
-      <h4>Challenges</h4>
-      <div class="cards underDev" data-kind="underDevelopment"></div>
-      <ul class="list compact" data-kind="others"></ul>
-    </section>
-    <section class="adminGroup" data-tab="courses">
-      <h4>Courses</h4>
-      <div class="cards underDev" data-kind="underDevelopment"></div>
-      <ul class="list compact" data-kind="others"></ul>
-    </section>
-    <section class="adminGroup" data-tab="live">
-      <h4>Live</h4>
-      <div class="cards underDev" data-kind="underDevelopment"></div>
-      <ul class="list compact" data-kind="others"></ul>
-    </section>
+<!-- ===== ADMIN FOOTER ===== -->
+<div id="adminOpen"><button type="button" id="openDockBtn">Working Drawer</button></div>
+<div id="adminDock" aria-hidden="true">
+  <header>
+    <div>Admin: Hidden / Under Development / Set to Expire</div>
+    <button class="sheet-close" id="dockClose" aria-label="Close">×</button>
+  </header>
+  <div class="lists" id="dockLists">
+    <!-- bins are injected per-tab -->
   </div>
 </div>
 
-<!-- Admin red pill -->
-<button id="adminDock" aria-label="Open Admin">Admin</button>
-
 <script>
 (()=>{'use strict';
-/* ===== utils & storage ===== */
+/* =========================
+   Utilities & Storage
+========================= */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+
 const K={ profile:'ao_profile', settings:'ao_settings', dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta' };
-const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* ===== Role helpers ===== */
-function role(){const p=store.get(K.profile,{skill:'silver'});return(p.skill||'silver').toLowerCase();}
-const isAdmin = ()=> role()==='admin';
+/* =========================
+   Roles & Partitions
+========================= */
+const ROLE_PERMS={
+  bronze:{ canSeeAdmin:false, canConfig:false, canHideHeroes:false, canManageTabs:false },
+  silver:{ canSeeAdmin:false, canConfig:false, canHideHeroes:false, canManageTabs:false },
+  gold:{   canSeeAdmin:false, canConfig:false, canHideHeroes:false, canManageTabs:false },
+  support:{canSeeAdmin:true,  canConfig:false, canHideHeroes:false, canManageTabs:false },
+  director:{canSeeAdmin:true, canConfig:false, canHideHeroes:true,  canManageTabs:false },
+  admin:{  canSeeAdmin:true, canConfig:true,  canHideHeroes:true,  canManageTabs:true }
+};
+const ROLE_SKINS={
+  bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
+  silver:{pill:'var(--silver)', text:'#0b0c10', daily:'silver'},
+  gold:{pill:'var(--gold)', text:'#0b0c10', daily:'gold'},
+  support:{pill:'#6a4cff', text:'#fff', daily:'black'},
+  director:{pill:'#444', text:'#fff', daily:'black'},
+  admin:{pill:'var(--blue)', text:'#0b0c10', daily:'black'}
+};
+// TEMP: force admin while building; later load from profile storage
+function currentRole(){ return 'admin'; }
 
-/* ===== default settings scaffold ===== */
-let settings = store.get(K.settings,null);
-if(!settings){
-  settings = {
-    admin:{configMode:false},
-    hideNews:false, hideChallenges:false, hideCourses:false, hideLive:false,
-    heroes:{
-      'news-hero1':{state:'active'},'news-hero2':{state:'active'},'news-hero3':{state:'active'},'news-hero4':{state:'active'},'news-hero5':{state:'active'},
-      'challenges-tracker':{state:'active'},
-      'challenges-hero1':{state:'active'},'challenges-hero2':{state:'active'},'challenges-hero3':{state:'active'},'challenges-hero4':{state:'active'},'challenges-hero5':{state:'active'},
-      'courses-hero1':{state:'active'},'courses-hero2':{state:'active'},'courses-hero3':{state:'active'},'courses-hero4':{state:'active'},'courses-hero5':{state:'active'},
-      'live-hero1':{state:'active'},'live-hero2':{state:'active'},'live-hero3':{state:'active'},'live-hero4':{state:'active'},'live-hero5':{state:'active'}
-    },
-    textOverrides:{heroes:{}}
-  };
-  store.set(K.settings,settings);
-}
-
-/* ===== Tabs ===== */
-const tabBtns=$$('.btn-tab[data-tab]');
-const panels=$$('[data-panel]');
-function showTab(name){
-  tabBtns.forEach(b=>{
-    const on=b.dataset.tab===name;
-    b.classList.toggle('is-active',on);
-    b.setAttribute('aria-selected',on?'true':'false');
-  });
-  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-window.showTab = showTab;
-tabBtns.forEach(b=>b?.addEventListener('click',()=>showTab(b.dataset.tab)));
-showTab('news');
-
-/* ===== Avatar drawer ===== */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){
-  if(!avatarSheet) return;
-  avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false');
-  avatarSheet.style.pointerEvents='auto';
-  avatarBtn?.setAttribute('aria-expanded','true');
-}
-function closeDrawer(){
-  if(!avatarSheet) return;
-  avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true');
-  avatarSheet.style.pointerEvents='none';
-  avatarBtn?.setAttribute('aria-expanded','false');
-}
-avatarBtn?.addEventListener('click', openDrawer);
-avatarSheet?.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
-
-/* ===== Subsheet ===== */
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
-function openSubSheet(title,url){
-  if(!subSheet||!subFrame||!sheetTitle) return;
-  sheetTitle.textContent=title||'—';
-  subFrame.src=(url||'about:blank')+((url||'').includes('?')?'&':'?')+'v='+Date.now();
-  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
-  subSheet.style.pointerEvents='auto';
-}
-function closeSubSheet(){
-  if(!subSheet||!subFrame) return;
-  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
-  subSheet.style.pointerEvents='none';
-  subFrame.src='about:blank';
-  applyProfile(); applyVis(); renderAdminFooter(); paintConfigMode(); // refresh after edits
-}
-$('#sheetClose')?.addEventListener('click', closeSubSheet);
-subSheet?.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
-
-/* Delegated: avatarSheet menu open as subsheet */
-document.addEventListener('click', (e)=>{
-  const a=e.target.closest('#avatarSheet [data-pop]');
-  if(!a) return;
-  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return; // allow modifiers
-  e.preventDefault();
-  closeDrawer();
-  openSubSheet(a.dataset.pop, a.getAttribute('href'));
-});
-
-/* ===== Avatar paint ===== */
+/* =========================
+   Avatar & Level Paint
+========================= */
 function applyProfile(){
-  const p=store.get(K.profile,{displayName:'User',skill:'silver'});
-  $('#avatarName')?.textContent = p.displayName||'User';
-  const lvl=(p.skill||'silver').toLowerCase(); $('#avatarLvl')?.textContent=cap(lvl);
-  const ring={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'}[lvl]||'#c0c7d1';
-  const pill=$('#avatarTab'); if(pill){ pill.style.background='#222'; pill.style.borderColor='rgba(255,255,255,.18)'; pill.style.boxShadow=`0 0 0 2px ${ring} inset`; }
-  // Daily skin/title text based on role → level mapping
-  const dailyMap={bronze:'bronze',silver:'silver',gold:'gold',support:'black',director:'black',admin:'black'};
-  $('#dailyHero')?.setAttribute('data-skin', dailyMap[lvl]||'silver');
-  const txt={bronze:'Beginner',silver:'Intermediate',gold:'Advanced',support:'Advanced',director:'Advanced',admin:'Advanced'}[lvl]||'Intermediate';
-  $('#dailyLevel')?.textContent = txt;
+  const p=store.get(K.profile,{displayName:'User',skill:currentRole()});
+  const role=(p.skill||currentRole()).toLowerCase();
+  const skin=ROLE_SKINS[role]||ROLE_SKINS.silver;
 
-  // Admin toggles visibility
-  const cfgLink=$('#toggleConfig');
-  if(cfgLink) cfgLink.style.display = (lvl==='admin') ? 'flex' : 'none';
+  $('#avatarName').textContent=p.displayName||'User';
+  $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
 
-  // Admin dock visibility
-  const dock=$('#adminDock');
-  if(dock) dock.style.display = (lvl==='admin') ? 'inline-flex' : 'none';
+  const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
+
+  // Daily hero gloss by role
+  $('#dailyHero').setAttribute('data-skin', skin.daily);
+  $('#dailyLevel').textContent = (role==='bronze'?'Beginner':role==='silver'?'Intermediate':role==='gold'?'Advanced':'Advanced');
+
+  // Admin footer visibility
+  const perms=ROLE_PERMS[role]||ROLE_PERMS.silver;
+  $('#adminOpen').style.display = perms.canSeeAdmin ? 'flex' : 'none';
 }
 applyProfile();
 
-/* ===== Config mode (admin only) ===== */
-const cfgLink=$('#toggleConfig');
-if(cfgLink){
-  cfgLink.addEventListener('click',(e)=>{
-    e.preventDefault();
-    settings.admin=settings.admin||{};
-    settings.admin.configMode=!settings.admin.configMode;
-    store.set(K.settings,settings);
-    paintConfigMode();
+/* =========================
+   Tabs
+========================= */
+const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
+function showTab(name){
+  tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
+  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+showTab('feed');
+
+/* =========================
+   Drawer & Subsheet
+========================= */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+avatarBtn.addEventListener('click', openDrawer);
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
+
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function openSubSheet(title,url){
+  sheetTitle.textContent=title;
+  subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
+}
+function closeSubSheet(){
+  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
+  subFrame.src='about:blank';
+  // re-apply in case profile/settings changed
+  applyProfile(); applySettings(); applyHeroVisibility();
+}
+$('#sheetClose').addEventListener('click', closeSubSheet);
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
+$$('#avatarSheet [data-pop]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
-}
-function paintConfigMode(){
-  const on=!!(settings.admin&&settings.admin.configMode) && isAdmin();
-  $$('.hero').forEach(h=>{
-    const strip=h.querySelector('.adminControls'); if(strip){ strip.style.display= on ? 'flex' : 'none'; }
-    h.querySelectorAll('.editable').forEach(p=>{
-      const span=p.querySelector('.t')||p;
-      p.dataset.config = on ? 'on' : 'off';
-      if(on){ if(!p.querySelector('.pencil')){ const i=document.createElement('div'); i.className='pencil'; i.textContent='✎'; p.prepend(i); } span.setAttribute('contenteditable','true'); }
-      else{ p.querySelector('.pencil')?.remove(); span.removeAttribute('contenteditable'); }
-      span.onblur=()=>{ const id=p.closest('.hero')?.dataset.heroId; if(!id) return;
-        settings.textOverrides=settings.textOverrides||{heroes:{}}; settings.textOverrides.heroes=settings.textOverrides.heroes||{};
-        const key=p.classList.contains('title')?'title':p.classList.contains('meta')?'meta':'desc';
-        settings.textOverrides.heroes[id]=settings.textOverrides.heroes[id]||{}; settings.textOverrides.heroes[id][key]=span.textContent.trim();
-        store.set(K.settings,settings);
-      };
-    });
-  });
-}
-paintConfigMode();
-
-/* ===== Tabs visibility ===== */
-function applyTabHides(){
-  const hide=(tab,flag)=>{ const btn=document.querySelector(`.btn-tab[data-tab="${tab}"]`); const pnl=document.querySelector(`[data-panel="${tab}"]`); if(btn) btn.style.display = flag?'none':'inline-flex'; if(pnl) pnl.style.display = flag?'none':''; };
-  if(!settings) return;
-  hide('news', !!settings.hideNews);
-  hide('challenges', !!settings.hideChallenges);
-  hide('courses', !!settings.hideCourses);
-  hide('live', !!settings.hideLive);
-  const active=document.querySelector('.btn-tab.is-active'); if(!active || active.style.display==='none'){ const first=Array.from(document.querySelectorAll('.btn-tab')).find(b=>b.style.display!=='none'); if(first) showTab(first.dataset.tab); }
-}
-
-/* ===== Hero visibility & text overrides ===== */
-function withinWindow(cfg){
-  if(!cfg) return true; const now=Date.now();
-  const rel=cfg.releaseDate?Date.parse(cfg.releaseDate):null; const exp=cfg.expiryDate?Date.parse(cfg.expiryDate):null;
-  if(rel && now<rel) return false; if(exp && now>exp) return false; return true;
-}
-function heroVisibleForRole(cfg){
-  const st=(cfg?.state)||'active'; if(st==='active') return true;
-  if(!withinWindow(cfg)) return false; return false; // non-active: admin footer only
-}
-function applyTextOverrides(){
-  const map=settings?.textOverrides?.heroes||{}; Object.entries(map).forEach(([id,t])=>{
-    const host=document.querySelector(`.hero[data-hero-id="${id}"]`); if(!host) return;
-    if(t.title){ const el=host.querySelector('.title .t')||host.querySelector('.title'); if(el) el.textContent=t.title; }
-    if(t.meta){  const el=host.querySelector('.meta .t')||host.querySelector('.meta'); if(el) el.textContent=t.meta; }
-    if(t.desc){  const el=host.querySelector('.desc .t')||host.querySelector('.desc'); if(el) el.textContent=t.desc; }
-  });
-}
-function applyVis(){
-  applyTabHides();
-  applyTextOverrides();
-  $$('.hero').forEach(h=>{
-    const id=h.dataset.heroId; if(!id) return;
-    const cfg=(settings&&settings.heroes&&settings.heroes[id])||{state:'active'};
-    const show=heroVisibleForRole(cfg);
-    h.style.display = show ? '' : 'none';
-    const badge=h.querySelector(`#badge-${id}`) || h.querySelector('.badge'); if(badge) badge.hidden = cfg.state!=='newRelease';
-    const sel=h.querySelector('.adminControls select[data-bind="state"]');
-    if(sel){ sel.value=cfg.state||'active'; sel.onchange=()=>{ cfg.state=sel.value; settings.heroes[id]=cfg; store.set(K.settings,settings); applyVis(); renderAdminFooter(); }; }
-  });
-}
-applyVis();
-
-/* ===== Admin footer (Working Drawer) ===== */
-const adminPane = $('#adminHidden');
-const dock = $('#adminDock');
-
-function toggleAdminFooter(open){
-  if(!adminPane) return;
-  if(!isAdmin()){ adminPane.classList.remove('open'); adminPane.style.pointerEvents='none'; return; }
-  if(open){ adminPane.classList.add('open'); adminPane.style.pointerEvents='auto'; }
-  else{ adminPane.classList.remove('open'); adminPane.style.pointerEvents='none'; }
-}
-$('#adminClose')?.addEventListener('click', ()=>toggleAdminFooter(false));
-dock?.addEventListener('click', ()=>toggleAdminFooter(true));
-
-function liRow(id,cfg){
-  const li=document.createElement('li');
-  const left=document.createElement('div');
-  const tx=settings?.textOverrides?.heroes?.[id]||{};
-  const title=tx.title||cfg.title||id;
-  left.innerHTML=`<div class="title">${title}</div><div class="metaSmall">${cfg.state}${cfg.releaseDate?` • rel ${new Date(cfg.releaseDate).toLocaleDateString()}`:''}${cfg.expiryDate?` • exp ${new Date(cfg.expiryDate).toLocaleDateString()}`:''}</div>`;
-  const btn=document.createElement('button'); btn.className='open'; btn.textContent='Open';
-  btn.addEventListener('click',()=>openSubSheet('Hero', `heroes/${id}.html`));
-  li.appendChild(left); li.appendChild(btn); return li;
-}
-function renderAdminFooter(){
-  // show/hide red pill
-  if(dock) dock.style.display = isAdmin() ? 'inline-flex' : 'none';
-  if(!isAdmin()) return;
-
-  const groups={
-    news: document.querySelector('#adminHidden .adminGroup[data-tab="news"]'),
-    challenges: document.querySelector('#adminHidden .adminGroup[data-tab="challenges"]'),
-    courses: document.querySelector('#adminHidden .adminGroup[data-tab="courses"]'),
-    live: document.querySelector('#adminHidden .adminGroup[data-tab="live"]')
-  };
-  Object.values(groups).forEach(g=>{ if(!g) return; g.querySelector('[data-kind="underDevelopment"]').innerHTML=''; g.querySelector('[data-kind="others"]').innerHTML=''; });
-  const all=settings?.heroes||{};
-  Object.entries(all).forEach(([id,cfg])=>{
-    const tab=id.split('-')[0]; const g=groups[tab]; if(!g) return;
-    if(cfg.state==='underDevelopment'){
-      const source=document.querySelector(`.hero[data-hero-id="${id}"]`);
-      const wrap=g.querySelector('[data-kind="underDevelopment"]');
-      if(wrap){ const card=source?source.cloneNode(true):null; if(card){ card.querySelectorAll('.adminControls,.pencil').forEach(n=>n?.remove()); wrap.appendChild(card); } else { const mini=document.createElement('article'); mini.className='hero'; mini.innerHTML=`<h2 class="title">${id}</h2><p class="meta">Under development</p><p class="desc">—</p>`; wrap.appendChild(mini); } }
-    }else if(['hidden','newRelease','setToExpire'].includes(cfg.state)){
-      const list=g.querySelector('[data-kind="others"]'); if(list) list.appendChild(liRow(id,cfg));
-    }
-  });
-}
-renderAdminFooter();
-
-/* ===== Daily medals placeholder ===== */
-(function paintEmpty(){
-  const dm=$('#dailyMedals'); if(!dm) return; dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
-})();
-
-/* ===== Tracker hero click -> iframe ===== */
-$('#trackerHero')?.addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
-
-/* React to profile/settings changes from other pages */
-window.addEventListener('storage',e=>{
-  if(e.key===K.profile){ applyProfile(); renderAdminFooter(); paintConfigMode(); }
-  if(e.key===K.settings){ settings=store.get(K.settings,settings); applyVis(); paintConfigMode(); renderAdminFooter(); }
 });
 
-/* ===== DEV: show Role Tester with Shift+Alt+D ===== */
-let devReveal=false;
-document.addEventListener('keydown',(e)=>{
-  if(e.key.toLowerCase()==='d' && e.altKey && e.shiftKey){
-    devReveal=!devReveal;
-    const rt=$('#roleTester'); if(rt){ rt.style.display = devReveal ? 'block' : 'none'; if(devReveal) openDrawer(); }
-    const sel=$('#devRole'); if(sel){ sel.value = role(); }
-  }
-});
-$('#applyDevRole')?.addEventListener('click', ()=>{
-  const sel=$('#devRole'); if(!sel) return;
-  const p = store.get(K.profile,{});
-  p.skill = sel.value;
-  store.set(K.profile,p);
-  applyProfile(); applyVis(); renderAdminFooter(); paintConfigMode();
+/* Config Mode toggle (adds .config-on to <body>) */
+$('#cfgToggle').addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.body.classList.toggle('config-on');
   closeDrawer();
 });
+
+/* =========================
+   Settings + Hero Visibility
+========================= */
+function defaultSettings(){
+  return {
+    tabs:{ feed:true, challenges:true, courses:true, live:true },
+    heroes:{
+      feed:{hidden:false, dev:[], hiddenList:[], expireList:[]},
+      challenges:{hidden:false, dev:[], hiddenList:[], expireList:[]},
+      courses:{hidden:false, dev:[], hiddenList:[], expireList:[]},
+      live:{hidden:false, dev:[], hiddenList:[], expireList:[]}
+    },
+    heroFlags:{} // per-hero id → {status:'active'|'hidden'|'dev'|'expire', releaseDate?, expiryDate?}
+  };
+}
+function getSettings(){
+  const cur=store.get(K.settings,null);
+  if(!cur){ const def=defaultSettings(); store.set(K.settings,def); return def; }
+  const def=defaultSettings();
+  // shallow merge
+  return { ...def, ...cur, tabs:{...def.tabs, ...(cur.tabs||{})}, heroes:{...def.heroes, ...(cur.heroes||{})}, heroFlags:{...(cur.heroFlags||{})} };
+}
+function applySettings(){
+  const s=getSettings();
+  const setHidden=(name,hide)=>{
+    const btn=document.querySelector(`.btn-tab[data-tab="${name}"]`);
+    const pnl=document.querySelector(`[data-panel="${name}"]`);
+    if(btn) btn.style.display = hide?'none':'inline-flex';
+    if(pnl) pnl.style.display = hide?'none':'';
+  };
+  setHidden('feed', !s.tabs.feed);
+  setHidden('challenges', !s.tabs.challenges);
+  setHidden('courses', !s.tabs.courses);
+  setHidden('live', !s.tabs.live);
+
+  // ensure active tab is visible
+  const active=document.querySelector('.btn-tab.is-active');
+  if(!active || active.style.display==='none'){
+    const first=Array.from(document.querySelectorAll('.btn-tab')).find(b=>b.style.display!=='none');
+    if(first) showTab(first.dataset.tab);
+  }
+}
+applySettings();
+
+function applyHeroVisibility(){
+  const flags=getSettings().heroFlags||{};
+  // iterate all heroes and hide based on status
+  $$('section [data-hero-id]').forEach(el=>{
+    const id=el.getAttribute('data-hero-id');
+    const st=(flags[id]||{}).status||'active';
+    el.style.display = (st==='active') ? '' : 'none';
+  });
+  paintAdminBins();
+}
+
+/* Give IDs to each hero for flags */
+(function tagHeroes(){
+  let n=0;
+  $$('section .hero').forEach(el=>{
+    if(!el.id || !el.dataset.heroId){
+      el.dataset.heroId = (el.closest('[data-panel]')?.dataset.panel||'home') + '-hero' + (++n);
+    }
+  });
 })();
-</script>
 
-<!-- ===== HOT-FIX: delegated clicks (tabs + avatar) ===== -->
-<script>
-(function(){
-  // Tabs (delegated)
-  document.addEventListener('click',(e)=>{
-    const t=e.target.closest('.btn-tab[data-tab]'); if(!t) return;
-    e.preventDefault();
-    (window.showTab||function(name){
-      document.querySelectorAll('.btn-tab[data-tab]').forEach(b=>{
-        const on=b.dataset.tab===name;
-        b.classList.toggle('is-active', on);
-        b.setAttribute('aria-selected', on?'true':'false');
+/* =========================
+   Admin Dock (footer)
+========================= */
+const openDockBtn=$('#openDockBtn'), adminDock=$('#adminDock'), dockClose=$('#dockClose');
+openDockBtn.addEventListener('click', ()=> adminDock.classList.add('open'));
+dockClose.addEventListener('click', ()=> adminDock.classList.remove('open'));
+function paintAdminBins(){
+  const role=currentRole(); const perms=ROLE_PERMS[role]||ROLE_PERMS.silver;
+  if(!perms.canSeeAdmin) return;
+
+  const flags=getSettings().heroFlags||{};
+  const binsByTab = { feed:[], challenges:[], courses:[], live:[] };
+
+  $$('section .hero').forEach(el=>{
+    const id=el.dataset.heroId;
+    const st=(flags[id]?.status)||'active';
+    if(st==='active') return;
+    const tab=el.closest('[data-panel]').dataset.panel;
+    binsByTab[tab].push({id, title:el.querySelector('.title')?.textContent?.trim()||id, status:st});
+  });
+
+  const lists=$('#dockLists'); lists.innerHTML='';
+  Object.entries(binsByTab).forEach(([tab,items])=>{
+    const bin=document.createElement('div'); bin.className='admin-bin';
+    bin.innerHTML=`<h3>${tab.toUpperCase()}</h3>`;
+    if(!items.length){ bin.innerHTML+=`<div class="s">No items</div>`; }
+    items.forEach(it=>{
+      const row=document.createElement('div'); row.className='bin-item';
+      row.innerHTML=`<div><div>${it.title}</div><div class="s">${it.id} • ${it.status}</div></div>
+        <div class="chk">
+          <label class="s"><input type="radio" name="st-${it.id}" value="active"> Active</label>
+          <label class="s"><input type="radio" name="st-${it.id}" value="hidden"> Hidden</label>
+          <label class="s"><input type="radio" name="st-${it.id}" value="dev"> Dev</label>
+          <label class="s"><input type="radio" name="st-${it.id}" value="expire"> Expire</label>
+        </div>`;
+      // preset
+      row.querySelectorAll(`input[name="st-${it.id}"]`).forEach(r=>{
+        r.checked=(r.value===it.status);
+        r.addEventListener('change', ()=>{
+          const s=getSettings();
+          s.heroFlags[it.id]={...(s.heroFlags[it.id]||{}), status:r.value};
+          store.set(K.settings,s);
+          applyHeroVisibility();
+        });
       });
-      document.querySelectorAll('[data-panel]').forEach(p=>{
-        p.classList.toggle('panel-active', p.dataset.panel===name);
-      });
-      window.scrollTo({top:0,behavior:'smooth'});
-    })(t.dataset.tab);
+      bin.appendChild(row);
+    });
+    lists.appendChild(bin);
   });
+}
 
-  // Avatar open/close (delegated)
-  document.addEventListener('click',(e)=>{
-    const btn=e.target.closest('#avatarTab');
-    if(btn){
-      e.preventDefault();
-      const sheet=document.getElementById('avatarSheet'); if(!sheet) return;
-      const willOpen=!sheet.classList.contains('open');
-      sheet.classList.toggle('open', willOpen);
-      sheet.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
-      sheet.style.pointerEvents = willOpen ? 'auto' : 'none';
-      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    }
-    const sheet=document.getElementById('avatarSheet');
-    if(sheet && e.target===sheet){
-      sheet.classList.remove('open');
-      sheet.setAttribute('aria-hidden','true');
-      sheet.style.pointerEvents='none';
-      const b=document.getElementById('avatarTab'); if(b) b.setAttribute('aria-expanded','false');
-    }
-  });
+/* show red footer if admin/support/director allowed to see admin */
+(function initFooter(){
+  const role=currentRole(); const perms=ROLE_PERMS[role]||ROLE_PERMS.silver;
+  $('#adminOpen').style.display = perms.canSeeAdmin ? 'flex' : 'none';
+  paintAdminBins();
+})();
 
-  // Avatar menu -> subsheet (delegated)
-  document.addEventListener('click',(e)=>{
-    const a=e.target.closest('#avatarSheet [data-pop]');
-    if(!a) return;
-    if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return;
-    e.preventDefault();
-    const title=a.dataset.pop, url=a.getAttribute('href');
-    const sheet=document.getElementById('avatarSheet');
-    if(sheet){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); sheet.style.pointerEvents='none'; }
-    const sub=document.getElementById('subSheet'); const frame=document.getElementById('subFrame'); const titleEl=document.getElementById('sheetTitle');
-    if(sub && frame && titleEl){
-      titleEl.textContent=title||'—';
-      frame.src=(url||'about:blank')+((url||'').includes('?')?'&':'?')+'v='+Date.now();
-      sub.classList.add('open'); sub.setAttribute('aria-hidden','false'); sub.style.pointerEvents='auto';
-    }
-  });
+/* =========================
+   Daily tracker stub
+========================= */
+(function paintEmpty(){
+  const dm=$('#dailyMedals'); if(!dm) return;
+  dm.innerHTML='';
+  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+})();
 
-  console.log('[FAOA] hot-fix wiring active');
+/* Pretty daily meta */
+(function bootDailyMeta(){
+  const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  $('#dailyMeta').textContent = `Begins ${dayNames[today.getDay()]}`;
+})();
+
+/* Tracker hero click -> iframe */
+$('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
+
+/* Storage sync from other pages */
+window.addEventListener('storage',e=>{
+  if(e.key===K.profile){ applyProfile(); }
+  if(e.key===K.settings){ applySettings(); applyHeroVisibility(); }
+});
+
+/* Initial hero visibility pass */
+applyHeroVisibility();
+
+/* In-place config title editing (pencil) */
+document.body.addEventListener('click', (e)=>{
+  const pin=e.target.closest('.cfg-pin'); if(!pin) return;
+  const id=pin.dataset.cfg; const tgt=document.querySelector(`[data-cfg-target="${id}"]`);
+  if(!tgt) return;
+  const cur=tgt.textContent.trim();
+  const next=prompt('Edit title', cur);
+  if(next!=null){ tgt.textContent=next; }
+});
+
 })();
 </script>
 </body>
