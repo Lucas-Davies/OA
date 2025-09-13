@@ -28,6 +28,13 @@ a{color:inherit;text-decoration:none}
 .nav-left{display:flex;gap:8px;align-items:center}
 .title-tab{font-weight:900;opacity:.92}
 
+/* Config toolbar (appears under nav in config mode) */
+.cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
+  display:none;align-items:center;gap:8px;padding:10px 14px}
+.config-on .cfgbar{display:flex}
+.cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
+.cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
+
 /* Avatar pill */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
   font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
@@ -46,31 +53,42 @@ a{color:inherit;text-decoration:none}
 
 /* Hero card — 2x taller */
 .hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
-.hero .num{font-weight:900;font-size:18px;opacity:.9}
+.hero .label{font-weight:900;font-size:18px;opacity:.95}
 .hero .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
 /* Admin chips (top-right of hero) */
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5;pointer-events:auto}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
 /* Move popover */
 .move{position:relative}
-.menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:20;min-width:220px}
+.menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:2000;min-width:220px}
 .menu.open{display:block}
 .menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
 
 /* Audience popover (Admin/Director only) */
 .aud{position:relative}
-.aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:20;min-width:220px}
+.aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:2000;min-width:220px}
 .aud-menu.open{display:block}
 .aud-menu label{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
 .aud-menu .row{display:flex;gap:8px;margin-top:8px}
+
+/* Section headings (config items) */
+.divider{border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px;min-height:58px;display:flex;align-items:center;justify-content:space-between}
+.divider .htext{font-weight:900;opacity:.92}
+.divider .dctrls{display:none;gap:8px}
+.config-on .divider .dctrls{display:flex}
+
+/* Config pin (rename hero) */
+.cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
+  font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
+.config-on .cfg-pin{display:flex}
 
 /* Avatar Drawer */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -100,20 +118,13 @@ a{color:inherit;text-decoration:none}
 #archiveDock .row .chip{height:26px}
 #archiveDock.collapsed{max-height:48px}
 #archiveDock.open{max-height:60vh}
-
-/* Config pin (placeholder for future inline editing) */
-.cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
-  font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center}
-.config-on .cfg-pin{display:flex}
 </style>
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav" role="navigation" aria-label="Primary">
-  <div class="nav-left">
-    <span class="title-tab">Courses</span>
-  </div>
+  <div class="nav-left"><span class="title-tab">Courses</span></div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
@@ -122,10 +133,14 @@ a{color:inherit;text-decoration:none}
   </div>
 </header>
 
+<!-- Config toolbar -->
+<div id="cfgbar" class="cfgbar" aria-hidden="true">
+  <button class="cfgbtn blue" id="addHeadingBtn">Add Heading</button>
+  <button class="cfgbtn" id="exitCfgBtn">Exit Config</button>
+</div>
+
 <main class="wrap">
-  <section class="grid" id="pageGrid">
-    <!-- page heroes get rendered here -->
-  </section>
+  <section class="grid" id="pageGrid"></section>
 </main>
 
 <!-- Avatar Drawer -->
@@ -213,7 +228,12 @@ subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet();
 $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
 }));
-$('#cfgToggle').addEventListener('click', e=>{ e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer(); });
+$('#cfgToggle').addEventListener('click', e=>{
+  e.preventDefault();
+  document.body.classList.toggle('config-on');
+  const on=document.body.classList.contains('config-on');
+  $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
+});
 
 /* ===== settings & flags =====
    heroFlags[id] = {
@@ -221,46 +241,45 @@ $('#cfgToggle').addEventListener('click', e=>{ e.preventDefault(); document.body
      place:'page'|'archive',
      aud:{bronze:boolean,silver:boolean,gold:boolean}
    }
+   heroLabels[id] = 'Custom label'
+   pageOrder = ['co-1', {type:'divider', title:'Heading'}, 'co-2', ...]
 */
 function defaults(){
   const heroFlags={};
-  // 10 on page
   for(let i=1;i<=10;i++)
     heroFlags[`co-${i}`]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
-  // 40 archived
   for(let i=11;i<=50;i++)
     heroFlags[`co-${i}`]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
-  return { heroFlags, _seeded:true };
+  const pageOrder=[]; for(let i=1;i<=10;i++) pageOrder.push(`co-${i}`);
+  return { heroFlags, heroLabels:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
-  if(!cfg || typeof cfg!=='object' || !cfg.heroFlags) return defaults();
-  Object.keys(cfg.heroFlags).forEach(id=>{
-    const f=cfg.heroFlags[id]||{};
-    if(!f.aud) f.aud={bronze:true,silver:true,gold:true};
-    if(!f.state) f.state='off';
-    if(!f.place) f.place='archive';
-    cfg.heroFlags[id]=f;
-  });
+  if(!cfg || typeof cfg!=='object') return defaults();
+  cfg.heroFlags=cfg.heroFlags||{};
+  cfg.heroLabels=cfg.heroLabels||{};
+  cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
+  // Backfill missing flags
+  for(let i=1;i<=50;i++){
+    const id=`co-${i}`;
+    if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
+    if(!cfg.pageOrder.includes(id) && cfg.heroFlags[id].place==='page') cfg.pageOrder.push(id);
+  }
   return cfg;
 }
-function getSettings(){
-  let cur=store.get(K.settings,null);
-  if(!cur){ cur=defaults(); store.set(K.settings,cur); }
-  return sanitize(cur);
-}
+function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
 function saveSettings(s){ store.set(K.settings,sanitize(s)); }
 
-/* Helpers */
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-/* Build a hero card for the page */
+/* Build hero card */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
-  const n=numberFromId(id);
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
-    <span class="num">#${n}</span>
+    <button class="cfg-pin" title="Rename" data-cfg-rename="${id}">✎</button>
+    <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
       <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
       <div class="move">
@@ -291,21 +310,34 @@ function heroCard(id){
   return el;
 }
 
-/* Paint page grid respecting visibility rules */
+/* Build divider */
+function dividerEl(title){
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider';
+  el.innerHTML=`<span class="htext">${title||'Heading'}</span>
+    <div class="dctrls">
+      <button class="cfgbtn" data-div-act="rename">Rename</button>
+      <button class="cfgbtn" data-div-act="remove">Remove</button>
+    </div>`;
+  return el;
+}
+
+/* Paint page using pageOrder + visibility rules */
 function paintPage(){
   const grid=$('#pageGrid'); grid.innerHTML='';
-  const s=getSettings();
-  const role=getRole();
-  for(let i=1;i<=50;i++){
-    const id=`co-${i}`; const f=s.heroFlags[id]; if(!f) continue;
-    if(f.place!=='page') continue;
-    if(!seesAll()){
-      if(f.state!=='live') continue;
-      if(!f.aud[role]) continue;
+  const s=getSettings(); const role=getRole();
+  s.pageOrder.forEach(item=>{
+    if(typeof item==='string'){ // hero id
+      const id=item; const f=s.heroFlags[id]; if(!f) return;
+      if(f.place!=='page') return;
+      if(!seesAll()){
+        if(f.state!=='live') return;
+        if(!f.aud[role]) return;
+      }
+      const card=heroCard(id); if(card) grid.appendChild(card);
+    }else if(item && item.type==='divider'){
+      const d=dividerEl(item.title||'Heading'); grid.appendChild(d);
     }
-    const card=heroCard(id);
-    if(card) grid.appendChild(card);
-  }
+  });
 }
 
 /* ===== Archive footer ===== */
@@ -329,7 +361,7 @@ function paintArchive(){
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML=`<span class="num">#${numberFromId(id)}</span>
+    row.innerHTML=`<span class="num">${labelFor(id)}</span>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
         <div class="move">
@@ -341,7 +373,6 @@ function paintArchive(){
   });
 }
 paintArchive();
-
 $('#archiveToggle').addEventListener('click',()=>{
   const isOpen=dock.classList.contains('open');
   dock.classList.toggle('open', !isOpen);
@@ -349,14 +380,23 @@ $('#archiveToggle').addEventListener('click',()=>{
   $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
 });
 
+/* ===== Config toolbar actions ===== */
+$('#addHeadingBtn').addEventListener('click',()=>{
+  const title=prompt('Heading title','Section');
+  if(title==null) return;
+  const s=getSettings(); s.pageOrder.push({type:'divider',title:title.trim()||'Section'});
+  saveSettings(s); paintPage();
+});
+$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); });
+
 /* ===== Global click handlers ===== */
 document.addEventListener('click',(e)=>{
-  /* Start (opens linked html; placeholder 401) */
+  /* Start (placeholder link) */
   const enter=e.target.closest('[data-act="enter"]');
   if(enter){
     const host=e.target.closest('[data-hero-id]');
     const id=host?.dataset?.heroId||'';
-    openSubSheet(`Course #${numberFromId(id)}`, null);
+    openSubSheet(`Course ${labelFor(id)}`, null);
     return;
   }
 
@@ -395,7 +435,7 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Audience popover open */
+  /* Audience open/close */
   const audBtn=e.target.closest('[data-act="aud"]');
   if(audBtn){
     const menu=audBtn.parentElement.querySelector('.aud-menu');
@@ -405,8 +445,6 @@ document.addEventListener('click',(e)=>{
     e.stopPropagation();
     return;
   }
-
-  /* Audience save/cancel */
   if(e.target.matches('[data-act="aud-cancel"]')){
     const menu=e.target.closest('.aud-menu'); if(menu) menu.classList.remove('open'); return;
   }
@@ -420,9 +458,37 @@ document.addEventListener('click',(e)=>{
       gold:   menu.querySelector('[data-aud="gold"]').checked
     };
     s.heroFlags[id]={...cur, aud}; saveSettings(s);
-    menu.classList.remove('open');
-    paintPage();
-    return;
+    menu.classList.remove('open'); paintPage(); return;
+  }
+
+  /* Rename hero label (config pin) */
+  if(e.target.matches('[data-cfg-rename]')){
+    const id=e.target.getAttribute('data-cfg-rename');
+    const s=getSettings();
+    const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const next=prompt('Hero label', cur);
+    if(next!=null){
+      const v=next.trim();
+      if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
+      saveSettings(s); paintPage(); paintArchive();
+    }
+  }
+
+  /* Divider rename/remove (config) */
+  if(e.target.closest('.divider') && e.target.dataset.divAct){
+    const el=e.target.closest('.divider'); const titleEl=el.querySelector('.htext');
+    const s=getSettings();
+    const idx = Array.from($('#pageGrid').children).indexOf(el);
+    // map back to pageOrder index
+    let poIndex=-1; let counter=-1;
+    s.pageOrder.forEach((it,i)=>{ if(it&&it.type==='divider'){ counter++; if(counter===Array.from($('#pageGrid').children).filter(n=>n.dataset && n.dataset.type==='divider').indexOf(el)) poIndex=i; }});
+    if(poIndex<0) return;
+    if(e.target.dataset.divAct==='rename'){
+      const next=prompt('Heading title', titleEl.textContent.trim());
+      if(next!=null){ s.pageOrder[poIndex].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
+    }else if(e.target.dataset.divAct==='remove'){
+      s.pageOrder.splice(poIndex,1); saveSettings(s); paintPage();
+    }
   }
 });
 
@@ -430,17 +496,21 @@ document.addEventListener('click',(e)=>{
 document.addEventListener('click',()=>{ $$('.menu.open').forEach(m=>m.classList.remove('open')); $$('.aud-menu.open').forEach(m=>m.classList.remove('open')); });
 window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.menu.open,.aud-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); }});
 
-/* Movement engine (page <-> archive) */
+/* Movement engine (page <-> archive) + keep pageOrder sane */
+function ensureInOrder(id){
+  const s=getSettings(); if(!s.pageOrder.includes(id)){ s.pageOrder.push(id); saveSettings(s); }
+}
 function moveHero(id, dest){
   const s=getSettings(); const cur=s.heroFlags[id]; if(!cur) return;
-  if(dest!=='page' && dest!=='archive') return; // guard
+  if(dest!=='page' && dest!=='archive') return;
   s.heroFlags[id]={...cur, place:dest};
+  if(dest==='page') ensureInOrder(id);
   saveSettings(s);
   paintPage(); paintArchive();
 }
 
-/* Init page */
-paintPage();
+/* Initial paint */
+paintPage(); paintArchive();
 })();
 </script>
 </body>
