@@ -13,152 +13,124 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+
 header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px;background:#111;border-bottom:1px solid var(--stroke)}
 header h1{margin:0;font-size:20px;font-weight:900}
-.container{max-width:840px;margin:0 auto;padding:12px}
 .btn{background:var(--blue);color:#000;padding:8px 12px;border-radius:10px;border:1px solid transparent;font-weight:900;cursor:pointer}
 .btn.grey{background:#222;color:#fff;border-color:var(--stroke)}
+.btn.small{height:36px;padding:6px 10px;border-radius:8px;font-size:13px}
+
+.container{max-width:840px;margin:0 auto;padding:12px}
 .section{border:1px solid var(--stroke);border-radius:14px;background:#0b0c10;margin:12px 0}
 .section>button.section-head{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;
   padding:12px 14px;cursor:pointer;font-weight:900}
 .section>button.section-head .chev{opacity:.85}
 .section .content{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
 .section.collapsed .content{display:none}
+
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:640px){ .row{grid-template-columns:1fr} }
-.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
-label{font-size:14px}
-.small{font-size:12px;opacity:.8}
+label{display:block;font-size:12px;color:var(--ink-dim);margin:10px 2px 6px}
+select,.input{width:100%;height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#111;color:var(--ink);font:inherit}
+.switch{display:flex;align-items:center;gap:10px}
+.switch input{width:18px;height:18px}
+
 .actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 0}
-.badge{display:inline-block;font-size:11px;font-weight:900;padding:2px 6px;border-radius:8px;background:#333;margin-left:8px}
-.badge.admin{background:#0A84FF;color:#000}
+
+#saveConfirm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;background:rgba(0,0,0,.4);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#saveConfirm.open{display:flex}
+#saveConfirm .card{background:#101217;border:1px solid var(--stroke);border-radius:12px;padding:14px 16px;font-weight:900}
 </style>
 </head>
 <body>
 <header>
-  <button class="btn grey" type="button" onclick="history.back()">‹ Back</button>
-  <h1>Settings <span id="roleBadge" class="badge">User</span></h1>
+  <button class="btn grey" type="button" id="backBtn">‹ Back</button>
+  <h1>Settings</h1>
 </header>
 
 <main class="container">
-  <!-- Display -->
-  <section class="section collapsed">
-    <button class="section-head"><span>Display Settings</span><span class="chev">›</span></button>
+  <!-- Display Settings only -->
+  <section class="section" aria-labelledby="sec-display">
+    <button class="section-head" id="sec-display"><span>Display Settings</span><span class="chev">›</span></button>
     <div class="content">
-      <div class="toggle"><label for="useBg">Backgrounds</label><input id="useBg" type="checkbox"></div>
-      <div class="toggle"><label for="useTheme">Themes</label><input id="useTheme" type="checkbox"></div>
-      <p class="small">These are placeholders for future theme/background options.</p>
+      <div class="row">
+        <div>
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="system">System</option>
+            <option value="dark">Dark</option>
+            <option value="dim">Dim</option>
+            <option value="amoled">AMOLED</option>
+          </select>
+        </div>
+        <div>
+          <label for="background">Background</label>
+          <select id="background">
+            <option value="art-default">Art — Default</option>
+            <option value="gradient-1">Gradient — Midnight</option>
+            <option value="texture-1">Texture — Canvas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="switch" style="margin-top:10px">
+        <input type="checkbox" id="reduceMotion">
+        <label for="reduceMotion">Reduce motion</label>
+      </div>
+
+      <div class="actions">
+        <button class="btn grey small" type="button" data-close="display">Close</button>
+        <button class="btn small" type="button" data-save="display">Save</button>
+      </div>
     </div>
   </section>
-
-  <!-- Home Screen -->
-  <section class="section collapsed">
-    <button class="section-head"><span>Home Screen</span><span class="chev">›</span></button>
-    <div class="content">
-      <div class="toggle adminOnly"><label for="hideNews">Hide News Tab</label><input id="hideNews" type="checkbox"></div>
-      <div class="toggle adminOnly"><label for="hideChallenges">Hide Challenges Tab</label><input id="hideChallenges" type="checkbox"></div>
-      <div class="toggle adminOnly"><label for="hideCourses">Hide Courses Tab</label><input id="hideCourses" type="checkbox"></div>
-      <div class="toggle adminOnly"><label for="hideLive">Hide Live Tab</label><input id="hideLive" type="checkbox"></div>
-      <div class="toggle adminOnly"><label for="rearrangeTabs">Allow Tab Rearranging (Admin)</label><input id="rearrangeTabs" type="checkbox"></div>
-      <p class="small">Hiding/rearranging tabs is an Admin feature. Admin can delegate later if needed.</p>
-    </div>
-  </section>
-
-  <!-- Challenges -->
-  <section class="section collapsed">
-    <button class="section-head"><span>Challenges</span><span class="chev">›</span></button>
-    <div class="content">
-      <div class="toggle"><label for="hideDaily">Hide Daily</label><input id="hideDaily" type="checkbox"></div>
-      <div class="toggle"><label for="hideTracker">Hide Tracker</label><input id="hideTracker" type="checkbox"></div>
-      <div class="toggle adminOnly"><label for="showOtherLevels">Show Other Levels</label><input id="showOtherLevels" type="checkbox"></div>
-      <p class="small">When enabled (Admin), Home can surface multiple level tracks.</p>
-    </div>
-  </section>
-
-  <!-- Courses -->
-  <section class="section collapsed">
-    <button class="section-head"><span>Courses</span><span class="chev">›</span></button>
-    <div class="content">
-      <div class="toggle"><label for="hideCompleted">Hide Completed</label><input id="hideCompleted" type="checkbox"></div>
-      <div class="toggle adminOnly"><label for="showOtherCourses">Show Other Levels</label><input id="showOtherCourses" type="checkbox"></div>
-    </div>
-  </section>
-
-  <div class="actions">
-    <button class="btn grey" id="cancelBtn" type="button">Cancel</button>
-    <button class="btn" id="saveBtn" type="button">Save</button>
-  </div>
 </main>
+
+<div id="saveConfirm" aria-hidden="true"><div class="card">Saved ✓</div></div>
 
 <script>
 (()=>{'use strict';
+const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+             set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const K={settings:'ao_settings'};
 const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
-const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={profile:'ao_profile',settings:'ao_settings'};
 
-/* Role helpers */
-function role(){const p=store.get(K.profile,{skill:'silver'});return(p.skill||'silver').toLowerCase();}
-const isAdmin=()=>role()==='admin';
-const isDirector=()=>role()==='director';
+function getSettings(){ return store.get(K.settings,{display:{theme:'system',background:'art-default',reduceMotion:false}}); }
+function setSettings(s){ store.set(K.settings,s); try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.settings})); }catch{} }
 
-$('#roleBadge').textContent = role();
-if(isAdmin()) $('#roleBadge').classList.add('admin');
-
-/* Collapsibles */
-$$('.section .section-head').forEach(b=>b.addEventListener('click',()=>b.parentElement.classList.toggle('collapsed')));
-
-/* Load settings */
-let s=store.get(K.settings, {admin:{configMode:false}});
-function load(){
-  $('#useBg').checked = !!s.displayBackgrounds;
-  $('#useTheme').checked = !!s.displayThemes;
-
-  $('#hideNews').checked = s.hideNews===true;
-  $('#hideChallenges').checked = s.hideChallenges===true;
-  $('#hideCourses').checked = s.hideCourses===true;
-  $('#hideLive').checked = s.hideLive===true;
-  $('#rearrangeTabs').checked = s.rearrangeTabs===true;
-
-  $('#hideDaily').checked = s.hideDaily===true;
-  $('#hideTracker').checked = s.hideTracker===true;
-  $('#showOtherLevels').checked = s.showOtherLevels===true;
-
-  $('#hideCompleted').checked = s.hideCompleted===true;
-  $('#showOtherCourses').checked = s.showOtherCourses===true;
-
-  // Gate admin-only switches
-  if(!(isAdmin()||isDirector())){
-    $$('.adminOnly').forEach(el=>el.style.display='none');
-  }
+function flashSaved(){
+  const o=$('#saveConfirm'); o.classList.add('open'); o.setAttribute('aria-hidden','false');
+  const close=(e)=>{ if(e.target===o){ o.classList.remove('open'); o.setAttribute('aria-hidden','true'); window.removeEventListener('click',close); } };
+  setTimeout(()=>window.addEventListener('click',close,{once:true}),0);
 }
-load();
 
-/* Save */
-$('#saveBtn').addEventListener('click',()=>{
-  s.displayBackgrounds = $('#useBg').checked;
-  s.displayThemes = $('#useTheme').checked;
+/* Fill */
+const s=getSettings(); const d=s.display||{};
+$('#theme').value=d.theme||'system';
+$('#background').value=d.background||'art-default';
+$('#reduceMotion').checked=!!d.reduceMotion;
 
-  if(isAdmin()||isDirector()){
-    s.hideNews = $('#hideNews').checked;
-    s.hideChallenges = $('#hideChallenges').checked;
-    s.hideCourses = $('#hideCourses').checked;
-    s.hideLive = $('#hideLive').checked;
-    s.rearrangeTabs = $('#rearrangeTabs').checked;
-
-    s.showOtherLevels = $('#showOtherLevels').checked;
-    s.showOtherCourses = $('#showOtherCourses').checked;
+/* Save/Close */
+document.body.addEventListener('click',(e)=>{
+  if(e.target.matches('[data-save="display"]')){
+    const cur=getSettings();
+    cur.display={ theme:$('#theme').value, background:$('#background').value, reduceMotion:$('#reduceMotion').checked };
+    setSettings(cur); flashSaved();
   }
-  s.hideDaily = $('#hideDaily').checked;
-  s.hideTracker = $('#hideTracker').checked;
-  s.hideCompleted = $('#hideCompleted').checked;
-
-  store.set(K.settings,s);
-  alert('Settings saved.');
+  if(e.target.matches('[data-close="display"]')){
+    // collapse the section
+    document.getElementById('sec-display').closest('.section').classList.add('collapsed');
+  }
 });
 
-/* Cancel -> reload to discard unsaved changes */
-$('#cancelBtn').addEventListener('click',()=>window.location.reload());
+/* Collapsible head */
+document.getElementById('sec-display').addEventListener('click',()=>{
+  document.getElementById('sec-display').closest('.section').classList.toggle('collapsed');
+});
+
+/* Back */
+document.getElementById('backBtn').addEventListener('click',()=>history.back());
 })();
 </script>
 </body>
