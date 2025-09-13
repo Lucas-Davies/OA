@@ -120,25 +120,25 @@ a{color:inherit;text-decoration:none}
 .cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
 .config-on .cfg-pin{display:flex}
 
-/* ===== Admin footer / Working Drawer (Development Space) ===== */
-#adminTab{position:fixed; left:0; right:0; height:42px; display:none; align-items:center; justify-content:center; z-index:90}
+/* ===== Admin footer / Working Drawer ===== */
+#adminTab{position:fixed; left:0; right:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90}
 #adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
 #adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
 #adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
-#adminDock .lists{position:absolute; top:52px; bottom:0; left:0; right:0; overflow:auto; padding:12px}
+#adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
+#adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:180px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
 .admin-group{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px; margin-bottom:14px}
 .admin-group h3{margin:0 0 10px; font-size:15px}
-.admin-bin{border:1px dashed rgba(255,255,255,.18); border-radius:10px; padding:10px; margin:8px 0}
-.admin-bin h4{margin:0 0 6px; font-size:13px; color:var(--ink-dim)}
-.bin-item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
-.bin-item .s{font-size:12px; opacity:.85}
-.bin-item .btns{display:flex; gap:8px}
+.bin{border:1px dashed rgba(255,255,255,.18); border-radius:10px; margin:8px 0}
+.bin > summary{cursor:pointer; padding:10px 12px; list-style:none; font-weight:900}
+.bin > summary::-webkit-details-marker{display:none}
+.bin .list{padding:8px 12px 12px}
+.list .item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
+.list .name{font-size:14px}
 .small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
-.small.live{background:#0a0}
-.small.off{background:#b00020}
-.collapser{cursor:pointer; font-weight:900; opacity:.9}
-.bin-collapsed .bin-body{display:none}
+.small.open{background:#0A84FF; color:#000}
+.small.link{background:#222}
 </style>
 </head>
 <body>
@@ -167,10 +167,12 @@ a{color:inherit;text-decoration:none}
       <button class="cfg-pin" data-cfg="feed-title-1">✎</button>
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="ctl move" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -186,6 +188,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -201,6 +204,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -216,6 +220,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -231,6 +236,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -250,6 +256,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -272,6 +279,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -297,6 +305,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -312,6 +321,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -327,6 +337,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -346,6 +357,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -361,6 +373,7 @@ a{color:inherit;text-decoration:none}
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
           </div>
         </button>
       </div>
@@ -394,13 +407,17 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- ===== ADMIN TAB & DOCK (Development Space) ===== -->
-<div id="adminTab" style="bottom:0; top:auto; display:flex;"><button id="toggleDockBtn">Working Drawer</button></div>
+<!-- ===== ADMIN TAB & DOCK (Working Drawer) ===== -->
+<div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header>
     <div>Development Space</div>
   </header>
-  <div class="lists" id="dockLists"></div>
+  <div class="space" id="devSpace"></div>
+  <div class="bins">
+    <details class="bin" id="binArchive"><summary>Archived</summary><div class="list" id="listArchive"></div></details>
+    <details class="bin" id="binTpl"><summary>Templates</summary><div class="list" id="listTpl"></div></details>
+  </div>
 </div>
 
 <script>
@@ -410,10 +427,9 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile', settings:'ao_settings' };
+const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
 
 /* Roles (force admin during build) */
-const ROLE_PERMS={bronze:{},silver:{},gold:{},support:{},director:{},admin:{}};
 function currentRole(){ return 'admin'; }
 const ROLE_SKINS={
   bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
@@ -440,17 +456,15 @@ const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 function showTab(name){
   tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  // show admin tab only on FEED
-  const adminTab=$('#adminTab'); adminTab.style.display = (name==='feed') ? 'flex' : 'none';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('feed');
 
 /* Avatar Drawer & Subsheet */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
 avatarBtn.addEventListener('click', openDrawer);
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
@@ -476,7 +490,7 @@ $('#cfgToggle').addEventListener('click', (e)=>{
   e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
 });
 
-/* Inject CSS into iframe to prevent horizontal scroll (same-origin) */
+/* Prevent horizontal scroll inside iframe (same-origin) */
 function injectNoHorizontalScroll(){
   try{
     const d=subFrame.contentDocument||subFrame.contentWindow.document;
@@ -486,11 +500,9 @@ function injectNoHorizontalScroll(){
 }
 
 /* Settings & hero flags
-   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive' }
+   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
 */
-function defaults(){
-  return { heroFlags:{} };
-}
+function defaults(){ return { heroFlags:{} }; }
 function getSettings(){
   const cur=store.get(K.settings,null);
   if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
@@ -498,11 +510,11 @@ function getSettings(){
 }
 function saveSettings(s){ store.set(K.settings,s); }
 
-/* Visibility rules:
-   - Non-admin users see only items with state='live' and place='page'
-   - Admins see items on page if place='page' regardless of state; off=still shows admin controls but we’ll tint button red.
-   - Dev/archive are removed from page; managed inside Development Space.
-*/
+/* Map: hero id -> URL (used by Archived/Templates list to open HTML) */
+function getLinks(){ return store.get(K.heroLinks,{}); }
+function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
+
+/* Visibility & admin button paint */
 function applyHeroVisibility(){
   const flags=getSettings().heroFlags;
   $$('[data-hero-id]').forEach(el=>{
@@ -510,181 +522,136 @@ function applyHeroVisibility(){
     const f=flags[id]||{state:'live',place:'page'};
     el.style.display = (f.place==='page') ? '' : 'none';
     const btn=el.querySelector('[data-toggle-state]');
-    if(btn){ btn.textContent = (f.state==='live'?'Live':'Offline'); btn.classList.toggle('state-live', f.state==='live'); btn.classList.toggle('state-off', f.state!=='live'); }
+    if(btn){
+      btn.textContent = (f.state==='live'?'Live':'Offline');
+      btn.classList.toggle('state-live', f.state==='live');
+      btn.classList.toggle('state-off', f.state!=='live');
+    }
   });
 }
 applyHeroVisibility();
 
-/* Toggle Live/Offline */
+/* Toggle Live/Offline + Move */
 document.body.addEventListener('click',(e)=>{
-  const hero=e.target.closest('[data-hero-id]'); if(!hero) return;
-
-  /* Publish/Unpublish single button */
-  if(e.target.matches('[data-toggle-state]')){
+  const hero=e.target.closest('[data-hero-id]');
+  if(hero && e.target.matches('[data-toggle-state]')){
     const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
     const next= (cur.state==='live'?'off':'live');
     const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`);
     if(!ok) return;
     s.heroFlags[id]={...cur, state:next}; saveSettings(s);
-    applyHeroVisibility(); paintAdminBins();
+    applyHeroVisibility(); paintWorkingDrawer();
   }
-
-  /* Move popover */
-  if(e.target.matches('[data-move], .move *')){
-    const moveBtn=hero.querySelector('[data-move]');
-    const menu=moveBtn.querySelector('.move-menu');
-    menu.classList.toggle('open');
+  if(hero && e.target.matches('[data-move], .move *')){
+    const menu=hero.querySelector('.move-menu'); menu.classList.toggle('open');
   }
-
-  /* Move choices */
-  if(e.target.matches('.move-menu [data-move-to]')){
-    const dest=e.target.getAttribute('data-move-to');
-    const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-
-    if(dest==='dev'){
-      // enforce max 3 in development space
-      const countDev = Object.values(s.heroFlags).filter(v=>v?.place==='dev').length;
-      if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards. Move another card out first.'); return; }
-      s.heroFlags[id]={...cur, place:'dev'};
-    }else if(dest==='archive'){
-      s.heroFlags[id]={...cur, place:'archive'};
-    }
-    saveSettings(s);
-    applyHeroVisibility(); paintAdminBins();
-    // close menu
+  if(hero && e.target.matches('.move-menu [data-move-to]')){
+    const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
+    moveHero(id, dest);
     const menu=hero.querySelector('.move-menu'); if(menu) menu.classList.remove('open');
   }
 });
+document.addEventListener('click', (e)=>{ if(!e.target.closest('.move')) $$('.move-menu.open').forEach(m=>m.classList.remove('open')); });
 
-/* Close any open move menus when clicking elsewhere */
-document.addEventListener('click', (e)=>{
-  if(e.target.closest('.move')) return;
-  $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-});
-
-/* Development Space (Admin Dock) */
-const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), adminTab=$('#adminTab'), dockLists=$('#dockLists');
-function openDock(){
-  adminDock.classList.add('open');
-  adminTab.style.top='0'; adminTab.style.bottom='auto';
-  toggleDockBtn.textContent='Close Working Drawer';
-}
-function closeDock(){
-  adminDock.classList.remove('open');
-  adminTab.style.bottom='0'; adminTab.style.top='auto';
-  toggleDockBtn.textContent='Working Drawer';
-}
-toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
-
-function makeBin(title, collapsed, items){
-  const bin=document.createElement('div'); bin.className='admin-bin'+(collapsed?' bin-collapsed':'');
-  bin.innerHTML=`<div class="collapser">${title}</div><div class="bin-body"></div>`;
-  const body=bin.querySelector('.bin-body');
-  if(!items.length){ body.innerHTML=`<div class="s">No items</div>`; }
-  items.forEach(it=>{
-    const row=document.createElement('div'); row.className='bin-item';
-    row.innerHTML=`<div><div>${it.title}</div><div class="s">${it.id}</div></div>
-      <div class="btns">
-        <button class="small ${it.state==='live'?'live':'off'}" data-id="${it.id}" data-act="toggle">${it.state==='live'?'Live':'Offline'}</button>
-        <button class="small" data-id="${it.id}" data-act="toPage">Move to Page</button>
-        <button class="small" data-id="${it.id}" data-act="toDev">Move to Development</button>
-        <button class="small" data-id="${it.id}" data-act="toArchive">Move to Archive</button>
-      </div>`;
-    body.appendChild(row);
-  });
-  bin.querySelector('.collapser').addEventListener('click',()=>bin.classList.toggle('bin-collapsed'));
-  return bin;
-}
-
-function paintAdminBins(){
-  const flags=getSettings().heroFlags||{};
-  dockLists.innerHTML='';
-
-  // Gather
-  const dev=[], archive=[], off=[];
-  $$('[data-hero-id]').forEach(el=>{
-    const id=el.dataset.heroId;
-    const t=el.querySelector('.title')?.textContent?.trim()||id;
-    const f=flags[id]||{state:'live',place:'page'};
-    if(f.place==='dev') dev.push({id:titleId(id), title:t, state:f.state});
-    if(f.place==='archive') archive.push({id:titleId(id), title:t, state:f.state});
-    if(f.place!=='page' && f.state==='off') off.push({id:titleId(id), title:t, state:f.state});
-  });
-
-  // Development Space (full cards)
-  const devGroup=document.createElement('section'); devGroup.className='admin-group';
-  devGroup.innerHTML=`<h3>Development Space (max 3)</h3>`;
-  if(!dev.length){
-    const bin=document.createElement('div'); bin.className='admin-bin';
-    bin.innerHTML=`<div class="s">No items in development</div>`;
-    devGroup.appendChild(bin);
-  }else{
-    dev.forEach(it=>{
-      const card=document.createElement('article'); card.className='hero';
-      card.innerHTML=`<h2 class="title">${it.title}</h2>
-        <div class="admin-ctrls" style="display:flex">
-          <button class="ctl ${it.state==='live'?'state-live':'state-off'}" data-id="${it.id}" data-act="toggle">${it.state==='live'?'Live':'Offline'}</button>
-          <button class="ctl move" data-dyn-move="${it.id}">Move
-            <div class="move-menu">
-              <button data-dyn-act="toPage" data-id="${it.id}">Move to Page</button>
-              <button data-dyn-act="toArchive" data-id="${it.id}">Move to Archive</button>
-            </div>
-          </button>
-        </div>
-        <p class="meta">Dev preview only</p>`;
-      devGroup.appendChild(card);
-    });
-  }
-  dockLists.appendChild(devGroup);
-
-  // Collapsed bins
-  const collapsedGroup=document.createElement('section'); collapsedGroup.className='admin-group';
-  collapsedGroup.innerHTML=`<h3>Other Bins</h3>`;
-  collapsedGroup.appendChild(makeBin('Archive', true, archive));
-  collapsedGroup.appendChild(makeBin('Offline (not on page)', true, off));
-  dockLists.appendChild(collapsedGroup);
-}
-function titleId(id){ return id; }
-
-// Dock delegation
-dockLists.addEventListener('click',(e)=>{
-  // toggle state
-  if(e.target.matches('[data-act="toggle"], .ctl[data-id][data-act="toggle"]')){
-    const id=e.target.dataset.id;
-    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
-    applyHeroVisibility(); paintAdminBins(); return;
-  }
-  // move ops
-  const id=e.target.dataset.id;
-  if(e.target.matches('[data-act="toPage"]')){ moveTo(id,'page'); }
-  if(e.target.matches('[data-act="toDev"]')){ moveTo(id,'dev'); }
-  if(e.target.matches('[data-act="toArchive"]')){ moveTo(id,'archive'); }
-
-  // dynamic move menus in dev cards
-  if(e.target.closest('[data-dyn-move]')){
-    const menu=e.target.closest('.move').querySelector('.move-menu'); if(menu) menu.classList.toggle('open');
-  }
-  if(e.target.matches('[data-dyn-act]')){
-    const id=e.target.dataset.id; const act=e.target.dataset.dynAct;
-    if(act==='toPage') moveTo(id,'page');
-    if(act==='toArchive') moveTo(id,'archive');
-  }
-});
-function moveTo(id, place){
+function moveHero(id, place){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
   if(place==='dev'){
     const countDev = Object.values(s.heroFlags).filter(v=>v?.place==='dev').length;
     if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
   }
   s.heroFlags[id]={...cur, place}; saveSettings(s);
-  applyHeroVisibility(); paintAdminBins();
+  applyHeroVisibility(); paintWorkingDrawer();
 }
 
-/* Initial paint */
-paintAdminBins();
+/* ===== Working Drawer ===== */
+const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('#devSpace');
+function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
+function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
+toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
+
+function paintWorkingDrawer(){
+  const flags=getSettings().heroFlags||{};
+  const links=getLinks();
+  devSpace.innerHTML='';
+
+  const archive=[], tpl=[];
+  $$('[data-hero-id]').forEach(el=>{
+    const id=el.dataset.heroId;
+    const t=el.querySelector('.title')?.textContent?.trim()||id;
+    const f=flags[id]||{state:'live',place:'page'};
+    if(f.place==='dev'){
+      const card=document.createElement('article'); card.className='hero';
+      card.innerHTML=`<h2 class="title">${t}</h2>
+        <div class="admin-ctrls" style="display:flex">
+          <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
+          <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
+            <div class="move-menu">
+              <button data-dock-id="${id}" data-dock-to="page">Move to Page</button>
+              <button data-dock-id="${id}" data-dock-to="archive">Move to Archive</button>
+              <button data-dock-id="${id}" data-dock-to="tpl">Move to Templates</button>
+            </div>
+          </button>
+        </div>
+        <p class="meta">Dev preview only</p>`;
+      devSpace.appendChild(card);
+    }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
+    else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
+  });
+
+  // paint lists
+  const LA=$('#listArchive'); const LT=$('#listTpl');
+  LA.innerHTML=''; LT.innerHTML='';
+  const renderRow=(host,it,bin)=>{
+    const row=document.createElement('div'); row.className='item';
+    row.innerHTML=`<div class="name">${it.title}</div>
+      <div>
+        <button class="small link" data-link-id="${it.id}">${it.link?'Change Link':'Set Link'}</button>
+        <button class="small open" data-open-id="${it.id}">Open</button>
+        <button class="small" data-move-id="${it.id}" data-place="page">To Page</button>
+        <button class="small" data-move-id="${it.id}" data-place="${bin==='archive'?'tpl':'archive'}">To ${bin==='archive'?'Templates':'Archive'}</button>
+      </div>`;
+    host.appendChild(row);
+  };
+  archive.forEach(it=>renderRow(LA,it,'archive'));
+  tpl.forEach(it=>renderRow(LT,it,'tpl'));
+}
+paintWorkingDrawer();
+
+/* Drawer interactions */
+$('#adminDock').addEventListener('click',(e)=>{
+  // toggle live/off
+  if(e.target.matches('[data-dock-act="toggle"]')){
+    const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
+    applyHeroVisibility(); paintWorkingDrawer(); return;
+  }
+  // open/close move menu
+  if(e.target.matches('[data-dock-move], [data-dock-move] *')){
+    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open'); return;
+  }
+  // move actions inside move-menu
+  if(e.target.matches('[data-dock-to]')){
+    moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return;
+  }
+  // set/change link
+  if(e.target.matches('[data-link-id]')){
+    const id=e.target.dataset.linkId; const cur=getLinks()[id]||'';
+    const url=prompt('Enter linked HTML/URL', cur||'');
+    if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); }
+    return;
+  }
+  // open link
+  if(e.target.matches('[data-open-id]')){
+    const id=e.target.dataset.openId; const url=getLinks()[id];
+    if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
+    openSubSheet('Hero', url); return;
+  }
+  // move from bin row
+  if(e.target.matches('[data-move-id]')){
+    moveHero(e.target.dataset.moveId, e.target.dataset.place); return;
+  }
+});
 
 /* Config title editing */
 document.body.addEventListener('click', (e)=>{
