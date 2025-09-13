@@ -6,7 +6,6 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
-<!-- cache-busters to avoid stale UI on iOS / GH Pages -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -72,16 +71,7 @@ a{color:inherit;text-decoration:none}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
 .badge-live{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:#1fa01f;color:#fff;font-weight:900;font-size:12px}
 .badge-off{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:#b00020;color:#fff;font-weight:900;font-size:12px}
-
-/* Admin controls (top-right on hero) */
 .admin-ctrls{position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:5}
-.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
-.admin-ctrls .move-btn{position:relative}
-
-/* Move popover */
-.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:20; min-width:220px}
-.move-menu.open{display:block}
-.move-menu button{display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer}
 
 /* PANELS */
 [data-panel]{display:none}
@@ -120,6 +110,9 @@ a{color:inherit;text-decoration:none}
 .small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
 .small.open{background:#0A84FF; color:#000}
 .small.link{background:#222}
+
+/* Hide any legacy chips that might still be in markup */
+article.hero [data-move-to]{display:none!important}
 </style>
 </head>
 <body>
@@ -127,9 +120,9 @@ a{color:inherit;text-decoration:none}
 
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left" role="tablist" aria-label="Sections">
-    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed</button>
+    <button class="btn-tab" data-tab="feed" aria-selected="false">Feed</button>
     <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges</button>
-    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
+    <button class="btn-tab is-active" data-tab="courses" aria-selected="true">Courses</button>
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
   </div>
   <div class="nav-right">
@@ -141,25 +134,15 @@ a{color:inherit;text-decoration:none}
 </header>
 
 <main class="wrap">
-  <!-- ===== FEED: no heroes (opens its own HTML) ===== -->
-  <section id="panel-feed" class="panel-active" data-panel="feed"></section>
-
-  <!-- ===== CHALLENGES: no heroes (opens its own HTML) ===== -->
+  <!-- Feed / Challenges / Live open external HTMLs (no on-page heroes) -->
+  <section id="panel-feed" data-panel="feed"></section>
   <section id="panel-challenges" data-panel="challenges"></section>
 
-  <!-- ===== COURSES: the only tab with in-page heroes ===== -->
-  <section id="panel-courses" data-panel="courses">
+  <!-- ===== COURSES (the only in-page heroes) ===== -->
+  <section id="panel-courses" class="panel-active" data-panel="courses">
     <article class="hero" data-hero-id="co-1">
       <div class="admin-ctrls">
         <button class="badge-live" data-toggle-state>Live</button>
-        <button class="ctl move-btn" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
       </div>
       <h2 class="title">Placeholder course-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
@@ -169,14 +152,6 @@ a{color:inherit;text-decoration:none}
     <article class="hero" data-hero-id="co-2">
       <div class="admin-ctrls">
         <button class="badge-live" data-toggle-state>Live</button>
-        <button class="ctl move-btn" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
       </div>
       <h2 class="title">Placeholder course-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
@@ -186,14 +161,6 @@ a{color:inherit;text-decoration:none}
     <article class="hero" data-hero-id="co-3">
       <div class="admin-ctrls">
         <button class="badge-live" data-toggle-state>Live</button>
-        <button class="ctl move-btn" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
       </div>
       <h2 class="title">Placeholder course-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
@@ -201,11 +168,10 @@ a{color:inherit;text-decoration:none}
     </article>
   </section>
 
-  <!-- ===== LIVE: no heroes (opens its own HTML) ===== -->
   <section id="panel-live" data-panel="live"></section>
 </main>
 
-<!-- ===== AVATAR DRAWER ===== -->
+<!-- Avatar Drawer -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu">
@@ -218,7 +184,7 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- ===== SUB SHEET ===== -->
+<!-- Subsheet -->
 <div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="inner" role="document">
     <div class="sheet-head">
@@ -229,7 +195,7 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- ===== ADMIN TAB & DOCK (Working Drawer) ===== -->
+<!-- Admin Footer / Working Drawer -->
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header><div id="dockTitle">Development Space — Courses</div></header>
@@ -242,30 +208,19 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
-/* ---------- helpers & storage ---------- */
+/* helpers & storage */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
 
-/* ---------- external HTMLs for tabs (edit paths here) ---------- */
-const TAB_LINKS={
-  feed:'tabs/feed.html',
-  challenges:'tabs/challenges.html',
-  live:'tabs/live.html'
-};
+/* external HTMLs for non-course tabs */
+const TAB_LINKS={ feed:'tabs/feed.html', challenges:'tabs/challenges.html', live:'tabs/live.html' };
 
-/* ---------- role skin (force admin during build) ---------- */
+/* role pill (force admin while building) */
 function currentRole(){ return 'admin'; }
-const ROLE_SKINS={
-  bronze:{pill:'#b87333', text:'#111'},
-  silver:{pill:'#c0c7d1', text:'#0b0c10'},
-  gold:{pill:'#ffd700', text:'#0b0c10'},
-  support:{pill:'#6a4cff', text:'#fff'},
-  director:{pill:'#444', text:'#fff'},
-  admin:{pill:'#0A84FF', text:'#0b0c0f'}
-};
+const ROLE_SKINS={ bronze:{pill:'#b87333',text:'#111'}, silver:{pill:'#c0c7d1',text:'#0b0c10'}, gold:{pill:'#ffd700',text:'#0b0c10'}, support:{pill:'#6a4cff',text:'#fff'}, director:{pill:'#444',text:'#fff'}, admin:{pill:'#0A84FF',text:'#0b0c0f'} };
 function applyProfile(){
   const p=store.get(K.profile,{displayName:'User',skill:currentRole()});
   const role=(p.skill||currentRole()).toLowerCase();
@@ -276,18 +231,12 @@ function applyProfile(){
 }
 applyProfile();
 
-/* ---------- tabs ---------- */
-const tabBtns=$$('.btn-tab[data-tab]');
-const panels=$$('[data-panel]');
-
+/* tabs */
+const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 function openSubSheet(title,url){
-  const frame=$('#subFrame');
-  $('#sheetTitle').textContent=title;
-  frame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
-  frame.addEventListener('load', ()=>{try{
-    const d=frame.contentDocument||frame.contentWindow.document;
-    const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}'; d.head.appendChild(st);
-  }catch{}}, {once:true});
+  const f=$('#subFrame'); $('#sheetTitle').textContent=title;
+  f.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  f.addEventListener('load',()=>{try{const d=f.contentDocument||f.contentWindow.document;const st=d.createElement('style');st.textContent='html,body{overflow-x:hidden!important}';d.head.appendChild(st);}catch{}},{once:true});
   $('#subSheet').classList.add('open'); $('#subSheet').setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){ $('#subSheet').classList.remove('open'); $('#subSheet').setAttribute('aria-hidden','true'); $('#subFrame').src='about:blank'; }
@@ -297,20 +246,14 @@ $('#subSheet').addEventListener('click', e=>{ if(e.target.id==='subSheet') close
 function showTab(name){
   tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-
-  // Only Courses is an in-page panel; others open their own HTML
-  if(name!=='courses'){
-    const url=TAB_LINKS[name];
-    if(url) openSubSheet(name.charAt(0).toUpperCase()+name.slice(1), url);
-  }
-  $('#dockTitle').textContent='Development Space — ' + (name.charAt(0).toUpperCase()+name.slice(1));
-  window.scrollTo({top:0,behavior:'smooth'});
-  paintWorkingDrawer();
+  if(name!=='courses'){ const url=TAB_LINKS[name]; if(url) openSubSheet(name[0].toUpperCase()+name.slice(1), url); }
+  $('#dockTitle').textContent='Development Space — ' + (name[0].toUpperCase()+name.slice(1));
+  window.scrollTo({top:0,behavior:'smooth'}); paintWorkingDrawer();
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('courses');
 
-/* ---------- avatar drawer ---------- */
+/* avatar drawer */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
@@ -323,12 +266,9 @@ $$('#avatarSheet [data-pop]').forEach(a=>{
   });
 });
 
-/* ---------- course hero state ---------- */
+/* state & links */
 function defaults(){ return { heroFlags:{} }; }
-function getSettings(){
-  const cur=store.get(K.settings,null); if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
-  return {...defaults(), ...cur, heroFlags:{...(cur.heroFlags||{})}};
-}
+function getSettings(){ const cur=store.get(K.settings,null); if(!cur){ const def=defaults(); store.set(K.settings,def); return def; } return {...defaults(), ...cur, heroFlags:{...(cur.heroFlags||{})}}; }
 function saveSettings(s){ store.set(K.settings,s); }
 function getLinks(){ return store.get(K.heroLinks,{}); }
 function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
@@ -336,8 +276,7 @@ function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L
 function applyHeroVisibility(){
   const flags=getSettings().heroFlags;
   $$('[data-hero-id]').forEach(el=>{
-    const id=el.dataset.heroId;
-    const f=flags[id]||{state:'live',place:'page'};
+    const id=el.dataset.heroId; const f=flags[id]||{state:'live',place:'page'};
     el.style.display = (f.place==='page') ? '' : 'none';
     const btn=el.querySelector('[data-toggle-state]');
     if(btn){
@@ -349,10 +288,9 @@ function applyHeroVisibility(){
 }
 applyHeroVisibility();
 
-/* live/offline + move + enter */
+/* hero interactions (no Move on hero; Live toggle + Enter only) */
 document.body.addEventListener('click',(e)=>{
   const hero=e.target.closest('[data-hero-id]');
-
   if(hero && e.target.matches('[data-toggle-state]')){
     const id=hero.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
     const next=(cur.state==='live'?'off':'live');
@@ -360,22 +298,18 @@ document.body.addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, state:next}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-  if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move]'))){
-    const btn=e.target.closest('[data-move]'); const menu=btn.querySelector('.move-menu');
-    const open=!menu.classList.contains('open'); $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open'); e.stopPropagation(); return;
-  }
-  if(hero && e.target.matches('.move-menu [data-move-to]')){
-    moveHero(hero.dataset.heroId, e.target.getAttribute('data-move-to'));
-    hero.querySelector('.move-menu').classList.remove('open'); e.stopPropagation(); return;
-  }
   if(hero && e.target.matches('[data-enter]')){
     const id=hero.dataset.heroId; const url=getLinks()[id];
     if(!url){ alert('No link set yet. Open Working Drawer → Set Link.'); return; }
     openSubSheet('Course', url); return;
   }
 });
-document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'))});
+
+/* working drawer */
+const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('#devSpace');
+function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
+function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
+toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
 
 function moveHero(id, place){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
@@ -387,16 +321,9 @@ function moveHero(id, place){
   applyHeroVisibility(); paintWorkingDrawer();
 }
 
-/* ---------- Working Drawer (courses only visible items) ---------- */
-const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('#devSpace');
-function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
-function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
-toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
-
 function paintWorkingDrawer(){
   const flags=getSettings().heroFlags||{}; const links=getLinks(); devSpace.innerHTML='';
   const archive=[], tpl=[];
-  // only collect course heroes
   $$('[data-hero-id^="co-"]').forEach(el=>{
     const id=el.dataset.heroId; const t=el.querySelector('.title')?.textContent?.trim()||id;
     const f=flags[id]||{state:'live',place:'page'};
@@ -404,16 +331,14 @@ function paintWorkingDrawer(){
       const card=document.createElement('article'); card.className='hero';
       card.innerHTML=`<h2 class="title">${t}</h2>
         <div class="admin-ctrls" style="display:flex">
-          <button class="badge-${f.state==='live'?'live':'off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
-          <button class="ctl move-btn" data-dock-move data-dock-id="${id}">Move
-            <div class="move-menu">
-              <button data-dock-id="${id}" data-dock-to="page">Move to Page</button>
-              <button data-dock-id="${id}" data-dock-to="archive">Move to Archive</button>
-              <button data-dock-id="${id}" data-dock-to="tpl">Move to Templates</button>
-            </div>
-          </button>
+          <button class="${f.state==='live'?'badge-live':'badge-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
         </div>
-        <p class="meta">Dev preview only</p>`;
+        <p class="meta">Dev preview only</p>
+        <div class="cta-left">
+          <button class="btn" data-dock-to="page" data-move-id="${id}">To Page</button>
+          <button class="btn" data-dock-to="archive" data-move-id="${id}">To Archive</button>
+          <button class="btn" data-dock-to="tpl" data-move-id="${id}">To Templates</button>
+        </div>`;
       devSpace.appendChild(card);
     }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
     else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
@@ -442,10 +367,8 @@ $('#adminDock').addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-  if(e.target.matches('[data-dock-move], [data-dock-move] *')){
-    const b=e.target.closest('[data-dock-move]'); b.querySelector('.move-menu').classList.toggle('open'); return;
-  }
-  if(e.target.matches('[data-dock-to]')){ moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return; }
+  if(e.target.matches('[data-dock-to]')){ moveHero(e.target.dataset.moveId, e.target.dataset.dockTo); return; }
+  if(e.target.matches('[data-move-id]')){ moveHero(e.target.dataset.moveId, e.target.dataset.place); return; }
   if(e.target.matches('[data-link-id]')){
     const id=e.target.dataset.linkId; const cur=getLinks()[id]||''; const url=prompt('Enter linked HTML/URL', cur||'');
     if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); } return;
@@ -454,11 +377,10 @@ $('#adminDock').addEventListener('click',(e)=>{
     const id=e.target.dataset.openId; const url=getLinks()[id]; if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
     openSubSheet('Course', url); return;
   }
-  if(e.target.matches('[data-move-id]')){ moveHero(e.target.dataset.moveId, e.target.dataset.place); return; }
 });
 
-/* ESC closes drawers/popovers */
-window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.move-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); } });
+/* ESC closes */
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeSubSheet(); closeDrawer(); } });
 })();
 </script>
 </body>
