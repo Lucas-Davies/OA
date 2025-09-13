@@ -10,9 +10,7 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30;
-  --bronze:#b87333; --silver:#c0c7d1; --gold:#ffd700;
-  --chip:#1b1f2a;
+  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
 }
 *{box-sizing:border-box}
@@ -21,8 +19,6 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   overscroll-behavior-y:contain; overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
-
-/* Background */
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
 /* Top bar */
@@ -30,51 +26,60 @@ a{color:inherit;text-decoration:none}
   padding:8px 12px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .nav-left{display:flex;gap:8px;align-items:center}
-.nav-title{display:inline-flex;align-items:center;justify-content:center;min-width:110px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
-  background:var(--blue);color:#000;font-weight:900}
-@media (max-width:420px){.nav-title{min-width:0;padding:0 12px;font-size:14px}}
+.title-tab{font-weight:900;opacity:.92}
 
-/* Avatar pill (colours come from role) */
+/* Avatar pill */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
   font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
 /* Layout */
-.wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 120px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
 /* Grid of heroes */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
-@media (min-width:901px) and (max-width:1200px){.grid{grid-template-columns:1fr 1fr 1fr}}
-@media (min-width:1201px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+/* iPad portrait slightly wider cards by allowing 3 cols earlier */
+@media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
+/* iPad landscape / desktop 4 cols */
+@media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
-/* Hero card */
-.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:120px}
-.hero .num{font-weight:900;font-size:16px;opacity:.9}
-.hero .cta-left{position:absolute;left:16px;bottom:16px}
+/* Hero card — 2x taller */
+.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
+.hero .num{font-weight:900;font-size:18px;opacity:.9}
+.hero .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Admin controls (top-right of hero) */
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:2}
+/* Admin chips (top-right of hero) */
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
+
+/* Move popover */
 .move{position:relative}
-.move-menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:5;min-width:220px}
-.move-menu.open{display:block}
-.move-menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
+.menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:20;min-width:220px}
+.menu.open{display:block}
+.menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
+
+/* Audience popover (Admin/Director only) */
+.aud{position:relative}
+.aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:20;min-width:220px}
+.aud-menu.open{display:block}
+.aud-menu label{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
+.aud-menu .row{display:flex;gap:8px;margin-top:8px}
 
 /* Avatar Drawer */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
 #avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
-.menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
-.menu a:last-child{border-bottom:none}
+.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.menu-list a:last-child{border-bottom:none}
 
 /* Subsheet (iframe) */
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -85,20 +90,22 @@ a{color:inherit;text-decoration:none}
 .sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
 
-/* Archive footer (Admin only; red bar) */
-.archive{margin:18px 0 28px;border:1px solid var(--stroke);border-radius:14px;background:#0b0c10}
-.archive > summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:12px 14px;list-style:none;font-weight:900;
-  background:var(--red); color:#fff; border-radius:12px}
-.archive > summary::-webkit-details-marker{display:none}
-.archive .list{padding:12px;display:flex;flex-direction:column;gap:8px;background:#0b0c10;border-top:1px solid rgba(255,255,255,.18);border-radius:0 0 12px 12px}
-.row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--stroke);background:#0d0d10;border-radius:10px}
-.row .num{font-weight:900}
-.row .chip{height:26px}
-.count{opacity:.9;font-weight:800}
-.hidden{display:none !important}
+/* ===== Archive Footer (Admin only, snaps bottom and expands up) ===== */
+#archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
+  transition:max-height .22s ease;overflow:hidden}
+#archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900}
+#archiveDock .bar .count{opacity:.95}
+#archiveDock .content{background:#160b0b}
+#archiveDock .list{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
+#archiveDock .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#0d0d10;border-radius:10px}
+#archiveDock .row .num{font-weight:900}
+#archiveDock .row .chip{height:26px}
+#archiveDock.collapsed{max-height:48px}
+#archiveDock.open{max-height:60vh}
 
-/* Config pin (reserved) */
-.cfg-pin{display:none}
+/* Config pin (placeholder for future inline editing) */
+.cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
+  font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center}
 .config-on .cfg-pin{display:flex}
 </style>
 </head>
@@ -107,7 +114,7 @@ a{color:inherit;text-decoration:none}
 
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left">
-    <div class="nav-title" aria-current="page">Courses</div>
+    <span class="title-tab">Courses</span>
   </div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
@@ -118,22 +125,15 @@ a{color:inherit;text-decoration:none}
 </header>
 
 <main class="wrap">
-  <section class="grid" id="pageGrid"></section>
-
-  <!-- Archive footer (admin only) -->
-  <details class="archive" id="archiveFoot">
-    <summary>
-      <span>Archive</span>
-      <span class="count" id="countArchive">0</span>
-    </summary>
-    <div class="list" id="listArchive"></div>
-  </details>
+  <section class="grid" id="pageGrid">
+    <!-- 10 page heroes will be rendered here -->
+  </section>
 </main>
 
 <!-- Avatar Drawer -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
-    <nav class="menu">
+    <nav class="menu-list">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
@@ -155,6 +155,18 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
+<!-- Archive Footer (Admin only) -->
+<div id="archiveDock" class="collapsed" aria-hidden="true">
+  <div class="bar">
+    <span>Archived</span>
+    <span class="count" id="countArchive">0</span>
+    <button class="chip" id="archiveToggle">Open</button>
+  </div>
+  <div class="content">
+    <div class="list" id="archiveList"></div>
+  </div>
+</div>
+
 <script>
 (()=>{'use strict';
 /* ===== utils & storage ===== */
@@ -164,35 +176,38 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings' };
 
-/* Role helpers */
+/* Roles */
 function getRole(){
   const p=store.get(K.profile,{skill:'admin',displayName:'User'});
   return (p.skill||'admin').toLowerCase();
 }
-function isAdmin(){ return getRole()==='admin'; }
-function applyAvatar(){
-  const p=store.get(K.profile,{skill:'admin',displayName:'User'});
-  $('#avatarName').textContent=p.displayName||'User';
-  const role=(p.skill||'admin').toLowerCase();
-  $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
-  const skin={
-    bronze:{pill:'var(--bronze)',text:'#111'},
-    silver:{pill:'var(--silver)',text:'#0b0c10'},
-    gold:{pill:'var(--gold)',text:'#0b0c10'},
-    support:{pill:'#6a4cff',text:'#fff'},
-    director:{pill:'#444',text:'#fff'},
-    admin:{pill:'var(--blue)',text:'#0b0c10'}
-  }[role] || {pill:'#222',text:'#eef3ff'};
-  const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
+function isAdminLike(){
+  const r=getRole();
+  return r==='admin' || r==='director';
 }
-applyAvatar();
+function seesAll(){
+  const r=getRole();
+  return r==='admin' || r==='director' || r==='support';
+}
 
-/* Avatar Drawer + Subsheet */
+/* Avatar paint (colour by role) */
+(function applyAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  $('#avatarName').textContent = p.displayName || 'User';
+  const role=(p.skill||'admin').toLowerCase();
+  $('#avatarLvl').textContent = role.charAt(0).toUpperCase()+role.slice(1);
+  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
+  const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
+  pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
+})();
+
+/* Avatar drawer + subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', openDrawer);
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
+
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
@@ -208,110 +223,146 @@ $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
 }));
 $('#cfgToggle').addEventListener('click', e=>{ e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer(); });
 
-/* ===== SETTINGS / FLAGS =====
-   heroFlags[id] = { state:'live'|'off', place:'page'|'archive' }
+/* ===== settings & flags =====
+   heroFlags[id] = {
+     state:'live'|'off',
+     place:'page'|'archive',
+     aud:{bronze:boolean,silver:boolean,gold:boolean}
+   }
 */
 function defaults(){
   const heroFlags={};
-  // on page: 12 heroes
-  for(let i=1;i<=12;i++) heroFlags[`co-${i}`]={state:'live',place:'page'};
-  // archive: the rest up to 50
-  for(let i=13;i<=50;i++) heroFlags[`co-${i}`]={state:'off',place:'archive'};
-  return { heroFlags, _seed:true };
+  // seed 10 page heroes: co-1..co-10
+  for(let i=1;i<=10;i++) heroFlags[`co-${i}`]={state:'live',place:'page',aud:{bronze:true,silver=true,gold:true}};
+  // seed 40 archived: co-11..co-50
+  for(let i=11;i<=50;i++) heroFlags[`co-${i}`]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+  return { heroFlags, _seeded:true };
 }
 function getSettings(){
-  const cur=store.get(K.settings,null);
-  if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
-  if(!cur.heroFlags){ cur.heroFlags={}; }
+  let cur=store.get(K.settings,null);
+  if(!cur){ cur=defaults(); store.set(K.settings,cur); }
+  // backfill audience if missing
+  Object.keys(cur.heroFlags).forEach(id=>{
+    cur.heroFlags[id].aud = cur.heroFlags[id].aud || {bronze:true,silver:true,gold:true};
+  });
   return cur;
 }
 function saveSettings(s){ store.set(K.settings,s); }
 
 /* Helpers */
-function numberFromId(id){ const m=id && id.match(/\d+/); return m?m[0]:'?'; }
-function cap(s){return s? s.charAt(0).toUpperCase()+s.slice(1):'';}
+function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-/* Build Page Hero */
-function buildHeroCard(id){
-  const flag=getSettings().heroFlags[id]||{state:'off',place:'archive'};
+/* Build a hero card for the page */
+function heroCard(id){
+  const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
   const n=numberFromId(id);
-  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place='page';
+  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <span class="num">#${n}</span>
-    ${isAdmin()?`
-    <div class="ctrls">
-      <button class="chip ${flag.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${flag.state==='live'?'Live':'Offline'}</button>
+    <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
+      <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
       <div class="move">
         <button class="chip" data-act="move">Move</button>
-        <div class="move-menu">
-          <button data-to="archive">Move to Archive</button>
+        <div class="menu">
+          ${f.place==='page'
+            ? '<button data-to="archive">Move to Archive</button>'
+            : '<button data-to="page">Move to Page</button>'}
         </div>
       </div>
-    </div>`:''}
-    <div class="cta-left"><button class="btn blue" data-act="enter">Start</button></div>`;
+    </div>
+    <div class="cta-left">
+      <button class="btn blue" data-act="enter">Start</button>
+      ${isAdminLike()?`
+        <div class="aud">
+          <button class="chip" data-act="aud">Audience</button>
+          <div class="aud-menu" role="dialog" aria-label="Audience">
+            <label><input type="checkbox" data-aud="bronze" ${f.aud.bronze?'checked':''}> Bronze</label>
+            <label><input type="checkbox" data-aud="silver" ${f.aud.silver?'checked':''}> Silver</label>
+            <label><input type="checkbox" data-aud="gold"   ${f.aud.gold  ?'checked':''}> Gold</label>
+            <div class="row" style="justify-content:flex-end">
+              <button class="chip" data-act="aud-cancel">Cancel</button>
+              <button class="chip" data-act="aud-save">Save</button>
+            </div>
+          </div>
+        </div>`:''}
+    </div>`;
   return el;
 }
 
-/* Paint Page */
+/* Paint page grid respecting visibility rules */
 function paintPage(){
   const grid=$('#pageGrid'); grid.innerHTML='';
-  const flags=getSettings().heroFlags;
-  // Admin: see all page heroes (live or off). Non-admin: only live on page.
-  Object.keys(flags).sort((a,b)=>parseInt(numberFromId(a))-parseInt(numberFromId(b))).forEach(id=>{
-    const f=flags[id]; if(f.place!=='page') return;
-    if(!isAdmin() && f.state!=='live') return;
-    grid.appendChild(buildHeroCard(id));
-  });
+  const s=getSettings();
+  const role=getRole();
+  for(let i=1;i<=50;i++){
+    const id=`co-${i}`; const f=s.heroFlags[id]; if(!f) continue;
+    if(f.place!=='page') continue;
+    if(!seesAll()){
+      // Bronze/Silver/Gold users: must be live and audience includes their level
+      if(f.state!=='live') continue;
+      if(!f.aud[role]) continue;
+    }
+    const card=heroCard(id);
+    if(card) grid.appendChild(card);
+  }
 }
 
-/* Paint Archive Footer (admin only) */
+/* ===== Archive footer ===== */
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+function applyArchiveVisibility(){
+  if(isAdminLike()){
+    dock.style.display='block';
+    dock.setAttribute('aria-hidden','false');
+  }else{
+    dock.style.display='none';
+    dock.setAttribute('aria-hidden','true');
+  }
+}
+applyArchiveVisibility();
+
 function paintArchive(){
-  const foot=$('#archiveFoot');
-  if(!isAdmin()){ foot.classList.add('hidden'); return; }
-  foot.classList.remove('hidden');
-  const list=$('#listArchive'); list.innerHTML='';
-  const flags=getSettings().heroFlags;
-  let count=0;
-  Object.keys(flags).sort((a,b)=>parseInt(numberFromId(a))-parseInt(numberFromId(b))).forEach(id=>{
-    const f=flags[id]; if(f.place!=='archive') return;
-    count++;
+  const s=getSettings(); const flags=s.heroFlags;
+  archiveList.innerHTML='';
+  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive').sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
+  countArchive.textContent=items.length;
+  items.forEach(([id,f])=>{
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML=`
-      <span class="num">#${numberFromId(id)}</span>
-      <div class="move">
-        <button class="chip" data-act="move">Move</button>
-        <div class="move-menu">
-          <button data-to="page">Move to Page</button>
+    row.innerHTML=`<span class="num">#${numberFromId(id)}</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
+        <div class="move">
+          <button class="chip" data-act="move">Move</button>
+          <div class="menu"><button data-to="page">Move to Page</button></div>
         </div>
       </div>`;
-    list.appendChild(row);
+    archiveList.appendChild(row);
   });
-  $('#countArchive').textContent=count;
 }
-paintPage(); paintArchive();
+paintArchive();
 
-/* Ensure archive "sticks" to bottom and scrolls into view when opened */
-const archiveFoot=$('#archiveFoot');
-archiveFoot.addEventListener('toggle',()=>{
-  if(archiveFoot.open){
-    archiveFoot.scrollIntoView({behavior:'smooth',block:'end'});
-  }
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
 });
 
-/* ===== Global Interactions ===== */
+/* ===== Global click handlers ===== */
 document.addEventListener('click',(e)=>{
-  // Start (enter)
-  if(e.target.closest('[data-act="enter"]')){
+  /* Start (opens linked html; placeholder 401) */
+  const enter=e.target.closest('[data-act="enter"]');
+  if(enter){
     const host=e.target.closest('[data-hero-id]');
-    const n = numberFromId(host?.dataset.heroId||'');
-    openSubSheet(`Course #${n}`, null); // link later; 401 shows for now
+    const id=host?.dataset?.heroId||'';
+    openSubSheet(`Course #${numberFromId(id)}`, null);
     return;
   }
 
-  // Toggle live/off (admin only)
+  /* Live / Offline toggle (admin/director) */
   const tgl=e.target.closest('[data-act="toggle"]');
   if(tgl){
-    if(!isAdmin()) return;
+    if(!isAdminLike()) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
@@ -321,48 +372,75 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  // Open/close move menu
+  /* Move menu open/close */
   const mv=e.target.closest('[data-act="move"]');
   if(mv){
-    const menu=mv.parentElement.querySelector('.move-menu');
+    const menu=mv.parentElement.querySelector('.menu');
     const open=!menu.classList.contains('open');
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
+    $$('.menu.open').forEach(m=>m.classList.remove('open'));
     if(open) menu.classList.add('open');
     e.stopPropagation();
     return;
   }
 
-  // Choose destination
-  if(e.target.matches('.move-menu button')){
-    const dest=e.target.dataset.to;
+  /* Move destination */
+  if(e.target.matches('.menu button[data-to]')){
+    const to=e.target.dataset.to; // 'page' or 'archive'
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId;
-    moveHero(id, dest);
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
+    moveHero(id, to);
+    $$('.menu.open').forEach(m=>m.classList.remove('open'));
     e.stopPropagation();
     return;
   }
-});
-// click-away to close any open menu
-document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'));});
 
-/* Move engine (only page <-> archive) */
+  /* Audience popover open */
+  const audBtn=e.target.closest('[data-act="aud"]');
+  if(audBtn){
+    const menu=audBtn.parentElement.querySelector('.aud-menu');
+    const open=!menu.classList.contains('open');
+    $$('.aud-menu.open').forEach(m=>m.classList.remove('open'));
+    if(open) menu.classList.add('open');
+    e.stopPropagation();
+    return;
+  }
+
+  /* Audience save/cancel */
+  if(e.target.matches('[data-act="aud-cancel"]')){
+    const menu=e.target.closest('.aud-menu'); if(menu) menu.classList.remove('open'); return;
+  }
+  if(e.target.matches('[data-act="aud-save"]')){
+    const menu=e.target.closest('.aud-menu'); const host=e.target.closest('.hero');
+    const id=host.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id];
+    const aud={
+      bronze: menu.querySelector('[data-aud="bronze"]').checked,
+      silver: menu.querySelector('[data-aud="silver"]').checked,
+      gold:   menu.querySelector('[data-aud="gold"]').checked
+    };
+    s.heroFlags[id]={...cur, aud}; saveSettings(s);
+    menu.classList.remove('open');
+    // no need to repaint unless you want counts, but do it for safety:
+    paintPage();
+    return;
+  }
+});
+
+/* Close any open menus on outside click / ESC */
+document.addEventListener('click',()=>{ $$('.menu.open').forEach(m=>m.classList.remove('open')); $$('.aud-menu.open').forEach(m=>m.classList.remove('open')); });
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.menu.open,.aud-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); }});
+
+/* Movement engine (page <-> archive) */
 function moveHero(id, dest){
-  const s=getSettings(); const cur=s.heroFlags[id];
-  if(!cur) return;
+  const s=getSettings(); const cur=s.heroFlags[id]; if(!cur) return;
   if(dest!=='page' && dest!=='archive') return; // guard
   s.heroFlags[id]={...cur, place:dest};
   saveSettings(s);
   paintPage(); paintArchive();
 }
 
-/* React to role/profile changes coming from Profile page */
-window.addEventListener('storage',e=>{
-  if(e.key===K.profile){ applyAvatar(); paintPage(); }
-});
-
-/* Boot log */
-console.log('[FAOA] home ready ✓');
+/* Init page */
+paintPage();
 })();
 </script>
 </body>
