@@ -28,7 +28,7 @@ a{color:inherit;text-decoration:none}
 .nav-left{display:flex;gap:8px;align-items:center}
 .title-tab{font-weight:900;opacity:.92}
 
-/* Config toolbar (appears under nav in config mode) */
+/* Config toolbar */
 .cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
   display:none;align-items:center;gap:8px;padding:10px 14px}
 .config-on .cfgbar{display:flex}
@@ -44,14 +44,19 @@ a{color:inherit;text-decoration:none}
 /* Layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid of heroes */
+/* Grid of items (heroes + headings) */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
 @media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
 @media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
-/* Hero card — 2x taller */
+/* Draggable chrome (config mode only) */
+.item[draggable="true"]{touch-action:none}
+.drag-ghost{opacity:.5}
+.drag-over{outline:2px dashed var(--blue); outline-offset:3px; border-radius:14px}
+
+/* Hero card — 2x height */
 .hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
 .hero .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center}
@@ -72,14 +77,14 @@ a{color:inherit;text-decoration:none}
 .menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
 
-/* Audience popover (Admin/Director only) */
+/* Audience popover */
 .aud{position:relative}
 .aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:2000;min-width:220px}
 .aud-menu.open{display:block}
 .aud-menu label{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
 .aud-menu .row{display:flex;gap:8px;margin-top:8px}
 
-/* Section headings (config items) */
+/* Section headings */
 .divider{border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px;min-height:58px;display:flex;align-items:center;justify-content:space-between}
 .divider .htext{font-weight:900;opacity:.92}
 .divider .dctrls{display:none;gap:8px}
@@ -90,14 +95,7 @@ a{color:inherit;text-decoration:none}
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
 
-/* Avatar Drawer */
-#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-#avatarSheet.open{display:block}
-#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
-.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
-.menu-list a:last-child{border-bottom:none}
-
-/* Subsheet (iframe) */
+/* Subsheet */
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
 #subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));height:min(78vh,calc(100% - (var(--nav-h) + 24px)));
@@ -106,18 +104,28 @@ a{color:inherit;text-decoration:none}
 .sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
 
-/* ===== Archive Footer (Admin only, snaps bottom and expands up) ===== */
+/* Avatar Drawer */
+#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#avatarSheet.open{display:block}
+#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
+.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.menu-list a:last-child{border-bottom:none}
+
+/* Archive Footer (Admin only) */
 #archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
-  transition:max-height .22s ease;overflow:hidden}
+  transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain}
 #archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900}
 #archiveDock .bar .count{opacity:.95}
-#archiveDock .content{background:#160b0b}
+#archiveDock .content{background:#160b0b;max-height:calc(60vh - 48px);overflow:auto}
 #archiveDock .list{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
 #archiveDock .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#0d0d10;border-radius:10px}
 #archiveDock .row .num{font-weight:900}
 #archiveDock .row .chip{height:26px}
 #archiveDock.collapsed{max-height:48px}
 #archiveDock.open{max-height:60vh}
+
+/* Body lock when drawer open */
+body.lock{position:fixed;inset:0;overflow:hidden}
 </style>
 </head>
 <body>
@@ -190,14 +198,11 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
 const K={ profile:'ao_profile', settings:'ao_settings' };
 
 /* Roles */
-function getRole(){
-  const p=store.get(K.profile,{skill:'admin',displayName:'User'});
-  return (p.skill||'admin').toLowerCase();
-}
+function getRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
 function isAdminLike(){ const r=getRole(); return r==='admin' || r==='director'; }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
 
-/* Avatar paint (colour by role) */
+/* Avatar paint */
 (function applyAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
@@ -208,7 +213,7 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
 })();
 
-/* Avatar drawer + subsheet */
+/* Avatar drawer + subsheet (unchanged) */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
@@ -233,36 +238,49 @@ $('#cfgToggle').addEventListener('click', e=>{
   document.body.classList.toggle('config-on');
   const on=document.body.classList.contains('config-on');
   $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
+  setDraggable(on);
 });
 
 /* ===== settings & flags =====
-   heroFlags[id] = {
-     state:'live'|'off',
-     place:'page'|'archive',
-     aud:{bronze:boolean,silver:boolean,gold:boolean}
-   }
+   heroFlags[id] = { state:'live'|'off', place:'page'|'archive', aud:{bronze,silver,gold} }
    heroLabels[id] = 'Custom label'
-   pageOrder = ['co-1', {type:'divider', title:'Heading'}, 'co-2', ...]
+   pageOrder = [{type:'hero',id:'co-1'}, {type:'divider', id:'div_x', title:'Heading'}, ...]
 */
+function uuid(){ return 'div_'+Math.random().toString(36).slice(2,9); }
 function defaults(){
-  const heroFlags={};
-  for(let i=1;i<=10;i++)
-    heroFlags[`co-${i}`]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
-  for(let i=11;i<=50;i++)
-    heroFlags[`co-${i}`]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
-  const pageOrder=[]; for(let i=1;i<=10;i++) pageOrder.push(`co-${i}`);
+  const heroFlags={}, pageOrder=[];
+  for(let i=1;i<=10;i++){
+    const id=`co-${i}`;
+    heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
+    pageOrder.push({type:'hero',id});
+  }
+  for(let i=11;i<=50;i++){
+    const id=`co-${i}`;
+    heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+  }
   return { heroFlags, heroLabels:{}, pageOrder, _seeded:true };
+}
+function migrate(cfg){
+  // migrate old pageOrder that was array of ids/objects without ids
+  const po=cfg.pageOrder||[];
+  const fixed=po.map(it=>{
+    if(typeof it==='string') return {type:'hero', id:it};
+    if(it && it.type==='divider' && !it.id) return {...it, id:uuid()};
+    return it;
+  });
+  cfg.pageOrder=fixed;
+  return cfg;
 }
 function sanitize(cfg){
   if(!cfg || typeof cfg!=='object') return defaults();
+  cfg=migrate(cfg);
   cfg.heroFlags=cfg.heroFlags||{};
   cfg.heroLabels=cfg.heroLabels||{};
   cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
-  // Backfill missing flags
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
-    if(!cfg.pageOrder.includes(id) && cfg.heroFlags[id].place==='page') cfg.pageOrder.push(id);
+    if(!cfg.pageOrder.some(it=>it.type==='hero' && it.id===id) && cfg.heroFlags[id].place==='page') cfg.pageOrder.push({type:'hero',id});
   }
   return cfg;
 }
@@ -273,17 +291,17 @@ function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-/* Build hero card */
+/* DOM builders */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
+  const wrap=document.createElement('div'); wrap.className='item'; wrap.dataset.key=`hero:${id}`;
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}">✎</button>
     <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
       <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
-      <div class="move">
-        <button class="chip" data-act="move">Move</button>
+      <div class="move"><button class="chip" data-act="move">Move</button>
         <div class="menu">
           ${f.place==='page'
             ? '<button data-to="archive">Move to Archive</button>'
@@ -296,7 +314,7 @@ function heroCard(id){
       ${isAdminLike()?`
         <div class="aud">
           <button class="chip" data-act="aud">Audience</button>
-          <div class="aud-menu" role="dialog" aria-label="Audience">
+          <div class="aud-menu">
             <label><input type="checkbox" data-aud="bronze" ${f.aud.bronze?'checked':''}> Bronze</label>
             <label><input type="checkbox" data-aud="silver" ${f.aud.silver?'checked':''}> Silver</label>
             <label><input type="checkbox" data-aud="gold"   ${f.aud.gold  ?'checked':''}> Gold</label>
@@ -307,49 +325,46 @@ function heroCard(id){
           </div>
         </div>`:''}
     </div>`;
-  return el;
+  wrap.appendChild(el);
+  return wrap;
 }
-
-/* Build divider */
-function dividerEl(title){
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider';
-  el.innerHTML=`<span class="htext">${title||'Heading'}</span>
+function dividerEl(obj){
+  const wrap=document.createElement('div'); wrap.className='item'; wrap.dataset.key=`div:${obj.id}`;
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>
     <div class="dctrls">
-      <button class="cfgbtn" data-div-act="rename">Rename</button>
-      <button class="cfgbtn" data-div-act="remove">Remove</button>
+      <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}">Rename</button>
+      <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}">Remove</button>
     </div>`;
-  return el;
+  wrap.appendChild(el);
+  return wrap;
 }
 
-/* Paint page using pageOrder + visibility rules */
+/* Paint page with visibility rules */
 function paintPage(){
   const grid=$('#pageGrid'); grid.innerHTML='';
   const s=getSettings(); const role=getRole();
-  s.pageOrder.forEach(item=>{
-    if(typeof item==='string'){ // hero id
-      const id=item; const f=s.heroFlags[id]; if(!f) return;
-      if(f.place!=='page') return;
+  s.pageOrder.forEach(it=>{
+    if(it.type==='hero'){
+      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
       if(!seesAll()){
         if(f.state!=='live') return;
         if(!f.aud[role]) return;
       }
       const card=heroCard(id); if(card) grid.appendChild(card);
-    }else if(item && item.type==='divider'){
-      const d=dividerEl(item.title||'Heading'); grid.appendChild(d);
+    }else if(it.type==='divider'){
+      grid.appendChild(dividerEl(it));
     }
   });
+  setDraggable(document.body.classList.contains('config-on'));
 }
 
-/* ===== Archive footer ===== */
+/* Archive footer */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+let savedScrollY=0;
 function applyArchiveVisibility(){
-  if(isAdminLike()){
-    dock.style.display='block';
-    dock.setAttribute('aria-hidden','false');
-  }else{
-    dock.style.display='none';
-    dock.setAttribute('aria-hidden','true');
-  }
+  if(isAdminLike()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
 applyArchiveVisibility();
 
@@ -363,7 +378,7 @@ function paintArchive(){
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     row.innerHTML=`<span class="num">${labelFor(id)}</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
+        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle">`+(f.state==='live'?'Live':'Offline')+`</button>
         <div class="move">
           <button class="chip" data-act="move">Move</button>
           <div class="menu"><button data-to="page">Move to Page</button></div>
@@ -373,141 +388,171 @@ function paintArchive(){
   });
 }
 paintArchive();
+
+function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
+
 $('#archiveToggle').addEventListener('click',()=>{
   const isOpen=dock.classList.contains('open');
   dock.classList.toggle('open', !isOpen);
   dock.classList.toggle('collapsed', isOpen);
   $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
+  if(!isOpen) lockBody(); else unlockBody();
 });
 
-/* ===== Config toolbar actions ===== */
+/* Config toolbar */
 $('#addHeadingBtn').addEventListener('click',()=>{
-  const title=prompt('Heading title','Section');
-  if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider',title:title.trim()||'Section'});
+  const title=prompt('Heading title','Section'); if(title==null) return;
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuid(), title:title.trim()||'Section'});
   saveSettings(s); paintPage();
 });
-$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); });
+$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); setDraggable(false); });
 
-/* ===== Global click handlers ===== */
+/* ===== Global events (robust selectors) ===== */
 document.addEventListener('click',(e)=>{
-  /* Start (placeholder link) */
-  const enter=e.target.closest('[data-act="enter"]');
-  if(enter){
-    const host=e.target.closest('[data-hero-id]');
-    const id=host?.dataset?.heroId||'';
-    openSubSheet(`Course ${labelFor(id)}`, null);
-    return;
+  // Start (placeholder)
+  const start = e.target.closest('[data-act="enter"]');
+  if(start){
+    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
+    openSubSheet(`Course ${labelFor(id)}`, null); return;
   }
 
-  /* Live / Offline toggle (admin/director) */
-  const tgl=e.target.closest('[data-act="toggle"]');
+  // Toggle live/off
+  const tgl = e.target.closest('[data-act="toggle"]');
   if(tgl){
     if(!isAdminLike()) return;
     const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id];
+    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-    saveSettings(s);
-    paintPage(); paintArchive();
-    return;
+    saveSettings(s); paintPage(); paintArchive(); return;
   }
 
-  /* Move menu open/close */
-  const mv=e.target.closest('[data-act="move"]');
+  // Open/close move menu
+  const mv = e.target.closest('[data-act="move"]');
   if(mv){
-    const menu=mv.parentElement.querySelector('.menu');
+    const menu = mv.parentElement.querySelector('.menu');
     const open=!menu.classList.contains('open');
     $$('.menu.open').forEach(m=>m.classList.remove('open'));
     if(open) menu.classList.add('open');
-    e.stopPropagation();
-    return;
+    e.stopPropagation(); return;
   }
 
-  /* Move destination */
-  if(e.target.matches('.menu button[data-to]')){
-    const to=e.target.dataset.to; // 'page' or 'archive'
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId;
-    moveHero(id, to);
+  // Move destination (iOS-safe)
+  const toBtn = e.target.closest('button[data-to]');
+  if(toBtn){
+    const to = toBtn.getAttribute('data-to');
+    const host = toBtn.closest('[data-hero-id], .row');
+    const id = host.dataset.heroId;
+    moveHero(id,to);
     $$('.menu.open').forEach(m=>m.classList.remove('open'));
-    e.stopPropagation();
-    return;
+    e.stopPropagation(); return;
   }
 
-  /* Audience open/close */
-  const audBtn=e.target.closest('[data-act="aud"]');
+  // Audience popup
+  const audBtn = e.target.closest('[data-act="aud"]');
   if(audBtn){
     const menu=audBtn.parentElement.querySelector('.aud-menu');
     const open=!menu.classList.contains('open');
     $$('.aud-menu.open').forEach(m=>m.classList.remove('open'));
     if(open) menu.classList.add('open');
-    e.stopPropagation();
-    return;
+    e.stopPropagation(); return;
   }
   if(e.target.matches('[data-act="aud-cancel"]')){
     const menu=e.target.closest('.aud-menu'); if(menu) menu.classList.remove('open'); return;
   }
   if(e.target.matches('[data-act="aud-save"]')){
     const menu=e.target.closest('.aud-menu'); const host=e.target.closest('.hero');
-    const id=host.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id];
+    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const aud={
       bronze: menu.querySelector('[data-aud="bronze"]').checked,
       silver: menu.querySelector('[data-aud="silver"]').checked,
       gold:   menu.querySelector('[data-aud="gold"]').checked
     };
-    s.heroFlags[id]={...cur, aud}; saveSettings(s);
-    menu.classList.remove('open'); paintPage(); return;
+    s.heroFlags[id]={...cur, aud}; saveSettings(s); menu.classList.remove('open'); paintPage(); return;
   }
 
-  /* Rename hero label (config pin) */
+  // Rename hero label (config)
   if(e.target.matches('[data-cfg-rename]')){
     const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings();
-    const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
-    if(next!=null){
-      const v=next.trim();
-      if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
-      saveSettings(s); paintPage(); paintArchive();
-    }
+    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
   }
 
-  /* Divider rename/remove (config) */
-  if(e.target.closest('.divider') && e.target.dataset.divAct){
-    const el=e.target.closest('.divider'); const titleEl=el.querySelector('.htext');
-    const s=getSettings();
-    const idx = Array.from($('#pageGrid').children).indexOf(el);
-    // map back to pageOrder index
-    let poIndex=-1; let counter=-1;
-    s.pageOrder.forEach((it,i)=>{ if(it&&it.type==='divider'){ counter++; if(counter===Array.from($('#pageGrid').children).filter(n=>n.dataset && n.dataset.type==='divider').indexOf(el)) poIndex=i; }});
-    if(poIndex<0) return;
+  // Divider rename/remove
+  if(e.target.dataset.divAct){
+    const id=e.target.getAttribute('data-div-id'); const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     if(e.target.dataset.divAct==='rename'){
-      const next=prompt('Heading title', titleEl.textContent.trim());
-      if(next!=null){ s.pageOrder[poIndex].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
-    }else if(e.target.dataset.divAct==='remove'){
-      s.pageOrder.splice(poIndex,1); saveSettings(s); paintPage();
+      const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
+      if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
+    }else{
+      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
     }
   }
 });
 
-/* Close any open menus on outside click / ESC */
+// close popovers on outside click / ESC
 document.addEventListener('click',()=>{ $$('.menu.open').forEach(m=>m.classList.remove('open')); $$('.aud-menu.open').forEach(m=>m.classList.remove('open')); });
 window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.menu.open,.aud-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); }});
 
-/* Movement engine (page <-> archive) + keep pageOrder sane */
+/* Movement (page <-> archive) + keep pageOrder sane */
 function ensureInOrder(id){
-  const s=getSettings(); if(!s.pageOrder.includes(id)){ s.pageOrder.push(id); saveSettings(s); }
+  const s=getSettings(); if(!s.pageOrder.some(it=>it.type==='hero'&&it.id===id)){ s.pageOrder.push({type:'hero',id}); saveSettings(s); }
 }
 function moveHero(id, dest){
   const s=getSettings(); const cur=s.heroFlags[id]; if(!cur) return;
   if(dest!=='page' && dest!=='archive') return;
   s.heroFlags[id]={...cur, place:dest};
   if(dest==='page') ensureInOrder(id);
-  saveSettings(s);
-  paintPage(); paintArchive();
+  saveSettings(s); paintPage(); paintArchive();
 }
+
+/* ===== Lightweight sortable (config mode only) ===== */
+let draggingKey=null;
+function setDraggable(on){
+  $$('#pageGrid .item').forEach(el=>{ el.setAttribute('draggable', on?'true':'false'); });
+}
+$('#pageGrid').addEventListener('dragstart',e=>{
+  const item=e.target.closest('.item'); if(!item) return;
+  draggingKey=item.dataset.key; item.classList.add('drag-ghost');
+});
+$('#pageGrid').addEventListener('dragend',e=>{
+  const item=e.target.closest('.item'); if(item) item.classList.remove('drag-ghost');
+  draggingKey=null; $$('#pageGrid .item').forEach(i=>i.classList.remove('drag-over'));
+});
+$('#pageGrid').addEventListener('dragover',e=>{
+  if(!draggingKey) return;
+  e.preventDefault();
+  const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return;
+  over.classList.add('drag-over');
+});
+$('#pageGrid').addEventListener('dragleave',e=>{
+  const over=e.target.closest('.item'); if(over) over.classList.remove('drag-over');
+});
+$('#pageGrid').addEventListener('drop',e=>{
+  if(!draggingKey) return;
+  e.preventDefault();
+  const over=e.target.closest('.item'); if(!over || over.dataset.key===draggingKey) return;
+  const s=getSettings();
+  const keyToObj = key=>{
+    const [type,id]=key.split(':');
+    return type==='hero' ? {type, id} : {type:'divider', id};
+  };
+  const orderDom=[...$('#pageGrid').children].map(n=>n.dataset.key);
+  const from = orderDom.indexOf(draggingKey);
+  const to   = orderDom.indexOf(over.dataset.key);
+  if(from<0||to<0||from===to) return;
+  const orderObjs=s.pageOrder.slice();
+  // convert current s.pageOrder to keys list
+  const keys = orderObjs.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+  // move
+  const [moved]=keys.splice(from,1);
+  keys.splice(to,0,moved);
+  // back to objects
+  s.pageOrder = keys.map(keyToObj);
+  saveSettings(s); paintPage();
+});
 
 /* Initial paint */
 paintPage(); paintArchive();
