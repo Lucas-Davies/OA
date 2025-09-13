@@ -31,7 +31,7 @@ a{color:inherit; text-decoration:none}
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:50;
+  padding:8px 12px; z-index:100; /* ↑ ensure always tappable */
   background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
@@ -138,8 +138,18 @@ article.hero .move-menu [data-move-to]{display:block!important}
 /* ===== Admin footer / Working Drawer (always fixed) ===== */
 #adminTab{position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90; pointer-events:auto}
 #adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
-#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
-#adminDock.open{transform:translateY(0)}
+
+/* CLICKABILITY FIX: make dock non-interactive when closed */
+#adminDock{
+  position:fixed; left:0; right:0; top:0; bottom:0;
+  transform:translateY(100%); transition:transform .18s ease;
+  z-index:89; background:#0e0b0b;
+  pointer-events:none;            /* <<< added */
+}
+#adminDock.open{
+  transform:translateY(0);
+  pointer-events:auto;            /* <<< added */
+}
 #adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
 #adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
 #adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:180px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
@@ -445,10 +455,6 @@ article.hero .move-menu [data-move-to]{display:block!important}
 
 <script>
 (()=>{'use strict';
-
-/* ===== tiny error guard (keeps later binds alive) ===== */
-window.addEventListener('error', (ev)=>console.warn('[FAOA] runtime error:', ev.message));
-
 /* ===== utils & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
@@ -686,36 +692,37 @@ function paintWorkingDrawer(){
 paintWorkingDrawer();
 
 /* Drawer interactions (dev space + bins) */
-document.getElementById('adminDock').addEventListener('click',(e)=>{
+$('#adminDock').addEventListener('click',(e)=>{
   // toggle live/off (dev card)
   if(e.target.matches('[data-dock-act="toggle"]')){
-    const id=e.target.dataset.dockId;
-    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-    saveSettings(s); applyHeroVisibility(); paintWorkingDrawer(); return;
+    const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
+    applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-
-  // move actions (accept id from either attribute; handles bin rows and dev-card menus)
-  if(e.target.matches('[data-dock-to], [data-move-id], [data-place]')){
-    const id   = e.target.dataset.dockId || e.target.dataset.moveId;
-    const dest = e.target.dataset.dockTo || e.target.dataset.place;
-    if(id && dest){ moveHero(id, dest); }
-    return;
+  // open/close dev-card move menu
+  if(e.target.matches('[data-dock-move], [data-dock-move] *')){
+    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open'); return;
   }
-
-  // set/change link
+  // dev-card move actions
+  if(e.target.matches('[data-dock-to]')){
+    moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return;
+  }
+  // set/change link (bins)
   if(e.target.matches('[data-link-id]')){
     const id=e.target.dataset.linkId; const cur=getLinks()[id]||'';
     const url=prompt('Enter linked HTML/URL', cur||'');
     if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); }
     return;
   }
-
-  // open link
+  // open link (bins)
   if(e.target.matches('[data-open-id]')){
     const id=e.target.dataset.openId; const url=getLinks()[id];
     if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
     openSubSheet('Hero', url); return;
+  }
+  // move from bin row
+  if(e.target.matches('[data-move-id]')){
+    moveHero(e.target.dataset.moveId, e.target.dataset.place); return;
   }
 });
 
