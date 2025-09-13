@@ -1,209 +1,324 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="dark">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
 <title>Settings — FAOA</title>
 <style>
-:root{ --bg:#000; --panel:#0f1116; --panel2:#121318; --ink:#eef3ff; --ink-dim:#cfd3e1; --stroke:rgba(255,255,255,.18); --blue:#0A84FF }
+:root{
+  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
+  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --r:14px; --nav-h:56px;
+}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text"}
-header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.65));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke)}
-.bar{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px}
-.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#15171f;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.bar h1{margin:0;font:900 20px/1 -apple-system}
-main{max-width:760px;margin:0 auto;padding:12px}
-.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;margin:12px 0;overflow:hidden}
-.row{display:flex;align-items:center;justify-content:space-between;padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
-.row:last-child{border-bottom:none}
-strong{font-weight:900}
-.switch{position:relative;display:inline-block;width:52px;height:30px}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+
+/* Header */
+.nav{position:sticky;top:0;height:var(--nav-h);display:flex;align-items:center;gap:10px;
+  padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.45));backdrop-filter:blur(12px);z-index:10}
+.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
+.title{margin:0;font-weight:900;font-size:18px}
+
+/* Wrap */
+.wrap{padding:12px}
+
+/* Cards / details */
+.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;margin:12px 0}
+details{border-radius:14px;overflow:hidden}
+summary{list-style:none;cursor:pointer;padding:14px 14px 12px;font-weight:900;background:rgba(255,255,255,.03);border-bottom:1px solid var(--stroke)}
+summary::-webkit-details-marker{display:none}
+.block{padding:12px 14px}
+.row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:10px 0}
+.row-left{display:flex;align-items:center;gap:10px}
+label{color:var(--ink-dim)}
+input[type="text"]{width:100%;height:44px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink);padding:0 12px;font:inherit}
+.switch{position:relative;width:52px;height:30px;border-radius:999px;background:#333;border:1px solid var(--stroke);cursor:pointer}
 .switch input{display:none}
-.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#2a2a2a;border-radius:999px;border:1px solid var(--stroke);transition:.2s}
-.slider:before{content:"";position:absolute;height:24px;width:24px;left:3px;top:2px;background:white;border-radius:50%;transition:.2s}
-input:checked + .slider{background:var(--blue)}
-input:checked + .slider:before{transform:translateX(22px)}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--stroke);background:#181b22;color:#fff;font-weight:800;cursor:pointer}
+.knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#999;transition:.15s}
+.switch input:checked + .knob{left:25px;background:#fff}
+.switch input:checked ~ .bg{background:var(--blue)}
+.bg{position:absolute;inset:0;border-radius:999px;background:#333;opacity:.35}
+
+/* Level checkbox grid */
+.grid{display:flex;flex-wrap:wrap;gap:10px}
+.tag{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--stroke);border-radius:999px;padding:8px 12px;background:#0b0c10}
+
+/* Tab order list (Admin or Director if allowed) */
+.order{display:flex;flex-direction:column;gap:8px}
+.order .item{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--stroke);border-radius:10px;padding:8px 10px;background:#0b0c10}
+.order .btns button{width:36px;height:36px;border-radius:8px;border:1px solid var(--stroke);background:#121212;color:#fff;cursor:pointer}
+
+/* Buttons */
+.actions{display:flex;gap:10px;position:sticky;bottom:0;padding:12px;background:linear-gradient(180deg,transparent,#000 35%,#000)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);font-weight:900;background:#111;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
-.chips{display:flex;gap:8px;flex-wrap:wrap;padding:12px}
-.chips button{padding:8px 12px;border:1px dashed rgba(255,255,255,.18);border-radius:999px;background:#0b0c10;color:#fff;cursor:grab}
-.groupTitle{font-weight:900;margin:14px 2px 6px}
-fieldset{border:0;margin:0;padding:8px 12px}
-label.checkbox{display:flex;align-items:center;gap:10px;margin:8px 0}
-label.checkbox input{width:20px;height:20px}
-footer.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 2px}
-small.note{color:var(--ink-dim);display:block;margin:8px 2px}
 </style>
 </head>
 <body>
-<header><div class="bar">
-  <button class="back" id="backBtn">‹</button>
-  <h1>Settings</h1>
-</div></header>
+<header class="nav">
+  <button class="back" id="btnBack" aria-label="Back">‹</button>
+  <h1 class="title">Settings</h1>
+</header>
 
-<main>
-  <!-- Display -->
-  <div class="groupTitle">Display</div>
-  <div class="card">
-    <div class="row">
-      <strong>Background</strong>
-      <select id="bgSelect">
-        <option value="photo1">Default Photo</option>
-        <option value="plain">Plain Black</option>
-      </select>
+<main class="wrap">
+  <!-- Display Settings -->
+  <details class="card" id="secDisplay">
+    <summary>Display Settings</summary>
+    <div class="block">
+      <div class="row"><div class="row-left"><label>Backgrounds</label></div>
+        <label class="switch"><input id="bgToggle" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div class="row"><div class="row-left"><label>Themes (Dark/Light)</label></div>
+        <label class="switch"><input id="themeToggle" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
     </div>
-    <div class="row">
-      <strong>Theme</strong>
-      <select id="themeSelect" disabled>
-        <option value="dark">Dark</option>
-      </select>
-    </div>
-  </div>
+  </details>
 
   <!-- Home Screen -->
-  <div class="groupTitle">Home Screen</div>
-  <div class="card">
-    <div class="row"><strong>Show “Challenges”</strong><label class="switch"><input id="showChallenges" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Show “Courses”</strong><label class="switch"><input id="showCourses" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Show “Live”</strong><label class="switch"><input id="showLive" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row" style="justify-content:flex-start;gap:10px"><strong>Tab Order</strong></div>
-    <div class="chips" id="orderChips"></div>
-  </div>
-  <small class="note">Drag chips to reorder tabs.</small>
+  <details class="card" id="secHome">
+    <summary>Home Screen</summary>
+    <div class="block">
+      <div class="row"><div class="row-left"><label>Show News Tab</label></div>
+        <label class="switch"><input id="tabNews" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div class="row"><div class="row-left"><label>Show Challenges Tab</label></div>
+        <label class="switch"><input id="tabChallenges" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div class="row"><div class="row-left"><label>Show Courses Tab</label></div>
+        <label class="switch"><input id="tabCourses" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div class="row"><div class="row-left"><label>Show Live Tab</label></div>
+        <label class="switch"><input id="tabLive" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+
+      <!-- Tab order (Admin or Director if allowed) -->
+      <div id="permOrder" style="margin-top:12px;display:none">
+        <div class="row-left" style="margin:6px 0 8px"><strong>Rearrange Tabs</strong></div>
+        <div class="order" id="orderList"></div>
+      </div>
+    </div>
+  </details>
 
   <!-- Challenges -->
-  <div class="groupTitle">Challenges</div>
-  <div class="card">
-    <div class="row"><strong>Hide Daily</strong><label class="switch"><input id="hideDaily" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Hide Weekly</strong><label class="switch"><input id="hideWeekly" type="checkbox"><span class="slider"></span></label></div>
-    <div class="row"><strong>Hide Tracker</strong>
-      <select id="hideTracker">
-        <option value="none">Show Both</option>
-        <option value="daily">Hide Daily Tracker</option>
-        <option value="weekly">Hide Weekly Tracker</option>
-        <option value="both">Hide Both</option>
-      </select>
+  <details class="card" id="secChallenges">
+    <summary>Challenges</summary>
+    <div class="block">
+      <div class="row"><div class="row-left"><label>Show Daily Hero</label></div>
+        <label class="switch"><input id="heroDaily" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div class="row"><div class="row-left"><label>Show Challenge Tracker</label></div>
+        <label class="switch"><input id="heroTracker" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+
+      <!-- Visible challenge levels -->
+      <div style="margin-top:12px">
+        <div class="row-left" style="margin-bottom:6px"><strong>Visible Challenge Levels</strong></div>
+        <div class="grid" id="challengeLevels"></div>
+        <small class="hint" style="opacity:.8">Your own level is always included. Support can enable Bronze/Silver/Gold. Director/Admin can enable all.</small>
+      </div>
     </div>
-    <fieldset>
-      <legend class="groupTitle" style="margin:0">Show Daily for Levels</legend>
-      <label class="checkbox"><input type="checkbox" id="lvlMy"> My Level</label>
-      <label class="checkbox"><input type="checkbox" id="lvlBeginner"> Beginner</label>
-      <label class="checkbox"><input type="checkbox" id="lvlIntermediate"> Intermediate</label>
-      <label class="checkbox"><input type="checkbox" id="lvlAdvanced"> Advanced</label>
-      <label class="checkbox"><input type="checkbox" id="lvlExpert"> Expert</label>
-    </fieldset>
-  </div>
+  </details>
 
   <!-- Courses -->
-  <div class="groupTitle">Courses</div>
-  <div class="card">
-    <div class="row"><strong>Hide Completed Courses</strong><label class="switch"><input id="hideCompleted" type="checkbox"><span class="slider"></span></label></div>
-    <fieldset>
-      <legend class="groupTitle" style="margin:0">Show Courses For Levels</legend>
-      <label class="checkbox"><input type="checkbox" id="cMy"> My Level</label>
-      <label class="checkbox"><input type="checkbox" id="cBeginner"> Beginner</label>
-      <label class="checkbox"><input type="checkbox" id="cIntermediate"> Intermediate</label>
-      <label class="checkbox"><input type="checkbox" id="cAdvanced"> Advanced</label>
-      <label class="checkbox"><input type="checkbox" id="cExpert"> Expert</label>
-    </fieldset>
-  </div>
+  <details class="card" id="secCourses">
+    <summary>Courses</summary>
+    <div class="block">
+      <div class="row"><div class="row-left"><label>Hide Completed Courses</label></div>
+        <label class="switch"><input id="hideCompleted" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div style="margin-top:12px">
+        <div class="row-left" style="margin-bottom:6px"><strong>Show Courses From Levels</strong></div>
+        <div class="grid" id="courseLevels"></div>
+        <small class="hint" style="opacity:.8">Support: Bronze/Silver/Gold. Director/Admin: all levels.</small>
+      </div>
+    </div>
+  </details>
 
-  <footer class="actions">
-    <button class="btn blue" id="saveBtn" type="button">Save</button>
-    <button class="btn" id="cancelBtn" type="button">Cancel</button>
-  </footer>
+  <!-- Admin controls -->
+  <details class="card" id="secAdmin" style="display:none">
+    <summary>Admin Controls</summary>
+    <div class="block">
+      <div class="row"><div class="row-left"><label>Allow Director to rearrange tabs</label></div>
+        <label class="switch"><input id="allowDirectorReorder" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <div class="row"><div class="row-left"><label>Config Mode (Admin)</label></div>
+        <label class="switch"><input id="configMode" type="checkbox"><span class="knob"></span><span class="bg"></span></label>
+      </div>
+      <small class="hint" style="opacity:.8">Config Mode unlocks future admin-only UI for content placement, backgrounds, etc.</small>
+    </div>
+  </details>
+
+  <div class="actions">
+    <button class="btn" id="btnCancel" type="button">Cancel</button>
+    <button class="btn blue" id="btnSave" type="button">Save</button>
+  </div>
 </main>
 
 <script>
 (()=>{'use strict';
-const KEY='ao_settings';
+/* storage */
 const $=s=>document.querySelector(s);
-const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
-              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-const defaults={
-  display:{background:'photo1',theme:'dark'},
-  home:{tabs:{challenges:true,courses:true,live:true},order:['challenges','courses','live']},
-  challenges:{hideDaily:false,hideWeekly:false,hideTracker:'none',levels:['my']},
-  courses:{hideCompleted:false,levels:['my']}
-};
+const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
+             set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const K={profile:'ao_profile', settings:'ao_settings'};
 
-function back(){ if(history.length>1) history.back(); }
-$('#backBtn').addEventListener('click', back);
-$('#cancelBtn').addEventListener('click', back);
+/* role + permissions */
+const profile=store.get(K.profile,{skill:'silver'});
+const role=(profile.skill||'silver').toLowerCase();
+const isAdmin=role==='admin';
+const isDirector=role==='director';
+const isSupport=role==='support';
 
-function load(){
-  const s=Object.assign({},defaults, store.get(KEY,{}));
-  // display
-  $('#bgSelect').value=s.display?.background||'photo1';
-  $('#themeSelect').value=s.display?.theme||'dark';
-  // home toggles
-  const vis=s.home?.tabs||defaults.home.tabs;
-  $('#showChallenges').checked=vis.challenges!==false;
-  $('#showCourses').checked=vis.courses!==false;
-  $('#showLive').checked=vis.live!==false;
-  // order chips
-  const chips=$('#orderChips'); chips.innerHTML='';
-  (s.home?.order && s.home.order.length ? s.home.order : defaults.home.order).forEach(t=>{
-    const b=document.createElement('button'); b.textContent=t[0].toUpperCase()+t.slice(1); b.dataset.tab=t; b.draggable=true; chips.appendChild(b);
-  });
-  chips.addEventListener('dragstart',e=>{ if(e.target.tagName!=='BUTTON') return; e.dataTransfer.setData('text/plain',e.target.dataset.tab); });
-  chips.addEventListener('dragover',e=>e.preventDefault());
-  chips.addEventListener('drop',e=>{
-    e.preventDefault();
-    const from=e.dataTransfer.getData('text/plain');
-    const target=e.target.closest('button'); if(!from||!target) return;
-    const fromEl=[...chips.children].find(x=>x.dataset.tab===from);
-    chips.insertBefore(fromEl, target);
-  });
-
-  // challenges
-  $('#hideDaily').checked=!!s.challenges?.hideDaily;
-  $('#hideWeekly').checked=!!s.challenges?.hideWeekly;
-  $('#hideTracker').value=s.challenges?.hideTracker||'none';
-  const L=s.challenges?.levels||['my'];
-  $('#lvlMy').checked=L.includes('my'); $('#lvlBeginner').checked=L.includes('beginner');
-  $('#lvlIntermediate').checked=L.includes('intermediate'); $('#lvlAdvanced').checked=L.includes('advanced'); $('#lvlExpert').checked=L.includes('expert');
-
-  // courses
-  $('#hideCompleted').checked=!!s.courses?.hideCompleted;
-  const LC=s.courses?.levels||['my'];
-  $('#cMy').checked=LC.includes('my'); $('#cBeginner').checked=LC.includes('beginner');
-  $('#cIntermediate').checked=LC.includes('intermediate'); $('#cAdvanced').checked=LC.includes('advanced'); $('#cExpert').checked=LC.includes('expert');
-}
-load();
-
-$('#saveBtn').addEventListener('click', ()=>{
-  const order=[...document.querySelectorAll('#orderChips button')].map(b=>b.dataset.tab);
-  const s={
-    display:{ background: $('#bgSelect').value, theme: $('#themeSelect').value },
-    home:{ tabs:{challenges:$('#showChallenges').checked, courses:$('#showCourses').checked, live:$('#showLive').checked}, order },
-    challenges:{
-      hideDaily: $('#hideDaily').checked,
-      hideWeekly: $('#hideWeekly').checked,
-      hideTracker: $('#hideTracker').value,
-      levels: [
-        $('#lvlMy').checked?'my':null,
-        $('#lvlBeginner').checked?'beginner':null,
-        $('#lvlIntermediate').checked?'intermediate':null,
-        $('#lvlAdvanced').checked?'advanced':null,
-        $('#lvlExpert').checked?'expert':null
-      ].filter(Boolean)
-    },
-    courses:{
-      hideCompleted: $('#hideCompleted').checked,
-      levels: [
-        $('#cMy').checked?'my':null,
-        $('#cBeginner').checked?'beginner':null,
-        $('#cIntermediate').checked?'intermediate':null,
-        $('#cAdvanced').checked?'advanced':null,
-        $('#cExpert').checked?'expert':null
-      ].filter(Boolean)
-    }
+/* default settings scaffold aligned to home */
+function getDefaults(){
+  return {
+    // tabs
+    news:true, challenges:true, courses:true, live:true,
+    // heroes
+    heroes:{ news:{hidden:false}, daily:{hidden:false}, tracker:{hidden:false}, courses:{hidden:false}, live:{hidden:false} },
+    // feature flags
+    hideCompleted:false,
+    // level visibility (challenges & courses)
+    challengeLevels:[], courseLevels:[],
+    // tab order (ids): news,challenges,courses,live
+    tabOrder:['news','challenges','courses','live'],
+    // perms
+    perms:{ directorCanReorder:false },
+    // display flags
+    display:{ showBackgrounds:true, altTheme:false },
+    // admin flags
+    admin:{ configMode:false }
   };
-  store.set(KEY,s);
-  alert('Saved');
-});
+}
+let settings = Object.assign({}, getDefaults(), store.get(K.settings, {}));
+// shallow merges for nested
+settings.heroes = Object.assign({}, getDefaults().heroes, settings.heroes||{});
+settings.perms  = Object.assign({}, getDefaults().perms,  settings.perms||{});
+settings.display= Object.assign({}, getDefaults().display,settings.display||{});
+settings.admin  = Object.assign({}, getDefaults().admin,  settings.admin||{});
+
+/* bind toggles */
+$('#bgToggle').checked = !!settings.display.showBackgrounds;
+$('#themeToggle').checked = !!settings.display.altTheme;
+
+$('#tabNews').checked       = !!settings.news;
+$('#tabChallenges').checked = !!settings.challenges;
+$('#tabCourses').checked    = !!settings.courses;
+$('#tabLive').checked       = !!settings.live;
+
+$('#heroDaily').checked   = !settings.heroes.daily.hidden;
+$('#heroTracker').checked = !settings.heroes.tracker.hidden;
+
+$('#hideCompleted').checked = !!settings.hideCompleted;
+
+/* level grids */
+const allLevels=['bronze','silver','gold','support','director','admin'];
+const myLevel=(profile.skill||'silver').toLowerCase();
+
+function canToggleLevel(lvl){
+  if(lvl===myLevel) return true; // included, but will be disabled in UI
+  if(isAdmin||isDirector) return true;
+  if(isSupport) return ['bronze','silver','gold'].includes(lvl);
+  return false;
+}
+function renderLevelGrid(hostId, values){
+  const host=$(hostId); host.innerHTML='';
+  allLevels.forEach(l=>{
+    const tag=document.createElement('label'); tag.className='tag';
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.value=l;
+    const span=document.createElement('span'); span.textContent=l[0].toUpperCase()+l.slice(1);
+    tag.appendChild(cb); tag.appendChild(span);
+    const checked = values.includes(l) || l===myLevel;
+    cb.checked = checked;
+    cb.disabled = (l===myLevel) ? true : !canToggleLevel(l);
+    cb.addEventListener('change',()=>{
+      const arr = values;
+      if(cb.checked){ if(!arr.includes(l)) arr.push(l); }
+      else{ const i=arr.indexOf(l); if(i>-1) arr.splice(i,1); }
+    });
+    host.appendChild(tag);
+  });
+}
+renderLevelGrid('#challengeLevels', settings.challengeLevels);
+renderLevelGrid('#courseLevels', settings.courseLevels);
+
+/* tab order (Admin or Director if allowed) */
+function renderOrder(){
+  const canReorder = isAdmin || (isDirector && settings.perms.directorCanReorder);
+  const box=$('#permOrder'); box.style.display = canReorder? 'block':'none';
+  if(!canReorder) return;
+  const list=$('#orderList'); list.innerHTML='';
+  settings.tabOrder.forEach((id,idx)=>{
+    const el=document.createElement('div'); el.className='item';
+    el.innerHTML=`<div>${id[0].toUpperCase()+id.slice(1)}</div>
+      <div class="btns">
+        <button type="button" data-dir="-1">↑</button>
+        <button type="button" data-dir="1">↓</button>
+      </div>`;
+    el.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const dir = parseInt(btn.dataset.dir,10);
+        const j=idx+dir;
+        if(j<0||j>=settings.tabOrder.length) return;
+        const tmp=settings.tabOrder[idx]; settings.tabOrder[idx]=settings.tabOrder[j]; settings.tabOrder[j]=tmp;
+        renderOrder();
+      });
+    });
+    list.appendChild(el);
+  });
+}
+renderOrder();
+
+/* admin section visibility + controls */
+$('#secAdmin').style.display = isAdmin? 'block':'none';
+$('#allowDirectorReorder').checked = !!settings.perms.directorCanReorder;
+$('#configMode').checked = !!settings.admin.configMode;
+
+/* Save / Cancel */
+function save(){
+  settings.display.showBackgrounds = $('#bgToggle').checked;
+  settings.display.altTheme        = $('#themeToggle').checked;
+
+  settings.news       = $('#tabNews').checked;
+  settings.challenges = $('#tabChallenges').checked;
+  settings.courses    = $('#tabCourses').checked;
+  settings.live       = $('#tabLive').checked;
+
+  settings.heroes.daily.hidden   = !$('#heroDaily').checked;
+  settings.heroes.tracker.hidden = !$('#heroTracker').checked;
+
+  settings.hideCompleted = $('#hideCompleted').checked;
+
+  // levels already updated via handlers; ensure myLevel is included
+  if(!settings.challengeLevels.includes(myLevel)) settings.challengeLevels.push(myLevel);
+  if(!settings.courseLevels.includes(myLevel)) settings.courseLevels.push(myLevel);
+
+  // admin-only updates
+  if(isAdmin){
+    settings.perms.directorCanReorder = $('#allowDirectorReorder').checked;
+    settings.admin.configMode         = $('#configMode').checked;
+  }
+
+  store.set(K.settings, settings);
+  alert('Settings saved.');
+}
+function cancel(){
+  // Reload from storage
+  settings = Object.assign({}, getDefaults(), store.get(K.settings, {}));
+  settings.heroes = Object.assign({}, getDefaults().heroes, settings.heroes||{});
+  settings.perms  = Object.assign({}, getDefaults().perms,  settings.perms||{});
+  settings.display= Object.assign({}, getDefaults().display,settings.display||{});
+  settings.admin  = Object.assign({}, getDefaults().admin,  settings.admin||{});
+  location.reload();
+}
+$('#btnSave').addEventListener('click', save);
+$('#btnCancel').addEventListener('click', cancel);
+
+/* Back */
+$('#btnBack').addEventListener('click', ()=>{ history.back(); });
 })();
 </script>
 </body>
