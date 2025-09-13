@@ -31,9 +31,9 @@ a{color:inherit;text-decoration:none}
 .btn-tab.is-active{background:var(--blue);border-color:transparent;color:#000}
 @media (max-width:420px){.btn-tab{min-width:0;padding:0 12px;font-size:14px}}
 
-/* Avatar pill */
+/* Avatar pill (color by level) */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
-  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:var(--blue);color:#0b0c10}
+  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95}
 
@@ -48,7 +48,7 @@ a{color:inherit;text-decoration:none}
 @media (min-width:1201px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
 /* Hero card */
-.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:120px;
+.hero{position:relative;overflow:visible;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:120px;
   box-shadow:0 0 0 1px rgba(255,255,255,.06) inset}
 .hero .num{font-weight:900;font-size:16px;opacity:.9}
 .hero .cta-left{position:absolute;left:16px;bottom:16px}
@@ -57,16 +57,15 @@ a{color:inherit;text-decoration:none}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
 /* Admin chips (top-right of hero) */
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:100}
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:10}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* Move popover (floats so it never gets clipped) */
+/* Move popover (anchored to body; precise position; no drift) */
 .move{position:relative}
-.move-menu{position:fixed;top:0;left:0;transform:translate(-9999px,-9999px); /* offscreen until opened */
-  background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:block;visibility:hidden;opacity:0;
-  z-index:9999;min-width:220px;transition:opacity .12s ease,visibility .12s ease}
+.move-menu{position:fixed;top:-9999px;left:-9999px;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:block;
+  visibility:hidden;opacity:0;z-index:9999;min-width:220px;transition:opacity .12s ease,visibility .12s ease}
 .move-menu.open{visibility:visible;opacity:1}
 .move-menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
@@ -87,31 +86,20 @@ a{color:inherit;text-decoration:none}
 .sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
 
-/* Working Drawer (full screen) */
-#adminTab{position:fixed;left:0;right:0;bottom:0;height:42px;display:flex;align-items:center;justify-content:center;z-index:90}
-#adminTab button{background:var(--red);color:#fff;border:0;border-top-left-radius:12px;border-top-right-radius:12px;padding:10px 16px;font-weight:900}
-#adminDock{position:fixed;inset:0;transform:translateY(100%);transition:transform .2s ease;z-index:89;background:#0e0b0b}
-#adminDock.open{transform:translateY(0)}
-#adminDock header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#160b0b;color:#fff;font-weight:900;position:sticky;top:0;z-index:2}
-#adminDock header .title{display:flex;align-items:center;gap:10px}
-#adminDock header .title .dockTab{background:var(--red);color:#fff;border:0;border-radius:10px;padding:6px 10px;font-weight:900}
-#adminDock .dev{padding:12px}
-.dev .grid{gap:12px}
-/* single red heading retained (header). Removed interior duplicate heading */
-.bin{border-top:1px solid rgba(255,255,255,.14)}
-.bin>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:12px 14px;list-style:none;font-weight:900}
-.bin>summary::-webkit-details-marker{display:none}
-.bin .list{max-height:0;overflow:hidden;transition:max-height .2s ease}
-.bin[open] .list{max-height:70vh;overflow:auto}
-.list .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--stroke);background:#0d0d10;border-radius:10px;margin:6px 12px}
-.count{opacity:.75;font-weight:800}
+/* Archive footer (admin-only) */
+.archive{margin-top:24px;border-top:1px solid rgba(255,255,255,.16);padding-top:12px}
+.archive .head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.archive .title{font-weight:900;opacity:.95}
+.archive .count{opacity:.75;font-weight:800}
+.archive .list{display:grid;gap:8px}
+@media (max-width:600px){.archive .list{grid-template-columns:1fr}}
+@media (min-width:601px) and (max-width:900px){.archive .list{grid-template-columns:1fr 1fr}}
+@media (min-width:901px) and (max-width:1200px){.archive .list{grid-template-columns:1fr 1fr 1fr}}
+@media (min-width:1201px){.archive .list{grid-template-columns:1fr 1fr 1fr 1fr}}
+.row{position:relative;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--stroke);
+  background:#0d0d10;border-radius:10px}
 .row .num{font-weight:900}
-.row .chip{height:26px}
-
-/* Config pin */
-.cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
-  font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center}
-.config-on .cfg-pin{display:flex}
+.row .ctrls{position:static}
 </style>
 </head>
 <body>
@@ -130,8 +118,15 @@ a{color:inherit;text-decoration:none}
 </header>
 
 <main class="wrap">
-  <section class="grid" id="pageGrid">
-    <!-- 10 page heroes -->
+  <section class="grid" id="pageGrid"></section>
+
+  <!-- Admin-only archive footer -->
+  <section class="archive" id="archiveSection" style="display:none">
+    <div class="head">
+      <div class="title">Archive</div>
+      <div class="count" id="archiveCount">0</div>
+    </div>
+    <div class="list" id="archiveList"></div>
   </section>
 </main>
 
@@ -160,35 +155,6 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- Working Drawer -->
-<div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
-<div id="adminDock">
-  <header>
-    <div class="title">
-      <button class="dockTab" id="closeDockTab">Close</button>
-      <span>Development</span>
-    </div>
-    <button class="chip" id="closeDock">Close</button>
-  </header>
-
-  <!-- Development area -->
-  <div class="dev">
-    <section class="grid" id="devGrid"></section>
-  </div>
-
-  <!-- Archive -->
-  <details class="bin" id="binArchive">
-    <summary>Archive <span class="count" id="countArchive">0</span></summary>
-    <div class="list" id="listArchive"></div>
-  </details>
-
-  <!-- Templates -->
-  <details class="bin" id="binTpl">
-    <summary>Templates <span class="count" id="countTpl">0</span></summary>
-    <div class="list" id="listTpl"></div>
-  </details>
-</div>
-
 <script>
 (()=>{'use strict';
 /* ===== utils & storage ===== */
@@ -198,23 +164,34 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings' };
 
-/* Role helpers */
+/* Role & avatar paint */
+const ROLE_SKINS={
+  bronze:{pill:'#b87333', text:'#111'},
+  silver:{pill:'#c0c7d1', text:'#0b0c10'},
+  gold:{pill:'#ffd700',  text:'#0b0c10'},
+  support:{pill:'#6a4cff',text:'#fff'},
+  director:{pill:'#444',  text:'#fff'},
+  admin:{pill:'#0A84FF',  text:'#0b0c10'}
+};
 function currentRole(){ const p=store.get(K.profile,{skill:'admin'}); return (p.skill||'admin').toLowerCase(); }
 function isAdmin(){ return currentRole()==='admin'; }
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-/* Avatar paint (+ live update when profile changes elsewhere) */
 function applyProfile(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  const role=(p.skill||'admin').toLowerCase();
   $('#avatarName').textContent=p.displayName||'User';
-  $('#avatarLvl').textContent=(p.skill||'admin').replace(/\b\w/g,m=>m.toUpperCase());
+  $('#avatarLvl').textContent=cap(role);
+  const skin=ROLE_SKINS[role]||ROLE_SKINS.silver;
+  const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
 }
 applyProfile();
-window.addEventListener('storage',e=>{ if(e.key===K.profile){ applyProfile(); }});
+window.addEventListener('storage',e=>{ if(e.key===K.profile) applyProfile(); });
 
 /* Avatar drawer + subsheet */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', openDrawer);
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
@@ -233,147 +210,111 @@ $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
 }));
 $('#cfgToggle').addEventListener('click', e=>{ e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer(); });
 
-/* ===== settings & flags =====
-   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
+/* ===== data model: 6 page, 44 archived =====
+   heroFlags[id] = { state:'live'|'off', place:'page'|'archive' }
 */
 function defaults(){
   const heroFlags={};
-  for(let i=1;i<=10;i++) heroFlags[`co-${i}`]={state:'live',place:'page'};
-  for(let i=11;i<=50;i++) heroFlags[`co-${i}`]={state:'off',place:'tpl'};
-  return { heroFlags, _tplSeeded:true };
+  for(let i=1;i<=6;i++)  heroFlags[`co-${i}`] ={state:'live',place:'page'};
+  for(let i=7;i<=50;i++) heroFlags[`co-${i}`]={state:'off', place:'archive'};
+  return { heroFlags };
 }
 function getSettings(){ return store.get(K.settings, defaults()); }
 function saveSettings(s){ store.set(K.settings,s); }
 
-const idNum= id => (id.match(/\d+/)||['?'])[0];
+const idNum = id => (id.match(/\d+/)||['?'])[0];
 
-/* Build a hero card (Page or Dev) */
-function heroCard(id, place){
+/* Allowed moves (simplified) */
+function moveOptionsFor(place){ return place==='page' ? ['archive'] : ['page']; }
+
+/* Build hero card for page */
+function heroCard(id){
   const n=idNum(id);
-  const s=getSettings(); const flag=s.heroFlags[id]||{state:'off',place:'tpl'};
-  const live=flag.state==='live';
-  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=place;
+  const s=getSettings(); const f=s.heroFlags[id]||{state:'off',place:'archive'};
+  const live=f.state==='live';
+  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place='page';
   el.innerHTML=`
     <span class="num">#${n}</span>
     <div class="ctrls">
       <button class="chip ${live?'badge-live':'badge-off'}" data-act="toggle" ${isAdmin()?'':'style="display:none"'}>${live?'Live':'Offline'}</button>
-      <div class="move">
-        <button class="chip" data-act="move" ${isAdmin()?'':'style="display:none"'}>Move</button>
+      <div class="move" ${isAdmin()?'':'style="display:none"'}>
+        <button class="chip" data-act="move">Move</button>
         <div class="move-menu"></div>
       </div>
     </div>
     <div class="cta-left"><button class="btn blue" data-act="enter">Start</button></div>`;
   const menu=el.querySelector('.move-menu');
-  moveOptionsFor(place).forEach(opt=>{
+  moveOptionsFor('page').forEach(opt=>{
     const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
   });
   return el;
 }
-const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
 
-/* Allowed moves */
-function moveOptionsFor(place){
-  if(place==='page') return ['dev','archive'];
-  if(place==='dev') return ['page','tpl'];
-  if(place==='archive') return ['page','dev'];
-  if(place==='tpl') return ['dev'];
-  return [];
+/* Build archive row */
+function archiveRow(id){
+  const n=idNum(id);
+  const s=getSettings(); const f=s.heroFlags[id]||{state:'off',place:'archive'};
+  const live=f.state==='live';
+  const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
+  row.innerHTML=`
+    <span class="num">#${n}</span>
+    <div class="ctrls">
+      <button class="chip ${live?'badge-live':'badge-off'}" data-act="toggle" ${isAdmin()?'':'style="display:none"'}>${live?'Live':'Offline'}</button>
+      <div class="move" ${isAdmin()?'':'style="display:none"'}>
+        <button class="chip" data-act="move">Move</button>
+        <div class="move-menu"></div>
+      </div>
+    </div>`;
+  const menu=row.querySelector('.move-menu');
+  moveOptionsFor('archive').forEach(opt=>{
+    const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
+  });
+  return row;
 }
 
-/* Paint page heroes */
+/* Paint page heroes (1..6) */
 function paintPage(){
-  const s=getSettings(); const grid=$('#pageGrid'); grid.innerHTML='';
-  for(let i=1;i<=10;i++){ grid.appendChild(heroCard(`co-${i}`,'page')); }
+  const s=getSettings(); const host=$('#pageGrid'); host.innerHTML='';
+  for(let i=1;i<=6;i++){ host.appendChild(heroCard(`co-${i}`)); }
 }
 
-/* Working drawer */
-const adminDock=$('#adminDock'), toggleDockBtn=$('#toggleDockBtn'), closeDockBtn=$('#closeDock'), closeDockTab=$('#closeDockTab');
-function openDock(){ adminDock.classList.add('open'); $('#adminTab').style.display='none'; }
-function closeDock(){ adminDock.classList.remove('open'); $('#adminTab').style.display='flex'; }
-toggleDockBtn.addEventListener('click', openDock);
-closeDockBtn.addEventListener('click', closeDock);
-closeDockTab.addEventListener('click', closeDock);
-
-/* Only one bin open at once */
-['binArchive','binTpl'].forEach(id=>{
-  const d=$('#'+id);
-  d.addEventListener('toggle',()=>{
-    if(d.open){ ['binArchive','binTpl'].forEach(oid=>{ if(oid!==id) $('#'+oid).open=false; }); d.scrollIntoView({behavior:'smooth',block:'start'}); }
-    paintCounts();
-  });
-});
-
-/* Paint Dev, Archive, Templates */
-function paintDrawer(){
+/* Paint archive (admin-only) */
+function paintArchive(){
+  const isA=isAdmin();
+  $('#archiveSection').style.display = isA ? '' : 'none';
+  if(!isA) return;
   const s=getSettings(), flags=s.heroFlags;
-  const dev=$('#devGrid'); dev.innerHTML='';
-  Object.entries(flags).forEach(([id,flag])=>{ if(flag.place==='dev') dev.appendChild(heroCard(id,'dev')); });
-
-  const la=$('#listArchive'); la.innerHTML='';
-  Object.entries(flags).forEach(([id,flag])=>{
-    if(flag.place==='archive'){
-      const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-      row.innerHTML=`<span class="num">#${idNum(id)}</span>
-        <div class="move">
-          <button class="chip" data-act="move" ${isAdmin()?'':'style="display:none"'}>Move</button>
-          <div class="move-menu"></div>
-        </div>`;
-      const menu=row.querySelector('.move-menu');
-      moveOptionsFor('archive').forEach(opt=>{
-        const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
-      });
-      la.appendChild(row);
-    }
+  const list=$('#archiveList'); list.innerHTML='';
+  Object.entries(flags).forEach(([id,f])=>{
+    if(f.place==='archive'){ list.appendChild(archiveRow(id)); }
   });
-
-  const lt=$('#listTpl'); lt.innerHTML='';
-  Object.entries(flags).forEach(([id,flag])=>{
-    if(flag.place==='tpl'){
-      const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='tpl';
-      row.innerHTML=`<span class="num">#${idNum(id)}</span>
-        <div class="move">
-          <button class="chip" data-act="move" ${isAdmin()?'':'style="display:none"'}>Move</button>
-          <div class="move-menu"></div>
-        </div>`;
-      const menu=row.querySelector('.move-menu');
-      moveOptionsFor('tpl').forEach(opt=>{
-        const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
-      });
-      lt.appendChild(row);
-    }
-  });
-
-  paintCounts();
-}
-function paintCounts(){
-  const s=getSettings(), flags=s.heroFlags;
-  $('#countArchive').textContent = Object.values(flags).filter(f=>f.place==='archive').length;
-  $('#countTpl').textContent     = Object.values(flags).filter(f=>f.place==='tpl').length;
+  $('#archiveCount').textContent = list.children.length;
 }
 
-/* ===== Floating move menu logic (Safari/DDG safe) ===== */
-let openMenuRef=null;
+/* ===== Stable floating move menu (no drift) ===== */
+let openMenu=null;
 function openMoveMenu(btn, menu){
-  // position offscreen to measure
+  // ensure content exists
+  if(!menu.children.length){ return; }
+  // open + position
   menu.classList.add('open');
-  menu.style.visibility='hidden';
-  menu.style.transform='translate(-9999px,-9999px)';
-  // compute anchor rect
+  // measure
   const r=btn.getBoundingClientRect();
-  // place right-aligned under the chip
-  const top = r.bottom + 6;
-  const left = Math.max(8, r.right - Math.max(220, menu.offsetWidth)); // 220 is min-width
+  const mw=Math.max(220, menu.offsetWidth||220);
+  let top = r.bottom + 6;
+  let left = r.right - mw;
+  // keep inside viewport
+  left = Math.max(8, Math.min(left, window.innerWidth - mw - 8));
+  // apply
   menu.style.top = `${top}px`;
   menu.style.left = `${left}px`;
-  menu.style.visibility='visible';
-  menu.style.transform='none';
-  openMenuRef=menu;
+  openMenu=menu;
 }
 function closeMoveMenu(){
-  if(openMenuRef){
-    openMenuRef.classList.remove('open');
-    openMenuRef.style.visibility='hidden';
-    openMenuRef=null;
+  if(openMenu){
+    openMenu.classList.remove('open');
+    openMenu.style.top='-9999px'; openMenu.style.left='-9999px';
+    openMenu=null;
   }
 }
 window.addEventListener('scroll', closeMoveMenu, true);
@@ -381,33 +322,29 @@ window.addEventListener('resize', closeMoveMenu);
 
 /* ===== Global click handlers ===== */
 document.addEventListener('click',(e)=>{
-  // Enter (Start)
-  const enter = e.target.closest('[data-act="enter"]');
+  // Start → 401 until linked
+  const enter=e.target.closest('[data-act="enter"]');
   if(enter){
-    const host = e.target.closest('[data-hero-id], .row');
-    const id = host?.dataset.heroId || '';
-    openSubSheet(`Course #${idNum(id)}`, null); // 401 until linked
+    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset.heroId||'';
+    openSubSheet(`Course #${idNum(id)}`, null);
     return;
   }
 
-  // Live/Offline toggle (admin only)
-  const tgl = e.target.closest('[data-act="toggle"]');
+  // Live/Offline toggle (admin)
+  const tgl=e.target.closest('[data-act="toggle"]');
   if(tgl && isAdmin()){
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId;
+    const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-    saveSettings(s); paintPage(); paintDrawer(); return;
+    saveSettings(s); paintPage(); paintArchive(); return;
   }
 
-  // Open move menu
+  // Open move menu (admin)
   const mvBtn=e.target.closest('[data-act="move"]');
   if(mvBtn && isAdmin()){
     e.stopPropagation();
-    const wrap = mvBtn.closest('.move');
-    const menu = wrap.querySelector('.move-menu');
-    if(menu.classList.contains('open')){ closeMoveMenu(); }
-    else{ closeMoveMenu(); openMoveMenu(mvBtn, menu); }
+    const wrap=mvBtn.closest('.move'); const menu=wrap.querySelector('.move-menu');
+    if(menu.classList.contains('open')) closeMoveMenu(); else { closeMoveMenu(); openMoveMenu(mvBtn, menu); }
     return;
   }
 
@@ -415,33 +352,30 @@ document.addEventListener('click',(e)=>{
   if(e.target.matches('.move-menu button')){
     e.stopPropagation();
     const to=e.target.dataset.to;
-    // anchor menu belongs to either a hero card or a list row
-    const holder = (openMenuRef && openMenuRef.closest('[data-hero-id], .row')) || e.target.closest('[data-hero-id], .row');
+    const holder = (openMenu && openMenu.closest('[data-hero-id], .row')) || e.target.closest('[data-hero-id], .row');
     const id=holder.dataset.heroId;
     moveHero(id, to);
     closeMoveMenu();
     return;
   }
 
-  // Click-away
-  if(openMenuRef && !e.target.closest('.move-menu') && !e.target.closest('[data-act="move"]')){
-    closeMoveMenu();
-  }
+  // click-away
+  if(openMenu && !e.target.closest('.move-menu') && !e.target.closest('[data-act="move"]')) closeMoveMenu();
 });
 
-/* Movement engine */
+/* Movement engine (page <-> archive only) */
 function moveHero(id, dest){
-  const s=getSettings(); const cur=s.heroFlags[id]||{state:'off',place:'tpl'};
+  const s=getSettings(); const cur=s.heroFlags[id]||{state:'off',place:'archive'};
   const from=cur.place;
-  const allowed=moveOptionsFor(from);
+  const allowed = moveOptionsFor(from);
   if(!allowed.includes(dest)) return;
   s.heroFlags[id]={...cur, place:dest};
   saveSettings(s);
-  paintPage(); paintDrawer();
+  paintPage(); paintArchive();
 }
 
 /* Init */
-paintPage(); paintDrawer();
+paintPage(); paintArchive();
 })();
 </script>
 </body>
