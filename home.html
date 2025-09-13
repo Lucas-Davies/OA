@@ -6,6 +6,11 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
+<!-- cache-busters to avoid stale UI on iOS / GH Pages -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -18,7 +23,6 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-button{font:inherit}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
 /* Background */
@@ -40,9 +44,6 @@ button{font:inherit}
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
   transition:transform .06s ease, filter .15s ease; font-size:15px;
 }
-@media (max-width:480px){
-  .btn-tab{ min-width: auto; padding:0 12px }
-}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
@@ -51,7 +52,7 @@ button{font:inherit}
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
   padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
   font-weight:900; line-height:1.1; text-align:left; cursor:pointer;
-  border:1px solid var(--stroke); background:#222; z-index:51; /* above chips */
+  border:1px solid var(--stroke); background:#222;
 }
 .avatarTab .name{font-size:15px; font-weight:900}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
@@ -66,23 +67,19 @@ button{font:inherit}
 .hero .meta{margin:0 0 6px; color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px; color:var(--muted)}
 .cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#eef3ff; cursor:pointer}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
 .btn.grey{background:#3a3a3a; color:#fff}
 .badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
+.badge-live{background:#1fa01f; color:#fff}
+.badge-off{background:#b00020; color:#fff}
 
-/* Admin controls on hero (hard top-right) */
-.admin-ctrls{position:absolute; top:10px; right:10px; display:flex; gap:8px}
-.state-badge{height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke); font-weight:900}
-.state-live{background:#0a0; color:#fff}
-.state-off{background:#b00020; color:#fff}
-.move-btn{height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:900; position:relative}
-
-/* Move popover */
-.move-menu{position:absolute; top:36px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:4; width:220px}
-.move-menu.open{display:block}
-.move-menu button{display:block; width:100%; text-align:left; padding:10px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:13px; margin:6px 0; cursor:pointer}
-.move-menu button:hover{filter:brightness(1.08)}
+/* Daily skin gloss */
+#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
+#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
+#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
+#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
+#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px }
 
 /* ===== TRACKER (Daily only) ===== */
 .tracker{cursor:pointer}
@@ -95,6 +92,22 @@ button{font:inherit}
 /* PANELS */
 [data-panel]{display:none}
 [data-panel].panel-active{display:block}
+
+/* ===== Admin inline controls on hero ===== */
+.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:8px; z-index:2}
+.admin-on .admin-ctrls{display:flex}
+.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
+.admin-ctrls .state{min-width:64px}
+.admin-ctrls .move-btn{position:relative}
+
+/* Move popover */
+.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:5; min-width:220px}
+.move-menu.open{display:block}
+.move-menu button{display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer}
+.move-menu button:hover{filter:brightness(1.1)}
+
+/* Legacy guard: if old inline move chips still exist, hide them */
+.admin-ctrls > [data-move-to]{display:none !important}
 
 /* ===== Avatar Drawer ===== */
 #avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
@@ -113,9 +126,9 @@ button{font:inherit}
 #subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
 
 /* ===== Admin footer / Working Drawer ===== */
-#adminTab{position:fixed; left:0; right:0; bottom: env(safe-area-inset-bottom); height:42px; display:flex; align-items:center; justify-content:center; z-index:80}
+#adminTab{position:fixed; left:0; right:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90}
 #adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
-#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .22s ease; z-index:79; background:#0e0b0b}
+#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
 #adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
 #adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
@@ -126,7 +139,8 @@ button{font:inherit}
 .bin > summary{cursor:pointer; padding:10px 12px; list-style:none; font-weight:900}
 .bin > summary::-webkit-details-marker{display:none}
 .bin .list{padding:8px 12px 12px}
-.list .item{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
+.list .item{display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
+.list .name{font-size:14px; flex:1 0 180px}
 .small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
 .small.open{background:#0A84FF; color:#000}
 .small.link{background:#222}
@@ -153,12 +167,14 @@ button{font:inherit}
 <main class="wrap">
   <!-- ===== FEED ===== -->
   <section id="panel-feed" class="panel-active" data-panel="feed">
-    <!-- 5 placeholder heroes -->
+    <!-- five placeholders -->
     <article class="hero" data-hero-id="feed-1">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
+            <!-- legacy chips will be migrated here if present -->
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
             <button data-move-to="tpl">Move to Templates</button>
@@ -173,8 +189,9 @@ button{font:inherit}
 
     <article class="hero" data-hero-id="feed-2">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -190,8 +207,9 @@ button{font:inherit}
 
     <article class="hero" data-hero-id="feed-3">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -207,8 +225,9 @@ button{font:inherit}
 
     <article class="hero" data-hero-id="feed-4">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -224,8 +243,9 @@ button{font:inherit}
 
     <article class="hero" data-hero-id="feed-5">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -242,10 +262,11 @@ button{font:inherit}
 
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" data-panel="challenges">
-    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker">
+    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" aria-labelledby="trackerTitle">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -265,10 +286,11 @@ button{font:inherit}
       <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
 
-    <article class="hero" id="dailyHero" data-hero-id="ch-daily">
+    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" aria-labelledby="dailyTitle">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -283,7 +305,6 @@ button{font:inherit}
       <div class="cta-left">
         <button class="btn blue" id="btnDailyStart">Start</button>
         <button class="btn grey" id="btnDailyComplete">Complete</button>
-        <button class="btn blue" data-enter>Enter</button>
       </div>
       <div class="level" id="dailyLevel">Beginner</div>
     </article>
@@ -293,8 +314,9 @@ button{font:inherit}
   <section id="panel-courses" data-panel="courses">
     <article class="hero" data-hero-id="co-1">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -309,8 +331,9 @@ button{font:inherit}
     </article>
     <article class="hero" data-hero-id="co-2">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -325,8 +348,9 @@ button{font:inherit}
     </article>
     <article class="hero" data-hero-id="co-3">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -345,8 +369,9 @@ button{font:inherit}
   <section id="panel-live" data-panel="live">
     <article class="hero" data-hero-id="lv-1">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -361,8 +386,9 @@ button{font:inherit}
     </article>
     <article class="hero" data-hero-id="lv-2">
       <div class="admin-ctrls">
-        <button class="state-badge state-live" data-toggle-state>Live</button>
-        <button class="move-btn" data-move>Move
+        <button class="ctl state" data-toggle-state>Live</button>
+        <button class="ctl move-btn" data-move>
+          Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -406,8 +432,7 @@ button{font:inherit}
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header>
-    <div id="dockHeading">Development Space — Feed</div>
-    <button class="small" id="dockClose">Close</button>
+    <div id="dockTitle">Development Space — Feed</div>
   </header>
   <div class="space" id="devSpace"></div>
   <div class="bins">
@@ -428,12 +453,12 @@ const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links
 /* Roles (force admin during build) */
 function currentRole(){ return 'admin'; }
 const ROLE_SKINS={
-  bronze:{pill:'var(--bronze)', text:'#111'},
-  silver:{pill:'var(--silver)', text:'#0b0c10'},
-  gold:{pill:'var(--gold)', text:'#0b0c10'},
-  support:{pill:'#6a4cff', text:'#fff'},
-  director:{pill:'#444', text:'#fff'},
-  admin:{pill:'var(--blue)', text:'#0b0c10'}
+  bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
+  silver:{pill:'var(--silver)', text:'#0b0c10', daily:'silver'},
+  gold:{pill:'var(--gold)', text:'#0b0c10', daily:'gold'},
+  support:{pill:'#6a4cff', text:'#fff', daily:'black'},
+  director:{pill:'#444', text:'#fff', daily:'black'},
+  admin:{pill:'var(--blue)', text:'#0b0c0f', daily:'black'}
 };
 
 function applyProfile(){
@@ -443,6 +468,7 @@ function applyProfile(){
   $('#avatarName').textContent=p.displayName||'User';
   $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
   const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
+  const daily=document.getElementById('dailyHero'); if(daily){ daily.setAttribute('data-skin', skin.daily); }
 }
 applyProfile();
 
@@ -451,14 +477,15 @@ const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 function showTab(name){
   tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  // Update dock heading to indicate which tab's drawer you're in
-  $('#dockHeading').textContent = `Development Space — ${name[0].toUpperCase()+name.slice(1)}`;
+  // update dock title to reflect current tab
+  $('#dockTitle').textContent = 'Development Space — ' + name.charAt(0).toUpperCase()+name.slice(1);
   window.scrollTo({top:0,behavior:'smooth'});
+  paintWorkingDrawer();
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('feed');
 
-/* Avatar Drawer & Subsheet (z-order safe) */
+/* Avatar Drawer & Subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
@@ -469,6 +496,7 @@ const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitl
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  subFrame.addEventListener('load', injectNoHorizontalScroll, {once:true});
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){
@@ -486,11 +514,18 @@ $('#cfgToggle').addEventListener('click', (e)=>{
   e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
 });
 
-/* ===== Hero links store ===== */
-function getLinks(){ return store.get(K.heroLinks,{}); }
-function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
+/* Prevent horizontal scroll inside iframe (same-origin) */
+function injectNoHorizontalScroll(){
+  try{
+    const d=subFrame.contentDocument||subFrame.contentWindow.document;
+    const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}';
+    d.head.appendChild(st);
+  }catch{}
+}
 
-/* ===== Settings: heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' } */
+/* Settings & hero flags
+   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
+*/
 function defaults(){ return { heroFlags:{} }; }
 function getSettings(){
   const cur=store.get(K.settings,null);
@@ -499,65 +534,108 @@ function getSettings(){
 }
 function saveSettings(s){ store.set(K.settings,s); }
 
-/* Visibility & paint */
+/* Map: hero id -> URL (used by Enter & by lists) */
+function getLinks(){ return store.get(K.heroLinks,{}); }
+function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
+
+/* ===== Legacy chips → Move popover upgrader ===== */
+(function upgradeLegacyMoveChips(){
+  document.querySelectorAll('[data-hero-id]').forEach(hero=>{
+    const ctrls = hero.querySelector('.admin-ctrls');
+    if(!ctrls) return;
+    const legacy = Array.from(ctrls.querySelectorAll(':scope > [data-move-to]'));
+    if(legacy.length === 0) return;
+
+    let moveBtn = ctrls.querySelector('.move-btn[data-move]');
+    if(!moveBtn){
+      moveBtn = document.createElement('button');
+      moveBtn.className = 'ctl move-btn';
+      moveBtn.setAttribute('data-move','');
+      moveBtn.textContent = 'Move';
+      const menu = document.createElement('div');
+      menu.className = 'move-menu';
+      moveBtn.appendChild(menu);
+      ctrls.appendChild(moveBtn);
+    }
+    const menu = moveBtn.querySelector('.move-menu');
+
+    legacy.forEach(b=>{
+      const dest = b.getAttribute('data-move-to');
+      const item = document.createElement('button');
+      item.textContent = b.textContent.trim() || ('Move to ' + (dest||''));
+      item.setAttribute('data-move-to', dest||'page');
+      menu.appendChild(item);
+      b.remove();
+    });
+  });
+})();
+
+/* Visibility & admin button paint */
 function applyHeroVisibility(){
   const flags=getSettings().heroFlags;
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
     const f=flags[id]||{state:'live',place:'page'};
     el.style.display = (f.place==='page') ? '' : 'none';
-    const badge=el.querySelector('[data-toggle-state]');
-    if(badge){
-      badge.textContent = (f.state==='live'?'Live':'Offline');
-      badge.classList.toggle('state-live', f.state==='live');
-      badge.classList.toggle('state-off', f.state!=='live');
+    const stateBtn=el.querySelector('[data-toggle-state]');
+    if(stateBtn){
+      stateBtn.textContent = (f.state==='live'?'Live':'Offline');
+      stateBtn.classList.remove('badge-live','badge-off');
+      stateBtn.classList.add('ctl','state', f.state==='live'?'badge-live':'badge-off');
     }
   });
 }
 applyHeroVisibility();
 
-/* Global click delegation for admin controls & "Enter" */
-document.addEventListener('click',(e)=>{
-  // Move popover toggle
+/* Toggle Live/Offline + Move popovers + Enter */
+document.body.addEventListener('click',(e)=>{
+  // ENTER
+  if(e.target.matches('[data-enter]')){
+    const hero=e.target.closest('[data-hero-id]'); if(!hero) return;
+    const id=hero.dataset.heroId; const url=getLinks()[id];
+    if(!url){ alert('No link set yet. Use Working Drawer > Set Link.'); return; }
+    openSubSheet('Hero', url); return;
+  }
+
+  // Toggle live/off
+  if(e.target.matches('[data-toggle-state]')){
+    const hero=e.target.closest('[data-hero-id]'); if(!hero) return;
+    const id=hero.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+    const next=(cur.state==='live'?'off':'live');
+    if(!confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`)) return;
+    s.heroFlags[id]={...cur, state:next}; saveSettings(s);
+    applyHeroVisibility(); paintWorkingDrawer(); return;
+  }
+
+  // Open/close move popover
   if(e.target.closest('[data-move]')){
-    const btn=e.target.closest('[data-move]'); const menu=btn.querySelector('.move-menu');
-    menu.classList.toggle('open');
+    const btn=e.target.closest('[data-move]');
+    const menu=btn.querySelector('.move-menu');
+    const open=!menu.classList.contains('open');
+    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
+    if(open) menu.classList.add('open');
     return;
   }
-  // Move action
+
+  // Move selection
   if(e.target.matches('.move-menu [data-move-to]')){
-    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
+    const hero=e.target.closest('[data-hero-id]'); if(!hero) return;
+    const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
     moveHero(id, dest);
     e.target.closest('.move-menu').classList.remove('open');
     return;
   }
-  // Toggle live/offline
-  if(e.target.matches('[data-toggle-state]')){
-    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    const next= (cur.state==='live'?'off':'live');
-    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden to others)'}?`);
-    if(!ok) return;
-    s.heroFlags[id]={...cur, state:next}; saveSettings(s);
-    applyHeroVisibility(); paintWorkingDrawer(); return;
-  }
-  // Enter -> open linked HTML
-  if(e.target.matches('[data-enter]')){
-    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
-    const links=getLinks(); let url=links[id];
-    if(!url){
-      const t=prompt('No link set yet. Enter a URL or relative HTML path (e.g. courses/intro.html):','');
-      if(!t) return; url=t.trim(); setLink(id,url);
-    }
-    openSubSheet('Hero', url); return;
-  }
-  // Click outside move menus closes any open one
-  if(!e.target.closest('.move')) { $$('.move-menu.open').forEach(m=>m.classList.remove('open')); }
 });
 
-/* Move with dev-space capacity (max 3) */
+// click-away to close any open popovers
+document.addEventListener('click',(e)=>{
+  if(!e.target.closest('.move-btn')) $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
+});
+
 function moveHero(id, place){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+  // dev capacity limit 3
   if(place==='dev'){
     const countDev = Object.values(s.heroFlags).filter(v=>v?.place==='dev').length;
     if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
@@ -571,31 +649,40 @@ const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('
 function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
 function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
 toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
-$('#dockClose').addEventListener('click', closeDock);
+
+function currentTab(){ const a=document.querySelector('.btn-tab.is-active'); return a?a.dataset.tab:'feed'; }
+function heroTabFor(id){
+  // quick map by id prefix conventions
+  if(id.startsWith('feed-')) return 'feed';
+  if(id.startsWith('ch-')) return 'challenges';
+  if(id.startsWith('co-')) return 'courses';
+  if(id.startsWith('lv-')) return 'live';
+  // fallback: infer by DOM location
+  const el=document.querySelector(`[data-hero-id="${id}"]`);
+  const sec=el?.closest('[data-panel]')?.dataset.panel||'feed';
+  return sec;
+}
 
 function paintWorkingDrawer(){
   const flags=getSettings().heroFlags||{};
   const links=getLinks();
   devSpace.innerHTML='';
+  const activeTab=currentTab();
 
   const archive=[], tpl=[];
-  // Only show items for the currently active tab
-  const activeTab = document.querySelector('.btn-tab.is-active')?.dataset.tab || 'feed';
-  // hero id prefixes by tab:
-  const prefixMap={feed:'feed-', challenges:'ch-', courses:'co-', live:'lv-'};
-
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
-    if(!id.startsWith(prefixMap[activeTab]||'')) return;
-
     const t=el.querySelector('.title')?.textContent?.trim()||id;
     const f=flags[id]||{state:'live',place:'page'};
+    const tab=heroTabFor(id);
+    if(tab!==activeTab) return; // show only items for current tab
+
     if(f.place==='dev'){
       const card=document.createElement('article'); card.className='hero';
       card.innerHTML=`<h2 class="title">${t}</h2>
         <div class="admin-ctrls" style="display:flex">
-          <button class="state-badge ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
-          <button class="move-btn" data-dock-move data-dock-id="${id}">Move
+          <button class="ctl state ${f.state==='live'?'badge-live':'badge-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
+          <button class="ctl move-btn" data-dock-move data-dock-id="${id}">Move
             <div class="move-menu">
               <button data-dock-id="${id}" data-dock-to="page">Move to Page</button>
               <button data-dock-id="${id}" data-dock-to="archive">Move to Archive</button>
@@ -603,13 +690,13 @@ function paintWorkingDrawer(){
             </div>
           </button>
         </div>
-        <p class="meta">Dev preview only</p>
-        <div class="cta-left"><button class="btn blue" data-dock-enter="${id}">Enter</button></div>`;
+        <p class="meta">Dev preview only</p>`;
       devSpace.appendChild(card);
     }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
     else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
   });
 
+  // paint lists
   const LA=$('#listArchive'); const LT=$('#listTpl');
   LA.innerHTML=''; LT.innerHTML='';
   const renderRow=(host,it,bin)=>{
@@ -628,41 +715,42 @@ function paintWorkingDrawer(){
 }
 paintWorkingDrawer();
 
+/* Drawer interactions */
 $('#adminDock').addEventListener('click',(e)=>{
+  // toggle live/off
   if(e.target.matches('[data-dock-act="toggle"]')){
     const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-  if(e.target.closest('[data-dock-move]')){
-    const menu=e.target.closest('[data-dock-move]').querySelector('.move-menu');
-    menu.classList.toggle('open'); return;
+  // open/close move menu
+  if(e.target.matches('[data-dock-move], [data-dock-move] *')){
+    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open'); return;
   }
+  // move actions inside move-menu
   if(e.target.matches('[data-dock-to]')){
     moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return;
   }
+  // set/change link
   if(e.target.matches('[data-link-id]')){
     const id=e.target.dataset.linkId; const cur=getLinks()[id]||'';
     const url=prompt('Enter linked HTML/URL', cur||'');
     if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); }
     return;
   }
+  // open link
   if(e.target.matches('[data-open-id]')){
     const id=e.target.dataset.openId; const url=getLinks()[id];
     if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
     openSubSheet('Hero', url); return;
   }
+  // move from bin row
   if(e.target.matches('[data-move-id]')){
     moveHero(e.target.dataset.moveId, e.target.dataset.place); return;
   }
-  if(e.target.matches('[data-dock-enter]')){
-    const id=e.target.getAttribute('data-dock-enter'); const url=getLinks()[id];
-    if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
-    openSubSheet('Hero', url);
-  }
 });
 
-/* ===== Minimal tracker fill ===== */
+/* Paint empty daily medals quickly */
 (function paintEmpty(){
   const dm=$('#dailyMedals'); if(!dm) return; dm.innerHTML='';
   for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
