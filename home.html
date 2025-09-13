@@ -14,9 +14,11 @@
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+html,body{
+  height:100%; margin:0; background:var(--bg); color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden}
+  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden;
+}
 a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
@@ -39,13 +41,11 @@ a{color:inherit;text-decoration:none}
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
   transition:transform .06s ease, filter .15s ease; font-size:15px;
 }
+@media (max-width:460px){
+  .btn-tab{ min-width:auto; padding:0 12px; font-size:14px }
+}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
-
-/* Portrait: slimmer tabs for more room */
-@media (max-width:420px) and (orientation:portrait){
-  .btn-tab{ min-width:auto; padding:0 12px; }
-}
 
 /* Avatar pill (no photo; solid colour by role) */
 .avatarTab{
@@ -57,18 +57,19 @@ a{color:inherit;text-decoration:none}
 .avatarTab .name{font-size:15px; font-weight:900}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
-/* Content wrap (safe area for fixed header) */
+/* Content wrap (safe area for fixed header + footer) */
 .wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
 
 /* ===== HERO ===== */
-.hero{position:relative; overflow:hidden; background:#060708;
-  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0}
-.hero.menu-open{ overflow:visible } /* allow Move popover to escape */
+.hero{
+  position:relative; overflow:hidden; background:#060708;
+  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0;
+}
 .hero .title{margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px}
 .hero .meta{margin:0 0 6px; color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px; color:var(--muted)}
 .cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#fff; cursor:pointer}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
 .btn.grey{background:#3a3a3a; color:#fff}
 .badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
@@ -92,34 +93,29 @@ a{color:inherit;text-decoration:none}
 [data-panel]{display:none}
 [data-panel].panel-active{display:block}
 
-/* ===== Admin inline controls on hero ===== */
-.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:8px}
-.admin-on .admin-ctrls{display:flex}
-.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
-.admin-ctrls .state-live{background:#0a0}
-.admin-ctrls .state-off{background:#b00020}
-.admin-ctrls .move{background:#1b1f2a; position:relative}
+/* ===== Admin inline controls on hero (FIXED + COMPACT) ===== */
+.admin-ctrls{
+  position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:2;
+}
+.admin-ctrls .ctl{
+  height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke);
+  background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer;
+}
+.admin-ctrls .state-live{background:#149c32} /* green */
+.admin-ctrls .state-off{background:#b00020}  /* red */
 
-/* Move popover (fixed to avoid clipping) */
-.admin-ctrls .move-menu{
-  position:absolute;
-  top:36px; right:0;
-  min-width:220px;
-  background:#0f0f12;
-  border:1px solid var(--stroke);
-  border-radius:10px;
-  padding:8px;
-  display:none;
-  z-index:1000;
-  box-shadow:0 10px 24px rgba(0,0,0,.45);
+/* Move popover */
+.admin-ctrls .move{position:relative}
+.move-menu{
+  position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke);
+  border-radius:10px; padding:6px; display:none; min-width:220px; box-shadow:0 10px 26px rgba(0,0,0,.5);
 }
-.admin-ctrls .move-menu.open{display:block}
-.admin-ctrls .move-menu button{
-  display:block; width:100%; text-align:left;
-  padding:10px 12px; margin:6px 0;
-  border-radius:10px; border:1px solid var(--stroke);
-  background:#141416; color:#fff; font-weight:800; font-size:12px;
+.move-menu.open{display:block}
+.move-menu button{
+  display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px;
+  border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer;
 }
+.move-menu button:hover{filter:brightness(1.08)}
 
 /* ===== Avatar Drawer ===== */
 #avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
@@ -142,11 +138,19 @@ a{color:inherit;text-decoration:none}
 .config-on .cfg-pin{display:flex}
 
 /* ===== Admin footer / Working Drawer ===== */
-#adminTab{position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90}
-#adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
-#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
+#adminTab{
+  position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90;
+}
+#adminTab button{
+  background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900;
+}
+#adminDock{
+  position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b;
+}
 #adminDock.open{transform:translateY(0)}
-#adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
+#adminDock header{
+  display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1
+}
 #adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
 #adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:180px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
 .admin-group{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px; margin-bottom:14px}
@@ -424,9 +428,9 @@ a{color:inherit;text-decoration:none}
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
-      <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
-      <a href="avatar/user-search.html" data-pop="User Search">User Search<span>›</span></a>
       <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
+      <a href="avatar/stats.html" data-pop="Statistics">Statistics<span>›</span></a>
+      <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
     </nav>
   </div>
 </div>
@@ -446,7 +450,7 @@ a{color:inherit;text-decoration:none}
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header>
-    <div id="dockHeading">Development Space</div>
+    <div id="dockTitle">Development Space — Feed</div>
   </header>
   <div class="space" id="devSpace"></div>
   <div class="bins">
@@ -464,7 +468,7 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
 
-/* Roles (force admin during build) */
+/* Roles (force admin while we build) */
 function currentRole(){ return 'admin'; }
 const ROLE_SKINS={
   bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
@@ -483,8 +487,6 @@ function applyProfile(){
   $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
   const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
   const daily=document.getElementById('dailyHero'); if(daily){ daily.setAttribute('data-skin', skin.daily); }
-  // show admin inline controls for admin by default
-  if(role==='admin'){ document.body.classList.add('admin-on'); }
 }
 applyProfile();
 
@@ -493,11 +495,9 @@ const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 function showTab(name){
   tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  // Update dock heading (tab-scoped dev space)
-  const pretty=name.charAt(0).toUpperCase()+name.slice(1);
-  $('#dockHeading').textContent = `Development Space — ${pretty}`;
+  // update dock title to follow active tab
+  $('#dockTitle').textContent = `Development Space — ${name.charAt(0).toUpperCase()+name.slice(1)}`;
   window.scrollTo({top:0,behavior:'smooth'});
-  paintWorkingDrawer(); // repaints dev/archive/tpl lists for this tab scope
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('feed');
@@ -541,29 +541,33 @@ function injectNoHorizontalScroll(){
 }
 
 /* Settings & hero flags
-   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
+   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl', tab:'feed'|'challenges'|'courses'|'live' }
 */
-function defaults(){ return { heroFlags:{} }; }
+function defaults(){
+  const def={ heroFlags:{} };
+  // seed tab for each hero
+  $$('[data-hero-id]').forEach(el=>{
+    const id=el.dataset.heroId;
+    if(!def.heroFlags[id]) def.heroFlags[id] = {state:'live',place:'page',tab:getTabForHero(el)};
+  });
+  return def;
+}
 function getSettings(){
   const cur=store.get(K.settings,null);
   if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
-  return {...defaults(), ...cur, heroFlags:{...(cur.heroFlags||{})}};
+  // merge in any missing hero seeds
+  const seed=defaults();
+  return {...seed, ...cur, heroFlags:{...seed.heroFlags, ...(cur.heroFlags||{})}};
 }
 function saveSettings(s){ store.set(K.settings,s); }
+
+function getTabForHero(el){
+  const sec=el.closest('[data-panel]'); return sec?sec.dataset.panel:'feed';
+}
 
 /* Map: hero id -> URL (used by Archived/Templates list to open HTML) */
 function getLinks(){ return store.get(K.heroLinks,{}); }
 function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
-
-/* Helpers */
-function heroTab(id){
-  // first token before '-' identifies panel
-  if(id.startsWith('feed')) return 'feed';
-  if(id.startsWith('ch-')) return 'challenges';
-  if(id.startsWith('co-')) return 'courses';
-  if(id.startsWith('lv-')) return 'live';
-  return 'feed';
-}
 
 /* Visibility & admin button paint */
 function applyHeroVisibility(){
@@ -574,78 +578,60 @@ function applyHeroVisibility(){
     el.style.display = (f.place==='page') ? '' : 'none';
     const btn=el.querySelector('[data-toggle-state]');
     if(btn){
-      const live = (f.state==='live');
-      btn.textContent = live ? 'Live' : 'Offline';
-      btn.classList.toggle('state-live', live);
-      btn.classList.toggle('state-off', !live);
+      const isLive=(f.state==='live');
+      btn.textContent = isLive ? 'Live' : 'Offline';
+      btn.classList.toggle('state-live', isLive);
+      btn.classList.toggle('state-off', !isLive);
     }
   });
 }
 applyHeroVisibility();
 
-/* Toggle Live/Offline + Move (popover with no clipping) */
+/* Toggle Live/Offline + Move popover + Actions */
 document.body.addEventListener('click',(e)=>{
+  // Toggle live/offline
   const hero=e.target.closest('[data-hero-id]');
-
-  // Live/Offline toggle
-  if (hero && e.target.matches('[data-toggle-state]')) {
-    const id = hero.dataset.heroId;
-    const s = getSettings(); const cur = s.heroFlags[id] || {state:'live', place:'page'};
-    const next = (cur.state === 'live' ? 'off' : 'live');
-    if (!confirm(`Set this hero ${next==='live' ? 'LIVE (visible to others)' : 'OFFLINE (hidden from others)'}?`)) return;
-    s.heroFlags[id] = {...cur, state: next}; saveSettings(s);
+  if(hero && e.target.matches('[data-toggle-state]')){
+    const id=hero.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page',tab:getTabForHero(hero)};
+    const next= (cur.state==='live'?'off':'live');
+    const ok=confirm(`Turn this hero ${next==='live'?'LIVE (visible to others)':'OFFLINE (hidden from others)'}?`);
+    if(!ok) return;
+    s.heroFlags[id]={...cur, state:next}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer();
     return;
   }
 
-  // Open/close the Move popover
-  if (hero && (e.target.matches('[data-move]') || e.target.closest('[data-move]'))) {
-    // close any other open menus first
-    document.querySelectorAll('.move-menu.open').forEach(m=>{
-      m.classList.remove('open');
-      m.closest('.hero')?.classList.remove('menu-open');
-    });
-    const menu = hero.querySelector('.move-menu');
-    const willOpen = !menu.classList.contains('open');
-    if (willOpen) {
-      menu.classList.add('open');
-      hero.classList.add('menu-open');      // allow popover to escape
-    } else {
+  // Open/close move popover
+  if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move] .move-menu'))){
+    const menu=hero.querySelector('.move-menu'); if(!menu) return;
+    // If click was on a move-to
+    if(e.target.matches('.move-menu [data-move-to]')){
+      const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
+      moveHero(id, dest, getTabForHero(hero));
       menu.classList.remove('open');
-      hero.classList.remove('menu-open');
+      return;
     }
+    // toggle menu
+    if(e.target.matches('[data-move]')){ menu.classList.toggle('open'); }
     return;
-  }
-
-  // A click on a Move popover item
-  if (hero && e.target.matches('.move-menu [data-move-to]')) {
-    const id = hero.dataset.heroId;
-    const dest = e.target.getAttribute('data-move-to'); // 'dev'|'archive'|'tpl'|'page'
-    moveHero(id, dest);
-    // close the popover afterward
-    hero.querySelector('.move-menu')?.classList.remove('open');
-    hero.classList.remove('menu-open');
-    return;
-  }
-
-  // Clicked somewhere else on the page → close any open popovers
-  if (!e.target.closest('.move')) {
-    document.querySelectorAll('.move-menu.open').forEach(m=>{
-      m.classList.remove('open');
-      m.closest('.hero')?.classList.remove('menu-open');
-    });
   }
 });
 
-function moveHero(id, place){
-  const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+// close open popovers when clicking elsewhere
+document.addEventListener('click',(e)=>{
+  if(!e.target.closest('.move')) $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
+});
+
+/* Move hero */
+function moveHero(id, place, tabHint){
+  const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page',tab:tabHint||'feed'};
   if(place==='dev'){
-    // limit dev space to 3 cards overall AND scoped to current tab
-    const tabName = document.querySelector('.btn-tab.is-active')?.dataset.tab || 'feed';
-    const countDev = Object.entries(s.heroFlags).filter(([hid,v])=>v?.place==='dev' && heroTab(hid)===tabName).length;
-    if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards for this tab.'); return; }
+    const tab=cur.tab||tabHint||'feed';
+    const countDev = Object.values(s.heroFlags).filter(v=>v && v.place==='dev' && v.tab===tab).length;
+    if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
   }
-  s.heroFlags[id]={...cur, place}; saveSettings(s);
+  s.heroFlags[id]={...cur, place, tab:(cur.tab||tabHint||'feed')}; saveSettings(s);
   applyHeroVisibility(); paintWorkingDrawer();
 }
 
@@ -655,22 +641,43 @@ function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent=
 function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
 toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
 
+// Swipe between drawers (left/right to switch tab), minimal vanilla handler
+let startX=null;
+adminDock.addEventListener('touchstart',e=>{ startX=e.touches[0].clientX; },{passive:true});
+adminDock.addEventListener('touchend',e=>{
+  if(startX==null) return;
+  const dx=(e.changedTouches[0].clientX-startX);
+  if(Math.abs(dx)>60){
+    const order=['feed','challenges','courses','live'];
+    const active = document.querySelector('.btn-tab.is-active')?.dataset.tab||'feed';
+    const idx=order.indexOf(active);
+    const next= order[(idx+(dx<0?1:-1)+order.length)%order.length];
+    showTab(next);
+    paintWorkingDrawer();
+  }
+  startX=null;
+},{passive:true});
+
+function activeTab(){ return (document.querySelector('.btn-tab.is-active')?.dataset.tab)||'feed'; }
+
 function paintWorkingDrawer(){
   const flags=getSettings().heroFlags||{};
   const links=getLinks();
-  const activeTab=document.querySelector('.btn-tab.is-active')?.dataset.tab || 'feed';
+  const tab=activeTab();
+  $('#dockTitle').textContent = `Development Space — ${tab.charAt(0).toUpperCase()+tab.slice(1)}`;
   devSpace.innerHTML='';
 
   const archive=[], tpl=[];
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
-    if(heroTab(id)!==activeTab) return; // tab-scoped drawer
     const t=el.querySelector('.title')?.textContent?.trim()||id;
-    const f=flags[id]||{state:'live',place:'page'};
+    const f=flags[id]||{state:'live',place:'page',tab:getTabForHero(el)};
+    if(f.tab!==tab) return; // drawer only shows current tab's heroes
+
     if(f.place==='dev'){
       const card=document.createElement('article'); card.className='hero';
       card.innerHTML=`<h2 class="title">${t}</h2>
-        <div class="admin-ctrls" style="display:flex">
+        <div class="admin-ctrls" style="display:flex; right:16px; top:16px">
           <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
           <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
             <div class="move-menu">
@@ -709,19 +716,17 @@ paintWorkingDrawer();
 $('#adminDock').addEventListener('click',(e)=>{
   // toggle live/off
   if(e.target.matches('[data-dock-act="toggle"]')){
-    const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+    const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'dev',tab:activeTab()};
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-  // open/close move menu inside dock
+  // open/close move menu
   if(e.target.matches('[data-dock-move], [data-dock-move] *')){
-    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open');
-    btn.closest('.hero')?.classList.toggle('menu-open', menu.classList.contains('open'));
-    return;
+    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open'); return;
   }
   // move actions inside move-menu
   if(e.target.matches('[data-dock-to]')){
-    moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return;
+    moveHero(e.target.dataset.dockId, e.target.dataset.dockTo, activeTab()); return;
   }
   // set/change link
   if(e.target.matches('[data-link-id]')){
@@ -738,7 +743,7 @@ $('#adminDock').addEventListener('click',(e)=>{
   }
   // move from bin row
   if(e.target.matches('[data-move-id]')){
-    moveHero(e.target.dataset.moveId, e.target.dataset.place); return;
+    moveHero(e.target.dataset.moveId, e.target.dataset.place, activeTab()); return;
   }
 });
 
@@ -751,13 +756,6 @@ document.body.addEventListener('click', (e)=>{
   const next=prompt('Edit title', cur);
   if(next!=null){ tgt.textContent=next; }
 });
-
-/* Medals placeholder */
-(function paintEmpty(){ const dm=$('#dailyMedals'); dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); } })();
-
-/* Daily meta pretty text */
-(function bootDailyMeta(){ const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; $('#dailyMeta').textContent = `Begins ${dayNames[today.getDay()]}`; })();
-
 })();
 </script>
 </body>
