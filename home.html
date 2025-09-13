@@ -10,24 +10,21 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1;
-  --bronze:#b87333; --red:#ff3b30; --black:#111;
-  --gap:12px; --r:14px; --maxw:1240px;
-  --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
+  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff3b30; --black:#111;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{
-  height:100%; margin:0; background:var(--bg); color:var(--ink);
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden;
-}
-a{color:inherit; text-decoration:none}
+  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
 /* Background */
-.bg{position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
+.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* ===== NAV BAR ===== */
+/* ===== FIXED TOP BAR ===== */
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -42,34 +39,30 @@ a{color:inherit; text-decoration:none}
   border-radius:12px; border:1px solid var(--stroke);
   background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
   transition:transform .06s ease, filter .15s ease; font-size:15px;
-  white-space:nowrap;
+}
+@media (max-width:480px){
+  .btn-tab{ min-width: auto; padding:0 12px }
 }
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
-@media (max-width:420px){
-  .btn-tab{min-width:0; padding:0 12px; font-size:14px}
-}
 
-/* Avatar pill (text-only; solid colour by role) */
+/* Avatar pill (no photo; solid colour by role) */
 .avatarTab{
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
   padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
   font-weight:900; line-height:1.1; text-align:left; cursor:pointer;
-  border:1px solid var(--stroke); background:#222;
+  border:1px solid var(--stroke); background:#222; z-index:51; /* above chips */
 }
 .avatarTab .name{font-size:15px; font-weight:900}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
-/* Content wrap */
-.wrap{max-width:var(--maxw); margin:0 auto;
-  padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
+/* Content wrap (safe area for fixed header) */
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
 
 /* ===== HERO ===== */
-.hero{
-  position:relative; overflow:hidden; background:#060708;
-  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0;
-}
-.hero .title{margin:0 0 6px; font-weight:900; font-size:20px}
+.hero{position:relative; overflow:hidden; background:#060708;
+  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0}
+.hero .title{margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px}
 .hero .meta{margin:0 0 6px; color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px; color:var(--muted)}
 .cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
@@ -78,12 +71,18 @@ a{color:inherit; text-decoration:none}
 .btn.grey{background:#3a3a3a; color:#fff}
 .badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
 
-/* Daily skin gloss */
-#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
-#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
-#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
-#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
-#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px }
+/* Admin controls on hero (hard top-right) */
+.admin-ctrls{position:absolute; top:10px; right:10px; display:flex; gap:8px}
+.state-badge{height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke); font-weight:900}
+.state-live{background:#0a0; color:#fff}
+.state-off{background:#b00020; color:#fff}
+.move-btn{height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:900; position:relative}
+
+/* Move popover */
+.move-menu{position:absolute; top:36px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:4; width:220px}
+.move-menu.open{display:block}
+.move-menu button{display:block; width:100%; text-align:left; padding:10px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:13px; margin:6px 0; cursor:pointer}
+.move-menu button:hover{filter:brightness(1.08)}
 
 /* ===== TRACKER (Daily only) ===== */
 .tracker{cursor:pointer}
@@ -96,24 +95,6 @@ a{color:inherit; text-decoration:none}
 /* PANELS */
 [data-panel]{display:none}
 [data-panel].panel-active{display:block}
-
-/* ===== Admin inline controls (fixed to top-right of hero) ===== */
-.admin-ctrls{position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:5}
-.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
-.admin-ctrls .state-live{background:#0a0}
-.admin-ctrls .state-off{background:#b00020}
-.admin-ctrls .move{background:#1b1f2a; position:relative}
-
-/* Move popover (chips live only inside this menu) */
-.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:20; min-width:220px}
-.move-menu.open{display:block}
-.move-menu button{display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer}
-.move-menu button:hover{filter:brightness(1.1)}
-
-/* Guard legacy chips that were previously injected on hero */
-article.hero [data-move-to]{display:none!important}
-article.hero .move-menu [data-move-to]{display:block!important}
-#adminDock [data-dock-to]{display:inline-block!important}
 
 /* ===== Avatar Drawer ===== */
 #avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
@@ -131,14 +112,10 @@ article.hero .move-menu [data-move-to]{display:block!important}
 .sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
 #subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
 
-/* ===== Config pencil ===== */
-.cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
-.config-on .cfg-pin{display:flex}
-
-/* ===== Admin footer / Working Drawer (always fixed) ===== */
-#adminTab{position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90; pointer-events:auto}
+/* ===== Admin footer / Working Drawer ===== */
+#adminTab{position:fixed; left:0; right:0; bottom: env(safe-area-inset-bottom); height:42px; display:flex; align-items:center; justify-content:center; z-index:80}
 #adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
-#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
+#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .22s ease; z-index:79; background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
 #adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
 #adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
@@ -149,8 +126,7 @@ article.hero .move-menu [data-move-to]{display:block!important}
 .bin > summary{cursor:pointer; padding:10px 12px; list-style:none; font-weight:900}
 .bin > summary::-webkit-details-marker{display:none}
 .bin .list{padding:8px 12px 12px}
-.list .item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
-.list .name{font-size:14px}
+.list .item{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
 .small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
 .small.open{background:#0A84FF; color:#000}
 .small.link{background:#222}
@@ -168,21 +144,20 @@ article.hero .move-menu [data-move-to]{display:block!important}
   </div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
-      <span class="name" id="avatarName">User</span>
+      <span class="name" id="avatarName">Lucas</span>
       <span class="lvl" id="avatarLvl">Admin</span>
     </button>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- ===== FEED (5 placeholders) ===== -->
+  <!-- ===== FEED ===== -->
   <section id="panel-feed" class="panel-active" data-panel="feed">
-    <!-- feed-1..5 -->
+    <!-- 5 placeholder heroes -->
     <article class="hero" data-hero-id="feed-1">
-      <button class="cfg-pin" data-cfg="feed-title-1">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -191,15 +166,15 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="feed-title-1">Placeholder news-hero1</h2>
+      <h2 class="title">Placeholder news-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
 
     <article class="hero" data-hero-id="feed-2">
-      <button class="cfg-pin" data-cfg="feed-title-2">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -208,15 +183,15 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="feed-title-2">Placeholder news-hero2</h2>
+      <h2 class="title">Placeholder news-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
 
     <article class="hero" data-hero-id="feed-3">
-      <button class="cfg-pin" data-cfg="feed-title-3">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -225,15 +200,15 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="feed-title-3">Placeholder news-hero3</h2>
+      <h2 class="title">Placeholder news-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
 
     <article class="hero" data-hero-id="feed-4">
-      <button class="cfg-pin" data-cfg="feed-title-4">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -242,15 +217,15 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="feed-title-4">Placeholder news-hero4</h2>
+      <h2 class="title">Placeholder news-hero4</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
 
     <article class="hero" data-hero-id="feed-5">
-      <button class="cfg-pin" data-cfg="feed-title-5">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -259,19 +234,18 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="feed-title-5">Placeholder news-hero5</h2>
+      <h2 class="title">Placeholder news-hero5</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
   </section>
 
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" data-panel="challenges">
-    <!-- Tracker -->
-    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" aria-labelledby="trackerTitle">
-      <button class="cfg-pin" data-cfg="tracker-title">✎</button>
+    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker">
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -280,7 +254,7 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" id="trackerTitle" data-cfg-target="tracker-title">Challenge Tracker</h2>
+      <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
       <p class="meta">Daily 7d</p>
       <div class="cards">
         <div class="card">
@@ -288,14 +262,13 @@ article.hero .move-menu [data-move-to]{display:block!important}
           <div class="medals" id="dailyMedals"></div>
         </div>
       </div>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
 
-    <!-- Daily -->
-    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" aria-labelledby="dailyTitle">
-      <button class="cfg-pin" data-cfg="daily-title">✎</button>
+    <article class="hero" id="dailyHero" data-hero-id="ch-daily">
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -304,24 +277,24 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" id="dailyTitle" data-cfg-target="daily-title">Daily Challenge</h2>
+      <h2 class="title" id="dailyTitle">Daily Challenge</h2>
       <p class="meta" id="dailyMeta">Begins today</p>
       <p class="desc">A focused prompt matched to your level. Finish it to earn your streak.</p>
       <div class="cta-left">
         <button class="btn blue" id="btnDailyStart">Start</button>
         <button class="btn grey" id="btnDailyComplete">Complete</button>
+        <button class="btn blue" data-enter>Enter</button>
       </div>
       <div class="level" id="dailyLevel">Beginner</div>
     </article>
   </section>
 
-  <!-- ===== COURSES (3 placeholders) ===== -->
+  <!-- ===== COURSES ===== -->
   <section id="panel-courses" data-panel="courses">
     <article class="hero" data-hero-id="co-1">
-      <button class="cfg-pin" data-cfg="cr-1">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -330,14 +303,14 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
+      <h2 class="title">Placeholder course-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
     <article class="hero" data-hero-id="co-2">
-      <button class="cfg-pin" data-cfg="cr-2">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -346,14 +319,14 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
+      <h2 class="title">Placeholder course-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
     <article class="hero" data-hero-id="co-3">
-      <button class="cfg-pin" data-cfg="cr-3">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -362,18 +335,18 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
+      <h2 class="title">Placeholder course-hero3</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
   </section>
 
-  <!-- ===== LIVE (2 placeholders) ===== -->
+  <!-- ===== LIVE ===== -->
   <section id="panel-live" data-panel="live">
     <article class="hero" data-hero-id="lv-1">
-      <button class="cfg-pin" data-cfg="lv-1">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -382,14 +355,14 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
+      <h2 class="title">Placeholder live-hero1</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
     <article class="hero" data-hero-id="lv-2">
-      <button class="cfg-pin" data-cfg="lv-2">✎</button>
       <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
+        <button class="state-badge state-live" data-toggle-state>Live</button>
+        <button class="move-btn" data-move>Move
           <div class="move-menu">
             <button data-move-to="dev">Move to Development Space</button>
             <button data-move-to="archive">Move to Archive</button>
@@ -398,8 +371,9 @@ article.hero .move-menu [data-move-to]{display:block!important}
           </div>
         </button>
       </div>
-      <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
+      <h2 class="title">Placeholder live-hero2</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+      <div class="cta-left"><button class="btn blue" data-enter>Enter</button></div>
     </article>
   </section>
 </main>
@@ -412,8 +386,6 @@ article.hero .move-menu [data-move-to]{display:block!important}
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
-      <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
-      <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
       <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
     </nav>
   </div>
@@ -434,7 +406,8 @@ article.hero .move-menu [data-move-to]{display:block!important}
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header>
-    <div id="dockTitle">Development Space — Feed</div>
+    <div id="dockHeading">Development Space — Feed</div>
+    <button class="small" id="dockClose">Close</button>
   </header>
   <div class="space" id="devSpace"></div>
   <div class="bins">
@@ -445,54 +418,47 @@ article.hero .move-menu [data-move-to]{display:block!important}
 
 <script>
 (()=>{'use strict';
-/* ===== utils & storage ===== */
+/* Utils / storage */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-
-/* Keys */
 const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
 
-/* Force admin during build */
+/* Roles (force admin during build) */
 function currentRole(){ return 'admin'; }
 const ROLE_SKINS={
-  bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
-  silver:{pill:'var(--silver)', text:'#0b0c10', daily:'silver'},
-  gold:{pill:'var(--gold)', text:'#0b0c10', daily:'gold'},
-  support:{pill:'#6a4cff', text:'#fff', daily:'black'},
-  director:{pill:'#444', text:'#fff', daily:'black'},
-  admin:{pill:'var(--blue)', text:'#0b0c10', daily:'black'}
+  bronze:{pill:'var(--bronze)', text:'#111'},
+  silver:{pill:'var(--silver)', text:'#0b0c10'},
+  gold:{pill:'var(--gold)', text:'#0b0c10'},
+  support:{pill:'#6a4cff', text:'#fff'},
+  director:{pill:'#444', text:'#fff'},
+  admin:{pill:'var(--blue)', text:'#0b0c10'}
 };
-function isAdmin(){ return true; } // while scaffolding
 
-/* Avatar paint + daily gloss */
 function applyProfile(){
-  const p=store.get(K.profile,{displayName:'User',skill:currentRole()});
+  const p=store.get(K.profile,{displayName:'Lucas',skill:currentRole()});
   const role=(p.skill||currentRole()).toLowerCase();
   const skin=ROLE_SKINS[role]||ROLE_SKINS.silver;
   $('#avatarName').textContent=p.displayName||'User';
   $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
   const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
-  const daily=document.getElementById('dailyHero'); if(daily){ daily.setAttribute('data-skin', skin.daily); }
 }
 applyProfile();
 
-/* ===== Tabs ===== */
-let currentTab='feed';
+/* Tabs */
 const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
 function showTab(name){
-  currentTab=name;
   tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  $('#dockTitle').textContent=`Development Space — ${name.charAt(0).toUpperCase()+name.slice(1)}`;
-  paintWorkingDrawer(); // filter by tab
+  // Update dock heading to indicate which tab's drawer you're in
+  $('#dockHeading').textContent = `Development Space — ${name[0].toUpperCase()+name.slice(1)}`;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('feed');
 
-/* ===== Avatar Drawer & Subsheet ===== */
+/* Avatar Drawer & Subsheet (z-order safe) */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
@@ -503,12 +469,6 @@ const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitl
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
-  subFrame.addEventListener('load', ()=>{
-    try{
-      const d=subFrame.contentDocument||subFrame.contentWindow.document;
-      const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}'; d.head.appendChild(st);
-    }catch{}
-  }, {once:true});
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){
@@ -526,9 +486,11 @@ $('#cfgToggle').addEventListener('click', (e)=>{
   e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
 });
 
-/* ===== Settings & hero flags =====
-   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
-*/
+/* ===== Hero links store ===== */
+function getLinks(){ return store.get(K.heroLinks,{}); }
+function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
+
+/* ===== Settings: heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' } */
 function defaults(){ return { heroFlags:{} }; }
 function getSettings(){
   const cur=store.get(K.settings,null);
@@ -537,91 +499,67 @@ function getSettings(){
 }
 function saveSettings(s){ store.set(K.settings,s); }
 
-/* hero id -> tab */
-function heroTab(id){
-  if(id.startsWith('feed-')) return 'feed';
-  if(id.startsWith('ch-'))   return 'challenges';
-  if(id.startsWith('co-'))   return 'courses';
-  if(id.startsWith('lv-'))   return 'live';
-  return 'feed';
-}
-
-/* Links map for archived/templates (open in iframe) */
-function getLinks(){ return store.get(K.heroLinks,{}); }
-function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
-
-/* ===== Visibility paint ===== */
+/* Visibility & paint */
 function applyHeroVisibility(){
   const flags=getSettings().heroFlags;
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
     const f=flags[id]||{state:'live',place:'page'};
-    let show = (f.place==='page');
-    if(!isAdmin()) show = show && (f.state==='live');
-    el.style.display = show ? '' : 'none';
-    const btn=el.querySelector('[data-toggle-state]');
-    if(btn){
-      btn.textContent = (f.state==='live'?'Live':'Offline');
-      btn.classList.toggle('state-live', f.state==='live');
-      btn.classList.toggle('state-off', f.state!=='live');
+    el.style.display = (f.place==='page') ? '' : 'none';
+    const badge=el.querySelector('[data-toggle-state]');
+    if(badge){
+      badge.textContent = (f.state==='live'?'Live':'Offline');
+      badge.classList.toggle('state-live', f.state==='live');
+      badge.classList.toggle('state-off', f.state!=='live');
     }
   });
 }
 applyHeroVisibility();
 
-/* ===== Normalise any legacy on-hero chips into the popover (safety) ===== */
-function normaliseLegacyChips(){
-  $$('[data-hero-id]').forEach(hero=>{
-    const stray=Array.from(hero.querySelectorAll(':scope > [data-move-to]'));
-    if(!stray.length) return;
-    const menu = hero.querySelector('.move-menu');
-    stray.forEach(ch=>menu.appendChild(ch));
-  });
-}
-normaliseLegacyChips();
-
-/* ===== Admin live/off + Move (popover) ===== */
-document.body.addEventListener('click',(e)=>{
-  const hero=e.target.closest('[data-hero-id]');
-
-  // toggle live/off
-  if(hero && e.target.matches('[data-toggle-state]')){
-    const id=hero.dataset.heroId;
+/* Global click delegation for admin controls & "Enter" */
+document.addEventListener('click',(e)=>{
+  // Move popover toggle
+  if(e.target.closest('[data-move]')){
+    const btn=e.target.closest('[data-move]'); const menu=btn.querySelector('.move-menu');
+    menu.classList.toggle('open');
+    return;
+  }
+  // Move action
+  if(e.target.matches('.move-menu [data-move-to]')){
+    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
+    moveHero(id, dest);
+    e.target.closest('.move-menu').classList.remove('open');
+    return;
+  }
+  // Toggle live/offline
+  if(e.target.matches('[data-toggle-state]')){
+    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    const next=(cur.state==='live'?'off':'live');
-    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`);
+    const next= (cur.state==='live'?'off':'live');
+    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden to others)'}?`);
     if(!ok) return;
     s.heroFlags[id]={...cur, state:next}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-
-  // open/close move popover
-  if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move]'))){
-    const btn=e.target.closest('[data-move]');
-    const menu=btn.querySelector('.move-menu');
-    const open=!menu.classList.contains('open');
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open');
-    e.stopPropagation();
-    return;
+  // Enter -> open linked HTML
+  if(e.target.matches('[data-enter]')){
+    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
+    const links=getLinks(); let url=links[id];
+    if(!url){
+      const t=prompt('No link set yet. Enter a URL or relative HTML path (e.g. courses/intro.html):','');
+      if(!t) return; url=t.trim(); setLink(id,url);
+    }
+    openSubSheet('Hero', url); return;
   }
-
-  // choose destination
-  if(hero && e.target.matches('.move-menu [data-move-to]')){
-    const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
-    moveHero(id, dest);
-    const menu=hero.querySelector('.move-menu'); if(menu) menu.classList.remove('open');
-    e.stopPropagation(); return;
-  }
+  // Click outside move menus closes any open one
+  if(!e.target.closest('.move')) { $$('.move-menu.open').forEach(m=>m.classList.remove('open')); }
 });
-// click-away to close popovers
-document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'))});
 
-/* Move with "three cards max" rule in Dev Space per-tab */
+/* Move with dev-space capacity (max 3) */
 function moveHero(id, place){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
   if(place==='dev'){
-    const countDev = Object.entries(s.heroFlags).filter(([hid,flag])=>heroTab(hid)===heroTab(id) && flag?.place==='dev').length;
+    const countDev = Object.values(s.heroFlags).filter(v=>v?.place==='dev').length;
     if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
   }
   s.heroFlags[id]={...cur, place}; saveSettings(s);
@@ -633,23 +571,31 @@ const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('
 function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
 function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
 toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
+$('#dockClose').addEventListener('click', closeDock);
 
 function paintWorkingDrawer(){
   const flags=getSettings().heroFlags||{};
   const links=getLinks();
   devSpace.innerHTML='';
+
   const archive=[], tpl=[];
+  // Only show items for the currently active tab
+  const activeTab = document.querySelector('.btn-tab.is-active')?.dataset.tab || 'feed';
+  // hero id prefixes by tab:
+  const prefixMap={feed:'feed-', challenges:'ch-', courses:'co-', live:'lv-'};
+
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
-    if(heroTab(id)!==currentTab) return; // per-tab draw
+    if(!id.startsWith(prefixMap[activeTab]||'')) return;
+
     const t=el.querySelector('.title')?.textContent?.trim()||id;
     const f=flags[id]||{state:'live',place:'page'};
     if(f.place==='dev'){
       const card=document.createElement('article'); card.className='hero';
       card.innerHTML=`<h2 class="title">${t}</h2>
         <div class="admin-ctrls" style="display:flex">
-          <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
-          <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
+          <button class="state-badge ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
+          <button class="move-btn" data-dock-move data-dock-id="${id}">Move
             <div class="move-menu">
               <button data-dock-id="${id}" data-dock-to="page">Move to Page</button>
               <button data-dock-id="${id}" data-dock-to="archive">Move to Archive</button>
@@ -657,12 +603,13 @@ function paintWorkingDrawer(){
             </div>
           </button>
         </div>
-        <p class="meta">Dev preview only</p>`;
+        <p class="meta">Dev preview only</p>
+        <div class="cta-left"><button class="btn blue" data-dock-enter="${id}">Enter</button></div>`;
       devSpace.appendChild(card);
     }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
     else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
   });
-  // paint lists
+
   const LA=$('#listArchive'); const LT=$('#listTpl');
   LA.innerHTML=''; LT.innerHTML='';
   const renderRow=(host,it,bin)=>{
@@ -681,58 +628,45 @@ function paintWorkingDrawer(){
 }
 paintWorkingDrawer();
 
-/* Drawer interactions (dev space + bins) */
 $('#adminDock').addEventListener('click',(e)=>{
-  // toggle live/off (dev card)
   if(e.target.matches('[data-dock-act="toggle"]')){
     const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
     s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-  // open/close dev-card move menu
-  if(e.target.matches('[data-dock-move], [data-dock-move] *')){
-    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open'); return;
+  if(e.target.closest('[data-dock-move]')){
+    const menu=e.target.closest('[data-dock-move]').querySelector('.move-menu');
+    menu.classList.toggle('open'); return;
   }
-  // dev-card move actions
   if(e.target.matches('[data-dock-to]')){
     moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return;
   }
-  // set/change link (bins)
   if(e.target.matches('[data-link-id]')){
     const id=e.target.dataset.linkId; const cur=getLinks()[id]||'';
     const url=prompt('Enter linked HTML/URL', cur||'');
     if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); }
     return;
   }
-  // open link (bins)
   if(e.target.matches('[data-open-id]')){
     const id=e.target.dataset.openId; const url=getLinks()[id];
     if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
     openSubSheet('Hero', url); return;
   }
-  // move from bin row
   if(e.target.matches('[data-move-id]')){
     moveHero(e.target.dataset.moveId, e.target.dataset.place); return;
   }
+  if(e.target.matches('[data-dock-enter]')){
+    const id=e.target.getAttribute('data-dock-enter'); const url=getLinks()[id];
+    if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
+    openSubSheet('Hero', url);
+  }
 });
 
-/* ===== Daily medals placeholder & meta ===== */
+/* ===== Minimal tracker fill ===== */
 (function paintEmpty(){
-  const dm=$('#dailyMedals'); if(!dm) return;
-  dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+  const dm=$('#dailyMedals'); if(!dm) return; dm.innerHTML='';
+  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
 })();
-(function bootDailyMeta(){
-  const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const m=$('#dailyMeta'); if(m) m.textContent = `Begins ${dayNames[today.getDay()]}`;
-})();
-
-/* ===== Tracker hero click -> iframe ===== */
-const th=$('#trackerHero'); if(th){ th.addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html')); }
-
-/* ===== Close any open move popover on ESC ===== */
-window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.move-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); } });
-
-console.log('[FAOA] home loaded ✓');
 })();
 </script>
 </body>
