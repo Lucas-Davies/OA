@@ -40,7 +40,7 @@ a{color:inherit;text-decoration:none}
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
-/* Avatar pill (no photo) */
+/* Avatar pill (no photo; ring shows role) */
 .avatarTab{
   display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
   padding:6px 12px;border-radius:12px;min-width:150px;height:44px;
@@ -94,8 +94,8 @@ a{color:inherit;text-decoration:none}
 #avatarSheet.open{display:block}
 #avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;
   background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
-.menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
-.menu a:last-child{border-bottom:none}
+.menu a, .menu button.link{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08);background:none;color:inherit;cursor:pointer;font:inherit}
+.menu a:last-child,.menu button.link:last-child{border-bottom:none}
 
 /* Sub-sheet */
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);
@@ -110,12 +110,24 @@ a{color:inherit;text-decoration:none}
   background:#121212;color:#fff;font-weight:900;cursor:pointer}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10}
 
-/* ===== ADMIN FOOTER (full-screen slide-up) ===== */
+/* ===== ADMIN FOOTER (red pill + full-screen slide-up) ===== */
+#adminDock{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom: max(8px, env(safe-area-inset-bottom));
+  z-index:85;
+  padding:10px 16px; font-weight:900;
+  border-radius:999px; border:1px solid rgba(0,0,0,.2);
+  background:var(--red); color:#000; cursor:pointer;
+  box-shadow:0 8px 22px rgba(0,0,0,.55);
+  display:none;
+}
+#adminDock:active{ transform:translateX(-50%) translateY(1px); }
+
 #adminHidden{
   position:fixed; left:0; right:0; bottom:0; top:0;
   background:#0a0a0a; z-index:80; display:none;
   transform:translateY(100%); transition:transform .24s ease;
-  border-top:2px solid var(--red);
+  border-top:3px solid var(--red);
 }
 #adminHidden.open{ display:block; transform:translateY(0) }
 #adminHidden .adminHeader{
@@ -139,19 +151,6 @@ a{color:inherit;text-decoration:none}
 #adminHidden .list .title{ font-weight:800 }
 #adminHidden .list .metaSmall{ font-size:12px; opacity:.85 }
 #adminHidden .list .open{ border:1px solid var(--stroke); background:#0b0b0b; color:#fff; border-radius:8px; padding:4px 8px; cursor:pointer }
-
-/* Admin bottom tab (Working Drawer) */
-#adminDock{
-  position:fixed; left:50%; transform:translateX(-50%);
-  bottom: max(8px, env(safe-area-inset-bottom));
-  z-index:85;
-  padding:10px 14px; font-weight:900;
-  border-radius:12px; border:1px solid var(--stroke);
-  background:#111; color:#fff; cursor:pointer;
-  box-shadow:0 6px 18px rgba(0,0,0,.45);
-  display:none;
-}
-#adminDock:active{ transform:translateX(-50%) translateY(1px); }
 
 /* Config-mode pencil overlay */
 .editable{ position:relative }
@@ -254,6 +253,20 @@ a{color:inherit;text-decoration:none}
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
       <a href="#" id="toggleConfig" style="display:none">Toggle Config Mode<span>›</span></a>
+
+      <!-- DEV fail-safe: revealed via Shift+Alt+D -->
+      <div id="roleTester" style="display:none; padding:10px 10px 6px">
+        <label class="sr-only" for="devRole">Role</label>
+        <select id="devRole" style="width:100%;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#111;color:#fff">
+          <option value="bronze">bronze</option>
+          <option value="silver" selected>silver</option>
+          <option value="gold">gold</option>
+          <option value="support">support</option>
+          <option value="director">director</option>
+          <option value="admin">admin</option>
+        </select>
+        <button class="link" id="applyDevRole" style="margin-top:6px">Apply Role (DEV)</button>
+      </div>
     </nav>
   </div>
 </div>
@@ -299,8 +312,8 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- Admin bottom tab -->
-<button id="adminDock" aria-label="Open Working Drawer">Working Drawer</button>
+<!-- Admin red pill -->
+<button id="adminDock" aria-label="Open Admin">Admin</button>
 
 <script>
 (()=>{'use strict';
@@ -381,7 +394,7 @@ function closeSubSheet(){
   subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
   subSheet.style.pointerEvents='none';
   subFrame.src='about:blank';
-  applyProfile(); applyVis(); renderAdminFooter();
+  applyProfile(); applyVis(); renderAdminFooter(); paintConfigMode(); // refresh after edits
 }
 $('#sheetClose')?.addEventListener('click', closeSubSheet);
 subSheet?.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
@@ -403,17 +416,25 @@ function applyProfile(){
   const lvl=(p.skill||'silver').toLowerCase(); $('#avatarLvl')?.textContent=cap(lvl);
   const ring={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'}[lvl]||'#c0c7d1';
   const pill=$('#avatarTab'); if(pill){ pill.style.background='#222'; pill.style.borderColor='rgba(255,255,255,.18)'; pill.style.boxShadow=`0 0 0 2px ${ring} inset`; }
+  // Daily skin/title text based on role → level mapping
   const dailyMap={bronze:'bronze',silver:'silver',gold:'gold',support:'black',director:'black',admin:'black'};
   $('#dailyHero')?.setAttribute('data-skin', dailyMap[lvl]||'silver');
   const txt={bronze:'Beginner',silver:'Intermediate',gold:'Advanced',support:'Advanced',director:'Advanced',admin:'Advanced'}[lvl]||'Intermediate';
   $('#dailyLevel')?.textContent = txt;
+
+  // Admin toggles visibility
+  const cfgLink=$('#toggleConfig');
+  if(cfgLink) cfgLink.style.display = (lvl==='admin') ? 'flex' : 'none';
+
+  // Admin dock visibility
+  const dock=$('#adminDock');
+  if(dock) dock.style.display = (lvl==='admin') ? 'inline-flex' : 'none';
 }
 applyProfile();
 
 /* ===== Config mode (admin only) ===== */
 const cfgLink=$('#toggleConfig');
-if(cfgLink && isAdmin()){
-  cfgLink.style.display='flex';
+if(cfgLink){
   cfgLink.addEventListener('click',(e)=>{
     e.preventDefault();
     settings.admin=settings.admin||{};
@@ -423,12 +444,12 @@ if(cfgLink && isAdmin()){
   });
 }
 function paintConfigMode(){
-  const on=!!(settings.admin&&settings.admin.configMode);
+  const on=!!(settings.admin&&settings.admin.configMode) && isAdmin();
   $$('.hero').forEach(h=>{
-    const strip=h.querySelector('.adminControls'); if(strip){ strip.style.display=(isAdmin()&&on)?'flex':'none'; }
+    const strip=h.querySelector('.adminControls'); if(strip){ strip.style.display= on ? 'flex' : 'none'; }
     h.querySelectorAll('.editable').forEach(p=>{
+      const span=p.querySelector('.t')||p;
       p.dataset.config = on ? 'on' : 'off';
-      const span=p.querySelector('.t'); if(!span) return;
       if(on){ if(!p.querySelector('.pencil')){ const i=document.createElement('div'); i.className='pencil'; i.textContent='✎'; p.prepend(i); } span.setAttribute('contenteditable','true'); }
       else{ p.querySelector('.pencil')?.remove(); span.removeAttribute('contenteditable'); }
       span.onblur=()=>{ const id=p.closest('.hero')?.dataset.heroId; if(!id) return;
@@ -488,6 +509,8 @@ applyVis();
 
 /* ===== Admin footer (Working Drawer) ===== */
 const adminPane = $('#adminHidden');
+const dock = $('#adminDock');
+
 function toggleAdminFooter(open){
   if(!adminPane) return;
   if(!isAdmin()){ adminPane.classList.remove('open'); adminPane.style.pointerEvents='none'; return; }
@@ -495,6 +518,8 @@ function toggleAdminFooter(open){
   else{ adminPane.classList.remove('open'); adminPane.style.pointerEvents='none'; }
 }
 $('#adminClose')?.addEventListener('click', ()=>toggleAdminFooter(false));
+dock?.addEventListener('click', ()=>toggleAdminFooter(true));
+
 function liRow(id,cfg){
   const li=document.createElement('li');
   const left=document.createElement('div');
@@ -506,7 +531,10 @@ function liRow(id,cfg){
   li.appendChild(left); li.appendChild(btn); return li;
 }
 function renderAdminFooter(){
+  // show/hide red pill
+  if(dock) dock.style.display = isAdmin() ? 'inline-flex' : 'none';
   if(!isAdmin()) return;
+
   const groups={
     news: document.querySelector('#adminHidden .adminGroup[data-tab="news"]'),
     challenges: document.querySelector('#adminHidden .adminGroup[data-tab="challenges"]'),
@@ -528,13 +556,6 @@ function renderAdminFooter(){
 }
 renderAdminFooter();
 
-/* Bottom Working Drawer pill (admin only) */
-(function initAdminDock(){
-  const dock = document.getElementById('adminDock'); if(!dock) return;
-  if(isAdmin()){ dock.style.display = 'inline-flex'; dock.addEventListener('click', ()=> toggleAdminFooter(true)); }
-  else{ dock.remove(); }
-})();
-
 /* ===== Daily medals placeholder ===== */
 (function paintEmpty(){
   const dm=$('#dailyMedals'); if(!dm) return; dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
@@ -545,8 +566,26 @@ $('#trackerHero')?.addEventListener('click',()=>openSubSheet('Challenge Tracker'
 
 /* React to profile/settings changes from other pages */
 window.addEventListener('storage',e=>{
-  if(e.key===K.profile){ applyProfile(); }
+  if(e.key===K.profile){ applyProfile(); renderAdminFooter(); paintConfigMode(); }
   if(e.key===K.settings){ settings=store.get(K.settings,settings); applyVis(); paintConfigMode(); renderAdminFooter(); }
+});
+
+/* ===== DEV: show Role Tester with Shift+Alt+D ===== */
+let devReveal=false;
+document.addEventListener('keydown',(e)=>{
+  if(e.key.toLowerCase()==='d' && e.altKey && e.shiftKey){
+    devReveal=!devReveal;
+    const rt=$('#roleTester'); if(rt){ rt.style.display = devReveal ? 'block' : 'none'; if(devReveal) openDrawer(); }
+    const sel=$('#devRole'); if(sel){ sel.value = role(); }
+  }
+});
+$('#applyDevRole')?.addEventListener('click', ()=>{
+  const sel=$('#devRole'); if(!sel) return;
+  const p = store.get(K.profile,{});
+  p.skill = sel.value;
+  store.set(K.profile,p);
+  applyProfile(); applyVis(); renderAdminFooter(); paintConfigMode();
+  closeDrawer();
 });
 })();
 </script>
