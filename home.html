@@ -50,7 +50,7 @@ a{color:inherit;text-decoration:none}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
-/* Content wrap (safe area for fixed header) */
+/* Content wrap */
 .wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 110px}
 
 /* ===== HERO ===== */
@@ -67,10 +67,9 @@ a{color:inherit;text-decoration:none}
 
 /* Admin-only per-hero controls (tiny) */
 .adminControls{position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center; background:rgba(0,0,0,.5); border:1px solid var(--stroke); padding:6px 8px; border-radius:10px}
-.adminControls select, .adminControls input[type="checkbox"]{height:28px; border-radius:8px; border:1px solid var(--stroke); background:#111; color:#fff; font:inherit; padding:0 6px}
-.edit pencil{}
+.adminControls select{height:28px; border-radius:8px; border:1px solid var(--stroke); background:#111; color:#fff; font:inherit; padding:0 6px}
 
-/* Level-driven skin for Daily (gloss retained) */
+/* Level-driven gloss for Daily */
 #dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
 #dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
 #dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
@@ -184,13 +183,7 @@ a{color:inherit;text-decoration:none}
   <!-- ===== FEED ===== -->
   <section id="panel-news" class="panel-active" data-panel="news">
     <article class="hero" data-hero-id="news-hero1">
-      <div class="adminControls">
-        <label class="sr-only" for="state-news-hero1">State</label>
-        <select id="state-news-hero1" data-bind="state">
-          <option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option>
-        </select>
-        <input type="checkbox" data-bind="hidden" class="sr-only" aria-label="Hide">
-      </div>
+      <div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div>
       <h2 class="title editable"><span class="t">Placeholder news-hero1</span> <span class="badge" hidden id="badge-news-hero1">New</span></h2>
       <p class="meta editable"><span class="t">Coming Soon</span></p>
       <p class="desc editable"><span class="t">Coming Soon</span></p>
@@ -203,7 +196,6 @@ a{color:inherit;text-decoration:none}
 
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" data-panel="challenges">
-    <!-- Daily-only tracker -->
     <article class="hero tracker" id="trackerHero" data-hero-id="challenges-tracker">
       <div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div>
       <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
@@ -216,7 +208,6 @@ a{color:inherit;text-decoration:none}
       </div>
     </article>
 
-    <!-- Placeholder daily hero examples (optional extra heroes) -->
     <article class="hero" id="dailyHero" data-hero-id="challenges-hero1" data-skin="bronze" aria-labelledby="dailyTitle">
       <div class="adminControls"><select data-bind="state"><option>active</option><option>hidden</option><option>underDevelopment</option><option>newRelease</option><option>setToExpire</option></select></div>
       <h2 class="title" id="dailyTitle">Daily Challenge</h2>
@@ -313,6 +304,9 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
+/* ultra-defensive error guard so wiring still happens */
+window.addEventListener('error', e=>{ try{ console.log('[home] runtime error:', e.message); }catch{} });
+
 /* ===== utils & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
@@ -326,24 +320,17 @@ function role(){const p=store.get(K.profile,{skill:'silver'});return(p.skill||'s
 const isAdmin = ()=> role()==='admin';
 const isDirector = ()=> role()==='director';
 
-/* ===== default settings scaffold (heroes registry) ===== */
+/* ===== default settings scaffold ===== */
 let settings = store.get(K.settings,null);
 if(!settings){
   settings = {
     admin:{configMode:false},
-    // Tab hides (admin/director can change)
     hideNews:false, hideChallenges:false, hideCourses:false, hideLive:false,
-    // Per-hero registry
     heroes:{
-      // news
-      'news-hero1':{state:'active', title:'', desc:''},
-      'news-hero2':{state:'active'}, 'news-hero3':{state:'active'}, 'news-hero4':{state:'active'}, 'news-hero5':{state:'active'},
-      // challenges
+      'news-hero1':{state:'active'},'news-hero2':{state:'active'},'news-hero3':{state:'active'},'news-hero4':{state:'active'},'news-hero5':{state:'active'},
       'challenges-tracker':{state:'active'},
       'challenges-hero1':{state:'active'},'challenges-hero2':{state:'active'},'challenges-hero3':{state:'active'},'challenges-hero4':{state:'active'},'challenges-hero5':{state:'active'},
-      // courses
       'courses-hero1':{state:'active'},'courses-hero2':{state:'active'},'courses-hero3':{state:'active'},'courses-hero4':{state:'active'},'courses-hero5':{state:'active'},
-      // live
       'live-hero1':{state:'active'},'live-hero2':{state:'active'},'live-hero3':{state:'active'},'live-hero4':{state:'active'},'live-hero5':{state:'active'}
     },
     textOverrides:{heroes:{}}
@@ -351,23 +338,9 @@ if(!settings){
   store.set(K.settings,settings);
 }
 
-/* ===== Avatar paint (name + level color) ===== */
-function applyProfile(){
-  const p=store.get(K.profile,{displayName:'User',skill:'silver'});
-  $('#avatarName').textContent=p.displayName||'User';
-  const lvl=(p.skill||'silver').toLowerCase(); $('#avatarLvl').textContent=cap(lvl);
-  const ring={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'}[lvl]||'#c0c7d1';
-  const pill=$('#avatarTab'); pill.style.background='#222'; pill.style.borderColor='rgba(255,255,255,.18)'; pill.style.boxShadow=`0 0 0 2px ${ring} inset`;
-
-  // Daily skin mapping for flavor
-  const dailyMap={bronze:'bronze',silver:'silver',gold:'gold',support:'black',director:'black',admin:'black'};
-  $('#dailyHero')?.setAttribute('data-skin', dailyMap[lvl]||'silver');
-  $('#dailyLevel')?.textContent = ({bronze:'Beginner',silver:'Intermediate',gold:'Advanced',support:'Advanced',director:'Advanced',admin:'Advanced'}[lvl]||'Intermediate');
-}
-applyProfile();
-
-/* ===== Tabs ===== */
-const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
+/* ===== Tabs (wire ASAP) ===== */
+const tabBtns=$$('.btn-tab[data-tab]');
+const panels=$$('[data-panel]');
 function showTab(name){
   tabBtns.forEach(b=>{
     const on=b.dataset.tab===name;
@@ -377,91 +350,110 @@ function showTab(name){
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
   window.scrollTo({top:0,behavior:'smooth'});
 }
-tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+tabBtns.forEach(b=>b?.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('news');
 
-/* ===== Drawer & Subsheet ===== */
+/* ===== Avatar drawer (wire ASAP) ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', openDrawer);
-avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
+function openDrawer(){ if(!avatarSheet) return; avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn?.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ if(!avatarSheet) return; avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn?.setAttribute('aria-expanded','false'); }
+avatarBtn?.addEventListener('click', openDrawer);
+avatarSheet?.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
+/* ===== Subsheet ===== */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
-  sheetTitle.textContent=title;
-  subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  if(!subSheet||!subFrame||!sheetTitle) return;
+  sheetTitle.textContent=title||'—';
+  subFrame.src=(url||'about:blank')+((url||'').includes('?')?'&':'?')+'v='+Date.now();
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){
-  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
-  subFrame.src='about:blank';
+  if(!subSheet||!subFrame) return;
+  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank';
   applyProfile(); applyVis(); renderAdminFooter();
 }
-$('#sheetClose').addEventListener('click', closeSubSheet);
-subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
+$('#sheetClose')?.addEventListener('click', closeSubSheet);
+subSheet?.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
 $$('#avatarSheet [data-pop]').forEach(a=>{
   a.addEventListener('click',e=>{
     e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
 });
 
+/* ===== Avatar paint ===== */
+function applyProfile(){
+  const p=store.get(K.profile,{displayName:'User',skill:'silver'});
+  $('#avatarName')?.textContent = p.displayName||'User';
+  const lvl=(p.skill||'silver').toLowerCase(); $('#avatarLvl')?.textContent=cap(lvl);
+  const ring={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'}[lvl]||'#c0c7d1';
+  const pill=$('#avatarTab'); if(pill){ pill.style.background='#222'; pill.style.borderColor='rgba(255,255,255,.18)'; pill.style.boxShadow=`0 0 0 2px ${ring} inset`; }
+  const dailyMap={bronze:'bronze',silver:'silver',gold:'gold',support:'black',director:'black',admin:'black'};
+  $('#dailyHero')?.setAttribute('data-skin', dailyMap[lvl]||'silver');
+  const txt={bronze:'Beginner',silver:'Intermediate',gold:'Advanced',support:'Advanced',director:'Advanced',admin:'Advanced'}[lvl]||'Intermediate';
+  $('#dailyLevel')?.textContent = txt;
+}
+applyProfile();
+
 /* ===== Config mode (admin only) ===== */
 const cfgLink=$('#toggleConfig');
-if(isAdmin()){ cfgLink.style.display='flex'; cfgLink.addEventListener('click', (e)=>{ e.preventDefault(); settings.admin=settings.admin||{}; settings.admin.configMode=!settings.admin.configMode; store.set(K.settings,settings); paintConfigMode(); }); }
+if(cfgLink && isAdmin()){
+  cfgLink.style.display='flex';
+  cfgLink.addEventListener('click',(e)=>{
+    e.preventDefault();
+    settings.admin=settings.admin||{};
+    settings.admin.configMode=!settings.admin.configMode;
+    store.set(K.settings,settings);
+    paintConfigMode();
+  });
+}
 function paintConfigMode(){
   const on=!!(settings.admin&&settings.admin.configMode);
-  // per-hero control strips + pencils
   $$('.hero').forEach(h=>{
-    h.querySelector('.adminControls')?.style.setProperty('display', (isAdmin()&&on)?'flex':'none');
-    const editableParts=h.querySelectorAll('.editable');
-    editableParts.forEach(p=>{
+    const strip=h.querySelector('.adminControls'); if(strip){ strip.style.display=(isAdmin()&&on)?'flex':'none'; }
+    h.querySelectorAll('.editable').forEach(p=>{
       p.dataset.config = on ? 'on' : 'off';
-      if(on && !p.querySelector('.pencil')){ const i=document.createElement('div'); i.className='pencil'; i.textContent='✎'; p.prepend(i); }
-      if(!on){ p.querySelector('.pencil')?.remove(); }
-      const span=p.querySelector('.t'); if(on){ span.setAttribute('contenteditable','true'); } else { span.removeAttribute('contenteditable'); }
-      span?.addEventListener('blur',()=>{
-        const id=p.closest('.hero')?.dataset.heroId; if(!id) return;
-        settings.textOverrides.heroes[id]=settings.textOverrides.heroes[id]||{};
+      const span=p.querySelector('.t'); if(!span) return;
+      if(on){ if(!p.querySelector('.pencil')){ const i=document.createElement('div'); i.className='pencil'; i.textContent='✎'; p.prepend(i); } span.setAttribute('contenteditable','true'); }
+      else{ p.querySelector('.pencil')?.remove(); span.removeAttribute('contenteditable'); }
+      span.onblur=()=>{ const id=p.closest('.hero')?.dataset.heroId; if(!id) return;
+        settings.textOverrides=settings.textOverrides||{heroes:{}}; settings.textOverrides.heroes=settings.textOverrides.heroes||{};
         const key=p.classList.contains('title')?'title':p.classList.contains('meta')?'meta':'desc';
-        settings.textOverrides.heroes[id][key]=span.textContent.trim();
+        settings.textOverrides.heroes[id]=settings.textOverrides.heroes[id]||{}; settings.textOverrides.heroes[id][key]=span.textContent.trim();
         store.set(K.settings,settings);
-      },{once:true});
+      };
     });
   });
 }
 paintConfigMode();
 
-/* ===== Tab visibility from settings ===== */
+/* ===== Tab hides ===== */
 function applyTabHides(){
   const hide=(tab,flag)=>{ const btn=document.querySelector(`.btn-tab[data-tab="${tab}"]`); const pnl=document.querySelector(`[data-panel="${tab}"]`); if(btn) btn.style.display = flag?'none':'inline-flex'; if(pnl) pnl.style.display = flag?'none':''; };
+  if(!settings) return;
   hide('news', !!settings.hideNews);
   hide('challenges', !!settings.hideChallenges);
   hide('courses', !!settings.hideCourses);
   hide('live', !!settings.hideLive);
-  // ensure some tab is visible
   const active=document.querySelector('.btn-tab.is-active'); if(!active || active.style.display==='none'){ const first=Array.from(document.querySelectorAll('.btn-tab')).find(b=>b.style.display!=='none'); if(first) showTab(first.dataset.tab); }
 }
 
-/* ===== Hero visibility by state & window ===== */
+/* ===== Hero visibility & text overrides ===== */
 function withinWindow(cfg){
-  if(!cfg) return true;
-  const now=Date.now(); const rel=cfg.releaseDate?Date.parse(cfg.releaseDate):null; const exp=cfg.expiryDate?Date.parse(cfg.expiryDate):null;
+  if(!cfg) return true; const now=Date.now();
+  const rel=cfg.releaseDate?Date.parse(cfg.releaseDate):null; const exp=cfg.expiryDate?Date.parse(cfg.expiryDate):null;
   if(rel && now<rel) return false; if(exp && now>exp) return false; return true;
 }
 function heroVisibleForRole(cfg){
-  const st=(cfg?.state)||'active';
-  if(st==='active') return true;
-  if(!withinWindow(cfg)) return false;
-  // only Admin sees non-active items on page? No: keep page clean; send to admin footer.
-  return false;
+  const st=(cfg?.state)||'active'; if(st==='active') return true;
+  if(!withinWindow(cfg)) return false; return false; // non-active go to admin footer only
 }
 function applyTextOverrides(){
-  Object.entries(settings.textOverrides?.heroes||{}).forEach(([id,t])=>{
+  const map=settings?.textOverrides?.heroes||{}; Object.entries(map).forEach(([id,t])=>{
     const host=document.querySelector(`.hero[data-hero-id="${id}"]`); if(!host) return;
-    if(t.title) host.querySelector('.title .t')? host.querySelector('.title .t').textContent=t.title : (host.querySelector('.title')&& (host.querySelector('.title').textContent=t.title));
-    if(t.meta)  host.querySelector('.meta .t')?  host.querySelector('.meta .t').textContent=t.meta : null;
-    if(t.desc)  host.querySelector('.desc .t')?  host.querySelector('.desc .t').textContent=t.desc : null;
+    if(t.title){ const el=host.querySelector('.title .t')||host.querySelector('.title'); if(el) el.textContent=t.title; }
+    if(t.meta){  const el=host.querySelector('.meta .t'); if(el) el.textContent=t.meta; }
+    if(t.desc){  const el=host.querySelector('.desc .t'); if(el) el.textContent=t.desc; }
   });
 }
 function applyVis(){
@@ -469,12 +461,10 @@ function applyVis(){
   applyTextOverrides();
   $$('.hero').forEach(h=>{
     const id=h.dataset.heroId; if(!id) return;
-    const cfg=settings.heroes[id]||{state:'active'};
+    const cfg=(settings&&settings.heroes&&settings.heroes[id])||{state:'active'};
     const show=heroVisibleForRole(cfg);
     h.style.display = show ? '' : 'none';
-    const badge=h.querySelector(`#badge-${id}`) || h.querySelector('.badge');
-    if(badge) badge.hidden = cfg.state!=='newRelease';
-    // bind control <select> if present
+    const badge=h.querySelector(`#badge-${id}`) || h.querySelector('.badge'); if(badge) badge.hidden = cfg.state!=='newRelease';
     const sel=h.querySelector('.adminControls select[data-bind="state"]');
     if(sel){ sel.value=cfg.state||'active'; sel.onchange=()=>{ cfg.state=sel.value; settings.heroes[id]=cfg; store.set(K.settings,settings); applyVis(); renderAdminFooter(); }; }
   });
@@ -483,17 +473,15 @@ applyVis();
 
 /* ===== Admin footer (Working Drawer) ===== */
 function toggleAdminFooter(open){
-  const pane = document.getElementById('adminHidden');
+  const pane = document.getElementById('adminHidden'); if(!pane) return;
   if(!isAdmin()){ pane.classList.remove('open'); return; }
-  if(open){ pane.classList.add('open'); }
-  else{ pane.classList.remove('open'); }
+  if(open){ pane.classList.add('open'); } else { pane.classList.remove('open'); }
 }
-document.getElementById('adminClose').addEventListener('click', ()=>toggleAdminFooter(false));
-
+document.getElementById('adminClose')?.addEventListener('click', ()=>toggleAdminFooter(false));
 function liRow(id,cfg){
   const li=document.createElement('li');
   const left=document.createElement('div');
-  const tx=settings.textOverrides?.heroes?.[id]||{};
+  const tx=settings?.textOverrides?.heroes?.[id]||{};
   const title=tx.title||cfg.title||id;
   left.innerHTML=`<div class="title">${title}</div><div class="metaSmall">${cfg.state}${cfg.releaseDate?` • rel ${new Date(cfg.releaseDate).toLocaleDateString()}`:''}${cfg.expiryDate?` • exp ${new Date(cfg.expiryDate).toLocaleDateString()}`:''}</div>`;
   const btn=document.createElement('button'); btn.className='open'; btn.textContent='Open';
@@ -508,37 +496,31 @@ function renderAdminFooter(){
     courses: document.querySelector('#adminHidden .adminGroup[data-tab="courses"]'),
     live: document.querySelector('#adminHidden .adminGroup[data-tab="live"]')
   };
-  Object.values(groups).forEach(g=>{ g.querySelector('[data-kind="underDevelopment"]').innerHTML=''; g.querySelector('[data-kind="others"]').innerHTML=''; });
-  Object.entries(settings.heroes||{}).forEach(([id,cfg])=>{
+  Object.values(groups).forEach(g=>{ if(!g) return; g.querySelector('[data-kind="underDevelopment"]').innerHTML=''; g.querySelector('[data-kind="others"]').innerHTML=''; });
+  const all=settings?.heroes||{};
+  Object.entries(all).forEach(([id,cfg])=>{
     const tab=id.split('-')[0]; const g=groups[tab]; if(!g) return;
     if(cfg.state==='underDevelopment'){
-      const source=document.querySelector(`.hero[data-hero-id="${id}"]`); const wrap=g.querySelector('[data-kind="underDevelopment"]');
-      const card=source?source.cloneNode(true):null;
-      if(card){ card.querySelectorAll('.adminControls,.pencil').forEach(n=>n?.remove()); wrap.appendChild(card); }
-      else{ const mini=document.createElement('article'); mini.className='hero'; mini.innerHTML=`<h2 class="title">${id}</h2><p class="meta">Under development</p><p class="desc">—</p>`; wrap.appendChild(mini); }
+      const source=document.querySelector(`.hero[data-hero-id="${id}"]`);
+      const wrap=g.querySelector('[data-kind="underDevelopment"]');
+      if(wrap){ const card=source?source.cloneNode(true):null; if(card){ card.querySelectorAll('.adminControls,.pencil').forEach(n=>n?.remove()); wrap.appendChild(card); } else { const mini=document.createElement('article'); mini.className='hero'; mini.innerHTML=`<h2 class="title">${id}</h2><p class="meta">Under development</p><p class="desc">—</p>`; wrap.appendChild(mini); } }
     }else if(['hidden','newRelease','setToExpire'].includes(cfg.state)){
-      g.querySelector('[data-kind="others"]').appendChild(liRow(id,cfg));
+      const list=g.querySelector('[data-kind="others"]'); if(list) list.appendChild(liRow(id,cfg));
     }
   });
 }
 renderAdminFooter();
 
-/* Show bottom Working Drawer button for admin */
+/* Bottom Working Drawer pill (admin only) */
 (function initAdminDock(){
-  const dock = document.getElementById('adminDock');
-  if(!dock) return;
-  if(isAdmin()){
-    dock.style.display = 'inline-flex';
-    dock.addEventListener('click', ()=> toggleAdminFooter(true));
-  }else{
-    dock.remove();
-  }
+  const dock = document.getElementById('adminDock'); if(!dock) return;
+  if(isAdmin()){ dock.style.display = 'inline-flex'; dock.addEventListener('click', ()=> toggleAdminFooter(true)); }
+  else{ dock.remove(); }
 })();
 
 /* ===== Daily medals placeholder ===== */
 (function paintEmpty(){
-  const dm=$('#dailyMedals'); if(!dm) return; dm.innerHTML='';
-  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+  const dm=$('#dailyMedals'); if(!dm) return; dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
 })();
 
 /* ===== Tracker hero click -> iframe ===== */
