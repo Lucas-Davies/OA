@@ -10,13 +10,13 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a; --black:#111;
+  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff3b30; --black:#111;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{height:100%; margin:0; background:var(--bg); color:var(--ink);
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior:contain}
+  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
@@ -27,7 +27,7 @@ a{color:inherit;text-decoration:none}
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:40;
+  padding:8px 12px; z-index:50;
   background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
@@ -53,7 +53,7 @@ a{color:inherit;text-decoration:none}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
 /* Content wrap (safe area for fixed header) */
-.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 120px}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
 
 /* ===== HERO ===== */
 .hero{position:relative; overflow:hidden; background:#060708;
@@ -86,14 +86,22 @@ a{color:inherit;text-decoration:none}
 [data-panel]{display:none}
 [data-panel].panel-active{display:block}
 
-/* Avatar Drawer */
+/* ===== Admin inline controls on hero ===== */
+.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:8px}
+.admin-on .admin-ctrls{display:flex}
+.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
+.admin-ctrls .pub{background:#0a0}
+.admin-ctrls .unpub{background:#555}
+.admin-ctrls .move{background:#1b1f2a}
+
+/* ===== Avatar Drawer ===== */
 #avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
 #avatarSheet .panel{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:320px; max-height:70vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px}
 .menu a{display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
 .menu a:last-child{border-bottom:none}
 
-/* Subsheet (iframe) */
+/* ===== Subsheet (iframe) ===== */
 #subSheet{position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
 #subSheet .inner{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:min(820px,calc(100% - 24px)); height:min(78vh,calc(100% - (var(--nav-h) + 24px))); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; display:flex; flex-direction:column}
@@ -106,19 +114,23 @@ a{color:inherit;text-decoration:none}
 .cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
 .config-on .cfg-pin{display:flex}
 
-/* ===== Admin footer (working drawer) ===== */
-#adminOpen{position:fixed; left:0; right:0; bottom:0; height:42px; display:none; align-items:center; justify-content:center; z-index:45}
-#adminOpen button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
-#adminDock{position:fixed; left:0; right:0; bottom:0; height:78vh; transform:translateY(100%); transition:transform .18s ease; z-index:80; background:#120c0c; border-top:2px solid var(--red); border-top-left-radius:14px; border-top-right-radius:14px; display:flex; flex-direction:column}
+/* ===== Admin footer / Working Drawer ===== */
+#adminTab{position:fixed; left:0; right:0; height:42px; display:none; align-items:center; justify-content:center; z-index:90}
+#adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
+#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
-#adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e}
-#adminDock .lists{flex:1 1 auto; overflow:auto; padding:10px 12px; display:grid; gap:16px; grid-template-columns:1fr}
-.admin-bin{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px}
-.admin-bin h3{margin:0 0 8px; font-size:15px}
+#adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
+#adminDock .lists{position:absolute; top:52px; bottom:0; left:0; right:0; overflow:auto; padding:12px}
+.admin-group{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px; margin-bottom:14px}
+.admin-group h3{margin:0 0 10px; font-size:15px}
+.admin-bin{border:1px dashed rgba(255,255,255,.18); border-radius:10px; padding:10px; margin:8px 0}
+.admin-bin h4{margin:0 0 6px; font-size:13px; color:var(--ink-dim)}
 .bin-item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
 .bin-item .s{font-size:12px; opacity:.85}
-.chk{display:flex; align-items:center; gap:8px}
-.chk input{width:16px; height:16px}
+.bin-item .btns{display:flex; gap:8px}
+.small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
+.small.pub{background:#0a0}
+.small.unpub{background:#555}
 </style>
 </head>
 <body>
@@ -142,28 +154,43 @@ a{color:inherit;text-decoration:none}
 <main class="wrap">
   <!-- ===== FEED ===== -->
   <section id="panel-feed" class="panel-active" data-panel="feed">
-    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-1">✎</button>
+    <article class="hero" data-hero-id="feed-1">
+      <button class="cfg-pin" data-cfg="feed-title-1">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="feed-title-1">Placeholder news-hero1</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-2">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="feed-2">
+      <button class="cfg-pin" data-cfg="feed-title-2">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="feed-title-2">Placeholder news-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-3">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="feed-3">
+      <button class="cfg-pin" data-cfg="feed-title-3">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="feed-title-3">Placeholder news-hero3</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-4">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="feed-4">
+      <button class="cfg-pin" data-cfg="feed-title-4">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="feed-title-4">Placeholder news-hero4</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="feed-title-5">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="feed-5">
+      <button class="cfg-pin" data-cfg="feed-title-5">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="feed-title-5">Placeholder news-hero5</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
   </section>
 
   <!-- ===== CHALLENGES ===== -->
   <section id="panel-challenges" data-panel="challenges">
-    <!-- Tracker (daily only) -->
-    <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
+    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" aria-labelledby="trackerTitle">
       <button class="cfg-pin" data-cfg="tracker-title">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" id="trackerTitle" data-cfg-target="tracker-title">Challenge Tracker</h2>
       <p class="meta">Daily 7d</p>
       <div class="cards">
@@ -174,9 +201,9 @@ a{color:inherit;text-decoration:none}
       </div>
     </article>
 
-    <!-- Daily Hero -->
-    <article class="hero" id="dailyHero" data-skin="bronze" aria-labelledby="dailyTitle">
+    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" aria-labelledby="dailyTitle">
       <button class="cfg-pin" data-cfg="daily-title">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" id="dailyTitle" data-cfg-target="daily-title">Daily Challenge</h2>
       <p class="meta" id="dailyMeta">Begins today</p>
       <p class="desc">A focused prompt matched to your level. Finish it to earn your streak.</p>
@@ -187,57 +214,98 @@ a{color:inherit;text-decoration:none}
       <div class="level" id="dailyLevel">Beginner</div>
     </article>
 
-    <!-- Four more placeholder heroes (admin can hide/release later) -->
-    <article class="hero"><button class="cfg-pin" data-cfg="ch-2">✎</button>
+    <article class="hero" data-hero-id="ch-2">
+      <button class="cfg-pin" data-cfg="ch-2">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="ch-2">Placeholder challenge-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="ch-3">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="ch-3">
+      <button class="cfg-pin" data-cfg="ch-3">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="ch-3">Placeholder challenge-hero3</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="ch-4">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="ch-4">
+      <button class="cfg-pin" data-cfg="ch-4">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="ch-4">Placeholder challenge-hero4</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="ch-5">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="ch-5">
+      <button class="cfg-pin" data-cfg="ch-5">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="ch-5">Placeholder challenge-hero5</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
   </section>
 
   <!-- ===== COURSES ===== -->
   <section id="panel-courses" data-panel="courses">
-    <article class="hero"><button class="cfg-pin" data-cfg="cr-1">✎</button>
+    <article class="hero" data-hero-id="co-1">
+      <button class="cfg-pin" data-cfg="cr-1">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="cr-2">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-2">
+      <button class="cfg-pin" data-cfg="cr-2">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="cr-3">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-3">
+      <button class="cfg-pin" data-cfg="cr-3">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="cr-4">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-4">
+      <button class="cfg-pin" data-cfg="cr-4">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="cr-4">Placeholder course-hero4</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="cr-5">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-5">
+      <button class="cfg-pin" data-cfg="cr-5">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="cr-5">Placeholder course-hero5</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
   </section>
 
   <!-- ===== LIVE ===== -->
   <section id="panel-live" data-panel="live">
-    <article class="hero"><button class="cfg-pin" data-cfg="lv-1">✎</button>
+    <article class="hero" data-hero-id="lv-1">
+      <button class="cfg-pin" data-cfg="lv-1">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="lv-2">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="lv-2">
+      <button class="cfg-pin" data-cfg="lv-2">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="lv-3">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="lv-3">
+      <button class="cfg-pin" data-cfg="lv-3">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="lv-3">Placeholder live-hero3</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="lv-4">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="lv-4">
+      <button class="cfg-pin" data-cfg="lv-4">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="lv-4">Placeholder live-hero4</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
-    <article class="hero"><button class="cfg-pin" data-cfg="lv-5">✎</button>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="lv-5">
+      <button class="cfg-pin" data-cfg="lv-5">✎</button>
+      <div class="admin-ctrls"><button class="ctl pub" data-pub>Publish</button><button class="ctl unpub" data-unpub>Unpublish</button><button class="ctl move" data-move>Move</button></div>
       <h2 class="title" data-cfg-target="lv-5">Placeholder live-hero5</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p></article>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
   </section>
 </main>
 
@@ -265,40 +333,36 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- ===== ADMIN FOOTER ===== -->
-<div id="adminOpen"><button type="button" id="openDockBtn">Working Drawer</button></div>
+<!-- ===== ADMIN TAB & DOCK ===== -->
+<div id="adminTab" style="bottom:0; top:auto; display:flex;"><button id="toggleDockBtn">Working Drawer</button></div>
 <div id="adminDock" aria-hidden="true">
   <header>
-    <div>Admin: Hidden / Under Development / Set to Expire</div>
-    <button class="sheet-close" id="dockClose" aria-label="Close">×</button>
+    <div>Admin: Working / Archived / Set to Expire</div>
   </header>
-  <div class="lists" id="dockLists">
-    <!-- bins are injected per-tab -->
-  </div>
+  <div class="lists" id="dockLists"></div>
 </div>
 
 <script>
 (()=>{'use strict';
 /* =========================
-   Utilities & Storage
+   Utils & Storage
 ========================= */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-
 const K={ profile:'ao_profile', settings:'ao_settings', dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta' };
 
 /* =========================
-   Roles & Partitions
+   Roles (forced admin while building)
 ========================= */
 const ROLE_PERMS={
-  bronze:{ canSeeAdmin:false, canConfig:false, canHideHeroes:false, canManageTabs:false },
-  silver:{ canSeeAdmin:false, canConfig:false, canHideHeroes:false, canManageTabs:false },
-  gold:{   canSeeAdmin:false, canConfig:false, canHideHeroes:false, canManageTabs:false },
-  support:{canSeeAdmin:true,  canConfig:false, canHideHeroes:false, canManageTabs:false },
-  director:{canSeeAdmin:true, canConfig:false, canHideHeroes:true,  canManageTabs:false },
-  admin:{  canSeeAdmin:true, canConfig:true,  canHideHeroes:true,  canManageTabs:true }
+  bronze:{ canSeeAdmin:false, canConfig:false },
+  silver:{ canSeeAdmin:false, canConfig:false },
+  gold:{   canSeeAdmin:false, canConfig:false },
+  support:{canSeeAdmin:true,  canConfig:false },
+  director:{canSeeAdmin:true, canConfig:false },
+  admin:{  canSeeAdmin:true,  canConfig:true  }
 };
 const ROLE_SKINS={
   bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
@@ -308,11 +372,11 @@ const ROLE_SKINS={
   director:{pill:'#444', text:'#fff', daily:'black'},
   admin:{pill:'var(--blue)', text:'#0b0c10', daily:'black'}
 };
-// TEMP: force admin while building; later load from profile storage
+// TEMP force admin
 function currentRole(){ return 'admin'; }
 
 /* =========================
-   Avatar & Level Paint
+   Profile paint
 ========================= */
 function applyProfile(){
   const p=store.get(K.profile,{displayName:'User',skill:currentRole()});
@@ -324,13 +388,13 @@ function applyProfile(){
 
   const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
 
-  // Daily hero gloss by role
   $('#dailyHero').setAttribute('data-skin', skin.daily);
   $('#dailyLevel').textContent = (role==='bronze'?'Beginner':role==='silver'?'Intermediate':role==='gold'?'Advanced':'Advanced');
 
-  // Admin footer visibility
+  // admin class toggles
   const perms=ROLE_PERMS[role]||ROLE_PERMS.silver;
-  $('#adminOpen').style.display = perms.canSeeAdmin ? 'flex' : 'none';
+  document.body.classList.toggle('admin-on', perms.canSeeAdmin);
+  $('#adminTab').style.display = perms.canSeeAdmin ? 'flex' : 'none';
 }
 applyProfile();
 
@@ -347,7 +411,7 @@ tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('feed');
 
 /* =========================
-   Drawer & Subsheet
+   Avatar Drawer & Subsheet
 ========================= */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
@@ -364,8 +428,7 @@ function openSubSheet(title,url){
 function closeSubSheet(){
   subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
   subFrame.src='about:blank';
-  // re-apply in case profile/settings changed
-  applyProfile(); applySettings(); applyHeroVisibility();
+  applyProfile(); applyHeroVisibility(); // refresh after edits
 }
 $('#sheetClose').addEventListener('click', closeSubSheet);
 subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
@@ -374,147 +437,152 @@ $$('#avatarSheet [data-pop]').forEach(a=>{
     e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
 });
-
-/* Config Mode toggle (adds .config-on to <body>) */
 $('#cfgToggle').addEventListener('click', (e)=>{
-  e.preventDefault();
-  document.body.classList.toggle('config-on');
-  closeDrawer();
+  e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
 });
 
 /* =========================
-   Settings + Hero Visibility
+   Settings & Hero flags
 ========================= */
 function defaultSettings(){
   return {
     tabs:{ feed:true, challenges:true, courses:true, live:true },
-    heroes:{
-      feed:{hidden:false, dev:[], hiddenList:[], expireList:[]},
-      challenges:{hidden:false, dev:[], hiddenList:[], expireList:[]},
-      courses:{hidden:false, dev:[], hiddenList:[], expireList:[]},
-      live:{hidden:false, dev:[], hiddenList:[], expireList:[]}
-    },
-    heroFlags:{} // per-hero id → {status:'active'|'hidden'|'dev'|'expire', releaseDate?, expiryDate?}
+    heroFlags:{} // id -> {status:'active'|'unpublished'|'work'|'archive'|'expire'}
   };
 }
 function getSettings(){
   const cur=store.get(K.settings,null);
   if(!cur){ const def=defaultSettings(); store.set(K.settings,def); return def; }
-  const def=defaultSettings();
-  // shallow merge
-  return { ...def, ...cur, tabs:{...def.tabs, ...(cur.tabs||{})}, heroes:{...def.heroes, ...(cur.heroes||{})}, heroFlags:{...(cur.heroFlags||{})} };
+  return { ...defaultSettings(), ...cur, tabs:{...defaultSettings().tabs, ...(cur.tabs||{})}, heroFlags:{...(cur.heroFlags||{})} };
 }
-function applySettings(){
+function setHeroStatus(id, status){
   const s=getSettings();
-  const setHidden=(name,hide)=>{
-    const btn=document.querySelector(`.btn-tab[data-tab="${name}"]`);
-    const pnl=document.querySelector(`[data-panel="${name}"]`);
-    if(btn) btn.style.display = hide?'none':'inline-flex';
-    if(pnl) pnl.style.display = hide?'none':'';
-  };
-  setHidden('feed', !s.tabs.feed);
-  setHidden('challenges', !s.tabs.challenges);
-  setHidden('courses', !s.tabs.courses);
-  setHidden('live', !s.tabs.live);
-
-  // ensure active tab is visible
-  const active=document.querySelector('.btn-tab.is-active');
-  if(!active || active.style.display==='none'){
-    const first=Array.from(document.querySelectorAll('.btn-tab')).find(b=>b.style.display!=='none');
-    if(first) showTab(first.dataset.tab);
-  }
+  s.heroFlags[id]={...(s.heroFlags[id]||{}), status};
+  store.set(K.settings,s);
+  applyHeroVisibility(); paintAdminBins();
 }
-applySettings();
-
+function heroStatus(id){
+  const st=(getSettings().heroFlags[id]||{}).status||'active';
+  return st;
+}
 function applyHeroVisibility(){
-  const flags=getSettings().heroFlags||{};
-  // iterate all heroes and hide based on status
-  $$('section [data-hero-id]').forEach(el=>{
-    const id=el.getAttribute('data-hero-id');
-    const st=(flags[id]||{}).status||'active';
+  $$('[data-hero-id]').forEach(el=>{
+    const id=el.dataset.heroId; const st=heroStatus(id);
+    // Visible on page only if active; admins can still manage via dock list
     el.style.display = (st==='active') ? '' : 'none';
   });
-  paintAdminBins();
 }
-
-/* Give IDs to each hero for flags */
-(function tagHeroes(){
-  let n=0;
-  $$('section .hero').forEach(el=>{
-    if(!el.id || !el.dataset.heroId){
-      el.dataset.heroId = (el.closest('[data-panel]')?.dataset.panel||'home') + '-hero' + (++n);
-    }
-  });
-})();
+applyHeroVisibility();
 
 /* =========================
-   Admin Dock (footer)
+   Admin inline controls
 ========================= */
-const openDockBtn=$('#openDockBtn'), adminDock=$('#adminDock'), dockClose=$('#dockClose');
-openDockBtn.addEventListener('click', ()=> adminDock.classList.add('open'));
-dockClose.addEventListener('click', ()=> adminDock.classList.remove('open'));
+document.body.addEventListener('click',(e)=>{
+  const hero = e.target.closest('[data-hero-id]');
+  if(!hero) return;
+
+  if(e.target.matches('[data-pub]')){
+    const id=hero.dataset.heroId;
+    if(confirm('Publish this hero? It will be visible to lower levels.')){
+      setHeroStatus(id,'active');
+      alert('Published.');
+    }
+  }
+  if(e.target.matches('[data-unpub]')){
+    const id=hero.dataset.heroId;
+    if(confirm('Unpublish this hero? It will be hidden from lower levels.')){
+      setHeroStatus(id,'unpublished');
+      alert('Unpublished and hidden.');
+    }
+  }
+  if(e.target.matches('[data-move]')){
+    const id=hero.dataset.heroId;
+    const choice = prompt('Move hero:\n- Type "work" for Working Drawer\n- Type "archive" for Archive', 'work');
+    if(!choice) return;
+    if(choice.toLowerCase()==='work'){ setHeroStatus(id,'work'); }
+    else if(choice.toLowerCase()==='archive'){ setHeroStatus(id,'archive'); }
+    else alert('No change made.');
+  }
+});
+
+/* =========================
+   Admin Dock
+========================= */
+const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), adminTab=$('#adminTab'), dockLists=$('#dockLists');
+function openDock(){
+  adminDock.classList.add('open');
+  // move red tab to top & invert label
+  adminTab.style.top='0'; adminTab.style.bottom='auto';
+  toggleDockBtn.textContent='Close Working Drawer';
+}
+function closeDock(){
+  adminDock.classList.remove('open');
+  adminTab.style.bottom='0'; adminTab.style.top='auto';
+  toggleDockBtn.textContent='Working Drawer';
+}
+toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
+
 function paintAdminBins(){
-  const role=currentRole(); const perms=ROLE_PERMS[role]||ROLE_PERMS.silver;
-  if(!perms.canSeeAdmin) return;
-
+  const tabs=['feed','challenges','courses','live'];
   const flags=getSettings().heroFlags||{};
-  const binsByTab = { feed:[], challenges:[], courses:[], live:[] };
+  dockLists.innerHTML='';
 
-  $$('section .hero').forEach(el=>{
-    const id=el.dataset.heroId;
-    const st=(flags[id]?.status)||'active';
-    if(st==='active') return;
-    const tab=el.closest('[data-panel]').dataset.panel;
-    binsByTab[tab].push({id, title:el.querySelector('.title')?.textContent?.trim()||id, status:st});
+  const bucketTitle={'work':'Working','archive':'Archived','expire':'Set to Expire','unpublished':'Unpublished'};
+  const bucketsByTab={};
+  tabs.forEach(t=>bucketsByTab[t]={work:[], archive:[], expire:[], unpublished:[]});
+
+  // collect heroes by tab & status
+  $$('[data-hero-id]').forEach(el=>{
+    const id=el.dataset.heroId, tab=el.closest('[data-panel]').dataset.panel;
+    const st=flags[id]?.status||'active';
+    if(st!=='active') bucketsByTab[tab][st]?.push({id, title:el.querySelector('.title')?.textContent?.trim()||id});
   });
 
-  const lists=$('#dockLists'); lists.innerHTML='';
-  Object.entries(binsByTab).forEach(([tab,items])=>{
-    const bin=document.createElement('div'); bin.className='admin-bin';
-    bin.innerHTML=`<h3>${tab.toUpperCase()}</h3>`;
-    if(!items.length){ bin.innerHTML+=`<div class="s">No items</div>`; }
-    items.forEach(it=>{
-      const row=document.createElement('div'); row.className='bin-item';
-      row.innerHTML=`<div><div>${it.title}</div><div class="s">${it.id} • ${it.status}</div></div>
-        <div class="chk">
-          <label class="s"><input type="radio" name="st-${it.id}" value="active"> Active</label>
-          <label class="s"><input type="radio" name="st-${it.id}" value="hidden"> Hidden</label>
-          <label class="s"><input type="radio" name="st-${it.id}" value="dev"> Dev</label>
-          <label class="s"><input type="radio" name="st-${it.id}" value="expire"> Expire</label>
-        </div>`;
-      // preset
-      row.querySelectorAll(`input[name="st-${it.id}"]`).forEach(r=>{
-        r.checked=(r.value===it.status);
-        r.addEventListener('change', ()=>{
-          const s=getSettings();
-          s.heroFlags[it.id]={...(s.heroFlags[it.id]||{}), status:r.value};
-          store.set(K.settings,s);
-          applyHeroVisibility();
-        });
+  tabs.forEach(tab=>{
+    const group=document.createElement('section'); group.className='admin-group';
+    group.innerHTML=`<h3>${tab.toUpperCase()}</h3>`;
+    ['work','archive','expire','unpublished'].forEach(k=>{
+      const bin=document.createElement('div'); bin.className='admin-bin';
+      bin.innerHTML=`<h4>${bucketTitle[k]}</h4>`;
+      const arr=bucketsByTab[tab][k];
+      if(!arr.length){ bin.innerHTML+=`<div class="s">No items</div>`; }
+      arr.forEach(it=>{
+        const row=document.createElement('div'); row.className='bin-item';
+        row.innerHTML=`<div><div>${it.title}</div><div class="s">${it.id}</div></div>
+          <div class="btns">
+            <button class="small pub" data-id="${it.id}" data-act="active">Publish</button>
+            <button class="small unpub" data-id="${it.id}" data-act="unpublished">Unpublish</button>
+            <button class="small" data-id="${it.id}" data-act="work">Move to Working</button>
+            <button class="small" data-id="${it.id}" data-act="archive">Move to Archive</button>
+          </div>`;
+        bin.appendChild(row);
       });
-      bin.appendChild(row);
+      group.appendChild(bin);
     });
-    lists.appendChild(bin);
+    dockLists.appendChild(group);
   });
 }
+// delegate clicks inside dock
+dockLists.addEventListener('click',(e)=>{
+  const btn=e.target.closest('button[data-id][data-act]'); if(!btn) return;
+  const id=btn.dataset.id, act=btn.dataset.act;
+  setHeroStatus(id, act);
+});
 
-/* show red footer if admin/support/director allowed to see admin */
+/* show admin tab only for allowed roles (forced admin = visible) */
 (function initFooter(){
   const role=currentRole(); const perms=ROLE_PERMS[role]||ROLE_PERMS.silver;
-  $('#adminOpen').style.display = perms.canSeeAdmin ? 'flex' : 'none';
+  adminTab.style.display = perms.canSeeAdmin ? 'flex' : 'none';
   paintAdminBins();
 })();
 
 /* =========================
-   Daily tracker stub
+   Daily tracker stub & meta
 ========================= */
 (function paintEmpty(){
   const dm=$('#dailyMedals'); if(!dm) return;
-  dm.innerHTML='';
-  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+  dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
 })();
-
-/* Pretty daily meta */
 (function bootDailyMeta(){
   const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   $('#dailyMeta').textContent = `Begins ${dayNames[today.getDay()]}`;
@@ -523,16 +591,13 @@ function paintAdminBins(){
 /* Tracker hero click -> iframe */
 $('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
 
-/* Storage sync from other pages */
+/* Storage sync from iframe pages */
 window.addEventListener('storage',e=>{
   if(e.key===K.profile){ applyProfile(); }
-  if(e.key===K.settings){ applySettings(); applyHeroVisibility(); }
+  if(e.key===K.settings){ applyHeroVisibility(); paintAdminBins(); }
 });
 
-/* Initial hero visibility pass */
-applyHeroVisibility();
-
-/* In-place config title editing (pencil) */
+/* In-place config title editing */
 document.body.addEventListener('click', (e)=>{
   const pin=e.target.closest('.cfg-pin'); if(!pin) return;
   const id=pin.dataset.cfg; const tgt=document.querySelector(`[data-cfg-target="${id}"]`);
@@ -541,7 +606,6 @@ document.body.addEventListener('click', (e)=>{
   const next=prompt('Edit title', cur);
   if(next!=null){ tgt.textContent=next; }
 });
-
 })();
 </script>
 </body>
