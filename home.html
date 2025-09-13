@@ -111,7 +111,9 @@ a{color:inherit;text-decoration:none}
 
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left" role="tablist" aria-label="Sections">
-    <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
+    <!-- NEWS is first & default -->
+    <button class="btn-tab is-active" data-tab="news" aria-selected="true">News</button>
+    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges</button>
     <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
   </div>
@@ -124,8 +126,37 @@ a{color:inherit;text-decoration:none}
 </header>
 
 <main class="wrap">
+  <!-- ===== NEWS ===== -->
+  <section id="panel-news" class="panel-active" data-panel="news">
+    <article class="hero" id="news-1">
+      <h2 class="title">Upcoming: Studio Demo #1</h2>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">A live look at gesture and flow. Linked HTML will determine the final layout/size.</p>
+    </article>
+    <article class="hero" id="news-2">
+      <h2 class="title">Release: Foundations Refresh</h2>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">Rebuilt materials & setup module with clearer drills.</p>
+    </article>
+    <article class="hero" id="news-3">
+      <h2 class="title">Event: Weekend Sketch Walk</h2>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">Meet other artists, sketch, share tips.</p>
+    </article>
+    <article class="hero" id="news-4">
+      <h2 class="title">New: 1-Day Portrait Intensive</h2>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">Short, sharp portrait session with structured prompts.</p>
+    </article>
+    <article class="hero" id="news-5">
+      <h2 class="title">Update: Challenge Streaks</h2>
+      <p class="meta">Coming Soon</p>
+      <p class="desc">Daily improvements for tracking and rewards.</p>
+    </article>
+  </section>
+
   <!-- ===== CHALLENGES ===== -->
-  <section id="panel-challenges" class="panel-active" data-panel="challenges">
+  <section id="panel-challenges" data-panel="challenges">
     <!-- Daily Hero -->
     <article class="hero" id="dailyHero" data-skin="bronze" aria-labelledby="dailyTitle">
       <h2 class="title" id="dailyTitle">Daily Challenge</h2>
@@ -209,23 +240,23 @@ const K={
   dailyMeta:'ao_daily_meta'
 };
 
-/* Default settings scaffold, including hero release control */
+/* Default settings scaffold, including hero release control (now includes NEWS) */
 function getSettings(){
   const def={
-    // tab visibility (admin can override; director if delegated later)
-    challenges:true, courses:true, live:true,
-    // hero control
+    // tab visibility
+    news:true, challenges:true, courses:true, live:true,
+    // hero control (add news)
     heroes:{
-      daily:{ hidden:false },               // Daily hero
-      tracker:{ hidden:false },             // Tracker
-      courses:{ hidden:false },             // Courses hero
-      live:{ hidden:false }                 // Live hero
-      // Admin can add custom heroes later and we’ll render them if present
+      news:{ hidden:false },                 // News panel (feed)
+      daily:{ hidden:false },                // Daily hero
+      tracker:{ hidden:false },              // Tracker
+      courses:{ hidden:false },              // Courses hero
+      live:{ hidden:false }                  // Live hero
     }
   };
   const cur=store.get(K.settings,null);
   if(!cur){ store.set(K.settings,def); return def; }
-  // merge shallowly to be future-proof
+  // merge shallowly
   return Object.assign({},def,{...cur, heroes:{...def.heroes, ...(cur.heroes||{})}});
 }
 
@@ -271,7 +302,7 @@ function showTab(name){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-showTab('challenges');
+showTab('news'); // default to News
 
 /* ===== Drawer & Subsheet ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
@@ -289,7 +320,6 @@ function openSubSheet(title,url){
 function closeSubSheet(){
   subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
   subFrame.src='about:blank';
-  // re-read updated settings/profile written by iframe pages
   applyProfile(); applySettings(); applyHeroVisibility();
 }
 $('#sheetClose').addEventListener('click', closeSubSheet);
@@ -305,17 +335,17 @@ function isAdminOrDirector(){
   const p=store.get(K.profile,{skill:'silver'}); const lvl=(p.skill||'silver').toLowerCase();
   return (lvl==='admin'||lvl==='director');
 }
-function isAdmin(){ const p=store.get(K.profile,{skill:'silver'}); return (p.skill||'').toLowerCase()==='admin'; }
 
 function applySettings(){
   const s=getSettings();
-  // tabs visibility
+  // tabs visibility (now includes news)
   const setHidden=(name,hide)=>{
     const btn=document.querySelector(`[data-tab="${name}"]`);
     const pnl=document.querySelector(`[data-panel="${name}"]`);
     if(btn) btn.style.display = hide?'none':'inline-flex';
     if(pnl) pnl.style.display = hide?'none':'';
   };
+  setHidden('news',       s.news===false);
   setHidden('challenges', s.challenges===false);
   setHidden('courses',    s.courses===false);
   setHidden('live',       s.live===false);
@@ -339,20 +369,19 @@ function withinWindow(cfg){
 }
 function applyHeroVisibility(){
   const s=getSettings(); const heroes=s.heroes||{};
-  // A Director/Admin can reveal/hide; release windows also apply (Director/Admin can override by saving hidden:false + valid windows)
   const canOverride=isAdminOrDirector();
 
   const control=(id, el)=>{
+    if(!el) return;
     const cfg=heroes[id]||{};
     let show = !cfg.hidden && withinWindow(cfg);
     if(canOverride){
-      // Director/Admin follow stored flags; if they set hidden:true in settings, it hides for everyone.
-      // (Admin could later get a per-user dev-mode override—scaffold is ready)
       show = !cfg.hidden && withinWindow(cfg);
     }
     el.style.display = show ? '' : 'none';
   };
 
+  control('news',    document.getElementById('panel-news'));   // whole News panel
   control('daily',   document.getElementById('dailyHero'));
   control('tracker', document.getElementById('trackerHero'));
   control('courses', document.getElementById('panel-courses'));
@@ -369,21 +398,22 @@ window.addEventListener('storage',e=>{
 
 /* ===== Daily medals placeholder ===== */
 (function paintEmpty(){
-  const dm=$('#dailyMedals'); dm.innerHTML='';
+  const dm=$('#dailyMedals'); if(!dm) return;
+  dm.innerHTML='';
   for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
 })();
 
 /* ===== Daily meta pretty text ===== */
 (function bootDailyMeta(){
   const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  $('#dailyMeta').textContent = `Begins ${dayNames[today.getDay()]}`;
+  const d=$('#dailyMeta'); if(d) d.textContent = `Begins ${dayNames[today.getDay()]}`;
 })();
 
 /* ===== Tracker hero click -> iframe ===== */
-$('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
+const tracker=$('#trackerHero'); if(tracker){ tracker.addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html')); }
 
 /* ===== Boot log ===== */
-console.log('[FAOA] home loaded with release-control scaffolding');
+console.log('[FAOA] home loaded with News tab + release-control');
 })();
 </script>
 </body>
