@@ -14,64 +14,66 @@
   --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
 }
 *{box-sizing:border-box}
-html,body{height:100%;overflow-x:hidden}
-body{margin:0;background:var(--bg);color:var(--ink);
+html,body{height:100%}
+html,body{margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;}
+/* Stop iOS rubber-band around header */
+html,body{overscroll-behavior:contain}
 a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
-.hide{display:none!important}
 
 /* Background */
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* Header */
-.nav{position:sticky;top:0;left:0;right:0;height:var(--nav-h);
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:8px 12px;z-index:40;
-  background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.35) 60%,transparent);
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
-.btn-tab{display:inline-flex;align-items:center;justify-content:center;
-  flex:1 1 0;min-width:0;max-width:120px;height:44px;padding:0 12px;
-  border-radius:12px;border:1px solid var(--stroke);
-  background:rgba(0,0,0,.55);color:var(--ink);font-weight:900;cursor:pointer;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  transition:transform .06s ease,filter .15s ease;
-  font-size:clamp(13px,3.2vw,16px);}
+/* ===== TOP BAR (fixed) ===== */
+.nav{
+  position:fixed; top:0; left:0; right:0; height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 12px; z-index:40;
+  background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.nav-left{display:flex; gap:8px; align-items:center}
+.btn-tab{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:100px; height:44px; padding:0 12px;
+  border-radius:12px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
+  transition:transform .06s ease, filter .15s ease; font-size:15px;
+}
 .btn-tab:active{transform:translateY(1px)}
-.btn-tab.is-active{background:var(--blue);border-color:transparent;color:#000}
+.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
 
 /* Avatar pill (no image; solid role colour) */
-.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+.avatarTab{
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
   padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
   font-weight:900;line-height:1.1;text-align:left;cursor:pointer;
-  border:1px solid var(--stroke);background:#222}
+  border:1px solid var(--stroke);background:#222
+}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
-/* Content containers */
-.wrap{max-width:var(--maxw);margin:0 auto;padding:10px 14px 80px}
+/* Content wrap (adds safe area for fixed header) */
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 80px}
 
-/* Hero */
+/* ===== HERO ===== */
 .hero{position:relative;overflow:hidden;background:#000;
-  border:1px solid var(--stroke);border-radius:16px;
-  padding:16px;margin:12px 0}
+  border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
 .hero .title{margin:0 0 6px;font-weight:900;font-size:20px}
 .hero .meta{margin:0 0 6px;color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px;color:var(--muted)}
 .cta-left{position:absolute;left:16px;bottom:var(--btn-bottom);display:flex;gap:10px}
 
-/* Tracker */
+/* ===== TRACKER ===== */
 .tracker{cursor:pointer}
 .tracker .cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
 .tracker .card{border:1px solid var(--stroke);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
 .tracker .kpi{display:flex;align-items:center;gap:8px;color:var(--ink-dim);font-weight:700}
 .medals{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
-.medalWrap{display:flex;flex-direction:column;align-items:center;gap:6px}
 .medal{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.22);
   display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff}
 .medal.empty{background:transparent;color:transparent;border-color:rgba(255,255,255,.18)}
-.medal .tick{transform:translateY(-.5px)}
-.medal-label{font-size:11px;color:var(--ink-dim);letter-spacing:.2px}
 .m-bronze{background:var(--bronze)}
 .m-silver{background:var(--silver);color:#111}
 .m-gold{background:var(--gold);color:#111}
@@ -79,11 +81,15 @@ a{color:inherit;text-decoration:none}
 .m-director{background:#444}
 .m-admin{background:var(--blue);color:#000}
 
-/* Drawer + Subsheet */
+/* ===== PANELS (only active one is displayed) ===== */
+[data-panel]{display:none}
+[data-panel].panel-active{display:block}
+
+/* ===== Drawer + Subsheet ===== */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);
   -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
-#avatarSheet .panel{position:absolute;top:64px;right:12px;width:320px;max-height:70vh;overflow:auto;
+#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;
   background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
 .menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;
   border-bottom:1px solid rgba(255,255,255,.08)}
@@ -92,8 +98,8 @@ a{color:inherit;text-decoration:none}
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
-#subSheet .inner{position:absolute;top:64px;right:12px;width:min(820px,calc(100% - 24px));
-  height:min(78vh,calc(100% - 84px));background:#0f1116;border:1px solid var(--stroke);
+#subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));
+  height:min(78vh,calc(100% - (var(--nav-h) + 24px)));background:#0f1116;border:1px solid var(--stroke);
   border-radius:14px;padding:12px;display:flex;flex-direction:column}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
 .sheet-head h2{margin:0;font-size:22px;font-weight:900}
@@ -105,8 +111,8 @@ a{color:inherit;text-decoration:none}
 <body>
 <div class="bg" aria-hidden="true"></div>
 
-<header class="nav">
-  <div class="nav-left" role="tablist" aria-label="Primary">
+<header class="nav" role="navigation" aria-label="Primary">
+  <div class="nav-left" role="tablist" aria-label="Sections">
     <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
     <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
     <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
@@ -120,8 +126,8 @@ a{color:inherit;text-decoration:none}
 </header>
 
 <main class="wrap">
-  <!-- Challenges -->
-  <section id="panel-challenges" data-panel="challenges">
+  <!-- ===== CHALLENGES ===== -->
+  <section id="panel-challenges" class="panel-active" data-panel="challenges">
     <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
       <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
       <p class="meta">Daily 7d • Weekly 6w</p>
@@ -138,20 +144,26 @@ a{color:inherit;text-decoration:none}
     </article>
   </section>
 
-  <!-- Courses -->
-  <section id="panel-courses" class="hide" data-panel="courses">
-    <h2 class="title">Courses</h2>
-    <p class="meta">Your courses will appear here.</p>
+  <!-- ===== COURSES ===== -->
+  <section id="panel-courses" data-panel="courses">
+    <article class="hero">
+      <h2 class="title">Courses</h2>
+      <p class="meta">Your courses will appear here.</p>
+      <p class="desc">Coming soon.</p>
+    </article>
   </section>
 
-  <!-- Live -->
-  <section id="panel-live" class="hide" data-panel="live">
-    <h2 class="title">Live Sessions</h2>
-    <p class="meta">Live demos & sessions.</p>
+  <!-- ===== LIVE ===== -->
+  <section id="panel-live" data-panel="live">
+    <article class="hero">
+      <h2 class="title">Live Sessions</h2>
+      <p class="meta">Live demos & sessions.</p>
+      <p class="desc">Coming soon.</p>
+    </article>
   </section>
 </main>
 
-<!-- Avatar drawer -->
+<!-- ===== AVATAR DRAWER ===== -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu">
@@ -163,7 +175,7 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<!-- Sub sheet -->
+<!-- ===== SUB SHEET ===== -->
 <div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="inner" role="document">
     <div class="sheet-head">
@@ -176,14 +188,14 @@ a{color:inherit;text-decoration:none}
 
 <script>
 (()=>{'use strict';
-/* ===== utilities & storage ===== */
+/* ===== utils & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={profile:'ao_profile',settings:'ao_settings',dailyDone:'ao_daily_done',weeklyDone:'ao_weekly_done',dailyMeta:'ao_daily_meta'};
+const K={profile:'ao_profile',settings:'ao_settings'};
 
-/* ===== role → skin mapping ===== */
+/* role → skin mapping */
 const skinByLevel={
   bronze:'var(--bronze)',
   silver:'var(--silver)',
@@ -192,7 +204,7 @@ const skinByLevel={
   director:'#444',
   admin:'var(--blue)'
 };
-function cap(s){return (s||'').replace(/\b\w/g,m=>m.toUpperCase())}
+const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
 /* ===== avatar paint ===== */
 function applyProfile(){
@@ -200,17 +212,12 @@ function applyProfile(){
   const lvl=(p.skill||'silver').toLowerCase();
   $('#avatarName').textContent=p.displayName||'User';
   $('#avatarLvl').textContent=cap(lvl);
-  $('#avatarTab').style.background=skinByLevel[lvl]||'var(--silver)';
-  // ensure readable text on light backgrounds
-  const light = (lvl==='gold'||lvl==='silver'||lvl==='admin');
-  $('#avatarTab').style.color = light ? '#0b0c10' : '#eef3ff';
+  const bg=skinByLevel[lvl]||'var(--silver)';
+  const light=(lvl==='gold'||lvl==='silver'||lvl==='admin');
+  const pill=$('#avatarTab'); pill.style.background=bg; pill.style.color= light ? '#0b0c10' : '#eef3ff';
 }
 applyProfile();
-
-/* Update when other pages modify localStorage */
-window.addEventListener('storage',e=>{
-  if(e.key===K.profile||e.key===K.settings){ applyProfile(); applySettings(); }
-});
+window.addEventListener('storage',e=>{ if(e.key===K.profile||e.key===K.settings){ applyProfile(); applySettings(); }});
 
 /* ===== avatar drawer ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
@@ -228,71 +235,65 @@ function showTab(name){
     b.classList.toggle('is-active',on);
     b.setAttribute('aria-selected',on?'true':'false');
   });
-  panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==name));
+  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
   window.scrollTo({top:0,behavior:'smooth'});
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+showTab('challenges'); // ensure initial state
 
-/* ===== settings: hide tabs if needed ===== */
+/* ===== apply settings: hide tabs if needed ===== */
 function applySettings(){
-  const s = store.get(K.settings,{});
-  // Reset (ensure all tabs exist before possibly removing)
-  tabBtns.forEach(b=>b.classList.remove('hide'));
-  panels.forEach(p=>p.classList.remove('hide'));
-  // Apply hide flags
-  if(s.challenges===false){ $('[data-tab="challenges"]')?.classList.add('hide'); $('[data-panel="challenges"]')?.classList.add('hide'); }
-  if(s.courses===false){ $('[data-tab="courses"]')?.classList.add('hide'); $('[data-panel="courses"]')?.classList.add('hide'); }
-  if(s.live===false){ $('[data-tab="live"]')?.classList.add('hide'); $('[data-panel="live"]')?.classList.add('hide'); }
-  // Ensure an active visible tab
-  const current=document.querySelector('.btn-tab.is-active');
-  if(current && current.classList.contains('hide')){
-    const first=tabBtns.find(x=>!x.classList.contains('hide'));
+  const s=store.get(K.settings,{});
+  const setHidden=(name,hide)=>{
+    const btn=$(`[data-tab="${name}"]`), pnl=$(`[data-panel="${name}"]`);
+    if(btn) btn.style.display = hide?'none':'inline-flex';
+    if(pnl) pnl.style.display = hide?'none':''; // hide at source to avoid headings bleed
+  };
+  setHidden('challenges', s.challenges===false);
+  setHidden('courses',    s.courses===false);
+  setHidden('live',       s.live===false);
+
+  // If the active tab was hidden, switch to the first visible
+  const active=document.querySelector('.btn-tab.is-active');
+  if(!active || active.style.display==='none'){
+    const first=tabBtns.find(b=>b.style.display!=='none');
     if(first) showTab(first.dataset.tab);
   }
 }
 applySettings();
 
-/* ===== subsheet (iframe) ===== */
+/* ===== sub sheet (iframe) ===== */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
-  subFrame.src=url+(url.includes('?')?'&':'?')+'v='+(Date.now());
-  subSheet.classList.add('open');
-  subSheet.setAttribute('aria-hidden','false');
+  subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
 function closeSubSheet(){
-  subSheet.classList.remove('open');
-  subSheet.setAttribute('aria-hidden','true');
+  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
   subFrame.src='about:blank';
-  // re-read profile/settings changed inside the iframe
   applyProfile(); applySettings();
 }
 $('#sheetClose').addEventListener('click', closeSubSheet);
 subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
 
-/* open profile/settings/mydata/tracker in subsheet */
+/* drawer links -> subsheet */
 $$('#avatarSheet [data-pop]').forEach(a=>{
-  a.addEventListener('click', e=>{
-    e.preventDefault();
-    closeDrawer();
-    openSubSheet(a.dataset.pop, a.getAttribute('href'));
+  a.addEventListener('click',e=>{
+    e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
 });
 
-/* ===== tracker hero → open challenge tracker ===== */
+/* tracker -> open challenge tracker */
 $('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
 
-/* ===== simple tracker placeholders (kept minimal) ===== */
-function paintTracker(){
-  const wrapD=$('#dailyMedals'); wrapD.innerHTML='';
-  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal empty'; wrapD.appendChild(m); }
-  const wrapW=$('#weeklyMedals'); wrapW.innerHTML='';
-  for(let i=0;i<6;i++){ const m=document.createElement('div'); m.className='medal empty'; wrapW.appendChild(m); }
-}
-paintTracker();
-
-/* ===== boot log ===== */
-console.log('[FAOA] home loaded');
+/* simple placeholder medals (empty state) */
+(function paintEmpty(){
+  const dm=$('#dailyMedals'), wm=$('#weeklyMedals');
+  dm.innerHTML=''; wm.innerHTML='';
+  for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal empty'; dm.appendChild(m); }
+  for(let i=0;i<6;i++){ const m=document.createElement('div'); m.className='medal empty'; wm.appendChild(m); }
+})();
 })();
 </script>
 </body>
