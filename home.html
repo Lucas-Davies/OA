@@ -11,7 +11,7 @@
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.22);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
+  --gap:12px; --r:16px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
@@ -62,7 +62,7 @@ a{color:inherit;text-decoration:none}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* Move popover (anchored to body; precise position; no drift) */
+/* Move popover (anchored to body; no drift) */
 .move{position:relative}
 .move-menu{position:fixed;top:-9999px;left:-9999px;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:block;
   visibility:hidden;opacity:0;z-index:9999;min-width:220px;transition:opacity .12s ease,visibility .12s ease}
@@ -176,7 +176,6 @@ const ROLE_SKINS={
 function currentRole(){ const p=store.get(K.profile,{skill:'admin'}); return (p.skill||'admin').toLowerCase(); }
 function isAdmin(){ return currentRole()==='admin'; }
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-
 function applyProfile(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   const role=(p.skill||'admin').toLowerCase();
@@ -224,7 +223,7 @@ function saveSettings(s){ store.set(K.settings,s); }
 
 const idNum = id => (id.match(/\d+/)||['?'])[0];
 
-/* Allowed moves (simplified) */
+/* Allowed moves */
 function moveOptionsFor(place){ return place==='page' ? ['archive'] : ['page']; }
 
 /* Build hero card for page */
@@ -272,10 +271,18 @@ function archiveRow(id){
   return row;
 }
 
-/* Paint page heroes (1..6) */
+/* Paint page heroes: render ALL that are place:'page' for admins, but ONLY 'live' for non-admins */
 function paintPage(){
   const s=getSettings(); const host=$('#pageGrid'); host.innerHTML='';
-  for(let i=1;i<=6;i++){ host.appendChild(heroCard(`co-${i}`)); }
+  // collect all page heroes by number order
+  const ids = Object.keys(s.heroFlags)
+    .filter(id=>s.heroFlags[id].place==='page')
+    .sort((a,b)=>parseInt(idNum(a))-parseInt(idNum(b)));
+  ids.forEach(id=>{
+    const f=s.heroFlags[id];
+    if(!isAdmin() && f.state!=='live') return; // hide offline from non-admins
+    host.appendChild(heroCard(id));
+  });
 }
 
 /* Paint archive (admin-only) */
@@ -285,27 +292,23 @@ function paintArchive(){
   if(!isA) return;
   const s=getSettings(), flags=s.heroFlags;
   const list=$('#archiveList'); list.innerHTML='';
-  Object.entries(flags).forEach(([id,f])=>{
-    if(f.place==='archive'){ list.appendChild(archiveRow(id)); }
-  });
+  Object.keys(flags)
+    .filter(id=>flags[id].place==='archive')
+    .sort((a,b)=>parseInt(idNum(a))-parseInt(idNum(b)))
+    .forEach(id=>list.appendChild(archiveRow(id)));
   $('#archiveCount').textContent = list.children.length;
 }
 
-/* ===== Stable floating move menu (no drift) ===== */
+/* ===== Stable floating move menu ===== */
 let openMenu=null;
 function openMoveMenu(btn, menu){
-  // ensure content exists
   if(!menu.children.length){ return; }
-  // open + position
   menu.classList.add('open');
-  // measure
   const r=btn.getBoundingClientRect();
   const mw=Math.max(220, menu.offsetWidth||220);
   let top = r.bottom + 6;
   let left = r.right - mw;
-  // keep inside viewport
   left = Math.max(8, Math.min(left, window.innerWidth - mw - 8));
-  // apply
   menu.style.top = `${top}px`;
   menu.style.left = `${left}px`;
   openMenu=menu;
@@ -367,7 +370,7 @@ document.addEventListener('click',(e)=>{
 function moveHero(id, dest){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'off',place:'archive'};
   const from=cur.place;
-  const allowed = moveOptionsFor(from);
+  const allowed = (from==='page'?['archive']:['page']);
   if(!allowed.includes(dest)) return;
   s.heroFlags[id]={...cur, place:dest};
   saveSettings(s);
