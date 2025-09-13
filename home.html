@@ -18,6 +18,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   overscroll-behavior-y:contain; overflow-x:hidden}
 a{color:inherit;text-decoration:none}
+button{-webkit-tap-highlight-color:transparent}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
@@ -56,14 +57,14 @@ a{color:inherit;text-decoration:none}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
 /* Admin chips (top-right of hero) */
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px}
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:10010}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
 /* Move popover */
 .move{position:relative}
-.move-menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:5;min-width:220px}
+.move-menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;min-width:220px;z-index:10020}
 .move-menu.open{display:block}
 .move-menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
   font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
@@ -85,7 +86,7 @@ a{color:inherit;text-decoration:none}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
 
 /* Working Drawer (full screen) */
-#adminTab{position:fixed;left:0;right:0;bottom:0;height:42px;display:flex;align-items:center;justify-content:center;z-index:90}
+#adminTab{position:fixed;left:0;right:0;bottom:0;height:42px;display:flex;align-items:center;justify-content:center;z-index:95}
 #adminTab button{background:var(--red);color:#fff;border:0;border-top-left-radius:12px;border-top-right-radius:12px;padding:10px 16px;font-weight:900}
 #adminDock{position:fixed;inset:0;transform:translateY(100%);transition:transform .2s ease;z-index:89;background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
@@ -104,7 +105,7 @@ a{color:inherit;text-decoration:none}
 .row .num{font-weight:900}
 .row .chip{height:26px}
 
-/* Config pin (placeholder for future inline editing) */
+/* Config pin placeholder */
 .cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center}
 .config-on .cfg-pin{display:flex}
@@ -126,9 +127,7 @@ a{color:inherit;text-decoration:none}
 </header>
 
 <main class="wrap">
-  <section class="grid" id="pageGrid">
-    <!-- 10 page heroes -->
-  </section>
+  <section class="grid" id="pageGrid"><!-- 10 page heroes injected --></section>
 </main>
 
 <!-- Avatar Drawer -->
@@ -158,25 +157,22 @@ a{color:inherit;text-decoration:none}
 
 <!-- Working Drawer -->
 <div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
-<div id="adminDock">
+<div id="adminDock" aria-hidden="true">
   <header>
     <div class="title">Development</div>
     <button class="chip" id="closeDock">Close</button>
   </header>
 
-  <!-- Development area -->
   <div class="dev">
     <h3>Development</h3>
     <section class="grid" id="devGrid"></section>
   </div>
 
-  <!-- Archive -->
   <details class="bin" id="binArchive">
     <summary>Archive <span class="count" id="countArchive">0</span></summary>
     <div class="list" id="listArchive"></div>
   </details>
 
-  <!-- Templates -->
   <details class="bin" id="binTpl">
     <summary>Templates <span class="count" id="countTpl">0</span></summary>
     <div class="list" id="listTpl"></div>
@@ -202,12 +198,11 @@ function applyProfile(){
   $('#avatarName').textContent=p.displayName||'User';
   $('#avatarLvl').textContent='Admin';
 }
-applyProfile();
 
 /* Avatar drawer + subsheet */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', openDrawer);
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
@@ -231,29 +226,33 @@ $('#cfgToggle').addEventListener('click', e=>{ e.preventDefault(); document.body
 */
 function defaults(){
   const heroFlags={};
-  // seed 10 page heroes: co-1..co-10
   for(let i=1;i<=10;i++) heroFlags[`co-${i}`]={state:'live',place:'page'};
-  return { heroFlags };
-}
-function getSettings(){
-  const cur=store.get(K.settings,null);
-  if(!cur){ const def=defaults(); seedTemplates(def); store.set(K.settings,def); return def; }
-  // ensure templates seeded once
-  if(!cur._tplSeeded){ seedTemplates(cur); }
-  return cur;
+  return { heroFlags, _tplSeeded:false };
 }
 function seedTemplates(cfg){
-  // Add 40 template items co-11..co-50 if missing
   for(let i=11;i<=50;i++){
     const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:'tpl'};
   }
   cfg._tplSeeded=true;
-  store.set(K.settings,cfg);
+}
+function getSettings(){
+  let cur=store.get(K.settings,null);
+  if(!cur){ cur=defaults(); seedTemplates(cur); store.set(K.settings,cur); return cur; }
+  if(!cur._tplSeeded){ seedTemplates(cur); store.set(K.settings,cur); }
+  return cur;
 }
 function saveSettings(s){ store.set(K.settings,s); }
-
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
+
+/* Bootstrap for private browsers so content appears first load */
+(function bootstrapOnce(){
+  const BOOT_KEY='faoa_boot_2025_09';
+  if(localStorage.getItem(BOOT_KEY)) return;
+  const p=store.get(K.profile,{}); p.skill='admin'; p.displayName=p.displayName||'User'; store.set(K.profile,p);
+  const s=getSettings(); for(let i=1;i<=10;i++){ s.heroFlags[`co-${i}`]={state:'live',place:'page'}; }
+  saveSettings(s); localStorage.setItem(BOOT_KEY,'1');
+})();
 
 /* Build a hero card (Page or Dev) */
 function heroCard(id, place){
@@ -271,7 +270,6 @@ function heroCard(id, place){
       </div>
     </div>
     <div class="cta-left"><button class="btn blue" data-act="enter">Start</button></div>`;
-  // fill move options based on place
   const menu=el.querySelector('.move-menu');
   getMoveOptions(place).forEach(opt=>{
     const b=document.createElement('button'); b.textContent=`Move to ${cap(opt)}`; b.dataset.to=opt; menu.appendChild(b);
@@ -283,7 +281,7 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 /* Where you can move from each place */
 function getMoveOptions(place){
   if(place==='page') return ['dev','archive'];
-  if(place==='dev') return ['page','tpl'];
+  if(place==='dev') return ['page','tpl','archive']; /* dev → page/templates/archive */
   if(place==='archive') return ['page','dev'];
   if(place==='tpl') return ['dev'];
   return [];
@@ -293,30 +291,29 @@ function getMoveOptions(place){
 function paintPage(){
   const s=getSettings(); const grid=$('#pageGrid'); grid.innerHTML='';
   for(let i=1;i<=10;i++){
-    const id=`co-${i}`; const flag=s.heroFlags[id];
-    if(!flag) continue;
-    // Admin can always see; non-admin only when live & on page (we're admin now)
+    const id=`co-${i}`; if(!s.heroFlags[id]) continue;
     grid.appendChild(heroCard(id,'page'));
   }
 }
 
 /* Working drawer */
 const adminDock=$('#adminDock'), toggleDockBtn=$('#toggleDockBtn'), closeDockBtn=$('#closeDock');
-function openDock(){ adminDock.classList.add('open'); $('#adminTab').style.display='none'; }
-function closeDock(){ adminDock.classList.remove('open'); $('#adminTab').style.display='flex'; }
-toggleDockBtn.addEventListener('click', openDock);
-closeDockBtn.addEventListener('click', closeDock);
+function toggleDock(){
+  const open=adminDock.classList.toggle('open');
+  // keep red tab visible; update label to close/open
+  toggleDockBtn.textContent = open ? 'Close Working Drawer' : 'Working Drawer';
+}
+toggleDockBtn.addEventListener('click', toggleDock);
+closeDockBtn.addEventListener('click', toggleDock);
 
-/* Only one bin open at once + pin to top 40% when open */
+/* Only one bin open at once + scroll to top on open (pin effect) */
 ['binArchive','binTpl'].forEach(id=>{
   const d=$('#'+id);
   d.addEventListener('toggle',()=>{
     if(d.open){
       ['binArchive','binTpl'].forEach(oid=>{ if(oid!==id) $('#'+oid).open=false; });
-      // scroll & pin effect
       d.scrollIntoView({behavior:'smooth',block:'start'});
     }
-    // counts refresh when toggled
     paintCounts();
   });
 });
@@ -324,13 +321,11 @@ closeDockBtn.addEventListener('click', closeDock);
 /* Paint Dev, Archive, Templates */
 function paintDrawer(){
   const s=getSettings(), flags=s.heroFlags;
-  // Dev
   const dev=$('#devGrid'); dev.innerHTML='';
   Object.entries(flags).forEach(([id,flag])=>{
     if(flag.place==='dev') dev.appendChild(heroCard(id,'dev'));
   });
 
-  // Archive list (single line rows)
   const la=$('#listArchive'); la.innerHTML='';
   Object.entries(flags).forEach(([id,flag])=>{
     if(flag.place==='archive'){
@@ -348,7 +343,6 @@ function paintDrawer(){
     }
   });
 
-  // Templates list (seeded 40 more)
   const lt=$('#listTpl'); lt.innerHTML='';
   Object.entries(flags).forEach(([id,flag])=>{
     if(flag.place==='tpl'){
@@ -374,76 +368,65 @@ function paintCounts(){
   $('#countTpl').textContent     = Object.values(flags).filter(f=>f.place==='tpl').length;
 }
 
-/* Global click handlers (heroes and rows) */
-document.addEventListener('click',(e)=>{
-  // Enter (Start)
-  const enter = e.target.closest('[data-act="enter"]');
-  if(enter){
-    const host = e.target.closest('[data-hero-id]');
-    openSubSheet(`Course #${numberFromId(host.dataset.heroId)}`, null);
-    return;
-  }
-
-  // Live/Offline toggle (admin only)
-  const tgl = e.target.closest('[data-act="toggle"]');
-  if(tgl){
-    if(!isAdmin()) return;
-    const host=e.target.closest('[data-hero-id]') || e.target.closest('.row');
-    const id=host.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id];
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-    saveSettings(s);
-    // repaint both contexts (page/dev rows reflect chip)
-    paintPage(); paintDrawer();
-    return;
-  }
-
-  // Open/close move menu
-  const mvBtn=e.target.closest('[data-act="move"]');
-  if(mvBtn){
-    const menu=mvBtn.parentElement.querySelector('.move-menu');
-    const open=!menu.classList.contains('open');
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open');
-    e.stopPropagation();
-    return;
-  }
-
-  // Choose destination
-  if(e.target.matches('.move-menu button')){
-    const to=e.target.dataset.to;
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId;
-    moveHero(id, to);
-    // close all menus
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-    e.stopPropagation();
-    return;
-  }
+/* ===== Robust interactions (iOS-safe) ===== */
+function handleMoveButtonToggle(evt){
+  const btn = evt.target.closest('[data-act="move"]'); if(!btn) return;
+  const menu = btn.parentElement.querySelector('.move-menu');
+  const willOpen = !menu.classList.contains('open');
+  document.querySelectorAll('.move-menu.open').forEach(m=>m.classList.remove('open'));
+  if(willOpen) menu.classList.add('open');
+  evt.stopPropagation();
+}
+function handleMoveChoice(evt){
+  const choice = evt.target.closest('.move-menu button'); if(!choice) return;
+  const host = evt.target.closest('[data-hero-id], .row'); if(!host) return;
+  moveHero(host.dataset.heroId, choice.dataset.to);
+  document.querySelectorAll('.move-menu.open').forEach(m=>m.classList.remove('open'));
+  evt.stopPropagation();
+}
+/* bind both pointerdown and click */
+['pointerdown','click'].forEach(type=>{
+  document.addEventListener(type, e=>{
+    if(e.target.closest('[data-act="move"]')) return handleMoveButtonToggle(e);
+    if(e.target.closest('.move-menu button')) return handleMoveChoice(e);
+    // Enter
+    if(e.target.closest('[data-act="enter"]')){
+      const host = e.target.closest('[data-hero-id]');
+      openSubSheet(`Course #${numberFromId(host.dataset.heroId)}`, null);
+      return;
+    }
+    // Live/Offline
+    if(e.target.closest('[data-act="toggle"]')){
+      if(!isAdmin()) return;
+      const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
+      const s=getSettings(); const cur=s.heroFlags[id];
+      s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
+      saveSettings(s); paintPage(); paintDrawer(); return;
+    }
+  }, {passive:true});
 });
-// click-away to close popovers
-document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'));});
+document.addEventListener('click',()=>{ document.querySelectorAll('.move-menu.open').forEach(m=>m.classList.remove('open')); });
 
-/* Movement engine respecting your rules */
+/* Movement engine with your rules */
+function getAllowedFrom(from){
+  if(from==='page') return new Set(['dev','archive']);
+  if(from==='dev') return new Set(['page','tpl','archive']);
+  if(from==='archive') return new Set(['page','dev']);
+  if(from==='tpl') return new Set(['dev']);
+  return new Set();
+}
 function moveHero(id, dest){
   const s=getSettings(); const cur=s.heroFlags[id]||{state:'off',place:'tpl'};
-  const from=cur.place;
-
-  // guard illegal moves based on rules
-  const allowed=getMoveOptions(from);
-  if(!allowed.includes(dest)) return;
-
-  // dev limit (max 3 visible in dev? Not specified now, so removing the cap for Courses build)
+  const allow=getAllowedFrom(cur.place);
+  if(!allow.has(dest)) return;
   s.heroFlags[id]={...cur, place:dest};
-  saveSettings(s);
-  paintPage(); paintDrawer();
+  saveSettings(s); paintPage(); paintDrawer();
 }
 
 /* Init */
-paintPage(); paintDrawer();
-
-/* Working drawer red tab visibility rule */
-adminDock.addEventListener('transitionend',()=>{}); // placeholder
+applyProfile();
+paintPage();
+paintDrawer();
 })();
 </script>
 </body>
