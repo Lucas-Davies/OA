@@ -13,17 +13,16 @@
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px;
 }
-/* ----- GLOBAL RESET / iOS anti-highlight ----- */
-*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+/* iOS anti-highlight + reset */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
-  height:100%; margin:0; background:var(--bg); color:var(--ink);
+  height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain; overflow-x:hidden;
-  user-select:none; -webkit-user-select:none; /* <- stop text selection */
+  overscroll-behavior-y:contain;overflow-x:hidden;
+  user-select:none;-webkit-user-select:none;
 }
-a{color:inherit; text-decoration:none}
-button{user-select:none; -webkit-user-select:none}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+a{color:inherit;text-decoration:none}
+button{user-select:none;-webkit-user-select:none}
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
 /* Top bar */
@@ -31,13 +30,6 @@ button{user-select:none; -webkit-user-select:none}
   padding:8px 12px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .title-tab{font-weight:900;opacity:.92}
-
-/* Config toolbar */
-.cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
-  display:none;align-items:center;gap:8px;padding:10px 14px}
-.config-on .cfgbar{display:flex}
-.cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
-.cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
 
 /* Avatar pill */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
@@ -55,51 +47,53 @@ button{user-select:none; -webkit-user-select:none}
 @media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
 @media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
-/* Draggable chrome (config) */
-.item[draggable="true"]{touch-action:none}
-.drag-ghost{opacity:.5}
-.drag-over{outline:2px dashed var(--blue); outline-offset:3px; border-radius:14px}
+/* Config toolbar */
+.cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
+  display:none;align-items:center;gap:8px;padding:10px 14px}
+.config-on .cfgbar{display:flex}
+.cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
+.cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Hero – 2x height */
+/* Hero — double height */
 .hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
-.hero .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
-  font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
-.btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Admin chips (top-right) */
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5;pointer-events:auto}
+/* Chips & buttons */
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
 .chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* Menus (very high z-index to beat iOS select callout) */
-.move{position:relative}
-.menu{position:absolute;top:32px;right:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:6px;display:none;z-index:3000;min-width:220px}
-.menu.open{display:block}
-.menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;
-  font-weight:800;font-size:12px;margin:4px 0;cursor:pointer}
+.cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
+  font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
+.btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Audience */
-.aud{position:relative}
-.aud-menu{position:absolute;bottom:46px;left:0;background:#0f0f12;border:1px solid var(--stroke);border-radius:10px;padding:10px;display:none;z-index:3000;min-width:220px}
-.aud-menu.open{display:block}
-/* allow selection & taps inside checkboxes */
-.aud-menu, .aud-menu *{user-select:auto; -webkit-user-select:auto}
-.aud-menu label{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
-.aud-menu .row{display:flex;gap:8px;margin-top:8px}
+/* Audience chips (bottom of hero) */
+.aud-line{display:flex;gap:8px;align-items:center}
+.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.85}
+.aud-chip.on{filter:brightness(1.15);opacity:1}
+.aud-chip.bronze{box-shadow:inset 0 0 0 2px #b87333}
+.aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
+.aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
 
-/* Heading divider */
+/* Divider */
 .divider{border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px;min-height:58px;display:flex;align-items:center;justify-content:space-between}
 .divider .htext{font-weight:900;opacity:.92}
 .divider .dctrls{display:none;gap:8px}
 .config-on .divider .dctrls{display:flex}
 
-/* Config pin (rename hero) */
+/* Rename pin */
 .cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
+
+/* Avatar Drawer */
+#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#avatarSheet.open{display:block}
+#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
+.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.menu-list a:last-child{border-bottom:none}
 
 /* Subsheet */
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -109,13 +103,6 @@ button{user-select:none; -webkit-user-select:none}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
 .sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
-
-/* Avatar Drawer */
-#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-#avatarSheet.open{display:block}
-#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
-.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
-.menu-list a:last-child{border-bottom:none}
 
 /* Archive Footer */
 #archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
@@ -129,6 +116,11 @@ button{user-select:none; -webkit-user-select:none}
 #archiveDock .row .chip{height:26px}
 #archiveDock.collapsed{max-height:48px}
 #archiveDock.open{max-height:60vh}
+
+/* Dragging (config) */
+.item[draggable="true"]{touch-action:none}
+.drag-ghost{opacity:.5}
+.drag-over{outline:2px dashed var(--blue); outline-offset:3px; border-radius:14px}
 
 /* Body lock when drawer open */
 body.lock{position:fixed;inset:0;overflow:hidden}
@@ -182,7 +174,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   </div>
 </div>
 
-<!-- Archive Footer (Admin only) -->
+<!-- Archive Footer (Admin/Director only visible) -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
     <span>Archived</span>
@@ -251,6 +243,7 @@ $('#cfgToggle').addEventListener('click', e=>{
 function uuid(){ return 'div_'+Math.random().toString(36).slice(2,9); }
 function defaults(){
   const heroFlags={}, pageOrder=[];
+  // 10 heroes on page; 40 archived
   for(let i=1;i<=10;i++){
     const id=`co-${i}`;
     heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
@@ -277,6 +270,7 @@ function sanitize(cfg){
   cfg.heroFlags=cfg.heroFlags||{};
   cfg.heroLabels=cfg.heroLabels||{};
   cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
+  // ensure heroes exist
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
@@ -301,28 +295,15 @@ function heroCard(id){
     <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
       <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
-      <div class="move"><button class="chip" data-act="move" type="button">Move</button>
-        <div class="menu">
-          ${f.place==='page'
-            ? '<button data-to="archive" type="button">Move to Archive</button>'
-            : '<button data-to="page" type="button">Move to Page</button>'}
-        </div>
-      </div>
+      <button class="chip" data-act="move" type="button">Move</button>
     </div>
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
       ${isAdminLike()?`
-        <div class="aud">
-          <button class="chip" data-act="aud" type="button">Audience</button>
-          <div class="aud-menu">
-            <label><input type="checkbox" data-aud="bronze" ${f.aud.bronze?'checked':''}> Bronze</label>
-            <label><input type="checkbox" data-aud="silver" ${f.aud.silver?'checked':''}> Silver</label>
-            <label><input type="checkbox" data-aud="gold"   ${f.aud.gold  ?'checked':''}> Gold</label>
-            <div class="row" style="justify-content:flex-end">
-              <button class="chip" data-act="aud-cancel" type="button">Cancel</button>
-              <button class="chip" data-act="aud-save" type="button">Save</button>
-            </div>
-          </div>
+        <div class="aud-line">
+          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
+          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
+          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
         </div>`:''}
     </div>`;
   wrap.appendChild(el);
@@ -357,7 +338,7 @@ function paintPage(){
   setDraggable(document.body.classList.contains('config-on'));
 }
 
-/* Archive footer */
+/* Archive footer visibility */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
 let savedScrollY=0;
 function applyArchiveVisibility(){
@@ -366,6 +347,7 @@ function applyArchiveVisibility(){
 }
 applyArchiveVisibility();
 
+/* Archive list */
 function paintArchive(){
   const s=getSettings(); const flags=s.heroFlags;
   archiveList.innerHTML='';
@@ -376,11 +358,8 @@ function paintArchive(){
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     row.innerHTML=`<span class="num">${labelFor(id)}</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">`+(f.state==='live'?'Live':'Offline')+`</button>
-        <div class="move">
-          <button class="chip" data-act="move" type="button">Move</button>
-          <div class="menu"><button data-to="page" type="button">Move to Page</button></div>
-        </div>
+        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
+        <button class="chip" data-act="move" type="button">Move to Page</button>
       </div>`;
     archiveList.appendChild(row);
   });
@@ -389,7 +368,6 @@ paintArchive();
 
 function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
-
 $('#archiveToggle').addEventListener('click',()=>{
   const isOpen=dock.classList.contains('open');
   dock.classList.toggle('open', !isOpen);
@@ -399,116 +377,74 @@ $('#archiveToggle').addEventListener('click',()=>{
 }, {passive:true});
 
 /* Config toolbar */
+function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuid(), title:title.trim()||'Section'});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section'});
   saveSettings(s); paintPage();
 }, {passive:false});
 $('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); setDraggable(false); }, {passive:true});
 
-/* ===== Robust tap handler (click + pointerup + touchend) ===== */
-['click','pointerup','touchend'].forEach(evt=>{
-  document.addEventListener(evt,(e)=>{
-    // Start (placeholder)
-    const start = e.target.closest('[data-act="enter"]');
-    if(start){
-      const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
-      openSubSheet(`Course ${labelFor(id)}`, null); return;
+/* Tap handlers */
+document.addEventListener('click',(e)=>{
+  // Start placeholder
+  if(e.target.closest('[data-act="enter"]')){
+    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
+    openSubSheet(`Course ${labelFor(id)}`, null); return;
+  }
+  // Live toggle
+  if(e.target.closest('[data-act="toggle"]')){
+    if(!isAdminLike()) return;
+    const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id];
+    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
+    saveSettings(s); paintPage(); paintArchive(); return;
+  }
+  // Move (page->archive) (archive->page)
+  if(e.target.closest('[data-act="move"]')){
+    const host=e.target.closest('[data-hero-id], .row');
+    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
+    const dest = (cur.place==='page') ? 'archive' : 'page';
+    s.heroFlags[id]={...cur, place:dest};
+    // ensure appears in pageOrder when returning
+    if(dest==='page'){
+      const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id);
+      if(!exists) s.pageOrder.push({type:'hero',id});
     }
-
-    // Toggle live/off
-    const tgl = e.target.closest('[data-act="toggle"]');
-    if(tgl){
-      if(!isAdminLike()) return;
-      const host=e.target.closest('[data-hero-id], .row');
-      const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
-      s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
-      saveSettings(s); paintPage(); paintArchive(); return;
+    saveSettings(s); paintPage(); paintArchive(); return;
+  }
+  // Audience chips (admin/director only)
+  const audBtn=e.target.closest('[data-aud]');
+  if(audBtn){
+    if(!isAdminLike()) return;
+    const key=audBtn.getAttribute('data-aud');
+    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id]; const next={...cur.aud, [key]:!cur.aud[key]};
+    s.heroFlags[id]={...cur, aud:next}; saveSettings(s);
+    audBtn.classList.toggle('on', next[key]);
+    return;
+  }
+  // Rename hero label
+  if(e.target.matches('[data-cfg-rename]')){
+    const id=e.target.getAttribute('data-cfg-rename');
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const next=prompt('Hero label', cur);
+    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
+    return;
+  }
+  // Divider controls
+  if(e.target.dataset.divAct){
+    const id=e.target.getAttribute('data-div-id'); const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
+    if(e.target.dataset.divAct==='rename'){
+      const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
+      if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
+    }else{
+      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
     }
-
-    // Open/close move menu
-    const mv = e.target.closest('[data-act="move"]');
-    if(mv){
-      const menu = mv.parentElement.querySelector('.menu');
-      const open=!menu.classList.contains('open');
-      $$('.menu.open').forEach(m=>m.classList.remove('open'));
-      if(open) menu.classList.add('open');
-      e.stopPropagation(); return;
-    }
-
-    // Move destination
-    const toBtn = e.target.closest('button[data-to]');
-    if(toBtn){
-      const to = toBtn.getAttribute('data-to');
-      const host = toBtn.closest('[data-hero-id], .row');
-      const id = host.dataset.heroId;
-      moveHero(id,to);
-      $$('.menu.open').forEach(m=>m.classList.remove('open'));
-      e.stopPropagation(); return;
-    }
-
-    // Audience popup
-    const audBtn = e.target.closest('[data-act="aud"]');
-    if(audBtn){
-      const menu=audBtn.parentElement.querySelector('.aud-menu');
-      const open=!menu.classList.contains('open');
-      $$('.aud-menu.open').forEach(m=>m.classList.remove('open'));
-      if(open) menu.classList.add('open');
-      e.stopPropagation(); return;
-    }
-    if(e.target.matches('[data-act="aud-cancel"]')){
-      const menu=e.target.closest('.aud-menu'); if(menu) menu.classList.remove('open'); return;
-    }
-    if(e.target.matches('[data-act="aud-save"]')){
-      const menu=e.target.closest('.aud-menu'); const host=e.target.closest('.hero');
-      const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
-      const aud={
-        bronze: menu.querySelector('[data-aud="bronze"]').checked,
-        silver: menu.querySelector('[data-aud="silver"]').checked,
-        gold:   menu.querySelector('[data-aud="gold"]').checked
-      };
-      s.heroFlags[id]={...cur, aud}; saveSettings(s); menu.classList.remove('open'); paintPage(); return;
-    }
-
-    // Rename hero label (config)
-    if(e.target.matches('[data-cfg-rename]')){
-      const id=e.target.getAttribute('data-cfg-rename');
-      const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
-      const next=prompt('Hero label', cur);
-      if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
-      return;
-    }
-
-    // Divider rename/remove
-    if(e.target.dataset.divAct){
-      const id=e.target.getAttribute('data-div-id'); const s=getSettings();
-      const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-      if(e.target.dataset.divAct==='rename'){
-        const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
-        if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
-      }else{
-        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
-      }
-      return;
-    }
-  }, {passive:false});
-});
-
-// close popovers on outside click / ESC
-document.addEventListener('click',()=>{ $$('.menu.open').forEach(m=>m.classList.remove('open')); $$('.aud-menu.open').forEach(m=>m.classList.remove('open')); }, {passive:true});
-window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.menu.open,.aud-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); }});
-
-/* Movement (page <-> archive) + keep pageOrder sane */
-function ensureInOrder(id){
-  const s=getSettings(); if(!s.pageOrder.some(it=>it.type==='hero'&&it.id===id)){ s.pageOrder.push({type:'hero',id}); saveSettings(s); }
-}
-function moveHero(id, dest){
-  const s=getSettings(); const cur=s.heroFlags[id]; if(!cur) return;
-  if(dest!=='page' && dest!=='archive') return;
-  s.heroFlags[id]={...cur, place:dest};
-  if(dest==='page') ensureInOrder(id);
-  saveSettings(s); paintPage(); paintArchive();
-}
+    return;
+  }
+}, {passive:false});
 
 /* Sortable (config) */
 let draggingKey=null;
@@ -531,7 +467,7 @@ $('#pageGrid').addEventListener('drop',e=>{
   s.pageOrder = keys.map(keyToObj); saveSettings(s); paintPage();
 });
 
-/* Initial paint */
+/* Initial render */
 paintPage(); paintArchive();
 })();
 </script>
