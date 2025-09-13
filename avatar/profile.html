@@ -9,294 +9,194 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --violet:#6a4cff; --dark:#222;
-  --r:14px; --nav-h:56px; --gap:12px;
+  --blue:#0A84FF; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px;background:#111;border-bottom:1px solid var(--stroke)}
+header h1{margin:0;font-size:20px;font-weight:900}
+.btn{background:var(--blue);color:#000;padding:8px 12px;border-radius:10px;border:1px solid transparent;font-weight:900;cursor:pointer}
+.btn.grey{background:#222;color:#fff;border-color:var(--stroke)}
+.container{max-width:840px;margin:0 auto;padding:12px}
 
-/* Header */
-.nav{position:sticky;top:0;height:var(--nav-h);display:flex;align-items:center;gap:10px;
-  padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.45));backdrop-filter:blur(12px);z-index:10}
-.back{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
-.title{margin:0;font-weight:900;font-size:18px}
+/* Avatar pill (no image) */
+.avatarPill{display:inline-flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:10px 14px;border-radius:14px;border:1px solid var(--stroke);background:#222;min-width:180px}
+.avatarPill .name{font-size:18px;font-weight:900}
+.avatarPill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
 
-/* Wrap */
-.wrap{padding:12px}
+/* Sections */
+.section{border:1px solid var(--stroke);border-radius:14px;background:#0b0c10;margin:12px 0}
+.section>button.section-head{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;
+  padding:12px 14px;cursor:pointer;font-weight:900}
+.section>button.section-head .chev{opacity:.85}
+.section .content{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.section.collapsed .content{display:none}
 
-/* Avatar pill (bigger) */
-.pill{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-  padding:10px 14px;border-radius:14px;min-height:64px;border:1px solid var(--stroke);background:var(--dark);margin-bottom:12px}
-.pill .name{font-size:18px;font-weight:900}
-.pill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
+/* Inputs */
+label{display:block;font-size:12px;color:var(--ink-dim);margin:10px 2px 6px}
+input{width:100%;height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#111;color:var(--ink);font:inherit}
+input[disabled]{opacity:.7}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){ .row{grid-template-columns:1fr} }
 
-/* Level chips */
-.levels{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.chip{border:1px solid var(--stroke);border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer;user-select:none;background:#111}
-.chip.active{outline:2px solid #fff3}
-
-/* Cards / details */
-.card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;margin:12px 0}
-details{border-radius:14px;overflow:hidden}
-summary{list-style:none;cursor:pointer;padding:14px 14px 12px;font-weight:900;background:rgba(255,255,255,.03);border-bottom:1px solid var(--stroke)}
-summary::-webkit-details-marker{display:none}
-.block{padding:12px 14px}
-.row{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center;margin:10px 0}
-label{color:var(--ink-dim)}
-input,select{width:100%;height:44px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink);padding:0 12px;font:inherit}
-
-/* My Data list */
-.group{margin:10px 0 14px}
-.group h4{margin:0 0 6px;font-size:14px;font-weight:900;color:var(--ink)}
-.item{padding:8px 10px;border:1px solid var(--stroke);border-radius:10px;margin:6px 0;background:#0b0c10}
-.item .meta{color:var(--ink-dim);font-size:12px}
-
-/* Buttons */
-.actions{display:flex;gap:10px;position:sticky;bottom:0;padding:12px;background:linear-gradient(180deg,transparent,#000 35%,#000)}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--stroke);font-weight:900;background:#111;color:var(--ink);cursor:pointer}
-.btn.blue{background:var(--blue);border-color:transparent;color:#000}
-.btn.red{background:#2a0c0c;border-color:#6f1a1a;color:#ffdede}
-
-/* Role skins (for pill bg) */
-.skin-bronze{background:linear-gradient(135deg,#5e3515,#b86b2e 45%,#5e3515);color:#fff}
-.skin-silver{background:linear-gradient(135deg,#7c838a,#cfd6dd 60%,#7c838a);color:#0b0c10}
-.skin-gold{background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00);color:#0b0c10}
-.skin-support{background:linear-gradient(135deg,#2a2146,#6a4cff 60%,#2a2146)}
-.skin-director{background:linear-gradient(135deg,#0c0c0c,#333 60%,#0c0c0c)}
-.skin-admin{background:linear-gradient(135deg,#0A84FF,#4aa4ff 60%,#0A84FF);color:#0b0c10}
+.actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 0}
+.small{font-size:12px;opacity:.85}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 </style>
 </head>
 <body>
-<header class="nav">
-  <button class="back" id="btnBack" aria-label="Back">‹</button>
-  <h1 class="title">Profile</h1>
+<header>
+  <button class="btn grey" type="button" onclick="history.back()">‹ Back</button>
+  <h1>Profile</h1>
 </header>
 
-<main class="wrap">
-  <!-- Avatar pill preview -->
-  <div class="pill" id="pill">
-    <div class="name" id="pillName">User</div>
-    <div class="lvl" id="pillLvl">silver</div>
-  </div>
-
-  <!-- Level picker -->
-  <div class="card">
-    <div class="block">
-      <div class="levels" id="levelChips" role="radiogroup" aria-label="Skill level">
-        <!-- chips injected -->
+<main class="container">
+  <!-- Avatar -->
+  <section class="section" aria-labelledby="sec-avatar">
+    <button class="section-head" id="sec-avatar"><span>Avatar</span><span class="chev">›</span></button>
+    <div class="content">
+      <div id="avatarPill" class="avatarPill">
+        <div class="name" id="avatarName">User</div>
+        <div class="lvl" id="avatarLvl">Silver</div>
       </div>
-      <small class="hint" style="opacity:.8">Your level controls which Daily challenges and courses you see on Home.</small>
+      <p class="small" style="margin:10px 2px 0">Avatar styling reflects your level colour. No photo is used.</p>
     </div>
-  </div>
+  </section>
 
-  <!-- My Details -->
-  <details class="card" id="secDetails">
-    <summary>My Details</summary>
-    <div class="block">
-      <div class="row"><label for="firstName">First Name</label><input id="firstName" autocomplete="given-name"></div>
-      <div class="row"><label for="lastName">Surname</label><input id="lastName" autocomplete="family-name"></div>
-      <div class="row"><label for="displayName">Display Name</label><input id="displayName" autocomplete="nickname"></div>
-      <div class="row"><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
-    </div>
-  </details>
-
-  <!-- Username / Password -->
-  <details class="card" id="secAuth">
-    <summary>Username & Password</summary>
-    <div class="block">
-      <div class="row"><label>Username</label><input id="username" disabled></div>
-      <div class="row"><label>Password</label><button class="btn" id="btnChangePw" type="button">Change Password</button></div>
-    </div>
-  </details>
-
-  <!-- My Data -->
-  <details class="card" id="secData">
-    <summary>My Data</summary>
-    <div class="block" id="dataWrap">
-      <!-- groups injected -->
-      <div class="actions" style="padding:0;margin-top:8px;background:none">
-        <button class="btn" id="btnExport" type="button" title="Admin only" style="display:none">Export JSON</button>
-        <button class="btn red" id="btnDeleteAll" type="button">Delete All Data</button>
+  <!-- My Details (collapsed by default) -->
+  <section class="section collapsed" aria-labelledby="sec-details">
+    <button class="section-head" id="sec-details"><span>My Details</span><span class="chev">›</span></button>
+    <div class="content">
+      <div class="row">
+        <div><label for="firstName">First name</label><input id="firstName" autocomplete="given-name"></div>
+        <div><label for="lastName">Surname</label><input id="lastName" autocomplete="family-name"></div>
       </div>
-      <small class="hint" style="opacity:.8">Export is available to Admin only. Deleting data will sign you out locally.</small>
+      <div class="row">
+        <div><label for="displayName">Display name</label><input id="displayName" autocomplete="nickname"></div>
+        <div><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+      </div>
     </div>
-  </details>
+  </section>
+
+  <!-- Username & Password (collapsed) -->
+  <section class="section collapsed" aria-labelledby="sec-auth">
+    <button class="section-head" id="sec-auth"><span>Username & Password</span><span class="chev">›</span></button>
+    <div class="content">
+      <div class="row">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" class="mono" disabled>
+          <p class="small">Usernames are permanent.</p>
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="new-password" placeholder="••••••••">
+          <button class="btn" id="changePw" type="button" style="margin-top:8px">Change Password</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Data (collapsed) -->
+  <section class="section collapsed" aria-labelledby="sec-data">
+    <button class="section-head" id="sec-data"><span>My Data</span><span class="chev">›</span></button>
+    <div class="content">
+      <p class="small">A summary of your saved activity and app information.</p>
+      <div id="dataSummary" class="small"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button class="btn grey" type="button" id="viewData">View Details</button>
+        <button class="btn" type="button" id="exportData" style="display:none">Export (Admin)</button>
+      </div>
+    </div>
+  </section>
 
   <div class="actions">
-    <button class="btn" id="btnCancel" type="button">Cancel</button>
-    <button class="btn blue" id="btnSave" type="button">Save</button>
+    <button class="btn grey" id="cancelBtn" type="button">Cancel</button>
+    <button class="btn" id="saveBtn" type="button">Save</button>
   </div>
 </main>
 
 <script>
 (()=>{'use strict';
-/* storage + helpers (match home) */
 const $=s=>document.querySelector(s);
-const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
-             set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile', settings:'ao_settings', dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta', purchased:'ao_purchasedCourses' };
-
+const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const K={profile:'ao_profile',settings:'ao_settings'};
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
-const roleSkins={ bronze:'skin-bronze', silver:'skin-silver', gold:'skin-gold', support:'skin-support', director:'skin-director', admin:'skin-admin' };
-const levels=['bronze','silver','gold','support','director','admin'];
 
-/* state (clone for cancel) */
-let initial=store.get(K.profile,{
-  firstName:'', lastName:'', displayName:'User', email:'',
-  username:'user', skill:'silver'
-});
-let current=JSON.parse(JSON.stringify(initial));
+function getRole(){const p=store.get(K.profile,{skill:'silver'});return (p.skill||'silver').toLowerCase();}
 
-/* paint avatar pill + chips */
-function paintPill(){
-  const pill=$('#pill'), name=$('#pillName'), lvl=$('#pillLvl');
-  name.textContent=current.displayName||'User';
-  lvl.textContent=current.skill||'silver';
-  pill.className='pill '+(roleSkins[current.skill]||'');
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'silver'});
+  $('#avatarName').textContent=p.displayName||'User';
+  $('#avatarLvl').textContent=cap(p.skill||'silver');
+  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
+  const pill=$('#avatarPill'); pill.style.background='#222'; pill.style.borderColor='rgba(255,255,255,.18)';
+  pill.style.boxShadow=`0 0 0 2px ${map[(p.skill||'silver').toLowerCase()]||'#c0c7d1'} inset`;
 }
-function renderChips(){
-  const host=$('#levelChips'); host.innerHTML='';
-  levels.forEach(l=>{
-    const b=document.createElement('button');
-    b.type='button'; b.className='chip'+(current.skill===l?' active':''); b.textContent=cap(l);
-    b.setAttribute('role','radio'); b.setAttribute('aria-checked', current.skill===l? 'true':'false');
-    b.addEventListener('click',()=>{ current.skill=l; renderChips(); paintPill(); });
-    host.appendChild(b);
-  });
-}
+paintAvatar();
 
-/* populate fields */
-function loadForm(){
-  $('#firstName').value=current.firstName||'';
-  $('#lastName').value=current.lastName||'';
-  $('#displayName').value=current.displayName||'';
-  $('#email').value=current.email||'';
-  $('#username').value=current.username||'';
-  paintPill(); renderChips();
-}
-loadForm();
+/* Fill fields */
+let p=store.get(K.profile,{displayName:'User',skill:'silver',username:'user'});
+$('#firstName').value=p.firstName||'';
+$('#lastName').value=p.lastName||'';
+$('#displayName').value=p.displayName||'';
+$('#email').value=p.email||'';
+$('#username').value=p.username||'';
+$('#password').value='';
 
-/* inputs -> current */
-['firstName','lastName','displayName','email'].forEach(id=>{
-  $('#'+id).addEventListener('input', e=>{ current[id]=e.target.value; paintPill(); });
+/* Collapsibles */
+document.querySelectorAll('.section-head').forEach(btn=>{
+  btn.addEventListener('click',()=>btn.parentElement.classList.toggle('collapsed'));
 });
 
-/* change password (store a timestamp only; no plaintext pw) */
-$('#btnChangePw').addEventListener('click', ()=>{
-  const email=current.email||'';
-  const when=new Date().toISOString();
-  const profile=store.get(K.profile,{}); profile.passwordResetRequestedAt=when; store.set(K.profile,profile);
-  const mail=`mailto:${encodeURIComponent(email||'')}`
-    +`?subject=${encodeURIComponent('FAOA Password Reset')}`
-    +`&body=${encodeURIComponent('Hi,\n\nA password reset was requested for your account at '+when+'. If this wasn\'t you, ignore this email.\n\n– FAOA')}`;
-  window.location.href=mail;
-  alert('Password reset link prepared in your email client.');
-});
-
-/* My Data rendering */
-function renderMyData(){
-  const wrap=$('#dataWrap'); // preserve buttons at bottom
-  // Clear old groups
-  Array.from(wrap.querySelectorAll('.group')).forEach(el=>el.remove());
-
-  const daily=store.get(K.dailyDone,[]);           // array of ISO dates
-  const purchased=store.get(K.purchased,[]);       // array of course ids or objects
-  const profile=store.get(K.profile,{});           // include minimal public fields
-  const meta=store.get(K.dailyMeta,{});
-
-  const groups=[
-    { key:'userInfo', title:'User Information', items:[
-      { label:'Display Name', value: profile.displayName || '—' },
-      { label:'Level', value: cap(profile.skill||'silver') },
-      { label:'Email', value: profile.email || '—' },
-      { label:'Username', value: profile.username || '—' }
-    ]},
-    { key:'appInfo', title:'App Information', items:[
-      { label:'Installed Roles', value: levels.map(cap).join(', ') },
-      { label:'Local Time', value: new Date().toString() }
-    ]},
-    { key:'purchases', title:'Purchases', items: (Array.isArray(purchased)&&purchased.length? purchased.map(p=>({
-        label: (p.title||p.id||'Course'),
-        value: (p.date||'—')
-      })): [{label:'No purchases yet', value:''}])},
-    { key:'challenges', title:'Challenge History', items: (daily.length? daily.slice(-30).reverse().map(d=>{
-        const skin = meta[d]?.skin || '';
-        return { label:`Daily completed`, value:d + (skin?` — skin:${skin}`:'') };
-      }): [{label:'No completions yet', value:''}])}
-  ];
-
-  groups.forEach(g=>{
-    const cont=document.createElement('div'); cont.className='group';
-    const h=document.createElement('h4'); h.textContent=g.title; cont.appendChild(h);
-    g.items.forEach(it=>{
-      const card=document.createElement('div'); card.className='item';
-      card.innerHTML=`<div>${it.label}</div>${it.value?`<div class="meta">${it.value}</div>`:''}`;
-      cont.appendChild(card);
-    });
-    wrap.insertBefore(cont, wrap.querySelector('.actions'));
-  });
-
-  // Admin-only export
-  const isAdmin=(profile.skill||'').toLowerCase()==='admin';
-  $('#btnExport').style.display = isAdmin? 'inline-flex':'none';
+/* My Data summary (headlines only, no tables) */
+function paintDataSummary(){
+  const s=store.get(K.settings,{});
+  const now=new Date().toLocaleString();
+  const lines=[];
+  // Example groups (you can expand later)
+  lines.push(`• User information — updated ${now}`);
+  if(s.heroes) lines.push(`• Heroes config — ${Object.keys(s.heroes).length} items`);
+  if(s.textOverrides) lines.push(`• Text overrides — ${Object.keys(s.textOverrides).length} groups`);
+  $('#dataSummary').textContent=lines.join('\n');
 }
-renderMyData();
+paintDataSummary();
 
-/* Export (Admin only) */
-$('#btnExport').addEventListener('click', ()=>{
-  const profile=store.get(K.profile,{});
-  if((profile.skill||'').toLowerCase()!=='admin'){ alert('Admin only.'); return; }
+/* Role-gated export */
+if(getRole()==='admin') $('#exportData').style.display='inline-block';
+$('#exportData').addEventListener('click',()=>{
   const blob=new Blob([JSON.stringify({
-    profile: store.get(K.profile,{}),
-    settings: store.get(K.settings,{}),
-    dailyDone: store.get(K.dailyDone,[]),
-    dailyMeta: store.get(K.dailyMeta,{})
-  }, null, 2)], {type:'application/json'});
+    profile:store.get(K.profile,{}),
+    settings:store.get(K.settings,{})
+  },null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='faoa-mydata.json'; a.click();
+  const a=document.createElement('a'); a.href=url; a.download='faoa-export.json'; a.click();
   URL.revokeObjectURL(url);
 });
 
-/* Delete all data (with email notifications via mailto) */
-$('#btnDeleteAll').addEventListener('click', ()=>{
-  if(!confirm('Delete all local data for this user on this device? This cannot be undone.')) return;
-  const p=store.get(K.profile,{});
-  // notify user + admin (mailto)
-  const adminEmail='admin@example.com';
-  const when=new Date().toISOString();
-  const body=`User ${p.displayName||p.username||'(unknown)'} requested local data deletion at ${when}.`;
-  window.open(`mailto:${encodeURIComponent(p.email||'')}`
-    +`?subject=${encodeURIComponent('FAOA: Your Data Deletion Confirmation')}`
-    +`&body=${encodeURIComponent(body)}`,'_blank');
-  window.open(`mailto:${encodeURIComponent(adminEmail)}`
-    +`?subject=${encodeURIComponent('FAOA: User Data Deletion Notice')}`
-    +`&body=${encodeURIComponent(body)}`,'_blank');
+/* View details -> open mydata.html in same window (works in subsheet too) */
+$('#viewData').addEventListener('click',()=>{ window.location.href='mydata.html'; });
 
-  // clear keys
-  ['ao_profile','ao_settings','ao_daily_done','ao_daily_meta','ao_purchasedCourses']
-    .forEach(k=>localStorage.removeItem(k));
-  alert('Local data cleared. You may need to reload Home.');
+/* Change password — local only placeholder */
+$('#changePw').addEventListener('click',()=>{
+  const v=$('#password').value.trim();
+  if(!v){ alert('Enter a new password first.'); return; }
+  alert('Password will be updated on Save.');
 });
 
 /* Save / Cancel */
-function save(){
-  // persist profile
-  store.set(K.profile,current);
-  alert('Saved.');
-  // nudge parent home to refresh (it listens to storage)
-  try{ parent && parent.localStorage; }catch(e){}
-}
-function cancel(){
-  current=JSON.parse(JSON.stringify(initial));
-  loadForm();
-}
-$('#btnSave').addEventListener('click', save);
-$('#btnCancel').addEventListener('click', cancel);
-
-/* Back */
-$('#btnBack').addEventListener('click', ()=>{ history.back(); });
+$('#saveBtn').addEventListener('click',()=>{
+  p.firstName=$('#firstName').value.trim();
+  p.lastName=$('#lastName').value.trim();
+  p.displayName=$('#displayName').value.trim()||'User';
+  p.email=$('#email').value.trim();
+  const pw=$('#password').value.trim(); if(pw) p.password=pw;
+  store.set(K.profile,p);
+  alert('Profile saved.');
+});
+$('#cancelBtn').addEventListener('click',()=>{ window.location.reload(); });
 
 })();
 </script>
