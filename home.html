@@ -613,6 +613,64 @@ document.body.addEventListener('click',(e)=>{
     return;
   }
 
+<script>
+/* === Legacy-Move normalizer: rebuilds "Move" popover per hero and migrates old chips === */
+(function normalizeLegacyMoveUI(){
+  const heroes = document.querySelectorAll('[data-hero-id]');
+  heroes.forEach(hero=>{
+    // Ensure admin-ctrls exists
+    let ctrls = hero.querySelector('.admin-ctrls');
+    if(!ctrls){
+      ctrls = document.createElement('div');
+      ctrls.className = 'admin-ctrls';
+      hero.appendChild(ctrls);
+    }
+
+    // Ensure Live/Offline button exists
+    let stateBtn = ctrls.querySelector('[data-toggle-state]');
+    if(!stateBtn){
+      stateBtn = document.createElement('button');
+      stateBtn.className = 'ctl state-live';
+      stateBtn.setAttribute('data-toggle-state','');
+      stateBtn.textContent = 'Live';
+      ctrls.appendChild(stateBtn);
+    }
+
+    // Ensure Move button + popover exists
+    let moveWrap = ctrls.querySelector('.move');
+    if(!moveWrap){
+      moveWrap = document.createElement('button');
+      moveWrap.className = 'ctl move';
+      moveWrap.setAttribute('data-move','');
+      moveWrap.textContent = 'Move';
+      const menu = document.createElement('div');
+      menu.className = 'move-menu';
+      menu.innerHTML = `
+        <button data-move-to="dev">Move to Development Space</button>
+        <button data-move-to="archive">Move to Archive</button>
+        <button data-move-to="tpl">Move to Templates</button>
+        <button data-move-to="page">Move to Page</button>
+      `;
+      moveWrap.appendChild(menu);
+      ctrls.appendChild(moveWrap);
+    }
+
+    // Migrate any legacy chips directly under the hero (NOT inside .move-menu)
+    const menu = moveWrap.querySelector('.move-menu');
+    const legacy = hero.querySelectorAll(':scope > [data-move-to], :scope [data-move-to]:not(.move-menu [data-move-to])');
+    legacy.forEach(btn=>{
+      // De-duplicate options by value
+      const val = btn.getAttribute('data-move-to');
+      if(val && !menu.querySelector(`[data-move-to="${val}"]`)){
+        menu.appendChild(btn);
+      }else{
+        btn.remove(); // duplicate or malformed -> remove
+      }
+    });
+  });
+})();
+</script>
+
   // Open/close move popover
   if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move] .move-menu'))){
     const menu=hero.querySelector('.move-menu'); if(!menu) return;
