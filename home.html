@@ -12,8 +12,7 @@
   --bg:#000; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1;
   --bronze:#b87333; --red:#ff3b30; --black:#111;
-  --gap:12px; --r:14px; --maxw:1240px;
-  --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
 html,body{
@@ -27,28 +26,18 @@ a{color:inherit; text-decoration:none}
 /* Background */
 .bg{position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* ===== NAV BAR ===== */
+/* ===== FIXED TOP BAR (courses only) ===== */
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h);
   display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:100; /* ↑ ensure always tappable */
+  padding:8px 12px; z-index:100;
   background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
 .nav-left{display:flex; gap:8px; align-items:center}
-.btn-tab{
-  display:inline-flex; align-items:center; justify-content:center;
-  min-width:104px; height:44px; padding:0 14px;
-  border-radius:12px; border:1px solid var(--stroke);
-  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
-  transition:transform .06s ease, filter .15s ease; font-size:15px;
-  white-space:nowrap;
-}
-.btn-tab:active{transform:translateY(1px)}
-.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
-@media (max-width:420px){
-  .btn-tab{min-width:0; padding:0 12px; font-size:14px}
-}
+.nav-title{display:inline-flex; align-items:center; justify-content:center;
+  height:44px; padding:0 14px; border-radius:12px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; font-size:15px}
 
 /* Avatar pill (text-only; solid colour by role) */
 .avatarTab{
@@ -61,10 +50,9 @@ a{color:inherit; text-decoration:none}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
 /* Content wrap */
-.wrap{max-width:var(--maxw); margin:0 auto;
-  padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 60px}
 
-/* ===== HERO ===== */
+/* ===== HERO (courses items) ===== */
 .hero{
   position:relative; overflow:hidden; background:#060708;
   border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0;
@@ -76,53 +64,25 @@ a{color:inherit; text-decoration:none}
 .btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
 .btn.grey{background:#3a3a3a; color:#fff}
-.badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
 
-/* Daily skin gloss */
-#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
-#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
-#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
-#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
-#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px }
-
-/* ===== TRACKER (Daily only) ===== */
-.tracker{cursor:pointer}
-.tracker .cards{display:grid; grid-template-columns:1fr; gap:var(--gap)}
-.tracker .card{border:1px solid var(--stroke); border-radius:12px; padding:12px; background:rgba(255,255,255,.03)}
-.tracker .kpi{display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700}
-.medals{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:10px}
-.medal{width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22); background:transparent}
-
-/* PANELS */
-[data-panel]{display:none}
-[data-panel].panel-active{display:block}
-
-/* ===== Admin inline controls (fixed to top-right of hero) ===== */
-.admin-ctrls{position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:5}
+/* Only admin sees this control */
+.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:6px; z-index:5}
+.admin-on .admin-ctrls{display:flex}
 .admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
 .admin-ctrls .state-live{background:#0a0}
 .admin-ctrls .state-off{background:#b00020}
-.admin-ctrls .move{background:#1b1f2a; position:relative}
 
-/* Move popover (chips live only inside this menu) */
-.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:20; min-width:220px}
-.move-menu.open{display:block}
-.move-menu button{display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer}
-.move-menu button:hover{filter:brightness(1.1)}
+/* Number badge */
+.num-badge{position:absolute; top:12px; left:12px; height:26px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); display:flex; align-items:center; font-weight:900; font-size:13px; background:#0f1116}
 
-/* Guard legacy chips that were previously injected on hero */
-article.hero [data-move-to]{display:none!important}
-article.hero .move-menu [data-move-to]{display:block!important}
-#adminDock [data-dock-to]{display:inline-block!important}
-
-/* ===== Avatar Drawer ===== */
+/* Avatar Drawer */
 #avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
 #avatarSheet .panel{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:320px; max-height:70vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px}
 .menu a{display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
 .menu a:last-child{border-bottom:none}
 
-/* ===== Subsheet (iframe) ===== */
+/* Subsheet (iframe) */
 #subSheet{position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
 #subSheet .inner{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:min(820px,calc(100% - 24px)); height:min(78vh,calc(100% - (var(--nav-h) + 24px))); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; display:flex; flex-direction:column}
@@ -130,51 +90,14 @@ article.hero .move-menu [data-move-to]{display:block!important}
 .sheet-head h2{margin:0; font-size:22px; font-weight:900}
 .sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
 #subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
-
-/* ===== Config pencil ===== */
-.cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
-.config-on .cfg-pin{display:flex}
-
-/* ===== Admin footer / Working Drawer (always fixed) ===== */
-#adminTab{position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90; pointer-events:auto}
-#adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
-
-/* CLICKABILITY FIX: make dock non-interactive when closed */
-#adminDock{
-  position:fixed; left:0; right:0; top:0; bottom:0;
-  transform:translateY(100%); transition:transform .18s ease;
-  z-index:89; background:#0e0b0b;
-  pointer-events:none;            /* <<< added */
-}
-#adminDock.open{
-  transform:translateY(0);
-  pointer-events:auto;            /* <<< added */
-}
-#adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
-#adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
-#adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:180px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
-.admin-group{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px; margin-bottom:14px}
-.admin-group h3{margin:0 0 10px; font-size:15px}
-.bin{border:1px dashed rgba(255,255,255,.18); border-radius:10px; margin:8px 0}
-.bin > summary{cursor:pointer; padding:10px 12px; list-style:none; font-weight:900}
-.bin > summary::-webkit-details-marker{display:none}
-.bin .list{padding:8px 12px 12px}
-.list .item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
-.list .name{font-size:14px}
-.small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
-.small.open{background:#0A84FF; color:#000}
-.small.link{background:#222}
 </style>
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav" role="navigation" aria-label="Primary">
-  <div class="nav-left" role="tablist" aria-label="Sections">
-    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed</button>
-    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges</button>
-    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
-    <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
+  <div class="nav-left">
+    <div class="nav-title">Courses</div>
   </div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
@@ -185,231 +108,59 @@ article.hero .move-menu [data-move-to]{display:block!important}
 </header>
 
 <main class="wrap">
-  <!-- ===== FEED (5 placeholders) ===== -->
-  <section id="panel-feed" class="panel-active" data-panel="feed">
-    <!-- feed-1..5 -->
-    <article class="hero" data-hero-id="feed-1">
-      <button class="cfg-pin" data-cfg="feed-title-1">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="feed-title-1">Placeholder news-hero1</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
-    </article>
-
-    <article class="hero" data-hero-id="feed-2">
-      <button class="cfg-pin" data-cfg="feed-title-2">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="feed-title-2">Placeholder news-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
-    </article>
-
-    <article class="hero" data-hero-id="feed-3">
-      <button class="cfg-pin" data-cfg="feed-title-3">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="feed-title-3">Placeholder news-hero3</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
-    </article>
-
-    <article class="hero" data-hero-id="feed-4">
-      <button class="cfg-pin" data-cfg="feed-title-4">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="feed-title-4">Placeholder news-hero4</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
-    </article>
-
-    <article class="hero" data-hero-id="feed-5">
-      <button class="cfg-pin" data-cfg="feed-title-5">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="feed-title-5">Placeholder news-hero5</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
-    </article>
-  </section>
-
-  <!-- ===== CHALLENGES ===== -->
-  <section id="panel-challenges" data-panel="challenges">
-    <!-- Tracker -->
-    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" aria-labelledby="trackerTitle">
-      <button class="cfg-pin" data-cfg="tracker-title">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" id="trackerTitle" data-cfg-target="tracker-title">Challenge Tracker</h2>
-      <p class="meta">Daily 7d</p>
-      <div class="cards">
-        <div class="card">
-          <div class="kpi">Daily 7d</div>
-          <div class="medals" id="dailyMedals"></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- Daily -->
-    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" aria-labelledby="dailyTitle">
-      <button class="cfg-pin" data-cfg="daily-title">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" id="dailyTitle" data-cfg-target="daily-title">Daily Challenge</h2>
-      <p class="meta" id="dailyMeta">Begins today</p>
-      <p class="desc">A focused prompt matched to your level. Finish it to earn your streak.</p>
-      <div class="cta-left">
-        <button class="btn blue" id="btnDailyStart">Start</button>
-        <button class="btn grey" id="btnDailyComplete">Complete</button>
-      </div>
-      <div class="level" id="dailyLevel">Beginner</div>
-    </article>
-  </section>
-
-  <!-- ===== COURSES (3 placeholders) ===== -->
+  <!-- ===== COURSES ONLY (10 placeholders) ===== -->
   <section id="panel-courses" data-panel="courses">
+    <!-- co-1 ... co-10, blank heroes with number badge + Start + admin live/off -->
+    <!-- Template repeated -->
     <article class="hero" data-hero-id="co-1">
-      <button class="cfg-pin" data-cfg="cr-1">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p>
+      <span class="num-badge">#1</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
     </article>
     <article class="hero" data-hero-id="co-2">
-      <button class="cfg-pin" data-cfg="cr-2">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p>
+      <span class="num-badge">#2</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
     </article>
     <article class="hero" data-hero-id="co-3">
-      <button class="cfg-pin" data-cfg="cr-3">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
-      <p class="meta">Coming Soon</p><p class="desc">—</p>
+      <span class="num-badge">#3</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
     </article>
-  </section>
-
-  <!-- ===== LIVE (2 placeholders) ===== -->
-  <section id="panel-live" data-panel="live">
-    <article class="hero" data-hero-id="lv-1">
-      <button class="cfg-pin" data-cfg="lv-1">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    <article class="hero" data-hero-id="co-4">
+      <span class="num-badge">#4</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
     </article>
-    <article class="hero" data-hero-id="lv-2">
-      <button class="cfg-pin" data-cfg="lv-2">✎</button>
-      <div class="admin-ctrls">
-        <button class="ctl state-live" data-toggle-state>Live</button>
-        <button class="ctl move" data-move>Move
-          <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-            <button data-move-to="page">Move to Page</button>
-          </div>
-        </button>
-      </div>
-      <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
-      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    <article class="hero" data-hero-id="co-5">
+      <span class="num-badge">#5</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
+    </article>
+    <article class="hero" data-hero-id="co-6">
+      <span class="num-badge">#6</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
+    </article>
+    <article class="hero" data-hero-id="co-7">
+      <span class="num-badge">#7</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
+    </article>
+    <article class="hero" data-hero-id="co-8">
+      <span class="num-badge">#8</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
+    </article>
+    <article class="hero" data-hero-id="co-9">
+      <span class="num-badge">#9</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
+    </article>
+    <article class="hero" data-hero-id="co-10">
+      <span class="num-badge">#10</span>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
+      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
     </article>
   </section>
 </main>
@@ -424,7 +175,6 @@ article.hero .move-menu [data-move-to]{display:block!important}
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
-      <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
     </nav>
   </div>
 </div>
@@ -440,19 +190,6 @@ article.hero .move-menu [data-move-to]{display:block!important}
   </div>
 </div>
 
-<!-- ===== ADMIN TAB & DOCK (Working Drawer) ===== -->
-<div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
-<div id="adminDock" aria-hidden="true">
-  <header>
-    <div id="dockTitle">Development Space — Feed</div>
-  </header>
-  <div class="space" id="devSpace"></div>
-  <div class="bins">
-    <details class="bin" id="binArchive"><summary>Archived</summary><div class="list" id="listArchive"></div></details>
-    <details class="bin" id="binTpl"><summary>Templates</summary><div class="list" id="listTpl"></div></details>
-  </div>
-</div>
-
 <script>
 (()=>{'use strict';
 /* ===== utils & storage ===== */
@@ -462,50 +199,36 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 
 /* Keys */
-const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
+const K={ profile:'ao_profile', flags:'ao_course_flags', heroLinks:'ao_course_links' };
 
-/* Force admin during build */
-function currentRole(){ return 'admin'; }
+/* Role skin + admin gate (you can later set via profile.html) */
+function currentRole(){ const p=store.get(K.profile,null); return (p?.skill||'admin').toLowerCase(); }
+function isAdmin(){ return currentRole()==='admin'; }
 const ROLE_SKINS={
-  bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
-  silver:{pill:'var(--silver)', text:'#0b0c10', daily:'silver'},
-  gold:{pill:'var(--gold)', text:'#0b0c10', daily:'gold'},
-  support:{pill:'#6a4cff', text:'#fff', daily:'black'},
-  director:{pill:'#444', text:'#fff', daily:'black'},
-  admin:{pill:'var(--blue)', text:'#0b0c10', daily:'black'}
+  bronze:{pill:'var(--bronze)', text:'#111'},
+  silver:{pill:'var(--silver)', text:'#0b0c10'},
+  gold:{pill:'var(--gold)', text:'#0b0c10'},
+  support:{pill:'#6a4cff', text:'#fff'},
+  director:{pill:'#444', text:'#fff'},
+  admin:{pill:'var(--blue)', text:'#0b0c10'}
 };
-function isAdmin(){ return true; } // while scaffolding
 
-/* Avatar paint + daily gloss */
+/* Paint avatar pill */
 function applyProfile(){
-  const p=store.get(K.profile,{displayName:'User',skill:currentRole()});
-  const role=(p.skill||currentRole()).toLowerCase();
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  const role=(p.skill||'admin').toLowerCase();
   const skin=ROLE_SKINS[role]||ROLE_SKINS.silver;
   $('#avatarName').textContent=p.displayName||'User';
   $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
   const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
-  const daily=document.getElementById('dailyHero'); if(daily){ daily.setAttribute('data-skin', skin.daily); }
+  document.body.classList.toggle('admin-on', isAdmin());
 }
 applyProfile();
 
-/* ===== Tabs ===== */
-let currentTab='feed';
-const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
-function showTab(name){
-  currentTab=name;
-  tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
-  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  $('#dockTitle').textContent=`Development Space — ${name.charAt(0).toUpperCase()+name.slice(1)}`;
-  paintWorkingDrawer(); // filter by tab
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
-showTab('feed');
-
-/* ===== Avatar Drawer & Subsheet ===== */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
+/* Avatar Drawer & Subsheet */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', openDrawer);
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
@@ -521,10 +244,7 @@ function openSubSheet(title,url){
   }, {once:true});
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
-function closeSubSheet(){
-  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
-  subFrame.src='about:blank';
-}
+function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; }
 $('#sheetClose').addEventListener('click', closeSubSheet);
 subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
 $$('#avatarSheet [data-pop]').forEach(a=>{
@@ -532,217 +252,74 @@ $$('#avatarSheet [data-pop]').forEach(a=>{
     e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
   });
 });
-$('#cfgToggle').addEventListener('click', (e)=>{
-  e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
-});
 
-/* ===== Settings & hero flags =====
-   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
+/* ===== Course hero flags & links =====
+   flags[id] = { state:'live'|'off' }
+   links[id] = "relative-or-absolute-url"
 */
-function defaults(){ return { heroFlags:{} }; }
-function getSettings(){
-  const cur=store.get(K.settings,null);
-  if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
-  return {...defaults(), ...cur, heroFlags:{...(cur.heroFlags||{})}};
-}
-function saveSettings(s){ store.set(K.settings,s); }
+function getFlags(){ return store.get(K.flags,{}); }
+function setFlag(id, next){ const f=getFlags(); f[id]=Object.assign({state:'live'},f[id]||{}, next); store.set(K.flags,f); }
+function getLink(id){ const L=store.get(K.heroLinks,{}); return L[id]||''; }
+function setLink(id,url){ const L=store.get(K.heroLinks,{}); L[id]=url; store.set(K.heroLinks,L); }
 
-/* hero id -> tab */
-function heroTab(id){
-  if(id.startsWith('feed-')) return 'feed';
-  if(id.startsWith('ch-'))   return 'challenges';
-  if(id.startsWith('co-'))   return 'courses';
-  if(id.startsWith('lv-'))   return 'live';
-  return 'feed';
-}
-
-/* Links map for archived/templates (open in iframe) */
-function getLinks(){ return store.get(K.heroLinks,{}); }
-function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
-
-/* ===== Visibility paint ===== */
-function applyHeroVisibility(){
-  const flags=getSettings().heroFlags;
+/* Paint visibility + admin button state */
+function paintHeroes(){
+  const f=getFlags();
   $$('[data-hero-id]').forEach(el=>{
     const id=el.dataset.heroId;
-    const f=flags[id]||{state:'live',place:'page'};
-    let show = (f.place==='page');
-    if(!isAdmin()) show = show && (f.state==='live');
+    const flag=f[id]||{state:'live'};
+    // hide from non-admin when offline
+    const show = isAdmin() ? true : (flag.state==='live');
     el.style.display = show ? '' : 'none';
+
+    // admin button label/style
     const btn=el.querySelector('[data-toggle-state]');
     if(btn){
-      btn.textContent = (f.state==='live'?'Live':'Offline');
-      btn.classList.toggle('state-live', f.state==='live');
-      btn.classList.toggle('state-off', f.state!=='live');
+      btn.textContent = (flag.state==='live'?'Live':'Offline');
+      btn.classList.toggle('state-live', flag.state==='live');
+      btn.classList.toggle('state-off', flag.state!=='live');
     }
   });
 }
-applyHeroVisibility();
+paintHeroes();
 
-/* ===== Normalise any legacy on-hero chips into the popover (safety) ===== */
-function normaliseLegacyChips(){
-  $$('[data-hero-id]').forEach(hero=>{
-    const stray=Array.from(hero.querySelectorAll(':scope > [data-move-to]'));
-    if(!stray.length) return;
-    const menu = hero.querySelector('.move-menu');
-    stray.forEach(ch=>menu.appendChild(ch));
-  });
-}
-normaliseLegacyChips();
-
-/* ===== Admin live/off + Move (popover) ===== */
+/* Handle Live/Offline toggle (admin only) & Start button */
 document.body.addEventListener('click',(e)=>{
-  const hero=e.target.closest('[data-hero-id]');
-
-  // toggle live/off
-  if(hero && e.target.matches('[data-toggle-state]')){
-    const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    const next=(cur.state==='live'?'off':'live');
-    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`);
+  // Toggle live/offline
+  if(e.target.matches('[data-toggle-state]')){
+    if(!isAdmin()){ return; }
+    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset.heroId;
+    const f=getFlags()[id]||{state:'live'};
+    const next = (f.state==='live'?'off':'live');
+    const ok=confirm(`Set ${id} ${next==='live'?'LIVE (visible to users)':'OFFLINE (hidden from users)'}?`);
     if(!ok) return;
-    s.heroFlags[id]={...cur, state:next}; saveSettings(s);
-    applyHeroVisibility(); paintWorkingDrawer(); return;
+    setFlag(id,{state:next}); paintHeroes(); return;
   }
 
-  // open/close move popover
-  if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move]'))){
-    const btn=e.target.closest('[data-move]');
-    const menu=btn.querySelector('.move-menu');
-    const open=!menu.classList.contains('open');
-    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
-    if(open) menu.classList.add('open');
-    e.stopPropagation();
-    return;
-  }
-
-  // choose destination
-  if(hero && e.target.matches('.move-menu [data-move-to]')){
-    const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
-    moveHero(id, dest);
-    const menu=hero.querySelector('.move-menu'); if(menu) menu.classList.remove('open');
-    e.stopPropagation(); return;
-  }
-});
-// click-away to close popovers
-document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'))});
-
-/* Move with "three cards max" rule in Dev Space per-tab */
-function moveHero(id, place){
-  const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-  if(place==='dev'){
-    const countDev = Object.entries(s.heroFlags).filter(([hid,flag])=>heroTab(hid)===heroTab(id) && flag?.place==='dev').length;
-    if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
-  }
-  s.heroFlags[id]={...cur, place}; saveSettings(s);
-  applyHeroVisibility(); paintWorkingDrawer();
-}
-
-/* ===== Working Drawer ===== */
-const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('#devSpace');
-function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
-function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
-toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
-
-function paintWorkingDrawer(){
-  const flags=getSettings().heroFlags||{};
-  const links=getLinks();
-  devSpace.innerHTML='';
-  const archive=[], tpl=[];
-  $$('[data-hero-id]').forEach(el=>{
-    const id=el.dataset.heroId;
-    if(heroTab(id)!==currentTab) return; // per-tab draw
-    const t=el.querySelector('.title')?.textContent?.trim()||id;
-    const f=flags[id]||{state:'live',place:'page'};
-    if(f.place==='dev'){
-      const card=document.createElement('article'); card.className='hero';
-      card.innerHTML=`<h2 class="title">${t}</h2>
-        <div class="admin-ctrls" style="display:flex">
-          <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
-          <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
-            <div class="move-menu">
-              <button data-dock-id="${id}" data-dock-to="page">Move to Page</button>
-              <button data-dock-id="${id}" data-dock-to="archive">Move to Archive</button>
-              <button data-dock-id="${id}" data-dock-to="tpl">Move to Templates</button>
-            </div>
-          </button>
-        </div>
-        <p class="meta">Dev preview only</p>`;
-      devSpace.appendChild(card);
-    }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
-    else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
-  });
-  // paint lists
-  const LA=$('#listArchive'); const LT=$('#listTpl');
-  LA.innerHTML=''; LT.innerHTML='';
-  const renderRow=(host,it,bin)=>{
-    const row=document.createElement('div'); row.className='item';
-    row.innerHTML=`<div class="name">${it.title}</div>
-      <div>
-        <button class="small link" data-link-id="${it.id}">${it.link?'Change Link':'Set Link'}</button>
-        <button class="small open" data-open-id="${it.id}">Open</button>
-        <button class="small" data-move-id="${it.id}" data-place="page">To Page</button>
-        <button class="small" data-move-id="${it.id}" data-place="${bin==='archive'?'tpl':'archive'}">To ${bin==='archive'?'Templates':'Archive'}</button>
-      </div>`;
-    host.appendChild(row);
-  };
-  archive.forEach(it=>renderRow(LA,it,'archive'));
-  tpl.forEach(it=>renderRow(LT,it,'tpl'));
-}
-paintWorkingDrawer();
-
-/* Drawer interactions (dev space + bins) */
-$('#adminDock').addEventListener('click',(e)=>{
-  // toggle live/off (dev card)
-  if(e.target.matches('[data-dock-act="toggle"]')){
-    const id=e.target.dataset.dockId; const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
-    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')}; saveSettings(s);
-    applyHeroVisibility(); paintWorkingDrawer(); return;
-  }
-  // open/close dev-card move menu
-  if(e.target.matches('[data-dock-move], [data-dock-move] *')){
-    const btn=e.target.closest('[data-dock-move]'); const menu=btn.querySelector('.move-menu'); menu.classList.toggle('open'); return;
-  }
-  // dev-card move actions
-  if(e.target.matches('[data-dock-to]')){
-    moveHero(e.target.dataset.dockId, e.target.dataset.dockTo); return;
-  }
-  // set/change link (bins)
-  if(e.target.matches('[data-link-id]')){
-    const id=e.target.dataset.linkId; const cur=getLinks()[id]||'';
-    const url=prompt('Enter linked HTML/URL', cur||'');
-    if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); }
-    return;
-  }
-  // open link (bins)
-  if(e.target.matches('[data-open-id]')){
-    const id=e.target.dataset.openId; const url=getLinks()[id];
-    if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
-    openSubSheet('Hero', url); return;
-  }
-  // move from bin row
-  if(e.target.matches('[data-move-id]')){
-    moveHero(e.target.dataset.moveId, e.target.dataset.place); return;
+  // Start button
+  if(e.target.matches('[data-start]')){
+    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset.heroId;
+    const url=getLink(id);
+    if(url){
+      openSubSheet('Course', url);
+    }else{
+      if(isAdmin()){
+        const u=prompt(`No link set for ${id}. Enter linked HTML/URL:`,`courses/${id}.html`);
+        if(u!=null && u.trim()!==''){ setLink(id,u.trim()); openSubSheet('Course', u.trim()); }
+      }else{
+        alert('Coming soon.');
+      }
+    }
   }
 });
 
-/* ===== Daily medals placeholder & meta ===== */
-(function paintEmpty(){
-  const dm=$('#dailyMedals'); if(!dm) return;
-  dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
-})();
-(function bootDailyMeta(){
-  const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const m=$('#dailyMeta'); if(m) m.textContent = `Begins ${dayNames[today.getDay()]}`;
-})();
+/* Respond to external profile/role changes (from profile/settings pages) */
+window.addEventListener('storage', e=>{
+  if(e.key===K.profile){ applyProfile(); paintHeroes(); }
+  if(e.key===K.flags){ paintHeroes(); }
+});
 
-/* ===== Tracker hero click -> iframe ===== */
-const th=$('#trackerHero'); if(th){ th.addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html')); }
-
-/* ===== Close any open move popover on ESC ===== */
-window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.move-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); } });
-
-console.log('[FAOA] home loaded ✓');
+console.log('[FAOA] courses-only home loaded ✓');
 })();
 </script>
 </body>
