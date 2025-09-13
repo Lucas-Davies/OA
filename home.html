@@ -9,96 +9,111 @@
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1;
-  --bronze:#b87333; --red:#ff3b30; --black:#111;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
+  --bg:#000; --surface:#060708; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30;
+  --gap:14px; --r:16px; --maxw:1400px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
 *{box-sizing:border-box}
-html,body{
-  height:100%; margin:0; background:var(--bg); color:var(--ink);
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden;
-}
-a{color:inherit; text-decoration:none}
+  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden}
+a{color:inherit;text-decoration:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
 /* Background */
-.bg{position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
+.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* ===== FIXED TOP BAR (courses only) ===== */
-.nav{
-  position:fixed; top:0; left:0; right:0; height:var(--nav-h);
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:100;
-  background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-}
-.nav-left{display:flex; gap:8px; align-items:center}
-.nav-title{display:inline-flex; align-items:center; justify-content:center;
-  height:44px; padding:0 14px; border-radius:12px; border:1px solid var(--stroke);
-  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; font-size:15px}
+/* ===== NAV (Courses only) ===== */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;z-index:100;
+  background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.nav-title{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55);color:var(--ink);font-weight:900;font-size:15px}
 
-/* Avatar pill (text-only; solid colour by role) */
-.avatarTab{
-  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
-  padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
-  font-weight:900; line-height:1.1; text-align:left; cursor:pointer;
-  border:1px solid var(--stroke); background:#222;
-}
-.avatarTab .name{font-size:15px; font-weight:900}
-.avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
+/* Avatar pill */
+.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
+  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222}
+.avatarTab .name{font-size:15px;font-weight:900}
+.avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
-/* Content wrap */
-.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 60px}
+/* Content wrap & grid */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 12px) 14px 120px}
+.grid{display:grid;grid-template-columns:1fr;gap:var(--gap)}
+/* iPhone landscape & small tablets */
+@media (min-width:640px){ .grid{grid-template-columns:repeat(2,1fr)} }
+/* iPad portrait */
+@media (min-width:768px){ .grid{grid-template-columns:repeat(3,1fr)} }
+/* iPad landscape / desktop */
+@media (min-width:1024px){ .grid{grid-template-columns:repeat(4,1fr)} }
 
-/* ===== HERO (courses items) ===== */
-.hero{
-  position:relative; overflow:hidden; background:#060708;
-  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0;
-}
-.hero .title{margin:0 0 6px; font-weight:900; font-size:20px}
-.hero .meta{margin:0 0 6px; color:var(--ink-dim)}
-.hero .desc{margin:8px 0 56px; color:var(--muted)}
+/* ===== HERO CARD ===== */
+.hero{position:relative; background:var(--surface); border:1px solid var(--stroke); border-radius:var(--r); padding:16px; min-height:120px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 4px 18px rgba(0,0,0,.35)}
+.hero .title,.hero .meta,.hero .desc{display:none} /* blank until linked */
 .cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:120px; height:var(--btn-h); padding:0 14px; border-radius:12px; border:1px solid var(--stroke);
+  font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
-.btn.grey{background:#3a3a3a; color:#fff}
 
-/* Only admin sees this control */
-.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:6px; z-index:5}
+/* Number pill */
+.num-badge{position:absolute; top:12px; left:12px; height:26px; padding:0 10px; border-radius:999px;
+  border:1px solid var(--stroke); display:flex; align-items:center; font-weight:900; font-size:13px; background:#0f1116}
+
+/* Admin controls (top-right) */
+.admin-ctrls{position:absolute; top:10px; right:10px; display:none; gap:8px; z-index:5}
 .admin-on .admin-ctrls{display:flex}
-.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
-.admin-ctrls .state-live{background:#0a0}
-.admin-ctrls .state-off{background:#b00020}
+.chip{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
+.chip.live{background:#11a311}
+.chip.off{background:#b00020}
 
-/* Number badge */
-.num-badge{position:absolute; top:12px; left:12px; height:26px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); display:flex; align-items:center; font-weight:900; font-size:13px; background:#0f1116}
+/* Move menu (Fred-style) */
+.move{position:relative}
+.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:12px; padding:8px; display:none; z-index:20; min-width:220px}
+.move-menu.open{display:block}
+.move-menu button{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--stroke);background:#15161b;color:#fff;font-weight:800;font-size:12px;margin:6px 0;cursor:pointer}
+.move-menu button:hover{filter:brightness(1.1)}
 
 /* Avatar Drawer */
-#avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
+#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
-#avatarSheet .panel{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:320px; max-height:70vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px}
-.menu a{display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
+.menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
 .menu a:last-child{border-bottom:none}
 
 /* Subsheet (iframe) */
-#subSheet{position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
+#subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
-#subSheet .inner{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:min(820px,calc(100% - 24px)); height:min(78vh,calc(100% - (var(--nav-h) + 24px))); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; display:flex; flex-direction:column}
-.sheet-head{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 4px 10px}
-.sheet-head h2{margin:0; font-size:22px; font-weight:900}
-.sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
-#subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
+#subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));height:min(78vh,calc(100% - (var(--nav-h) + 24px)));
+  background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px;display:flex;flex-direction:column}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
+.sheet-head h2{margin:0;font-size:22px;font-weight:900}
+.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
+#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
+
+/* ===== Admin footer / Working Drawer ===== */
+#adminTab{position:fixed;left:0;right:0;bottom:0;height:46px;display:none;align-items:center;justify-content:center;z-index:90}
+.admin-on #adminTab{display:flex}
+#adminTab button{background:var(--red);color:#fff;border:0;border-top-left-radius:12px;border-top-right-radius:12px;padding:10px 18px;font-weight:900;cursor:pointer}
+#adminDock{position:fixed;left:0;right:0;top:0;bottom:0;transform:translateY(100%);transition:transform .18s ease;z-index:89;background:#0e0b0b}
+#adminDock.open{transform:translateY(0)}
+#adminDock header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-weight:900;color:#fff;background:#1a0e0e;position:sticky;top:0;z-index:1}
+#adminDock .space{position:absolute;top:52px;bottom:190px;left:0;right:0;overflow:auto;padding:12px}
+#adminDock .bins{position:absolute;left:0;right:0;bottom:0;height:190px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.14);background:#120c0c;overflow:auto}
+.bin{border:1px dashed rgba(255,255,255,.18);border-radius:10px;margin:8px 0}
+.bin > summary{cursor:pointer;padding:10px 12px;list-style:none;font-weight:900}
+.bin > summary::-webkit-details-marker{display:none}
+.bin .list{padding:8px 12px 12px}
+.row{display:flex;align-items:center;justify-content:space-between;background:#0d0d0f;border:1px solid var(--stroke);border-radius:10px;padding:10px 8px;margin:6px 0}
+.row .name{font-size:14px}
+.small{height:30px;padding:0 8px;border-radius:8px;border:1px solid var(--stroke);background:#131416;color:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.small.open{background:#0A84FF;color:#000}
+.small.link{background:#222}
 </style>
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav" role="navigation" aria-label="Primary">
-  <div class="nav-left">
-    <div class="nav-title">Courses</div>
-  </div>
+  <div class="nav-left"><div class="nav-title">Courses</div></div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
@@ -108,60 +123,38 @@ a{color:inherit; text-decoration:none}
 </header>
 
 <main class="wrap">
-  <!-- ===== COURSES ONLY (10 placeholders) ===== -->
-  <section id="panel-courses" data-panel="courses">
-    <!-- co-1 ... co-10, blank heroes with number badge + Start + admin live/off -->
-    <!-- Template repeated -->
-    <article class="hero" data-hero-id="co-1">
-      <span class="num-badge">#1</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-2">
-      <span class="num-badge">#2</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-3">
-      <span class="num-badge">#3</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-4">
-      <span class="num-badge">#4</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-5">
-      <span class="num-badge">#5</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-6">
-      <span class="num-badge">#6</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-7">
-      <span class="num-badge">#7</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-8">
-      <span class="num-badge">#8</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-9">
-      <span class="num-badge">#9</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
-    <article class="hero" data-hero-id="co-10">
-      <span class="num-badge">#10</span>
-      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button></div>
-      <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
-    </article>
+  <section id="panel-courses">
+    <div class="grid" id="coursesGrid">
+      <!-- 10 blank course heroes -->
+      <!-- Template -->
+      <article class="hero" data-hero-id="co-1">
+        <span class="num-badge">#1</span>
+        <div class="admin-ctrls">
+          <button class="chip live" data-toggle-state>Live</button>
+          <div class="move">
+            <button class="chip">Move</button>
+            <div class="move-menu">
+              <button data-move-to="page">Move to Page</button>
+              <button data-move-to="dev">Move to Development</button>
+              <button data-move-to="archive">Move to Archive</button>
+              <button data-move-to="tpl">Return to Templates</button>
+            </div>
+          </div>
+        </div>
+        <div class="cta-left"><button class="btn blue" data-start>Start</button></div>
+      </article>
+
+      <!-- co-2 .. co-10 -->
+      <article class="hero" data-hero-id="co-2"><span class="num-badge">#2</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-3"><span class="num-badge">#3</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-4"><span class="num-badge">#4</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-5"><span class="num-badge">#5</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-6"><span class="num-badge">#6</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-7"><span class="num-badge">#7</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-8"><span class="num-badge">#8</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-9"><span class="num-badge">#9</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+      <article class="hero" data-hero-id="co-10"><span class="num-badge">#10</span><div class="admin-ctrls"><button class="chip live" data-toggle-state>Live</button><div class="move"><button class="chip">Move</button><div class="move-menu"><button data-move-to="page">Move to Page</button><button data-move-to="dev">Move to Development</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Return to Templates</button></div></div></div><div class="cta-left"><button class="btn blue" data-start>Start</button></div></article>
+    </div>
   </section>
 </main>
 
@@ -172,7 +165,6 @@ a{color:inherit; text-decoration:none}
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
-      <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
     </nav>
@@ -190,6 +182,19 @@ a{color:inherit; text-decoration:none}
   </div>
 </div>
 
+<!-- ===== ADMIN TAB & DOCK (Working Drawer) ===== -->
+<div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
+<div id="adminDock" aria-hidden="true">
+  <header>
+    <div>Development Space — Courses</div>
+  </header>
+  <div class="space" id="devSpace"></div>
+  <div class="bins">
+    <details class="bin" id="binArchive"><summary>Archived</summary><div class="list" id="listArchive"></div></details>
+    <details class="bin" id="binTpl"><summary>Templates</summary><div class="list" id="listTpl"></div></details>
+  </div>
+</div>
+
 <script>
 (()=>{'use strict';
 /* ===== utils & storage ===== */
@@ -199,33 +204,25 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 
 /* Keys */
-const K={ profile:'ao_profile', flags:'ao_course_flags', heroLinks:'ao_course_links' };
+const K={ profile:'ao_profile', flags:'ao_course_flags', links:'ao_course_links' };
 
-/* Role skin + admin gate (you can later set via profile.html) */
-function currentRole(){ const p=store.get(K.profile,null); return (p?.skill||'admin').toLowerCase(); }
-function isAdmin(){ return currentRole()==='admin'; }
-const ROLE_SKINS={
-  bronze:{pill:'var(--bronze)', text:'#111'},
-  silver:{pill:'var(--silver)', text:'#0b0c10'},
-  gold:{pill:'var(--gold)', text:'#0b0c10'},
-  support:{pill:'#6a4cff', text:'#fff'},
-  director:{pill:'#444', text:'#fff'},
-  admin:{pill:'var(--blue)', text:'#0b0c10'}
-};
+/* Role + admin */
+function role(){ return (store.get(K.profile,{skill:'admin'}).skill||'admin').toLowerCase(); }
+function isAdmin(){ return role()==='admin'; }
+const SKINS={ bronze:{pill:'#b87333',text:'#111'}, silver:{pill:'#c0c7d1',text:'#0b0c10'},
+  gold:{pill:'#ffd700',text:'#0b0c10'}, support:{pill:'#6a4cff',text:'#fff'},
+  director:{pill:'#444',text:'#fff'}, admin:{pill:'#0A84FF',text:'#0b0c10'} };
 
-/* Paint avatar pill */
-function applyProfile(){
-  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
-  const role=(p.skill||'admin').toLowerCase();
-  const skin=ROLE_SKINS[role]||ROLE_SKINS.silver;
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'}); const r=role(); const s=SKINS[r]||SKINS.silver;
   $('#avatarName').textContent=p.displayName||'User';
-  $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
-  const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
+  $('#avatarLvl').textContent=r.charAt(0).toUpperCase()+r.slice(1);
+  const pill=$('#avatarTab'); pill.style.background=s.pill; pill.style.color=s.text;
   document.body.classList.toggle('admin-on', isAdmin());
 }
-applyProfile();
+paintAvatar();
 
-/* Avatar Drawer & Subsheet */
+/* Avatar drawer + Subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
@@ -236,90 +233,166 @@ const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitl
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
-  subFrame.addEventListener('load', ()=>{
-    try{
-      const d=subFrame.contentDocument||subFrame.contentWindow.document;
-      const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}'; d.head.appendChild(st);
-    }catch{}
-  }, {once:true});
+  subFrame.addEventListener('load',()=>{try{
+    const d=subFrame.contentDocument||subFrame.contentWindow.document;
+    const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}'; d.head.appendChild(st);
+  }catch{}},{once:true});
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
-function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; }
-$('#sheetClose').addEventListener('click', closeSubSheet);
-subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
-$$('#avatarSheet [data-pop]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
-  });
-});
+$('#sheetClose').addEventListener('click', ()=>{ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; });
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet){ subSheet.classList.remove('open'); subFrame.src='about:blank'; }});
+$$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href')); }));
 
-/* ===== Course hero flags & links =====
-   flags[id] = { state:'live'|'off' }
-   links[id] = "relative-or-absolute-url"
-*/
+/* Flags + Links */
 function getFlags(){ return store.get(K.flags,{}); }
-function setFlag(id, next){ const f=getFlags(); f[id]=Object.assign({state:'live'},f[id]||{}, next); store.set(K.flags,f); }
-function getLink(id){ const L=store.get(K.heroLinks,{}); return L[id]||''; }
-function setLink(id,url){ const L=store.get(K.heroLinks,{}); L[id]=url; store.set(K.heroLinks,L); }
+function setFlag(id,patch){ const f=getFlags(); f[id]=Object.assign({state:'live',place:'page'},f[id]||{},patch); store.set(K.flags,f); }
+function getLink(id){ const L=store.get(K.links,{}); return L[id]||''; }
+function setLink(id,url){ const L=store.get(K.links,{}); L[id]=url; store.set(K.links,L); }
 
-/* Paint visibility + admin button state */
+/* Paint hero visibility + admin labels */
 function paintHeroes(){
   const f=getFlags();
   $$('[data-hero-id]').forEach(el=>{
-    const id=el.dataset.heroId;
-    const flag=f[id]||{state:'live'};
-    // hide from non-admin when offline
-    const show = isAdmin() ? true : (flag.state==='live');
-    el.style.display = show ? '' : 'none';
-
-    // admin button label/style
-    const btn=el.querySelector('[data-toggle-state]');
-    if(btn){
-      btn.textContent = (flag.state==='live'?'Live':'Offline');
-      btn.classList.toggle('state-live', flag.state==='live');
-      btn.classList.toggle('state-off', flag.state!=='live');
+    const id=el.dataset.heroId; const flag=f[id]||{state:'live',place:'page'};
+    // show only if on page or admin viewing dev/archives? Page shows page only
+    el.style.display = (flag.place==='page') ? '' : 'none';
+    const tgl=el.querySelector('[data-toggle-state]');
+    if(tgl){
+      const live = flag.state==='live';
+      tgl.textContent = live ? 'Live' : 'Offline';
+      tgl.classList.toggle('live', live);
+      tgl.classList.toggle('off', !live);
     }
   });
 }
 paintHeroes();
 
-/* Handle Live/Offline toggle (admin only) & Start button */
+/* Move helpers */
+function moveHero(id, place){
+  const f=getFlags()[id]||{state:'live',place:'page'};
+  setFlag(id,{place}); paintHeroes(); paintDock();
+}
+
+/* Click handlers (live/offline, move menu, start) */
 document.body.addEventListener('click',(e)=>{
-  // Toggle live/offline
-  if(e.target.matches('[data-toggle-state]')){
-    if(!isAdmin()){ return; }
-    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset.heroId;
-    const f=getFlags()[id]||{state:'live'};
-    const next = (f.state==='live'?'off':'live');
-    const ok=confirm(`Set ${id} ${next==='live'?'LIVE (visible to users)':'OFFLINE (hidden from users)'}?`);
-    if(!ok) return;
-    setFlag(id,{state:next}); paintHeroes(); return;
+  const hero=e.target.closest('[data-hero-id]');
+  // Live/Offline
+  if(hero && e.target.matches('[data-toggle-state]')){
+    if(!isAdmin()) return;
+    const id=hero.dataset.heroId; const cur=getFlags()[id]||{state:'live'};
+    const next = cur.state==='live' ? 'off' : 'live';
+    if(!confirm(`Set ${id} ${next==='live'?'LIVE (visible)':'OFFLINE (hidden to users)'}?`)) return;
+    setFlag(id,{state:next}); paintHeroes(); paintDock(); return;
   }
+  // Move menu open/close
+  if(hero && (e.target.closest('.move') && !e.target.closest('.move-menu'))){
+    const menu=hero.querySelector('.move-menu'); const open=!menu.classList.contains('open');
+    document.querySelectorAll('.move-menu.open').forEach(m=>m.classList.remove('open'));
+    if(open) menu.classList.add('open');
+    e.stopPropagation(); return;
+  }
+  // Move choices
+  if(hero && e.target.matches('.move-menu [data-move-to]')){
+    const id=hero.dataset.heroId; const to=e.target.getAttribute('data-move-to');
+    moveHero(id,to); hero.querySelector('.move-menu').classList.remove('open'); e.stopPropagation(); return;
+  }
+  // Start
+  if(hero && e.target.matches('[data-start]')){
+    const id=hero.dataset.heroId; const link=getLink(id);
+    if(link){ openSubSheet('Course', link); return; }
+    if(isAdmin()){
+      const u=prompt(`No link set for ${id}. Enter linked HTML/URL:`,`courses/${id}.html`);
+      if(u && u.trim()){ setLink(id,u.trim()); openSubSheet('Course', u.trim()); }
+    }else{ alert('Coming soon.'); }
+  }
+});
+document.addEventListener('click',()=>document.querySelectorAll('.move-menu.open').forEach(m=>m.classList.remove('open')));
 
-  // Start button
-  if(e.target.matches('[data-start]')){
-    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset.heroId;
-    const url=getLink(id);
-    if(url){
-      openSubSheet('Course', url);
-    }else{
-      if(isAdmin()){
-        const u=prompt(`No link set for ${id}. Enter linked HTML/URL:`,`courses/${id}.html`);
-        if(u!=null && u.trim()!==''){ setLink(id,u.trim()); openSubSheet('Course', u.trim()); }
-      }else{
-        alert('Coming soon.');
-      }
-    }
+/* ===== Working Drawer (admin) ===== */
+const adminTab=$('#adminTab'), adminDock=$('#adminDock'), devSpace=$('#devSpace'), toggleDockBtn=$('#toggleDockBtn');
+function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
+function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
+toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
+
+function paintDock(){
+  if(!isAdmin()) return;
+  const f=getFlags(); const L=store.get(K.links,{});
+  devSpace.innerHTML='';
+  const archive=[], tpl=[];
+  $$('[data-hero-id]').forEach(h=>{
+    const id=h.dataset.heroId; const flag=f[id]||{state:'live',place:'page'};
+    const title = id.toUpperCase();
+    if(flag.place==='dev'){
+      const card=document.createElement('article'); card.className='hero';
+      card.innerHTML=`
+        <span class="num-badge">${id.replace('co-','#')}</span>
+        <div class="admin-ctrls" style="display:flex">
+          <button class="chip ${flag.state==='live'?'live':'off'}" data-dock-toggle="${id}">${flag.state==='live'?'Live':'Offline'}</button>
+          <div class="move"><button class="chip">Move</button>
+            <div class="move-menu">
+              <button data-dock-move="${id}" data-to="page">Move to Page</button>
+              <button data-dock-move="${id}" data-to="archive">Move to Archive</button>
+              <button data-dock-move="${id}" data-to="tpl">Return to Templates</button>
+            </div>
+          </div>
+        </div>
+        <div class="cta-left"><button class="btn blue" data-dock-open="${id}">Open</button></div>`;
+      devSpace.appendChild(card);
+    }else if(flag.place==='archive'){ archive.push({id,title,link:L[id]||''}); }
+    else if(flag.place==='tpl'){ tpl.push({id,title,link:L[id]||''}); }
+  });
+
+  const LA=$('#listArchive'), LT=$('#listTpl');
+  LA.innerHTML=''; LT.innerHTML='';
+  const addRow=(host,it,bin)=>{
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML=`<div class="name">${it.title}</div>
+      <div>
+        <button class="small link" data-link-id="${it.id}">${it.link?'Change Link':'Set Link'}</button>
+        <button class="small open" data-open-id="${it.id}">Open</button>
+        <button class="small" data-move-id="${it.id}" data-place="page">To Page</button>
+        <button class="small" data-move-id="${it.id}" data-place="${bin==='archive'?'tpl':'archive'}">To ${bin==='archive'?'Templates':'Archive'}</button>
+      </div>`;
+    host.appendChild(row);
+  };
+  archive.forEach(it=>addRow(LA,it,'archive'));
+  tpl.forEach(it=>addRow(LT,it,'tpl'));
+}
+paintDock();
+
+adminDock.addEventListener('click',(e)=>{
+  if(e.target.matches('[data-dock-toggle]')){
+    const id=e.target.getAttribute('data-dock-toggle'); const cur=getFlags()[id]||{state:'live'};
+    setFlag(id,{state:(cur.state==='live'?'off':'live')}); paintHeroes(); paintDock(); return;
+  }
+  if(e.target.matches('[data-dock-move]')){
+    moveHero(e.target.getAttribute('data-dock-move'), e.target.getAttribute('data-to')); return;
+  }
+  if(e.target.matches('[data-dock-open]')){
+    const id=e.target.getAttribute('data-dock-open'); const url=getLink(id);
+    if(url){ openSubSheet('Course',url); } else { alert('No link set yet.'); }
+    return;
+  }
+  if(e.target.matches('[data-link-id]')){
+    const id=e.target.getAttribute('data-link-id'); const cur=getLink(id)||`courses/${id}.html`;
+    const u=prompt('Enter linked HTML/URL', cur); if(u && u.trim()){ setLink(id,u.trim()); paintDock(); }
+    return;
+  }
+  if(e.target.matches('[data-open-id]')){
+    const id=e.target.getAttribute('data-open-id'); const url=getLink(id); if(url){ openSubSheet('Course',url); } else { alert('No link set.'); } return;
+  }
+  if(e.target.matches('[data-move-id]')){
+    moveHero(e.target.getAttribute('data-move-id'), e.target.getAttribute('data-place')); return;
   }
 });
 
-/* Respond to external profile/role changes (from profile/settings pages) */
-window.addEventListener('storage', e=>{
-  if(e.key===K.profile){ applyProfile(); paintHeroes(); }
-  if(e.key===K.flags){ paintHeroes(); }
+/* React to external changes */
+window.addEventListener('storage',e=>{
+  if(e.key===K.profile){ paintAvatar(); }
+  if(e.key===K.flags || e.key===K.links){ paintHeroes(); paintDock(); }
 });
 
-console.log('[FAOA] courses-only home loaded ✓');
+console.log('[FAOA] courses-only grid with admin drawer ready ✓');
 })();
 </script>
 </body>
