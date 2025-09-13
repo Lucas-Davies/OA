@@ -33,6 +33,7 @@ a{color:inherit;text-decoration:none}
 }
 .nav-left{display:flex; gap:8px; align-items:center}
 .btn-tab{
+  position:relative;
   display:inline-flex; align-items:center; justify-content:center;
   min-width:104px; height:44px; padding:0 14px;
   border-radius:12px; border:1px solid var(--stroke);
@@ -41,6 +42,18 @@ a{color:inherit;text-decoration:none}
 }
 .btn-tab:active{transform:translateY(1px)}
 .btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
+/* Config pin on tabs */
+.tab-pin{display:none; position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:6px;
+  background:#111; border:1px solid var(--stroke); font-size:11px; font-weight:900; color:#fff; align-items:center; justify-content:center}
+.config-on .btn-tab .tab-pin{display:flex}
+
+/* Portrait: slim tabs; Landscape/desktop normal */
+@media (orientation:portrait) and (max-width:900px){
+  .btn-tab{min-width:auto; padding:0 10px; font-size:14px}
+}
+@media (orientation:landscape){
+  .btn-tab{min-width:104px; padding:0 14px; font-size:15px}
+}
 
 /* Avatar pill (no photo; solid colour by role) */
 .avatarTab{
@@ -53,7 +66,7 @@ a{color:inherit;text-decoration:none}
 .avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
 /* Content wrap (safe area for fixed header) */
-.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
 /* ===== HERO ===== */
 .hero{position:relative; overflow:hidden; background:#060708;
@@ -62,7 +75,7 @@ a{color:inherit;text-decoration:none}
 .hero .meta{margin:0 0 6px; color:var(--ink-dim)}
 .hero .desc{margin:8px 0 56px; color:var(--muted)}
 .cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
-.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#ink; cursor:pointer}
 .btn.blue{background:var(--blue); border-color:transparent; color:#000}
 .btn.grey{background:#3a3a3a; color:#fff}
 .badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
@@ -116,12 +129,16 @@ a{color:inherit;text-decoration:none}
 .sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
 #subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
 
-/* ===== Config pencil ===== */
+/* ===== Config pencil (heroes) ===== */
 .cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
 .config-on .cfg-pin{display:flex}
 
 /* ===== Admin footer / Working Drawer ===== */
-#adminTab{position:fixed; left:0; right:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90}
+#adminTab{
+  position:fixed; left:0; right:0; bottom:0; /* force lock to bottom on all tabs */
+  height:48px; display:flex; align-items:center; justify-content:center; z-index:90;
+  pointer-events:auto;
+}
 #adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
 #adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
 #adminDock.open{transform:translateY(0)}
@@ -146,10 +163,10 @@ a{color:inherit;text-decoration:none}
 
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left" role="tablist" aria-label="Sections">
-    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed</button>
-    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges</button>
-    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
-    <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
+    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed<span class="tab-pin">✎</span></button>
+    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges<span class="tab-pin">✎</span></button>
+    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses<span class="tab-pin">✎</span></button>
+    <button class="btn-tab" data-tab="live" aria-selected="false">Live<span class="tab-pin">✎</span></button>
   </div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
@@ -292,6 +309,38 @@ a{color:inherit;text-decoration:none}
       </div>
       <div class="level" id="dailyLevel">Beginner</div>
     </article>
+
+    <!-- three more placeholders for 5 total -->
+    <article class="hero" data-hero-id="ch-extra-1">
+      <button class="cfg-pin" data-cfg="chx-1">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><span>Move</span>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div></button></div>
+      <h2 class="title" data-cfg-target="chx-1">Challenge hero 3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="ch-extra-2">
+      <button class="cfg-pin" data-cfg="chx-2">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><span>Move</span>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div></button></div>
+      <h2 class="title" data-cfg-target="chx-2">Challenge hero 4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="ch-extra-3">
+      <button class="cfg-pin" data-cfg="chx-3">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><span>Move</span>
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div></button></div>
+      <h2 class="title" data-cfg-target="chx-3">Challenge hero 5</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
   </section>
 
   <!-- ===== COURSES ===== -->
@@ -301,12 +350,9 @@ a{color:inherit;text-decoration:none}
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
-          Move
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-          </div>
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
@@ -317,12 +363,9 @@ a{color:inherit;text-decoration:none}
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
-          Move
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-          </div>
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
@@ -333,15 +376,30 @@ a{color:inherit;text-decoration:none}
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
-          Move
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-          </div>
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-4">
+      <button class="cfg-pin" data-cfg="cr-4">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><div class="move-menu">
+          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+        </div>Move</button></div>
+      <h2 class="title" data-cfg-target="cr-4">Placeholder course-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-5">
+      <button class="cfg-pin" data-cfg="cr-5">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><div class="move-menu">
+          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+        </div>Move</button></div>
+      <h2 class="title" data-cfg-target="cr-5">Placeholder course-hero5</h2>
       <p class="meta">Coming Soon</p><p class="desc">—</p>
     </article>
   </section>
@@ -353,12 +411,9 @@ a{color:inherit;text-decoration:none}
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
-          Move
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-          </div>
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
@@ -369,15 +424,39 @@ a{color:inherit;text-decoration:none}
       <div class="admin-ctrls">
         <button class="ctl state-live" data-toggle-state>Live</button>
         <button class="ctl move" data-move>
-          Move
           <div class="move-menu">
-            <button data-move-to="dev">Move to Development Space</button>
-            <button data-move-to="archive">Move to Archive</button>
-            <button data-move-to="tpl">Move to Templates</button>
-          </div>
+            <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+          </div>Move
         </button>
       </div>
       <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="lv-3">
+      <button class="cfg-pin" data-cfg="lv-3">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><div class="move-menu">
+          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+        </div>Move</button></div>
+      <h2 class="title" data-cfg-target="lv-3">Placeholder live-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="lv-4">
+      <button class="cfg-pin" data-cfg="lv-4">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><div class="move-menu">
+          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+        </div>Move</button></div>
+      <h2 class="title" data-cfg-target="lv-4">Placeholder live-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="lv-5">
+      <button class="cfg-pin" data-cfg="lv-5">✎</button>
+      <div class="admin-ctrls"><button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move><div class="move-menu">
+          <button data-move-to="dev">Move to Development Space</button><button data-move-to="archive">Move to Archive</button><button data-move-to="tpl">Move to Templates</button>
+        </div>Move</button></div>
+      <h2 class="title" data-cfg-target="lv-5">Placeholder live-hero5</h2>
       <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
     </article>
   </section>
@@ -391,6 +470,8 @@ a{color:inherit;text-decoration:none}
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
+      <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
+      <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
       <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
     </nav>
   </div>
@@ -460,6 +541,16 @@ function showTab(name){
 }
 tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
 showTab('feed');
+
+/* Tab text editing (Config Mode) */
+document.body.addEventListener('click',(e)=>{
+  const pin=e.target.closest('.tab-pin');
+  if(!pin) return;
+  const btn=pin.closest('.btn-tab');
+  const cur=btn.childNodes[0].nodeValue.trim();
+  const next=prompt('Rename tab', cur);
+  if(next!=null && next.trim()!==''){ btn.childNodes[0].nodeValue = next.trim() + ' '; }
+});
 
 /* Avatar Drawer & Subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
@@ -653,7 +744,7 @@ $('#adminDock').addEventListener('click',(e)=>{
   }
 });
 
-/* Config title editing */
+/* Config title editing for hero titles */
 document.body.addEventListener('click', (e)=>{
   const pin=e.target.closest('.cfg-pin'); if(!pin) return;
   const id=pin.dataset.cfg; const tgt=document.querySelector(`[data-cfg-target="${id}"]`);
