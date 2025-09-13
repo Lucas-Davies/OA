@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
-
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -13,7 +12,6 @@
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
 }
-/* iOS anti-highlight + reset */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
   height:100%;margin:0;background:var(--bg);color:var(--ink);
@@ -30,7 +28,7 @@ button{user-select:none;-webkit-user-select:none}
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .title-tab{font-weight:900;opacity:.92}
 
-/* Avatar pill (colour by role) */
+/* Avatar pill */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
   font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
 .avatarTab .name{font-size:15px;font-weight:900}
@@ -53,22 +51,19 @@ button{user-select:none;-webkit-user-select:none}
 .cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
 .cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Hero — double height */
+/* Hero */
 .hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
-
-/* Chips & buttons */
 .ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
 .chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
-
 .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Audience chips (bottom of hero/heading) */
+/* Audience chips */
 .aud-line{display:flex;gap:8px;align-items:center}
 .aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
 .aud-chip.on{opacity:1;filter:brightness(1.22)}
@@ -84,7 +79,7 @@ button{user-select:none;-webkit-user-select:none}
 .config-on .divider .dctrls{display:flex}
 .divider .aud-line{position:absolute;left:16px;bottom:14px}
 
-/* Config affordances on heroes */
+/* Config affordances */
 .cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
@@ -194,13 +189,17 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings' };
 
+/* URL reset hook */
+const Q=new URLSearchParams(location.search);
+if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); }
+
 /* Roles */
 function getRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
 function isAdminLike(){ const r=getRole(); return r==='admin' || r==='director'; }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
 
 /* Avatar paint */
-(function applyAvatar(){
+function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
   const role=(p.skill||'admin').toLowerCase();
@@ -208,7 +207,8 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r
   const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
   const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
-})();
+}
+paintAvatar();
 
 /* Avatar drawer + subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
@@ -238,10 +238,8 @@ $('#cfgToggle').addEventListener('click', e=>{
 }, {passive:false});
 
 /* ===== settings & flags ===== */
-function uuid(){ return 'div_'+Math.random().toString(36).slice(2,9); }
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  // 10 heroes on page; 40 archived
   for(let i=1;i<=10;i++){
     const id=`co-${i}`;
     heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
@@ -258,19 +256,33 @@ function sanitize(cfg){
   cfg.heroFlags=cfg.heroFlags||{};
   cfg.heroLabels=cfg.heroLabels||{};
   cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
-  // ensure heroes exist
+  // make sure co-1..50 exist & pageOrder has page heroes
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
     const onPage = cfg.heroFlags[id].place==='page';
     if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
   }
-  // ensure dividers have audience
+  // ensure divider audience blocks
   cfg.pageOrder=cfg.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
   return cfg;
 }
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
 function saveSettings(s){ store.set(K.settings,sanitize(s)); }
+
+/* SELF-HEAL if empty */
+(function repairIfEmpty(){
+  const s = store.get(K.settings,null);
+  if(!s){ store.set(K.settings, defaults()); return; }
+  const cfg = sanitize(s);
+  const hasPage = cfg.pageOrder.some(it=> it.type==='hero' && cfg.heroFlags[it.id]?.place==='page');
+  const hasArchive = Object.values(cfg.heroFlags).some(f=>f.place==='archive');
+  if(!hasPage && !hasArchive){
+    store.set(K.settings, defaults()); // hard reseed
+  }else{
+    store.set(K.settings, cfg); // write back sanitized
+  }
+})();
 
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
@@ -342,7 +354,6 @@ function paintPage(){
 
 /* Archive footer visibility */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
-let savedScrollY=0;
 function applyArchiveVisibility(){
   if(isAdminLike()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -368,6 +379,8 @@ function paintArchive(){
 }
 paintArchive();
 
+/* Archive open/close + body lock */
+let savedScrollY=0;
 function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
 $('#archiveToggle').addEventListener('click',()=>{
@@ -387,7 +400,7 @@ $('#addHeadingBtn').addEventListener('click',()=>{
 }, {passive:false});
 $('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); }, {passive:true});
 
-/* Tap handlers with confirmations */
+/* Click handlers with confirmations */
 document.addEventListener('click',(e)=>{
   // Start (placeholder)
   if(e.target.closest('[data-act="enter"]')){
@@ -406,6 +419,7 @@ document.addEventListener('click',(e)=>{
   }
   // Move (page<->archive)
   if(e.target.closest('[data-act="move"]')){
+    if(!isAdminLike()) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
@@ -475,13 +489,6 @@ document.addEventListener('click',(e)=>{
     return;
   }
 }, {passive:false});
-
-/* Archive lock/unlock */
-const dockEl=$('#archiveDock');
-let savedScrollY=0;
-function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
-function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
-dockEl.addEventListener('transitionend',()=>{}, {passive:true});
 
 /* Initial render */
 paintPage(); paintArchive();
