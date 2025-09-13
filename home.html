@@ -10,562 +10,219 @@
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333; --red:#ff453a; --black:#111;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
+  --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
 }
 *{box-sizing:border-box}
-html,body{height:100%; overflow-x:hidden}
-body{ margin:0; background:var(--bg); color:var(--ink);
-  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
-a{color:inherit; text-decoration:none}
+html,body{height:100%;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;}
+a{color:inherit;text-decoration:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.hide{display:none!important}
 
 /* Background */
-.bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat; }
+.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* helpers */
-.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0 }
-.hide{ display:none !important }
-.section-title{ margin:18px 2px 8px; font-size:18px; font-weight:900 }
-.wrap{max-width:var(--maxw); margin:0 auto; padding:10px 14px 80px}
-
-/* Buttons */
-.btn{ display:inline-flex; align-items:center; justify-content:center; min-width:156px; height:var(--btn-h); padding:0 16px;
-      border-radius:12px; border:1px solid var(--stroke); font-weight:900; cursor:pointer; font-family:inherit;
-      background:#0f1116; color:var(--ink) }
-.btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
-.btn.green{ background:var(--green); border-color:transparent; color:#000 }
-.btn.gold{ background:var(--gold); border-color:transparent; color:#0f1116 }
-.btn.grey{ background:#3a3a3a; color:#fff }
-.btn[disabled]{ opacity:.55; cursor:not-allowed }
-
-/* ===== HEADER ===== */
-.nav{ position:sticky; top:0; left:0; right:0; height:var(--nav-h);
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:40;
-  background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35) 60%, transparent);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-.nav-left{display:flex; gap:8px; align-items:center; flex:1 1 auto; min-width:0}
-.nav-right{margin-left:auto; display:flex; align-items:center}
-.btn-tab{
-  display:inline-flex; align-items:center; justify-content:center;
-  flex:0 0 auto; min-width:0; max-width:160px;
-  height:44px; padding:0 12px;
-  border-radius:12px; border:1px solid var(--stroke);
-  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  transition:transform .06s ease, filter .15s ease;
-  font-size:clamp(13px, 3.2vw, 16px);
-}
+/* Header */
+.nav{position:sticky;top:0;left:0;right:0;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 12px;z-index:40;
+  background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.35) 60%,transparent);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.btn-tab{display:inline-flex;align-items:center;justify-content:center;
+  flex:1 1 0;min-width:0;max-width:120px;height:44px;padding:0 12px;
+  border-radius:12px;border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55);color:var(--ink);font-weight:900;cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:transform .06s ease,filter .15s ease;
+  font-size:clamp(13px,3.2vw,16px);}
 .btn-tab:active{transform:translateY(1px)}
-.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
+.btn-tab.is-active{background:var(--blue);border-color:transparent;color:#000}
 
-/* ===== AVATAR PILL (no image, name + level) ===== */
-#avatarTab{
-  display:flex; align-items:center; gap:10px; height:44px; padding:0 12px;
-  border-radius:12px; border:1px solid var(--stroke); cursor:pointer;
-  background:#1a1a1a; color:#fff;
-}
-#avatarTab .avatarLines{ display:flex; flex-direction:column; line-height:1.05 }
-#avatarTab .name{ font-weight:900; font-size:14px; white-space:nowrap; max-width:140px; overflow:hidden; text-overflow:ellipsis }
-#avatarTab .lvl{ font-weight:800; font-size:12px; opacity:.92; text-transform:capitalize }
+/* Avatar pill */
+.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+  padding:6px 12px;border-radius:12px;min-width:120px;height:44px;
+  font-weight:900;line-height:1.1;text-align:left;cursor:pointer}
+.avatarTab .name{font-size:15px;font-weight:900}
+.avatarTab .lvl{font-size:12px;opacity:.9;text-transform:capitalize}
 
-/* ===== HERO base ===== */
-.hero{ position:relative; overflow:hidden; background:#000; border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0 }
-.hero .title{ margin:0 0 6px; font-weight:900; font-size:20px; display:flex; align-items:center; gap:8px }
-.hero .meta{ margin:0 0 6px; color:var(--ink-dim) }
-.hero .desc{ margin:8px 0 56px; color:var(--muted) }
-.cta-left{ position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px }
-
-/* Daily hero skins */
-.dailyCard[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
-.dailyCard[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
-.dailyCard[data-skin="gold"]  { background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
-.dailyCard[data-skin="support"]{ background:linear-gradient(135deg,#203040,#405a80 40%,#88a7ff 95%); color:#fff }
-.dailyCard[data-skin="director"]{ background:linear-gradient(135deg,#2b1d2b,#764b85 45%,#d0a3e6 95%); color:#fff }
-.dailyCard[data-skin="admin"]{ background:linear-gradient(135deg,#001a33,#0A84FF 55%,#6ab0ff 95%); color:#000 }
-.levelTag{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px; letter-spacing:.5px }
-
-/* Daily carousel */
-.dailyRow{ position:relative; margin:12px 0 }
-.dailyScroller{ display:grid; grid-auto-flow:column; grid-auto-columns:100%; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; }
-.dailyCard{ scroll-snap-align:start; border-radius:16px; border:1px solid var(--stroke); padding:16px; min-height:220px; position:relative }
-.arrow{ position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:10px; border:1px solid var(--stroke); background:rgba(0,0,0,.6); color:#fff; font-weight:900; display:none; align-items:center; justify-content:center; z-index:3 }
-.arrow.left{ left:8px } .arrow.right{ right:8px }
-.dailyRow.multiple .arrow{ display:flex }
+/* Hero */
+.hero{position:relative;overflow:hidden;background:#000;
+  border:1px solid var(--stroke);border-radius:16px;
+  padding:16px;margin:12px 0}
+.hero .title{margin:0 0 6px;font-weight:900;font-size:20px}
+.hero .meta{margin:0 0 6px;color:var(--ink-dim)}
+.hero .desc{margin:8px 0 56px;color:var(--muted)}
+.cta-left{position:absolute;left:16px;bottom:var(--btn-bottom);display:flex;gap:10px}
 
 /* Tracker */
-.tracker .cards{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gap) }
-@media (max-width:720px){ .tracker .cards{ grid-template-columns:1fr } }
-.tracker .card{ border:1px solid var(--stroke); border-radius:12px; padding:12px; background:rgba(255,255,255,.03); cursor:pointer }
-.tracker .kpi{ display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700 }
-.tracker .kpi .dot{ width:8px; height:8px; border-radius:50%; background:var(--green) }
-.medals{ display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:10px }
-.medalWrap{ display:flex; flex-direction:column; align-items:center; gap:6px }
-.medal{ width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#fff }
-.medal.empty{ background:transparent; color:transparent; border-color:rgba(255,255,255,.18) }
-.medal .tick{ transform:translateY(-.5px) }
-.medal-label{ font-size:11px; color:var(--ink-dim); letter-spacing:.2px }
-.m-bronze{ background:linear-gradient(135deg,#5e3515,#b86b2e 60%,#5e3515) }
-.m-silver{ background:linear-gradient(135deg,#7c838a,#cfd6dd 60%,#7c838a); color:#111 }
-.m-gold{ background:linear-gradient(135deg,#9c7a00,#d4af37 60%,#9c7a00); color:#111 }
-.m-support{ background:linear-gradient(135deg,#203040,#405a80 60%,#203040) }
-.m-director{ background:linear-gradient(135deg,#2b1d2b,#764b85 60%,#2b1d2b) }
-.m-admin{ background:linear-gradient(135deg,#001a33,#0A84FF 60%,#001a33); color:#000 }
+.tracker{cursor:pointer}
+.tracker .cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+.tracker .card{border:1px solid var(--stroke);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
+.tracker .kpi{display:flex;align-items:center;gap:8px;color:var(--ink-dim);font-weight:700}
+.medals{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
+.medalWrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.medal{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.22);
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff}
+.medal.empty{background:transparent;color:transparent;border-color:rgba(255,255,255,.18)}
+.medal .tick{transform:translateY(-.5px)}
+.medal-label{font-size:11px;color:var(--ink-dim);letter-spacing:.2px}
+.m-bronze{background:var(--bronze)}
+.m-silver{background:var(--silver);color:#111}
+.m-gold{background:var(--gold);color:#111}
+.m-black{background:var(--black);color:#fff}
+.m-blue{background:var(--blue);color:#000}
 
-/* Avatar Drawer + Subsheet */
-#avatarSheet{ position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px) }
-#avatarSheet.open{ display:block }
-#avatarSheet .panel{
-  position:absolute; top:64px; right:12px; width:320px; max-height:70vh; overflow:auto;
-  background:#0f1116; border:1px solid var(--stroke); border-radius:14px;
-  box-shadow: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(10,132,255,.22) inset;
-  padding:12px; transform:translateY(-8px); opacity:0; transition:transform .18s ease, opacity .18s ease;
-}
-#avatarSheet.open .panel{ transform:translateY(0); opacity:1 }
-.menu a{ display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08) }
-.menu a:last-child{ border-bottom:none }
-.brandfoot{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; padding:12px 10px 4px; color:#fff }
-.brandfoot .t1{ color:var(--blue); font-weight:900 }
-.brandfoot .t2{ opacity:.9; font-size:13px }
-
-#subSheet{ position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
-#subSheet.open{ display:block }
-#subSheet .inner{
-  position:absolute; top:64px; right:12px; width:min(820px, calc(100% - 24px)); height:min(78vh, calc(100% - 84px));
-  background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px;
-  transform:translateY(-8px); opacity:0; transition:transform .18s ease, opacity .18s ease; display:flex; flex-direction:column;
-}
-#subSheet.open .inner{ transform:translateY(0); opacity:1 }
-.sheet-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 4px 10px }
-.sheet-head h2{ margin:0; font-size:22px; font-weight:900 }
-.sheet-close{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer }
-#subFrame{ flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10 }
-
-/* responsive tweaks */
-@media (max-width:420px){
-  #avatarTab .name{ max-width:120px }
-}
+/* Avatar drawer + subSheet */
+#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#avatarSheet.open{display:block}
+#avatarSheet .panel{position:absolute;top:64px;right:12px;width:320px;max-height:70vh;overflow:auto;
+  background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
+.menu a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+#subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#subSheet.open{display:block}
+#subSheet .inner{position:absolute;top:64px;right:12px;width:min(820px,calc(100% - 24px));
+  height:min(78vh,calc(100% - 84px));background:#0f1116;border:1px solid var(--stroke);
+  border-radius:14px;padding:12px;display:flex;flex-direction:column}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
+.sheet-head h2{margin:0;font-size:22px;font-weight:900}
+.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);
+  background:#121212;color:#fff;font-weight:900;cursor:pointer}
+#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10}
 </style>
 </head>
 <body>
-
-<div class="bg" aria-hidden="true" id="bgImg"></div>
+<div class="bg"></div>
 
 <header class="nav">
-  <div class="nav-left" role="tablist" aria-label="Primary" id="navTabs">
-    <button class="btn-tab is-active" data-tab="challenges" aria-selected="true">Challenges</button>
-    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
-    <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
+  <div class="nav-left" role="tablist">
+    <button class="btn-tab is-active" data-tab="challenges">Challenges</button>
+    <button class="btn-tab" data-tab="courses">Courses</button>
+    <button class="btn-tab" data-tab="live">Live</button>
   </div>
-
   <div class="nav-right">
-    <!-- Avatar pill: display name over level, solid skill colour background -->
-    <button id="avatarTab" aria-haspopup="dialog" aria-expanded="false">
-      <div class="avatarLines">
-        <span class="name" id="avatarName">User</span>
-        <span class="lvl" id="avatarLevel">Intermediate</span>
-      </div>
+    <button id="avatarTab" class="avatarTab">
+      <span class="name" id="avatarName">User</span>
+      <span class="lvl" id="avatarLvl">Intermediate</span>
     </button>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- CHALLENGES -->
+  <!-- Challenges -->
   <section id="panel-challenges" data-panel="challenges">
-    <!-- Daily carousel (1+ levels) -->
-    <div class="dailyRow" id="dailyRow">
-      <button class="arrow left" id="dPrev" aria-label="Previous">‹</button>
-      <div class="dailyScroller" id="dailyScroller"></div>
-      <button class="arrow right" id="dNext" aria-label="Next">›</button>
-    </div>
-
-    <!-- WEEKLY -->
-    <article class="hero" id="weeklyHero" aria-labelledby="weeklyTitle">
-      <div class="badge">Weekly Challenge</div>
-      <h2 class="title" id="weeklyTitle">—</h2>
-      <p class="meta" id="weeklyMeta">—</p>
-      <p class="desc" id="weeklyDesc">Design focus for the week.</p>
-      <div class="cta-left"><a class="btn blue" id="btnWeekly" href="#" aria-disabled="true">Start Challenge</a></div>
-      <div class="meta-chips" id="weeklyChips"></div>
-    </article>
-
-    <!-- TRACKER (clickable) -->
-    <article class="hero tracker" id="trackerHero" aria-labelledby="trackerTitle">
-      <h2 class="title" id="trackerTitle">Challenge Tracker</h2>
-      <p class="meta">See your recent progress.</p>
+    <article class="hero tracker" id="trackerHero">
+      <h2 class="title">Challenge Tracker</h2>
+      <p class="meta">Daily 7d • Weekly 6w</p>
       <div class="cards">
-        <div class="card" id="dailyTrackCard" role="button" tabindex="0" data-open="avatar/challengetracker.html">
-          <div class="kpi"><span class="dot"></span>Daily 7d</div>
+        <div class="card">
+          <div class="kpi">Daily 7d</div>
           <div class="medals" id="dailyMedals"></div>
         </div>
-        <div class="card" id="weeklyTrackCard" role="button" tabindex="0" data-open="avatar/challengetracker.html">
-          <div class="kpi"><span class="dot" style="background:#0A84FF"></span>Weekly 6w</div>
+        <div class="card">
+          <div class="kpi">Weekly 6w</div>
           <div class="medals" id="weeklyMedals"></div>
         </div>
       </div>
     </article>
   </section>
 
-  <!-- COURSES -->
+  <!-- Courses -->
   <section id="panel-courses" class="hide" data-panel="courses">
-    <h2 class="section-title">Foundations (Subscribers)</h2>
-    <div class="weekly-grid" id="foundationsGrid"></div>
-
-    <h2 class="section-title">1-Day Courses</h2>
-    <div class="weekly-grid" id="oneDayGrid"></div>
-
-    <h2 class="section-title">3-Day Courses</h2>
-    <div class="weekly-grid" id="threeDayGrid"></div>
-
-    <h2 class="section-title">30-Day Courses</h2>
-    <div class="weekly-grid" id="thirtyDayGrid"></div>
+    <h2 class="section-title">Courses</h2>
   </section>
 
-  <!-- LIVE -->
+  <!-- Live -->
   <section id="panel-live" class="hide" data-panel="live">
-    <h2 class="section-title">Demonstrations</h2>
-    <div class="weekly-grid" id="demoGrid"></div>
+    <h2 class="section-title">Live Sessions</h2>
   </section>
 </main>
 
-<!-- ===== AVATAR DRAWER ===== -->
-<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="panel" role="document">
+<!-- Avatar drawer -->
+<div id="avatarSheet">
+  <div class="panel">
     <nav class="menu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
     </nav>
-    <div class="brandfoot">
-      <div class="t1">Online Art</div>
-      <div class="t2">by Jody Graham</div>
-    </div>
   </div>
 </div>
 
-<!-- Sub Sheet -->
-<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="inner" role="document">
+<!-- Sub sheet -->
+<div id="subSheet">
+  <div class="inner">
     <div class="sheet-head">
       <h2 id="sheetTitle">—</h2>
-      <button class="sheet-close" id="sheetClose" aria-label="Close">×</button>
+      <button class="sheet-close" id="sheetClose">×</button>
     </div>
     <iframe id="subFrame" title="Panel"></iframe>
   </div>
 </div>
 
-<!-- Fallback registry -->
-<script id="registryData" type="application/json">
-{
-  "foundations": [
-    { "id": "found-setup", "slug": "found-setup", "title": "Materials & Setup", "showOnHome": true },
-    { "id": "found-drawing", "slug": "found-drawing", "title": "Drawing", "showOnHome": true },
-    { "id": "found-painting", "slug": "found-painting", "title": "Painting", "showOnHome": true }
-  ],
-  "courses": {
-    "1day": [
-      { "id": "1d-gesture", "slug": "1d-gesture", "title": "1-Day Gesture", "price": "$39", "points": 300, "showOnHome": true }
-    ],
-    "3day": [
-      { "id": "3d-portrait", "slug": "3d-portrait", "title": "3-Day Portrait", "price": "$79", "points": 500, "showOnHome": true }
-    ],
-    "30day": [
-      { "id": "30d-foundations", "slug": "30d-foundations", "title": "30-Day Drawing Habit", "price": "$149", "points": 1500, "showOnHome": false }
-    ]
-  },
-  "weekly": [
-    { "id": "W1", "title": "Ink Portrait", "desc":"Design focus for the week.", "expires": "2025-09-14", "showOnHome": true }
-  ],
-  "live": [
-    { "id": "live-1", "title": "Saturday Studio", "price": "$29", "points": 1800, "starts": "2025-09-20T09:00:00+10:00", "showOnHome": true }
-  ]
-}
-</script>
-
 <script>
 (()=>{'use strict';
-/* ===== Utils & Keys ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
-const pad=n=>String(n).padStart(2,'0');
-const toISO=d=>d.toISOString().slice(0,10);
-const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
-const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const K={profile:'ao_profile',dailyDone:'ao_daily_done',weeklyDone:'ao_weekly_done',dailyMeta:'ao_daily_meta'};
 
-/* Roles */
-const levelOrder=['beginner','intermediate','advanced','support','director','admin'];
-const skinByLevel={
-  beginner:'bronze', intermediate:'silver', advanced:'gold',
-  support:'support', director:'director', admin:'admin'
-};
-const pillBgByLevel={
-  beginner:'var(--bronze)', intermediate:'var(--silver)', advanced:'var(--gold)',
-  support:null, /* use profile.customColor */
-  director:null, /* use profile.customColor (not blue) */
-  admin:'var(--blue)' /* iOS blue only */
-};
-const textOn={ bronze:'#fff', silver:'#0f1116', gold:'#0f1116', support:'#fff', director:'#fff', admin:'#000' };
+const skinByLevel={bronze:'var(--bronze)',silver:'var(--silver)',gold:'var(--gold)',
+                   support:'#663399',director:'#444',admin:'var(--blue)'};
 
-/* Storage */
-const K={
-  profile:'ao_profile', settingsProd:'ao_settings', settingsDev:'ao_settings_dev',
-  dailyDone:'ao_daily_done', dailyMeta:'ao_daily_meta', weeklyDone:'ao_weekly_done',
-  notifications:'ao_notifications'
-};
-const store={ get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
-              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-
-/* ===== Avatar pill (name + level, no points) ===== */
-function applyProfileToUI(){
-  const p = store.get(K.profile,{displayName:'User', skill:'intermediate'});
-  const lvl = (p.skill||'intermediate').toLowerCase();
-  const skin = skinByLevel[lvl] || 'silver';
-  const bg = pillBgByLevel[lvl] ?? (p.customColor||'var(--silver)');
-  const txt = textOn[skin] || '#fff';
-  $('#avatarName').textContent = p.displayName||'User';
-  $('#avatarLevel').textContent = cap(lvl);
-  const pill=$('#avatarTab'); pill.style.background = bg; pill.style.color = txt;
-  document.documentElement.dataset.userLevel = lvl;
+/* Apply profile to avatar */
+function applyProfile(){
+  const p=store.get(K.profile,{displayName:'User',skill:'silver'});
+  $('#avatarName').textContent=p.displayName||'User';
+  $('#avatarLvl').textContent=(p.skill||'intermediate');
+  $('#avatarTab').style.background=skinByLevel[p.skill]||'var(--silver)';
 }
-applyProfileToUI();
+applyProfile();
 
-/* ===== Avatar drawer / sheet ===== */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', ()=>{
-  const open=!avatarSheet.classList.contains('open');
-  avatarSheet.classList.toggle('open',open);
-  avatarSheet.setAttribute('aria-hidden', open ? 'false' : 'true');
-  avatarBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-});
-avatarSheet.addEventListener('click', (e)=>{ if(e.target===avatarSheet){ closeDrawer(); }});
-window.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeDrawer(); closeSubSheet(); }});
+/* Avatar drawer */
+$('#avatarTab').addEventListener('click',()=>$('#avatarSheet').classList.add('open'));
+$('#avatarSheet').addEventListener('click',e=>{if(e.target.id==='avatarSheet')$('#avatarSheet').classList.remove('open')});
 
-/* ===== Tabs ===== */
-const panels=$$('[data-panel]');
-function activateTab(name){
-  $$('.btn-tab[data-tab]').forEach(b=>{
-    const a=(b.dataset.tab===name);
-    b.classList.toggle('is-active',a);
-    b.setAttribute('aria-selected', a?'true':'false');
-  });
-  panels.forEach(p=>p.classList.toggle('hide', p.dataset.panel!==name));
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-document.getElementById('navTabs').addEventListener('click', e=>{
-  const btn=e.target.closest('.btn-tab[data-tab]'); if(!btn) return;
-  activateTab(btn.dataset.tab);
-});
-
-/* ===== Settings (dev vs prod) ===== */
-function activeSettings(){
-  const p=store.get(K.profile,{});
-  const devOn = !!p.devMode; // dev mode toggle lives in profile (admin only)
-  return store.get(devOn?K.settingsDev:K.settingsProd,{});
-}
-
-/* ===== Daily cards ===== */
-const today=new Date(), isoToday=toISO(today);
-const friendlyDate=`${dayNames[today.getDay()]} ${pad(today.getDate())}/${pad(today.getMonth()+1)}`;
-let dailyDone=store.get(K.dailyDone,[]), dailyMeta=store.get(K.dailyMeta,{});
-
-function selectedDailyLevels(){
-  const s=activeSettings();
-  const p=store.get(K.profile,{skill:'intermediate'});
-  const me=(p.skill||'intermediate').toLowerCase();
-  // base visibility
-  if(me==='admin' || me==='director'){ // see all
-    return levelOrder;
-  }
-  if(me==='support'){ // support can toggle B/S/G
-    const lvls= (s?.challenges?.supportLevels) || ['beginner','intermediate','advanced'];
-    return Array.from(new Set([me, ...lvls]));
-  }
-  // standard user: own level only + optional extras if allowed in settings (rare)
-  const extra = (s?.challenges?.levels)||['my']; // same as earlier
-  const filtered = extra.filter(x=>x!=='my' && levelOrder.includes(x));
-  return Array.from(new Set([me, ...filtered]));
-}
-
-function buildDaily(){
-  const scroller=$('#dailyScroller'); scroller.innerHTML='';
-  const levels = selectedDailyLevels();
-  levels.forEach(lvl=>{
-    const skin=skinByLevel[lvl]||'bronze';
-    const card=document.createElement('article');
-    card.className='dailyCard'; card.dataset.skin=skin;
-    card.innerHTML = `
-      <h2 class="title">Daily Challenge</h2>
-      <div class="levelTag">${cap(lvl)}</div>
-      <p class="meta">${friendlyDate}</p>
-      <p class="desc">New prompt coming soon.</p>
-      <div class="cta-left"><button class="btn blue dailyComplete">Complete</button></div>
-    `;
-    scroller.appendChild(card);
-  });
-  const row=$('#dailyRow');
-  row.classList.toggle('multiple', levels.length>1);
-  $('#dPrev').onclick=()=>scroller.scrollBy({left:-scroller.clientWidth,behavior:'smooth'});
-  $('#dNext').onclick=()=>scroller.scrollBy({left: scroller.clientWidth,behavior:'smooth'});
-
-  // persist today's skin for tracker based on current user's level (not role-based list)
-  const me=(store.get(K.profile,{}).skill||'intermediate').toLowerCase();
-  dailyMeta[isoToday]={skin:skinByLevel[me]||'bronze'};
-  store.set(K.dailyMeta,dailyMeta);
-
-  scroller.querySelectorAll('.dailyComplete').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const done=dailyDone.includes(isoToday);
-      if(done){ dailyDone=dailyDone.filter(x=>x!==isoToday); } else { dailyDone.push(isoToday); }
-      store.set(K.dailyDone,dailyDone);
-      paintTracker();
-      scroller.querySelectorAll('.dailyComplete').forEach(b=>{
-        const isDone=dailyDone.includes(isoToday);
-        b.textContent=isDone?'Undo':'Complete';
-        b.className='btn ' + (isDone?'grey':'blue') + ' dailyComplete';
-      });
-    });
-  });
-  const isDone=dailyDone.includes(isoToday);
-  scroller.querySelectorAll('.dailyComplete').forEach(b=>{
-    b.textContent=isDone?'Undo':'Complete';
-    b.className='btn ' + (isDone?'grey':'blue') + ' dailyComplete';
-  });
-}
-
-/* ===== Registry / Weekly ===== */
-async function loadRegistry(){
-  try{ const res=await fetch('./data/registry.json',{cache:'no-store'}); if(!res.ok) throw 0; return await res.json(); }
-  catch{ try{ return JSON.parse(document.getElementById('registryData').textContent||'{}'); }catch{ return {}; } }
-}
-loadRegistry().then(reg=>{
-  const fGrid=$('#foundationsGrid'); (reg.foundations||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course'; a.dataset.id=item.id;
-    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Subscriber-only foundations.</p><p class="desc">Core drills to build accuracy and flow.</p><div class="cta-left"><a class="btn blue" href="courses/${item.slug||item.id}.html">Start Course</a></div>`;
-    fGrid.appendChild(a);
-  });
-  const one=$('#oneDayGrid'); (reg.courses?.["1day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course';
-    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Structured, focused learning.</p><p class="desc">Replace with course description.</p><div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
-    one.appendChild(a);
-  });
-  const three=$('#threeDayGrid'); (reg.courses?.["3day"]||[]).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course';
-    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Structured, focused learning.</p><p class="desc">Replace with course description.</p><div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
-    three.appendChild(a);
-  });
-  const thirty=$('#thirtyDayGrid'); (reg.courses?.["30day"]||[]).filter(x=>x.showOnHome!==false).forEach(item=>{
-    const a=document.createElement('article'); a.className='hero tall course';
-    a.innerHTML = `<h3 class="title">${item.title}</h3><p class="meta">Structured, focused learning.</p><p class="desc">Replace with course description.</p><div class="cta-left"><a class="btn green" href="courses/${item.slug||item.id}.html">Buy</a></div>`;
-    thirty.appendChild(a);
-  });
-  const demoGrid=$('#demoGrid'); (reg.live||[]).forEach(l=>{
-    const a=document.createElement('article'); a.className='hero tall live';
-    a.innerHTML=`<h3 class="title">${l.title}</h3><p class="meta">Starts ${l.starts?new Date(l.starts).toLocaleString():'TBA'}</p><p class="desc">Live session.</p><div class="cta-left"><a class="btn blue" href="live/${l.id}.html">View</a></div>`;
-    demoGrid.appendChild(a);
-  });
-  const w=(reg.weekly||[])[0];
-  if(w){
-    $('#weeklyTitle').textContent=w.title;
-    $('#weeklyMeta').textContent=w.expires?`Ends ${new Date(w.expires).toLocaleDateString()}`:'This week';
-    $('#weeklyDesc').textContent=w.desc||$('#weeklyDesc').textContent;
-    const b=$('#btnWeekly'); b.removeAttribute('aria-disabled'); b.href=`challenges/weekly-${w.id}.html`;
-  }
-});
-
-/* ===== Tracker ===== */
-let weeklyDone=store.get(K.weeklyDone,[]);
-function startOfWeek(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
-function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-function medalEl(done, label, skinClass){ const wrap=document.createElement('div'); wrap.className='medalWrap'; const m=document.createElement('div'); m.className='medal ' + (done?(skinClass||'m-silver'):'empty'); if(done) m.innerHTML='<span class="tick">✓</span>'; const l=document.createElement('div'); l.className='medal-label'; l.textContent=label; wrap.appendChild(m); wrap.appendChild(l); return wrap; }
-function paintTracker(){
-  const wrapD=$('#dailyMedals'); wrapD.innerHTML=''; const start=startOfWeek(new Date()); const dayLbl=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  for(let i=0;i<7;i++){ const dt=addDays(start,i), iso=toISO(dt); const done=dailyDone.includes(iso); const skin=(store.get(K.dailyMeta,{})[iso]?.skin)||'bronze'; wrapD.appendChild(medalEl(done, dayLbl[i], 'm-'+skin)); }
-  const wrapW=$('#weeklyMedals'); wrapW.innerHTML=''; const curStart=startOfWeek(new Date());
-  for(let i=5;i>=0;i--){ const wkStart=addDays(curStart,-7*i); const key=startOfWeek(wkStart).toISOString().slice(0,10); const done=weeklyDone.includes(key); wrapW.appendChild(medalEl(done, 'W'+(6-i), 'm-silver')); }
-}
-paintTracker();
-
-/* Make tracker cards open iframe */
-['#dailyTrackCard','#weeklyTrackCard'].forEach(sel=>{
-  const el=$(sel);
-  el.addEventListener('click', ()=> openSubSheet('Challenge Tracker', el.dataset.open));
-  el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openSubSheet('Challenge Tracker', el.dataset.open);} });
-});
-
-/* ===== Apply settings (role-gated) ===== */
-function applySettings(){
-  const p=store.get(K.profile,{skill:'intermediate'});
-  const s=activeSettings();
-
-  // background
-  if(s?.display?.background){
-    const bg=$('#bgImg');
-    if(s.display.background==='plain') bg.style.background='var(--bg)';
-    else if(s.display.background==='photo1') bg.style.background='#000 url("./assets/home-bg.jpg") center/cover no-repeat';
-    else if(s.display.background==='custom' && s.display.customUrl){ bg.style.background=`#000 url("${s.display.customUrl}") center/cover no-repeat`; }
-  }
-
-  // tabs visibility + order — ADMIN only, or DIRECTOR with delegated permission
-  const canLayout = (p.skill==='admin') || (p.skill==='director' && s?.delegated?.directorCanLayout===true);
-  const vis = canLayout ? (s?.home?.tabs ?? {challenges:true,courses:true,live:true})
-                        : {challenges:true,courses:true,live:true}; // non-admins see default
-  const tabsWrap = $('#navTabs');
-  ['challenges','courses','live'].forEach(name=>{
-    const btn=tabsWrap.querySelector(`.btn-tab[data-tab="${name}"]`);
-    const panel=document.querySelector(`[data-panel="${name}"]`);
-    const shown = vis[name]!==false;
-    if(btn) btn.style.display = shown ? '' : 'none';
-    if(panel) panel.style.display = shown ? '' : 'none';
-  });
-  if(canLayout && Array.isArray(s?.home?.order) && s.home.order.length){
-    s.home.order.forEach(name=>{ const btn=tabsWrap.querySelector(`.btn-tab[data-tab="${name}"]`); if(btn) tabsWrap.appendChild(btn); });
-  }
-
-  buildDaily();
-
-  // ensure active tab exists
-  let active = tabsWrap.querySelector('.btn-tab.is-active[data-tab]');
-  if(!(active && active.style.display!=='none')){
-    const first = tabsWrap.querySelector('.btn-tab[data-tab]:not([style*="display: none"])');
-    if(first) activateTab(first.dataset.tab);
-  }
-}
-applySettings();
-
-/* ===== Subsheet (Profile/Settings/My Data/Tracker) with cache-bust ===== */
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
-function openSubSheet(title, url){
-  sheetTitle.textContent=title;
-  const bust = (url.indexOf('?')>-1 ? '&' : '?') + 'v=' + Date.now();
-  subFrame.src = url + bust;
-  subSheet.classList.add('open');
-  subSheet.setAttribute('aria-hidden','false');
+/* Sub sheet open/close */
+function openSubSheet(title,url){
+  $('#sheetTitle').textContent=title;
+  $('#subFrame').src=url+'?v='+Date.now();
+  $('#subSheet').classList.add('open');
 }
 function closeSubSheet(){
-  subSheet.classList.remove('open');
-  subSheet.setAttribute('aria-hidden','true');
-  // refresh after possible edits
-  applyProfileToUI();
-  applySettings();
-  setTimeout(()=>{ subFrame.src='about:blank'; },150);
+  $('#subSheet').classList.remove('open');
+  $('#subFrame').src='about:blank';
+  applyProfile();
 }
-$('#sheetClose').addEventListener('click', closeSubSheet);
-subSheet.addEventListener('click', (e)=>{ if(e.target===subSheet){ closeSubSheet(); }});
+$('#sheetClose').addEventListener('click',closeSubSheet);
+$('#subSheet').addEventListener('click',e=>{if(e.target.id==='subSheet')closeSubSheet()});
+
+/* Intercept drawer links */
 $$('#avatarSheet [data-pop]').forEach(a=>{
-  a.addEventListener('click', (e)=>{
-    if(!(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)){
-      e.preventDefault();
-      closeDrawer();
-      openSubSheet(a.getAttribute('data-pop'), a.getAttribute('href'));
-    }
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    $('#avatarSheet').classList.remove('open');
+    openSubSheet(a.dataset.pop,a.getAttribute('href'));
   });
 });
 
-console.log('[FAOA] home boot OK (roles + tracker + no points)');
+/* Tracker click opens challenge tracker */
+$('#trackerHero').addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html'));
+
+/* Tracker medals (placeholder demo) */
+function paintTracker(){
+  const wrapD=$('#dailyMedals');wrapD.innerHTML='';
+  for(let i=0;i<7;i++){const m=document.createElement('div');m.className='medal empty';wrapD.appendChild(m)}
+  const wrapW=$('#weeklyMedals');wrapW.innerHTML='';
+  for(let i=0;i<6;i++){const m=document.createElement('div');m.className='medal empty';wrapW.appendChild(m)}
+}
+paintTracker();
 })();
 </script>
-
 </body>
 </html>
