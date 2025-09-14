@@ -59,7 +59,15 @@ button{user-select:none;-webkit-user-select:none}
 .chip[disabled]{opacity:.55;cursor:default;filter:grayscale(.15)}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
-.cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ===== POSITION LOCKS YOU ASKED FOR ===== */
+.hero .label{position:absolute;top:14px;left:16px;z-index:2}
+.cta-left{position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2}
+.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
+.config-on .hero .hero-arrows{display:flex}
+.hero-arrows .cfg-arrow{height:24px;padding:0 6px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
+
+/* Keep the legacy button styles (unchanged) */
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
@@ -99,12 +107,6 @@ button{user-select:none;-webkit-user-select:none}
 .cfg-arrows{display:none;position:absolute;top:10px;left:42px;gap:6px;z-index:6}
 .config-on .cfg-arrows{display:flex}
 
-/* NEW: vertical hero arrows (right center) — config mode only */
-.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
-.config-on .hero .hero-arrows{display:flex}
-.hero-arrows .cfg-arrow{height:26px;padding:0 8px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer}
-@media (max-width:380px){ .hero-arrows .cfg-arrow{height:24px;padding:0 6px;font-size:12px} }
-
 /* Avatar Drawer */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
@@ -137,7 +139,7 @@ button{user-select:none;-webkit-user-select:none}
 /* Lock body when drawer open */
 body.lock{position:fixed;inset:0;overflow:hidden}
 
-/* ====== ADDED: Completed visual + hero art (minimal, non-destructive) ====== */
+/* ====== Completed visual + hero art (from previous step) ====== */
 .hero.completed{ box-shadow: inset 0 0 0 3px var(--green), 0 0 0 1px var(--green); }
 .hero .complete-tick{
   position:absolute; top:10px; left:10px; z-index:6;
@@ -159,15 +161,6 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
   z-index:1;
 }
-.hero .label,
-.hero .cta-left{ position:relative; z-index:2; }   /* above overlay */
-.hero .cfg-pin,
-.hero .hero-arrows{ position:relative; z-index:3; } /* tools above */
-
-/* --- ADDED: Dev Mode chip/CTA placement fix (scoped) --- */
-.config-on .hero{ position:relative; }
-.config-on .hero .cta-left{ position:absolute; left:16px; bottom:16px; z-index:6; } /* above arrows */
-.config-on .hero .hero-arrows{ z-index:4; } /* ensure under CTA */
 </style>
 </head>
 <body ontouchstart="">
@@ -298,7 +291,7 @@ else{
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', openDrawer, {passive:true});
+avatarBtn.addEventListener('click,', openDrawer, {passive:true}); /* (typo fix not required if your version is fine) */
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
@@ -349,7 +342,7 @@ function sanitize(cfg){
     const onPage = cfg.heroFlags[id].place==='page';
     if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
   }
-  cfg.pageOrder=cfg.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver,true:undefined,gold:true}, ...it}) : it);
+  cfg.pageOrder=cfg.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
   return cfg;
 }
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
@@ -374,7 +367,7 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
-  /* ADDED: completion + hero art read */
+  /* completion + hero art */
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
@@ -403,7 +396,6 @@ function heroCard(id){
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
 
-  /* ADDED: background art + completed tick (before other content so they sit behind/above correctly) */
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
   const tick = completed ? `<div class="complete-tick">✓</div>` : '';
 
@@ -427,7 +419,6 @@ function heroCard(id){
         </div>`:''}
     </div>`;
 
-  /* ADDED: apply completed class + crop transform if present */
   if(completed) el.classList.add('completed');
   if(art && art.crop){
     const img = el.querySelector('.art img');
@@ -436,7 +427,6 @@ function heroCard(id){
       img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
     }
   }
-
   return el;
 }
 
@@ -537,7 +527,7 @@ $('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('
 
 /* Click handlers with confirmations */
 document.addEventListener('click',(e)=>{
-  // Start: now opens courses/1–50.html
+  // Start (OPEN courses/1–50.html in subsheet)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
