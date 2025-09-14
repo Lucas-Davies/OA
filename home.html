@@ -56,6 +56,7 @@ button{user-select:none;-webkit-user-select:none}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
 .ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
 .chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.chip[disabled]{opacity:.55;cursor:default;filter:grayscale(.15)}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 .cta-left{position:absolute;left:16px;bottom:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -163,13 +164,14 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 <!-- Avatar Drawer -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
-    <nav class="menu-list">
+    <nav class="menu-list" id="avatarMenu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
       <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
+      <!-- Director Mode toggle is injected here only for Directors -->
     </nav>
   </div>
 </div>
@@ -204,15 +206,17 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile', settings:'ao_settings' };
+const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode' };
 
 /* URL reset hook */
 const Q=new URLSearchParams(location.search);
-if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); }
+if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); }
 
-/* Roles */
+/* Roles + Director Mode */
 function getRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
-function isAdminLike(){ const r=getRole(); return r==='admin' || r==='director'; }
+function isAdmin(){ return getRole()==='admin'; }
+function isDirector(){ return getRole()==='director'; }
+function directorMode(){ return !!store.get(K.directorMode,false); }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
 
 /* Avatar paint */
@@ -227,12 +231,35 @@ function paintAvatar(){
 }
 paintAvatar();
 
+/* Build avatar menu: hide Config for non-admin; add Director Mode toggle for directors */
+(function buildAvatarMenu(){
+  const menu = $('#avatarMenu');
+  if(!isAdmin()){
+    // Hide Config Mode entry entirely for non-admin
+    const cfg = $('#cfgToggle'); if(cfg) cfg.style.display='none';
+  }
+  if(isDirector()){
+    // Inject Director Mode toggle
+    const li=document.createElement('a');
+    li.href='#'; li.id='dirToggle';
+    li.innerHTML=`Director Mode <span>${directorMode()?'On':'Off'}</span>`;
+    menu.appendChild(li);
+    li.addEventListener('click',e=>{
+      e.preventDefault();
+      const next=!directorMode();
+      store.set(K.directorMode,next);
+      // Close drawer and repaint UI to reflect mode change
+      closeDrawer();
+      paintPage(); paintArchive();
+    });
+  }
+})();
+
 /* Mark body with admin class & hide config for non-admin */
-if(isAdminLike()){ document.body.classList.add('admin'); }
+if(isAdmin()){ document.body.classList.add('admin'); }
 else{
   document.body.classList.remove('admin','config-on');
   $('#cfgbar').setAttribute('aria-hidden','true');
-  const t=$('#cfgToggle'); if(t) t.style.display='none';
 }
 
 /* Avatar drawer + subsheet */
@@ -259,7 +286,7 @@ $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
 /* Config toggle — admin only */
 $('#cfgToggle')?.addEventListener('click', e=>{
   e.preventDefault();
-  if(!isAdminLike()) return;
+  if(!isAdmin()) return;
   document.body.classList.toggle('config-on');
   const on=document.body.classList.contains('config-on');
   $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
@@ -314,6 +341,30 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 /* DOM builders */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
+
+  // Permission booleans
+  const showMove = isAdmin(); // admin only
+  const showLiveAdmin = isAdmin();
+  const showLiveDirector = isDirector() && directorMode();
+  const showAnyLive = showLiveAdmin || showLiveDirector;
+  const showAudience = isAdmin() || (isDirector() && directorMode());
+
+  // Build controls HTML
+  let ctrlsHTML = '';
+  if(showAnyLive || showMove){
+    ctrlsHTML += `<div class="ctrls">`;
+    if(showAnyLive){
+      const label = f.state==='live'?'Live':'Offline';
+      const cls   = f.state==='live'?'badge-live':'badge-off';
+      const ro    = showLiveDirector && !showLiveAdmin ? ' disabled aria-disabled="true" ' : '';
+      ctrlsHTML += `<button class="chip ${cls}" data-act="toggle" ${ro} type="button">${label}</button>`;
+    }
+    if(showMove){
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">Move</button>`;
+    }
+    ctrlsHTML += `</div>`;
+  }
+
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
@@ -322,13 +373,10 @@ function heroCard(id){
       <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
     </div>
     <span class="label">${labelFor(id)}</span>
-    <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
-      <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
-      <button class="chip" data-act="move" type="button">Move</button>
-    </div>
+    ${ctrlsHTML}
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
-      ${isAdminLike()?`
+      ${showAudience?`
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
@@ -337,21 +385,26 @@ function heroCard(id){
     </div>`;
   return el;
 }
+
 function dividerEl(obj){
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>
+  // Heading tools & audience ONLY for Admin, and audience only meaningful in Config
+  const tools = isAdmin() ? `
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
       <button class="cfgbtn" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
       <button class="cfgbtn" data-div-act="down" data-div-id="${obj.id}" type="button">▼</button>
       <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
-    </div>
-    ${isAdminLike()?`
-      <div class="aud-line">
-        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
-        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
-        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
-      </div>`:''}`;
+    </div>` : '';
+
+  const audLine = isAdmin() ? `
+    <div class="aud-line">
+      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
+      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
+      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
+    </div>` : '';
+
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>${tools}${audLine}`;
   return el;
 }
 
@@ -373,12 +426,14 @@ function paintPage(){
       grid.appendChild(dividerEl(it));
     }
   });
+  // Update Director Mode menu label if present
+  const dirItem = $('#dirToggle'); if(dirItem) dirItem.querySelector('span').textContent = directorMode()?'On':'Off';
 }
 
-/* Archive footer visibility */
+/* Archive footer visibility (Admin OR Director) */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
 function applyArchiveVisibility(){
-  if(isAdminLike()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+  if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
 applyArchiveVisibility();
@@ -391,12 +446,14 @@ function paintArchive(){
     .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
-    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML=`<span class="num">${labelFor(id)}</span>
+    // In archive, Move allowed only for Admin
+    const controls = `
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
-        <button class="chip" data-act="move" type="button">Move to Page</button>
+        ${(isAdmin()|| (isDirector()&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin()?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
+        ${isAdmin()?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
       </div>`;
+    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
+    row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
     archiveList.appendChild(row);
   });
 }
@@ -417,7 +474,7 @@ $('#archiveToggle').addEventListener('click',()=>{
 /* Config toolbar */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
-  if(!isAdminLike()) return;
+  if(!isAdmin()) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
@@ -431,9 +488,9 @@ document.addEventListener('click',(e)=>{
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     openSubSheet(`Course ${labelFor(id)}`, null); return;
   }
-  // Live toggle
+  // Live toggle (Admin only). Directors see read-only chip in Director Mode.
   if(e.target.closest('[data-act="toggle"]')){
-    if(!isAdminLike()) return;
+    if(!isAdmin()) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     const next = cur.state==='live' ? 'off' : 'live';
@@ -441,9 +498,9 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, state:next};
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // Move (page<->archive)
+  // Move (page<->archive) — Admin only
   if(e.target.closest('[data-act="move"]')){
-    if(!isAdminLike()) return;
+    if(!isAdmin()) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
@@ -453,10 +510,10 @@ document.addEventListener('click',(e)=>{
     else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // Audience chips on heroes
+  // Audience chips on heroes — Admin OR Director (in Director Mode)
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    if(!isAdminLike()) return;
+    if(!(isAdmin() || (isDirector() && directorMode()))) return;
     const key=audBtn.getAttribute('data-aud');
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
@@ -464,27 +521,27 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
     paintPage(); paintArchive(); return;
   }
-  // Audience chips on headings
+  // Audience chips on headings — Admin only (and shown in Config)
   if(e.target.dataset.divAud){
-    if(!isAdminLike()) return;
+    if(!isAdmin()) return;
     const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
     const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
     if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
     s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
   }
-  // Rename hero label
+  // Rename hero label — Admin only
   if(e.target.matches('[data-cfg-rename]')){
-    if(!isAdminLike()) return;
+    if(!isAdmin()) return;
     const id=e.target.getAttribute('data-cfg-rename');
     const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
-  // Divider actions (rename / remove / arrows)
+  // Divider actions (rename / remove / arrows) — Admin only
   if(e.target.dataset.divAct){
-    if(!isAdminLike()) return;
+    if(!isAdmin()) return;
     const id=e.target.getAttribute('data-div-id'); const s=getSettings();
     const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const act=e.target.dataset.divAct;
@@ -499,9 +556,9 @@ document.addEventListener('click',(e)=>{
     }
     return;
   }
-  // Hero sort arrows
+  // Hero sort arrows — Admin only (Config Mode controls visibility)
   if(e.target.matches('.cfg-arrow')){
-    if(!isAdminLike()) return;
+    if(!isAdmin()) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
