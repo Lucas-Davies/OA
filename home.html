@@ -156,18 +156,16 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   user-select:none; pointer-events:none;
   filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
-/* PATCH: stacking context for hero content
-   Ensure we don't override .cta-left's absolute positioning. */
+/* PATCH: stacking context for hero content (don’t disturb .cta-left) */
 .hero > *:not(.art){ z-index:1; } /* no position change */
 .hero .label,
 .hero .ctrls,
 .hero .cfg-pin,
 .hero .hero-arrows{
-  position:relative; /* give these elements stacking without moving layout */
+  position:relative; /* stacking without layout shift */
   z-index:1;
 }
-/* keep CTA anchored bottom-left exactly as before */
-.hero .cta-left{
+.hero .cta-left{ /* keep anchored exactly as before */
   position:absolute;
   left:16px;
   bottom:16px;
@@ -384,7 +382,7 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
-  // ===== ADDED: read completion + hero art =====
+  // Read completion + hero art (safe style)
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
@@ -413,10 +411,9 @@ function heroCard(id){
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
 
-  // ===== ADDED: art background layer + completed tick =====
-  const artLayer = art ? `<div class="art"><img alt="" src="${art.src}" style="transform:translate(-50%,-50%) scale(${(art.crop?.scale)||1}) translate(0,0); ${art.crop?`--cx:${art.crop.cx||0};--cy:${art.crop.cy||0}`:''}"></div>` : '';
+  // Build inner HTML without nested templates
+  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
   const tick = completed ? `<div class="complete-tick">✓</div>` : '';
-
   el.innerHTML=`
     ${artLayer}
     ${tick}
@@ -439,12 +436,12 @@ function heroCard(id){
 
   if(completed) el.classList.add('completed');
 
-  // adjust art crop offsets if present
+  // Apply crop offsets if present
   if(art && art.crop){
     const img = el.querySelector('.art img');
     if(img){
-      const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
-      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
+      var cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
+      img.style.transform = 'translate(calc(-50% + '+cx+'px), calc(-50% + '+cy+'px)) scale('+sc+')';
     }
   }
 
@@ -496,7 +493,7 @@ function paintPage(){
 }
 
 /* Archive footer visibility (Admin OR Director) */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
 function applyArchiveVisibility(){
   if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -548,7 +545,7 @@ $('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('
 
 /* Click handlers with confirmations */
 document.addEventListener('click',(e)=>{
-  // Start (placeholder)  ===== MODIFIED: link heroes 1–50 to /courses/N.html
+  // Start (open course) — link heroes 1–50 to /courses/N.html
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const num = Number((id.match(/\d+/)||[])[0]||0);
