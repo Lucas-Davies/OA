@@ -72,23 +72,21 @@ button{user-select:none;-webkit-user-select:none}
 .aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
 .aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
 
-/* Divider (Heading) */
-.divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px}
+/* Divider (Heading) — full grid width */
+.divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px;
+  grid-column:1 / -1;}
 .divider .htext{font-weight:900;opacity:.92}
 .divider .dctrls{position:absolute;top:10px;right:10px;display:none;gap:6px}
 .config-on .divider .dctrls{display:flex}
 .divider .aud-line{position:absolute;left:16px;bottom:14px}
 
-/* NEW: Compact headings when NOT in config mode */
+/* Compact headings when NOT in config mode (tight, bottom-snapped) */
 :not(.config-on) .divider{
-  border:none;
-  background:transparent;
-  padding:0 2px 8px;
-  min-height:0;
-  display:flex;
-  align-items:flex-end; /* snap text to bottom */
+  border:none;background:transparent;min-height:0;
+  padding:0 2px 6px;margin:28px 2px 8px; /* more above, less below */
+  display:flex;align-items:flex-end;
 }
-:not(.config-on) .divider .aud-line{display:none} /* audience chips hidden for non-admin anyway */
+:not(.config-on) .divider .aud-line{display:none}
 :not(.config-on) .divider .htext{padding:0;margin:0}
 
 /* Config affordances */
@@ -96,19 +94,15 @@ button{user-select:none;-webkit-user-select:none}
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
 
-/* OLD arrow bar (kept for headings). New hero arrows below. */
+/* Old arrow bar (kept for headings). New hero arrows below. */
 .cfg-arrows{display:none;position:absolute;top:10px;left:42px;gap:6px;z-index:6}
 .config-on .cfg-arrows{display:flex}
 
-/* NEW: vertical hero arrows (right-center), visible in config mode only */
-.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;
-  display:flex;flex-direction:column;gap:6px}
+/* NEW: vertical hero arrows (right center) — config mode only */
+.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
 .config-on .hero .hero-arrows{display:flex}
 .hero-arrows .cfg-arrow{height:26px;padding:0 8px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer}
-/* never overlap top-right chips; chips are z-index:5, arrows are z-index:4 */
-@media (max-width:380px){
-  .hero-arrows .cfg-arrow{height:24px;padding:0 6px;font-size:12px}
-}
+@media (max-width:380px){ .hero-arrows .cfg-arrow{height:24px;padding:0 6px;font-size:12px} }
 
 /* Avatar Drawer */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -233,6 +227,14 @@ function paintAvatar(){
 }
 paintAvatar();
 
+/* Mark body with admin class & hide config for non-admin */
+if(isAdminLike()){ document.body.classList.add('admin'); }
+else{
+  document.body.classList.remove('admin','config-on');
+  $('#cfgbar').setAttribute('aria-hidden','true');
+  const t=$('#cfgToggle'); if(t) t.style.display='none';
+}
+
 /* Avatar drawer + subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
@@ -253,8 +255,11 @@ subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet();
 $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
 }, {passive:false}));
-$('#cfgToggle').addEventListener('click', e=>{
+
+/* Config toggle — admin only */
+$('#cfgToggle')?.addEventListener('click', e=>{
   e.preventDefault();
+  if(!isAdminLike()) return;
   document.body.classList.toggle('config-on');
   const on=document.body.classList.contains('config-on');
   $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
@@ -298,11 +303,8 @@ function saveSettings(s){ store.set(K.settings,sanitize(s)); }
   const cfg = sanitize(s);
   const hasPage = cfg.pageOrder.some(it=> it.type==='hero' && cfg.heroFlags[it.id]?.place==='page');
   const hasArchive = Object.values(cfg.heroFlags).some(f=>f.place==='archive');
-  if(!hasPage && !hasArchive){
-    store.set(K.settings, defaults());
-  }else{
-    store.set(K.settings, cfg);
-  }
+  if(!hasPage && !hasArchive){ store.set(K.settings, defaults()); }
+  else{ store.set(K.settings, cfg); }
 })();
 
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
@@ -315,13 +317,10 @@ function heroCard(id){
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
-
-    <!-- New vertical arrows (right center) -->
     <div class="hero-arrows">
       <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
       <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
     </div>
-
     <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
       <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
@@ -418,6 +417,7 @@ $('#archiveToggle').addEventListener('click',()=>{
 /* Config toolbar */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
+  if(!isAdminLike()) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
@@ -475,6 +475,7 @@ document.addEventListener('click',(e)=>{
   }
   // Rename hero label
   if(e.target.matches('[data-cfg-rename]')){
+    if(!isAdminLike()) return;
     const id=e.target.getAttribute('data-cfg-rename');
     const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
@@ -483,6 +484,7 @@ document.addEventListener('click',(e)=>{
   }
   // Divider actions (rename / remove / arrows)
   if(e.target.dataset.divAct){
+    if(!isAdminLike()) return;
     const id=e.target.getAttribute('data-div-id'); const s=getSettings();
     const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const act=e.target.dataset.divAct;
@@ -499,6 +501,7 @@ document.addEventListener('click',(e)=>{
   }
   // Hero sort arrows
   if(e.target.matches('.cfg-arrow')){
+    if(!isAdminLike()) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
