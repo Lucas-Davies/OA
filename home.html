@@ -73,11 +73,6 @@ button{user-select:none;-webkit-user-select:none}
 .aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
 .aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
 
-/* Director Mode OFF: show-only selected chips snapped bottom-right, no tick, not clickable */
-.aud-line.snap-right{position:absolute;right:16px;bottom:16px}
-.aud-chip.readonly{pointer-events:none;cursor:default}
-.aud-chip.readonly.on::after{content:""}
-
 /* Divider (Heading) — full grid width */
 .divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px;
   grid-column:1 / -1;}
@@ -274,7 +269,7 @@ function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAtt
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -348,17 +343,11 @@ function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
   // Permission booleans
-  const isDir = isDirector();
-  const dMode = directorMode();
   const showMove = isAdmin(); // admin only
   const showLiveAdmin = isAdmin();
-  const showLiveDirector = isDir && dMode; // directors see Live only in Director Mode
+  const showLiveDirector = isDirector() && directorMode();
   const showAnyLive = showLiveAdmin || showLiveDirector;
-
-  // Audience visibility rules
-  const showAudienceAdmin = isAdmin();
-  const showAudienceDirAll = isDir && dMode;       // director mode ON -> all 3, clickable
-  const showAudienceDirSelected = isDir && !dMode; // director mode OFF -> only selected, read-only
+  const showAudience = isAdmin() || (isDirector() && directorMode());
 
   // Build controls HTML
   let ctrlsHTML = '';
@@ -376,29 +365,6 @@ function heroCard(id){
     ctrlsHTML += `</div>`;
   }
 
-  // Build audience chips area
-  let audienceHTML = '';
-  if(showAudienceAdmin || showAudienceDirAll || showAudienceDirSelected){
-    if(showAudienceAdmin || showAudienceDirAll){
-      // Show all 3 chips, clickable
-      audienceHTML = `
-        <div class="aud-line">
-          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
-          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
-          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
-        </div>`;
-    }else if(showAudienceDirSelected){
-      // Director (Mode OFF): only selected, read-only, bottom-right, no tick
-      const chips=[];
-      if(f.aud.bronze) chips.push('<button class="aud-chip bronze on readonly" type="button" aria-disabled="true">Bronze</button>');
-      if(f.aud.silver) chips.push('<button class="aud-chip silver on readonly" type="button" aria-disabled="true">Silver</button>');
-      if(f.aud.gold)   chips.push('<button class="aud-chip gold   on readonly" type="button" aria-disabled="true">Gold</button>');
-      if(chips.length){
-        audienceHTML = `<div class="aud-line snap-right">${chips.join('')}</div>`;
-      }
-    }
-  }
-
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
@@ -410,13 +376,18 @@ function heroCard(id){
     ${ctrlsHTML}
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
-      ${audienceHTML||''}
+      ${showAudience?`
+        <div class="aud-line">
+          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
+          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
+          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
+        </div>`:''}
     </div>`;
   return el;
 }
 
 function dividerEl(obj){
-  // Heading tools & audience ONLY for Admin
+  // Heading tools & audience ONLY for Admin, and audience only meaningful in Config
   const tools = isAdmin() ? `
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
