@@ -242,7 +242,7 @@ paintAvatar();
     // Inject Director Mode toggle
     const li=document.createElement('a');
     li.href='#'; li.id='dirToggle';
-    li.innerHTML=Director Mode <span>${directorMode()?'On':'Off'}</span>;
+    li.innerHTML=`Director Mode <span>${directorMode()?'On':'Off'}</span>`;
     menu.appendChild(li);
     li.addEventListener('click',e=>{
       e.preventDefault();
@@ -296,12 +296,12 @@ $('#cfgToggle')?.addEventListener('click', e=>{
 function defaults(){
   const heroFlags={}, pageOrder=[];
   for(let i=1;i<=10;i++){
-    const id=co-${i};
+    const id=`co-${i}`;
     heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
     pageOrder.push({type:'hero',id});
   }
   for(let i=11;i<=50;i++){
-    const id=co-${i};
+    const id=`co-${i}`;
     heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
   return { heroFlags, heroLabels:{}, pageOrder, _seeded:true };
@@ -312,7 +312,7 @@ function sanitize(cfg){
   cfg.heroLabels=cfg.heroLabels||{};
   cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
   for(let i=1;i<=50;i++){
-    const id=co-${i};
+    const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
     const onPage = cfg.heroFlags[id].place==='page';
     if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
@@ -335,7 +335,7 @@ function saveSettings(s){ store.set(K.settings,sanitize(s)); }
 })();
 
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || #${numberFromId(id)}; }
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
 /* DOM builders */
@@ -352,21 +352,21 @@ function heroCard(id){
   // Build controls HTML
   let ctrlsHTML = '';
   if(showAnyLive || showMove){
-    ctrlsHTML += <div class="ctrls">;
+    ctrlsHTML += `<div class="ctrls">`;
     if(showAnyLive){
       const label = f.state==='live'?'Live':'Offline';
       const cls   = f.state==='live'?'badge-live':'badge-off';
       const ro    = showLiveDirector && !showLiveAdmin ? ' disabled aria-disabled="true" ' : '';
-      ctrlsHTML += <button class="chip ${cls}" data-act="toggle" ${ro} type="button">${label}</button>;
+      ctrlsHTML += `<button class="chip ${cls}" data-act="toggle" ${ro} type="button">${label}</button>`;
     }
     if(showMove){
-      ctrlsHTML += <button class="chip" data-act="move" type="button">Move</button>;
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">Move</button>`;
     }
-    ctrlsHTML += </div>;
+    ctrlsHTML += `</div>`;
   }
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
-  el.innerHTML=
+  el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
     <div class="hero-arrows">
       <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
@@ -376,35 +376,35 @@ function heroCard(id){
     ${ctrlsHTML}
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
-      ${showAudience?
+      ${showAudience?`
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
           <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
-        </div>:''}
-    </div>;
+        </div>`:''}
+    </div>`;
   return el;
 }
 
 function dividerEl(obj){
   // Heading tools & audience ONLY for Admin, and audience only meaningful in Config
-  const tools = isAdmin() ? 
+  const tools = isAdmin() ? `
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
       <button class="cfgbtn" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
       <button class="cfgbtn" data-div-act="down" data-div-id="${obj.id}" type="button">▼</button>
       <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
-    </div> : '';
+    </div>` : '';
 
-  const audLine = isAdmin() ? 
+  const audLine = isAdmin() ? `
     <div class="aud-line">
       <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
       <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
       <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
-    </div> : '';
+    </div>` : '';
 
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=<span class="htext">${obj.title||'Heading'}</span>${tools}${audLine};
+  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>${tools}${audLine}`;
   return el;
 }
 
@@ -447,13 +447,13 @@ function paintArchive(){
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
     // In archive, Move allowed only for Admin
-    const controls = 
+    const controls = `
       <div style="display:flex;gap:8px;align-items:center">
-        ${(isAdmin()|| (isDirector()&&directorMode()))?<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin()?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>:''}
-        ${isAdmin()?<button class="chip" data-act="move" type="button">Move to Page</button>:''}
-      </div>;
+        ${(isAdmin()|| (isDirector()&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin()?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
+        ${isAdmin()?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
+      </div>`;
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML=<span class="num">${labelFor(id)}</span>${controls};
+    row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
     archiveList.appendChild(row);
   });
 }
@@ -461,7 +461,7 @@ paintArchive();
 
 /* Archive open/close + body lock */
 let savedScrollY=0;
-function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=-${savedScrollY}px; }
+function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
 $('#archiveToggle').addEventListener('click',()=>{
   const isOpen=dock.classList.contains('open');
@@ -486,7 +486,7 @@ document.addEventListener('click',(e)=>{
   // Start (placeholder)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
-    openSubSheet(Course ${labelFor(id)}, null); return;
+    openSubSheet(`Course ${labelFor(id)}`, null); return;
   }
   // Live toggle (Admin only). Directors see read-only chip in Director Mode.
   if(e.target.closest('[data-act="toggle"]')){
@@ -494,7 +494,7 @@ document.addEventListener('click',(e)=>{
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     const next = cur.state==='live' ? 'off' : 'live';
-    if(!confirm(Are you sure you want to set this to ${next==='live'?'LIVE':'OFFLINE'}?)) return;
+    if(!confirm(`Are you sure you want to set this to ${next==='live'?'LIVE':'OFFLINE'}?`)) return;
     s.heroFlags[id]={...cur, state:next};
     saveSettings(s); paintPage(); paintArchive(); return;
   }
@@ -504,7 +504,7 @@ document.addEventListener('click',(e)=>{
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
-    if(!confirm(Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?)) return;
+    if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
     s.heroFlags[id]={...cur, place:dest};
     if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
     else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
@@ -517,7 +517,7 @@ document.addEventListener('click',(e)=>{
     const key=audBtn.getAttribute('data-aud');
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
-    if(!confirm(${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?)) return;
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
     s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
     paintPage(); paintArchive(); return;
   }
@@ -527,14 +527,14 @@ document.addEventListener('click',(e)=>{
     const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
     const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
-    if(!confirm(${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?)) return;
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
     s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
   }
   // Rename hero label — Admin only
   if(e.target.matches('[data-cfg-rename]')){
     if(!isAdmin()) return;
     const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings(); const cur=s.heroLabels[id] || #${numberFromId(id)};
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
@@ -560,7 +560,7 @@ document.addEventListener('click',(e)=>{
   if(e.target.matches('.cfg-arrow')){
     if(!isAdmin()) return;
     const key=e.target.dataset.key; const s=getSettings();
-    const keys = s.pageOrder.map(it=> it.type==='hero' ? hero:${it.id} : div:${it.id});
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
     const dir = e.target.dataset.sort==='up' ? -1 : 1;
     const to = Math.min(Math.max(0, from+dir), keys.length-1);
