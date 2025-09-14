@@ -152,11 +152,27 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 .hero .art img{
   position:absolute; top:50%; left:50%;
   transform:translate(-50%,-50%) scale(1);
-  width:auto; height:110%; min-width:110%; /* slight overfill to avoid edges */
+  width:auto; height:110%; min-width:110%;
   user-select:none; pointer-events:none;
   filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
-.hero > *:not(.art){ position:relative; z-index:1; }
+/* PATCH: stacking context for hero content
+   Ensure we don't override .cta-left's absolute positioning. */
+.hero > *:not(.art){ z-index:1; } /* no position change */
+.hero .label,
+.hero .ctrls,
+.hero .cfg-pin,
+.hero .hero-arrows{
+  position:relative; /* give these elements stacking without moving layout */
+  z-index:1;
+}
+/* keep CTA anchored bottom-left exactly as before */
+.hero .cta-left{
+  position:absolute;
+  left:16px;
+  bottom:16px;
+  z-index:1;
+}
 .hero::after{
   content:""; position:absolute; inset:0; z-index:0;
   background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
@@ -289,13 +305,13 @@ else{
 }
 
 /* Avatar drawer + subsheet */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet']);
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
