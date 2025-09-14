@@ -269,7 +269,7 @@ function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAtt
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -342,12 +342,13 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
+  const cfgOn = document.body.classList.contains('config-on');
+
   // Permission booleans
-  const showMove = isAdmin(); // admin only
-  const showLiveAdmin = isAdmin();
-  const showLiveDirector = isDirector() && directorMode();
+  const showMove = isAdmin() && cfgOn; // admin only AND Developer Mode ON
+  const showLiveAdmin = isAdmin();     // visible always to admin
+  const showLiveDirector = isDirector() && directorMode(); // directors see Live only in Director Mode
   const showAnyLive = showLiveAdmin || showLiveDirector;
-  const showAudience = isAdmin() || (isDirector() && directorMode());
 
   // Build controls HTML
   let ctrlsHTML = '';
@@ -356,11 +357,15 @@ function heroCard(id){
     if(showAnyLive){
       const label = f.state==='live'?'Live':'Offline';
       const cls   = f.state==='live'?'badge-live':'badge-off';
-      const ro    = showLiveDirector && !showLiveAdmin ? ' disabled aria-disabled="true" ' : '';
+      // Admin: clickable only when cfgOn; Director: never clickable (when visible)
+      const disableForAdmin = showLiveAdmin && !cfgOn;
+      const disableForDirector = showLiveDirector && !showLiveAdmin;
+      const ro = (disableForAdmin || disableForDirector) ? ' disabled aria-disabled="true" ' : '';
       ctrlsHTML += `<button class="chip ${cls}" data-act="toggle" ${ro} type="button">${label}</button>`;
     }
     if(showMove){
-      ctrlsHTML += `<button class="chip" data-act="move" type="button">Move</button>`;
+      const moveLabel = f.place==='page' ? 'Archive' : 'Published';
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">${moveLabel}</button>`;
     }
     ctrlsHTML += `</div>`;
   }
@@ -376,7 +381,7 @@ function heroCard(id){
     ${ctrlsHTML}
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
-      ${showAudience?`
+      ${ (isAdmin() || (isDirector() && directorMode())) ? `
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
@@ -431,7 +436,7 @@ function paintPage(){
 }
 
 /* Archive footer visibility (Admin OR Director) */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
 function applyArchiveVisibility(){
   if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -446,11 +451,12 @@ function paintArchive(){
     .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
-    // In archive, Move allowed only for Admin
+    // In archive, controls: Admin sees "Published" button only when Developer Mode ON
+    const cfgOn = document.body.classList.contains('config-on');
     const controls = `
       <div style="display:flex;gap:8px;align-items:center">
-        ${(isAdmin()|| (isDirector()&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin()?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
-        ${isAdmin()?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
+        ${(isAdmin()|| (isDirector()&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin() && cfgOn ? '' : 'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
+        ${isAdmin() && cfgOn ? `<button class="chip" data-act="move" type="button">Published</button>`:''}
       </div>`;
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
@@ -488,9 +494,10 @@ document.addEventListener('click',(e)=>{
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     openSubSheet(`Course ${labelFor(id)}`, null); return;
   }
-  // Live toggle (Admin only). Directors see read-only chip in Director Mode.
+  // Live toggle
   if(e.target.closest('[data-act="toggle"]')){
-    if(!isAdmin()) return;
+    // Admin only, and only when Developer Mode ON
+    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     const next = cur.state==='live' ? 'off' : 'live';
@@ -498,9 +505,9 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, state:next};
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // Move (page<->archive) — Admin only
+  // Move (page<->archive) — Admin only, and only when Developer Mode ON
   if(e.target.closest('[data-act="move"]')){
-    if(!isAdmin()) return;
+    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
