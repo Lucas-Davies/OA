@@ -37,7 +37,7 @@ button{user-select:none;-webkit-user-select:none}
 /* Layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid */
+/* Grid (unchanged) */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
@@ -79,13 +79,36 @@ button{user-select:none;-webkit-user-select:none}
 .config-on .divider .dctrls{display:flex}
 .divider .aud-line{position:absolute;left:16px;bottom:14px}
 
+/* NEW: Compact headings when NOT in config mode */
+:not(.config-on) .divider{
+  border:none;
+  background:transparent;
+  padding:0 2px 8px;
+  min-height:0;
+  display:flex;
+  align-items:flex-end; /* snap text to bottom */
+}
+:not(.config-on) .divider .aud-line{display:none} /* audience chips hidden for non-admin anyway */
+:not(.config-on) .divider .htext{padding:0;margin:0}
+
 /* Config affordances */
 .cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
+
+/* OLD arrow bar (kept for headings). New hero arrows below. */
 .cfg-arrows{display:none;position:absolute;top:10px;left:42px;gap:6px;z-index:6}
 .config-on .cfg-arrows{display:flex}
-.cfg-arrow{height:24px;padding:0 8px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer}
+
+/* NEW: vertical hero arrows (right-center), visible in config mode only */
+.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;
+  display:flex;flex-direction:column;gap:6px}
+.config-on .hero .hero-arrows{display:flex}
+.hero-arrows .cfg-arrow{height:26px;padding:0 8px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer}
+/* never overlap top-right chips; chips are z-index:5, arrows are z-index:4 */
+@media (max-width:380px){
+  .hero-arrows .cfg-arrow{height:24px;padding:0 6px;font-size:12px}
+}
 
 /* Avatar Drawer */
 #avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -256,14 +279,12 @@ function sanitize(cfg){
   cfg.heroFlags=cfg.heroFlags||{};
   cfg.heroLabels=cfg.heroLabels||{};
   cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
-  // make sure co-1..50 exist & pageOrder has page heroes
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
     const onPage = cfg.heroFlags[id].place==='page';
     if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
   }
-  // ensure divider audience blocks
   cfg.pageOrder=cfg.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
   return cfg;
 }
@@ -278,9 +299,9 @@ function saveSettings(s){ store.set(K.settings,sanitize(s)); }
   const hasPage = cfg.pageOrder.some(it=> it.type==='hero' && cfg.heroFlags[it.id]?.place==='page');
   const hasArchive = Object.values(cfg.heroFlags).some(f=>f.place==='archive');
   if(!hasPage && !hasArchive){
-    store.set(K.settings, defaults()); // hard reseed
+    store.set(K.settings, defaults());
   }else{
-    store.set(K.settings, cfg); // write back sanitized
+    store.set(K.settings, cfg);
   }
 })();
 
@@ -294,14 +315,17 @@ function heroCard(id){
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.innerHTML=`
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
-    <div class="cfg-arrows">
+
+    <!-- New vertical arrows (right center) -->
+    <div class="hero-arrows">
       <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
       <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
     </div>
+
     <span class="label">${labelFor(id)}</span>
     <div class="ctrls" ${isAdminLike()?'':'style="display:none"'}>
       <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
-      <button class="chip" data-act="move" type="button">${f.place==='page'?'Move':'Move'}</button>
+      <button class="chip" data-act="move" type="button">Move</button>
     </div>
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">Start</button>
