@@ -176,6 +176,13 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
   pointer-events:none; border-radius:16px;
 }
+
+/* --- Dev Mode chip/CTA placement fix --- */
+.config-on .hero{ position:relative; }
+.config-on .hero .cta-left{ position:absolute; left:16px; bottom:16px; z-index:3; }
+.config-on .hero .ctrls{ position:absolute; top:10px; right:10px; z-index:4; }
+.config-on .hero .hero-arrows{ z-index:2; }
+.config-on .hero .cfg-arrows{ z-index:2; }
 </style>
 </head>
 <body ontouchstart="">
@@ -308,7 +315,7 @@ function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAtt
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', function(e){ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-var subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+var subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -474,7 +481,7 @@ function dividerEl(obj){
     '<div class="aud-line">'+
       '<button class="aud-chip bronze '+(aud.bronze?'on':'')+'" data-div-aud="bronze" data-div-id="'+obj.id+'" type="button">Bronze</button>'+
       '<button class="aud-chip silver '+(aud.silver?'on':'')+'" data-div-aud="silver" data-div-id="'+obj.id+'" type="button">Silver</button>'+
-      '<button class="aud-chip gold   '+(aud.gold?'on':'')+'" data-div-aud="gold"   data-div-id="'+obj.id+'" type="button">Gold</button>'+
+      '<button class="aud-chip gold   '+(aud.gold?'on':'')+'" data-div-aud="gold" data-div-id="'+obj.id+'" type="button">Gold</button>'+
     '</div>'
   ) : '';
 
@@ -505,7 +512,7 @@ function paintPage(){
 }
 
 /* Archive footer visibility (Admin OR Director) */
-var dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+var dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
 function applyArchiveVisibility(){
   if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -574,8 +581,7 @@ document.addEventListener('click',function(e){
   var tog = e.target.closest ? e.target.closest('[data-act="toggle"]') : null;
   if(tog){
     if(!isAdmin()) return;
-    var host2 = e.target.closest('[data-hero-id], .row');
-    var id2 = host2 && host2.dataset ? host2.dataset.heroId : null;
+    var host2 = e.target.closest('[data-hero-id], .row'); var id2 = host2 && host2.dataset ? host2.dataset.heroId : null;
     var s=getSettings(); var cur=s.heroFlags[id2];
     var next = cur.state==='live' ? 'off' : 'live';
     if(!confirm('Are you sure you want to set this to '+(next==='live'?'LIVE':'OFFLINE')+'?')) return;
@@ -586,8 +592,7 @@ document.addEventListener('click',function(e){
   var mv = e.target.closest ? e.target.closest('[data-act="move"]') : null;
   if(mv){
     if(!isAdmin()) return;
-    var host3=e.target.closest('[data-hero-id], .row');
-    var id3=host3 && host3.dataset ? host3.dataset.heroId : null;
+    var host3=e.target.closest('[data-hero-id], .row'); var id3=host3 && host3.dataset ? host3.dataset.heroId : null;
     var s2=getSettings(); var cur2=s2.heroFlags[id3];
     var dest = (cur2.place==='page') ? 'archive' : 'page';
     if(!confirm('Move '+labelFor(id3)+' to '+(dest==='page'?'Page':'Archive')+'?')) return;
