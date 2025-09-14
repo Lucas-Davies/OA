@@ -122,7 +122,7 @@ button{user-select:none;-webkit-user-select:none}
 #subSheet.open{display:block}
 #subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));height:min(78vh,calc(100% - (var(--nav-h) + 24px)));
   background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px;display:flex;flex-direction:column}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
 .sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
 #subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
 
@@ -274,7 +274,7 @@ function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAtt
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -356,9 +356,9 @@ function heroCard(id){
   const showAnyLive = showLiveAdmin || showLiveDirector;
 
   // Audience visibility rules
-  const showAudienceAdmin = isAdmin();                                // admin (handled elsewhere by developer mode in later steps)
-  const showAudienceDirAll = isDir && dMode;                          // director mode ON -> all 3, clickable
-  const showAudienceDirSelected = isDir && !dMode;                    // director mode OFF -> only selected, read-only
+  const showAudienceAdmin = isAdmin();
+  const showAudienceDirAll = isDir && dMode;       // director mode ON -> all 3, clickable
+  const showAudienceDirSelected = isDir && !dMode; // director mode OFF -> only selected, read-only
 
   // Build controls HTML
   let ctrlsHTML = '';
@@ -395,7 +395,7 @@ function heroCard(id){
       if(f.aud.gold)   chips.push('<button class="aud-chip gold   on readonly" type="button" aria-disabled="true">Gold</button>');
       if(chips.length){
         audienceHTML = `<div class="aud-line snap-right">${chips.join('')}</div>`;
-      } // if none selected, show nothing
+      }
     }
   }
 
@@ -416,7 +416,7 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
-  // Heading tools & audience ONLY for Admin, and audience only meaningful in Config
+  // Heading tools & audience ONLY for Admin
   const tools = isAdmin() ? `
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
@@ -460,7 +460,7 @@ function paintPage(){
 }
 
 /* Archive footer visibility (Admin OR Director) */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
 function applyArchiveVisibility(){
   if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
