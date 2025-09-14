@@ -37,12 +37,13 @@ button{user-select:none;-webkit-user-select:none}
 /* Layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid (unchanged) */
+/* Grid (unchanged base) */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
-@media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
-@media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+/* 3x more spacing on larger screens */
+@media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr; gap:36px}}
+@media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr; gap:36px}}
 
 /* Config toolbar */
 .cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
@@ -139,14 +140,23 @@ button{user-select:none;-webkit-user-select:none}
 /* Lock body when drawer open */
 body.lock{position:fixed;inset:0;overflow:hidden}
 
-/* ====== Completed visual + hero art (from previous step) ====== */
-.hero.completed{ box-shadow: inset 0 0 0 3px var(--green), 0 0 0 1px var(--green); }
-.hero .complete-tick{
-  position:absolute; top:10px; left:10px; z-index:6;
-  width:28px; height:28px; border-radius:999px;
-  background:var(--green); color:#000; font-weight:900; display:grid; place-items:center;
-  border:1px solid rgba(0,0,0,.35);
+/* ====== Completed & In-Progress visual + hero art ====== */
+/* Completed: grey outline + bigger tick on centre-left + greyed button */
+.hero.completed{ border:2px solid #888; box-shadow:none; }
+.hero.completed .btn.blue{
+  background:#333; color:#bbb; border-color:#333; cursor:default; pointer-events:none;
 }
+.hero .complete-tick{
+  position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  z-index:6; width:40px; height:40px; border-radius:999px;
+  background:transparent; color:#888; font-weight:900; display:grid; place-items:center;
+  border:2px solid #888; font-size:22px;
+}
+
+/* In-progress: green outline + button remains prominent with “In Progress” label */
+.hero.inprogress{ border:2px solid var(--green); }
+
+/* Hero art layer */
 .hero .art{ position:absolute; inset:0; z-index:0; opacity:.9; pointer-events:none; overflow:hidden; border-radius:16px; }
 .hero .art img{
   position:absolute; top:50%; left:50%;
@@ -233,6 +243,9 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode' };
 
+/* Soft labels for bronze/silver/gold -> Beginner/Intermediate/Advanced */
+const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced' };
+
 /* URL reset hook */
 const Q=new URLSearchParams(location.search);
 if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); }
@@ -249,7 +262,8 @@ function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
   const role=(p.skill||'admin').toLowerCase();
-  $('#avatarLvl').textContent = role.charAt(0).toUpperCase()+role.slice(1);
+  const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
+  $('#avatarLvl').textContent = friendly;
   const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
   const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
@@ -367,8 +381,9 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
-  /* completion + hero art */
+  /* progress/completed flags + hero art */
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
+  const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
   // Permission booleans
@@ -394,6 +409,11 @@ function heroCard(id){
     ctrlsHTML += `</div>`;
   }
 
+  // Decide CTA label based on progress state (UI-only)
+  let btnLabel = 'Start';
+  if(completed) btnLabel = 'Completed';
+  else if(inprogress) btnLabel = 'In Progress';
+
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
@@ -410,16 +430,18 @@ function heroCard(id){
     <span class="label">${labelFor(id)}</span>
     ${ctrlsHTML}
     <div class="cta-left">
-      <button class="btn blue" data-act="enter" type="button">Start</button>
+      <button class="btn blue" data-act="enter" type="button">${btnLabel}</button>
       ${showAudience?`
         <div class="aud-line">
-          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
-          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
-          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
+          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
+          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
+          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
         </div>`:''}
     </div>`;
 
   if(completed) el.classList.add('completed');
+  else if(inprogress) el.classList.add('inprogress');
+
   if(art && art.crop){
     const img = el.querySelector('.art img');
     if(img){
@@ -442,9 +464,9 @@ function dividerEl(obj){
 
   const audLine = isAdmin() ? `
     <div class="aud-line">
-      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
-      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
-      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
+      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Beginner</button>
+      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Intermediate</button>
+      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Advanced</button>
     </div>` : '';
 
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
