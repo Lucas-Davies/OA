@@ -154,7 +154,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 <!-- Config toolbar -->
 <div id="cfgbar" class="cfgbar" aria-hidden="true">
   <button class="cfgbtn blue" id="addHeadingBtn" type="button">Add Heading</button>
-  <button class="cfgbtn" id="exitCfgBtn" type="button">Exit Config</button>
+  <button class="cfgbtn" id="exitCfgBtn" type="button">Exit Developer</button>
 </div>
 
 <main class="wrap">
@@ -170,7 +170,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
-      <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
+      <a href="#" id="cfgToggle">Developer Mode<span>⌁</span></a>
       <!-- Director Mode toggle is injected here only for Directors -->
     </nav>
   </div>
@@ -235,7 +235,7 @@ paintAvatar();
 (function buildAvatarMenu(){
   const menu = $('#avatarMenu');
   if(!isAdmin()){
-    // Hide Config Mode entry entirely for non-admin
+    // Hide Developer Mode entry entirely for non-admin
     const cfg = $('#cfgToggle'); if(cfg) cfg.style.display='none';
   }
   if(isDirector()){
@@ -556,7 +556,7 @@ document.addEventListener('click',(e)=>{
     }
     return;
   }
-  // Hero sort arrows — Admin only (Config Mode controls visibility)
+  // Hero sort arrows — Admin only (Developer Mode controls visibility)
   if(e.target.matches('.cfg-arrow')){
     if(!isAdmin()) return;
     const key=e.target.dataset.key; const s=getSettings();
