@@ -402,7 +402,7 @@ body.home-bg .tab:focus-visible{ outline:2px solid var(--blue); outline-offset:2
   margin-top:12px;
   height: clamp(220px, calc((100dvh - 64px - 56px - 24px) * 0.40), 340px);
 }
-.weekly-row .hero.weekly{
+.weekly .hero.weekly{
   position:relative; overflow:hidden; border-radius:16px;
   border:1px solid var(--stroke); background:rgba(0,0,0,.40);
   height:100%; display:flex; flex-direction:column;
@@ -619,3 +619,101 @@ body.home-bg .lock-card{
   .btn-tab{ min-width:140px; height:52px; font-size:18px; padding:0 16px; }
   .avatarTab{ height:52px; }
 }
+
+/* =========================================================
+   NEW — Mode Footer & Archive Drawer (repurposed #archiveDock)
+   ========================================================= */
+
+/* Base footer container (repurposes #archiveDock) */
+#archiveDock{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  z-index:55;
+  border-top:1px solid rgba(255,255,255,.25);
+  overflow:hidden;
+  transition:max-height .22s ease, transform .22s ease;
+  max-height:48px; /* collapsed height (bar only) */
+}
+
+/* Footer “bar” section */
+#archiveDock .bar{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  font-weight:900;
+}
+
+/* Role colors: Admin (Developer) = red, Director = yellow */
+#archiveDock.role-admin .bar{ background:#b00020; color:#fff; }      /* developer */
+#archiveDock.role-director .bar{ background:#ffd60a; color:#000; }   /* director */
+
+/* Collapsed mini tab snapped bottom-right */
+#archiveDock.collapsed{
+  left:auto; width:auto;
+  max-height:48px;
+  border-top-left-radius:12px;
+  border-top-right-radius:12px;
+  transform:translateY(0);
+}
+#archiveDock.collapsed .bar{
+  border-top-left-radius:12px; border-top-right-radius:12px;
+  padding:10px 14px;
+}
+#archiveDock.collapsed .content{ display:none; }
+
+/* Expanded footer bar (still short) */
+#archiveDock.open{
+  left:0; right:0; max-height:64px;
+}
+
+/* Fullscreen drawer sits ABOVE the footer bar, footer remains visible */
+#archiveDock.drawer-open{
+  /* keep bar visible; content overlay handled below */
+}
+
+/* Drawer content overlay */
+#archiveDock .content{
+  position:fixed; left:0; right:0; bottom:0;
+  height:0; /* closed by default */
+  background:#0f0f12;
+  border-top:1px solid rgba(255,255,255,.15);
+  z-index:54; /* just under bar (55), but over page */
+  transform:translateY(100%);
+  transition:transform .22s ease, height .22s ease;
+  display:flex; flex-direction:column;
+}
+#archiveDock.fullsheet .content{
+  height:100dvh;             /* 100% screen height */
+  transform:translateY(0);   /* slide up */
+}
+#archiveDock .content .list{
+  padding:12px;
+  overflow:auto;
+  flex:1 1 auto;
+  display:flex; flex-direction:column; gap:8px;
+}
+
+/* Footer controls group */
+#footerControls{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+#footerControls .chip{
+  height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.25); color:inherit; font-weight:800; cursor:pointer;
+}
+#footerControls .chip[disabled]{ opacity:.5; cursor:default }
+
+/* Drawer header row inside .content */
+#archiveDock .drawer-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+/* Count and rows preserved */
+#archiveDock .row{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px;
+  border:1px solid rgba(255,255,255,.28); background:#0d0d10; border-radius:10px }
+
+/* Hide legacy “Open/Close” button (we control via new toggle) */
+#archiveToggle{ display:none !important; }
