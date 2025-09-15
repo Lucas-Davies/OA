@@ -9,129 +9,157 @@
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chipbg:#1b1f2a;
-  --gap:16px; --r:14px; --maxw:1240px; --nav-h:68px;
-  --hero-pad:18px;
+  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
+  --hero-pad:16px;
 }
-
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+html,body{
+  height:100%;margin:0;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain;overflow-x:hidden;user-select:none;-webkit-user-select:none}
-
+  overscroll-behavior-y:contain;overflow-x:hidden;user-select:none;-webkit-user-select:none;
+}
 a{color:inherit;text-decoration:none}
 button{user-select:none;-webkit-user-select:none}
-
-/* Background */
 .bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
 /* Top bar */
-.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:8px 12px;z-index:50;
-  background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.25));
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 12px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .title-tab{font-weight:900;opacity:.92}
 
 /* Avatar pill */
-.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-  padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
-  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;
-  border:1px solid var(--stroke);background:#222;color:#eef3ff}
+.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
+  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
 /* Layout */
-.wrap{max-width:var(--maxw);margin:0 auto;
-  padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid (user-tunable via footer controls) */
-.grid{display:grid;gap:36px} /* roomy gap default */
+/* Grid */
+.grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
 @media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
 @media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
 /* Hero */
-.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);
-  border-radius:16px;padding:var(--hero-pad);min-height:240px}
-.hero .label{position:absolute;top:14px;left:16px;z-index:2;font-weight:900;font-size:18px;opacity:.95}
+.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:var(--hero-pad);min-height:240px}
+.hero .label{font-weight:900;font-size:18px;opacity:.95}
 .ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
-
-/* Chip + Select look (shared everywhere) */
-.chip, .chip-select{
-  height:30px; padding:0 12px; display:inline-flex; align-items:center; gap:8px;
-  border-radius:999px; border:1px solid var(--stroke); background:var(--chipbg);
-  color:#fff; font-weight:800; font-size:12px; cursor:pointer; white-space:nowrap;
-}
-.chip[disabled]{opacity:.6; cursor:default; filter:grayscale(.1)}
-.chip.green{background:#228b22} .chip.red{background:#b00020}
-.chip-select{appearance:none}
-.chip-select:focus-visible, .chip:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
-
-/* Live state tags */
+.chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap}
+.chip[disabled]{opacity:.55;cursor:default;filter:grayscale(.15)}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* CTA block */
+/* Read-only status badge (always visible) */
+.status-pill{position:absolute;top:12px;right:12px;height:28px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-weight:900;z-index:4}
+.status-live{background:#1c6b1c;color:#fff;border:1px solid rgba(255,255,255,.18)}
+.status-off{background:#5a0d12;color:#fff;border:1px solid rgba(255,255,255,.18)}
+
+/* Position locks */
+.hero .label{position:absolute;top:14px;left:16px;z-index:2}
 .cta-left{position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;
-  border-radius:12px;border:1px solid var(--stroke);font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
+.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
+.config-on .hero .hero-arrows{display:flex}
+.hero-arrows .cfg-arrow{height:24px;padding:0 6px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
+  font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
 
-/* Audience chips (rendered only while in Dev/Director modes) */
+/* Audience chips */
 .aud-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);
-  background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
+.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
 .aud-chip.on{opacity:1;filter:brightness(1.22)}
 .aud-chip.on::after{content:" ✓";font-weight:900}
 .aud-chip.bronze{box-shadow:inset 0 0 0 2px #b87333}
 .aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
 .aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
 
-/* Headings (Divider) */
+/* Divider (Heading) */
 .divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px;grid-column:1 / -1;}
 .divider .htext{font-weight:900;opacity:.92}
-.divider .dctrls{position:absolute;top:10px;right:10px;display:flex;gap:6px}
+.divider .dctrls{position:absolute;top:10px;right:10px;display:none;gap:6px}
+.config-on .divider .dctrls{display:flex}
 .divider .aud-line{position:absolute;left:16px;bottom:14px}
-body:not(.dev-on):not(.dir-on) .divider .dctrls,
-body:not(.dev-on):not(.dir-on) .divider .aud-line{display:none}
-body:not(.dev-on):not(.dir-on) .divider{border:none;background:transparent;min-height:0;padding:0 2px 6px;margin:28px 2px 8px;display:flex;align-items:flex-end}
-body:not(.dev-on):not(.dir-on) .divider .htext{padding:0;margin:0}
 
-/* Hero sort arrows (dev only) */
-.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
-.dev-on .hero .hero-arrows{display:flex}
-.hero-arrows .cfg-arrow{height:24px;padding:0 6px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
+/* Compact headings when NOT in config mode */
+:not(.config-on) .divider{border:none;background:transparent;min-height:0;padding:0 2px 6px;margin:28px 2px 8px; display:flex;align-items:flex-end;}
+:not(.config-on) .divider .aud-line{display:none}
+:not(.config-on) .divider .htext{padding:0;margin:0}
 
-/* Hero art full-bleed */
-.hero .art{ position:absolute; inset:0; z-index:0; opacity:.9; pointer-events:none; overflow:hidden; border-radius:16px; }
-.hero .art img{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1); width:auto; height:110%; min-width:110%;
-  user-select:none; pointer-events:none; filter:saturate(1.02) contrast(1.02) brightness(0.95); }
-.hero::after{ content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
-  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6)); z-index:1;}
+/* Avatar Drawer (full-screen on phone, large sheet on bigger screens) */
+#avatarSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#avatarSheet.open{display:block}
+#avatarSheet .panel{
+  position:absolute; inset:0; margin:auto; width:100%; height:100%; background:#0f1116; border:1px solid var(--stroke);
+  border-radius:0; padding:12px; overflow:auto;
+}
+@media (min-width:820px){
+  #avatarSheet .panel{ width:min(780px, 92vw); height:min(86vh, 920px); right:12px; left:auto; top:calc(var(--nav-h) + 8px); bottom:auto; border-radius:14px }
+}
+.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.menu-list a:last-child{border-bottom:none}
 
-/* Archive Footer (control hub) */
-#archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
+/* Subsheet (courses) — FULL SCREEN */
+#subSheet{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#subSheet.open{display:block}
+#subSheet .inner{position:absolute;inset:0;background:#0f1116;border:none;border-radius:0;padding:0;display:flex;flex-direction:column}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--stroke)}
+.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
+#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;background:#0b0c10;overflow:hidden}
+
+/* Footer Dock (Dev/Director) */
+#archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:75;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
   transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain}
-#archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900}
-#archiveDock .content{background:#0d0d10;max-height:calc(100vh - 48px - 24px);overflow:auto}
+#archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900;overflow-x:auto;white-space:nowrap}
+#archiveDock .bar::-webkit-scrollbar{display:none}
+#archiveDock .title{display:inline-flex;align-items:center;gap:8px}
+#archiveDock .content{background:#160b0b;max-height:calc(60vh - 48px);overflow:auto}
 #archiveDock .list{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
-#archiveDock .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#121216;border-radius:10px}
+#archiveDock .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#0d0d10;border-radius:10px}
+#archiveDock .row .num{font-weight:900}
+#archiveDock .row .chip{height:26px}
 #archiveDock.collapsed{max-height:48px}
-#archiveDock.open{max-height:100vh}
+#archiveDock.open{max-height:80vh}
 
-/* Footer control rows */
-.controls-wrap{display:flex;align-items:center;gap:10px;overflow-x:auto;padding:0 2px}
-.controls-wrap::-webkit-scrollbar{height:8px}
-.controls-wrap .chip, .controls-wrap .chip-select{flex:0 0 auto}
+/* Footer uniform controls */
+.footer-chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#1b1f2a;color:#fff;font-weight:800}
+.footer-select{appearance:none;background:#10131b;border:1px solid var(--stroke);color:#fff;height:34px;border-radius:999px;padding:0 38px 0 12px;font-weight:800}
+.footer-label{opacity:.9;margin-left:10px;font-size:12px}
 
-/* Lock body when drawer open */
-body.lock{position:fixed;inset:0;overflow:hidden}
+/* Completed/In-Progress */
+.hero.completed{ border:2px solid #888; }
+.hero.inprogress{ border:2px solid var(--green); }
 
-/* Progress borders */
-.hero.completed{ border:2px solid #888 }
-.hero.inprogress{ border:2px solid var(--green) }
+/* Hero art layer */
+.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:16px; }
+.hero .art img{
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(1);
+  width:auto; height:110%; min-width:110%;
+  user-select:none; pointer-events:none;
+  filter:saturate(1.02) contrast(1.02) brightness(0.95);
+}
+.hero::after{
+  content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
+  z-index:1;
+}
+
+/* Hide editor-only bits when not in dev/dir */
+.hide-when-normal{ display:none }
+.config-on .hide-when-normal,
+.dir-on .hide-when-normal{ display:flex }
+
+/* In normal view hide audience line entirely */
+.normal-hide{ display:none }
+.config-on .normal-hide,
+.dir-on .normal-hide{ display:flex }
 </style>
 </head>
 <body ontouchstart="">
@@ -152,9 +180,9 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 </main>
 
 <!-- Avatar Drawer -->
-<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true" style="display:none">
-  <div class="panel" role="document" style="position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px">
-    <nav class="menu-list" id="avatarMenu" style="display:block">
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
+    <nav class="menu-list" id="avatarMenu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
@@ -164,26 +192,28 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   </div>
 </div>
 
-<!-- Fullscreen course sheet -->
-<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.8);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">
-  <button id="sheetClose" aria-label="Close" type="button"
-    style="position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:12px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;z-index:2">×</button>
-  <iframe id="subFrame" title="Panel" style="position:absolute;inset:0;border:0;background:#0b0c10"></iframe>
+<!-- Subsheet (courses) -->
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="inner" role="document">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">—</h2>
+      <button class="sheet-close" id="sheetClose" aria-label="Close" type="button">×</button>
+    </div>
+    <iframe id="subFrame" title="Panel"></iframe>
+  </div>
 </div>
 
-<!-- Footer (control hub + archive) -->
+<!-- Footer Dock -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
-    <div class="controls-wrap" id="footerControlsLeft">
-      <span id="archiveTitle" class="chip">Developer Mode</span>
+    <div class="title">
+      <span id="archiveTitle">Developer Mode</span>
 
-      <!-- Mode toggles (chips) -->
-      <button class="chip" id="devToggle" type="button">Developer: Off</button>
-      <button class="chip" id="dirModeToggle" type="button" style="display:none">Director: Off</button>
+      <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
+      <button class="footer-chip" id="dirModeToggle" type="button" style="display:none">Director: Off</button>
 
-      <!-- View As (admin/director only) -->
-      <label class="chip" for="viewAs" id="viewAsLabel" style="display:none">View&nbsp;As</label>
-      <select class="chip-select" id="viewAs" style="display:none">
+      <span class="footer-label">View As</span>
+      <select id="viewAs" class="footer-select">
         <option value="">Actual</option>
         <option value="bronze">Beginner</option>
         <option value="silver">Intermediate</option>
@@ -193,26 +223,25 @@ body.lock{position:fixed;inset:0;overflow:hidden}
         <option value="admin">Admin</option>
       </select>
 
-      <!-- Add heading (admin + dev only) -->
-      <button class="chip" id="addHeadingBtn" type="button" style="display:none">Add Heading</button>
-
-      <!-- Grid controls (everyone) -->
-      <label class="chip" for="footerCols">Cols</label>
-      <select class="chip-select" id="footerCols">
+      <span class="footer-label">Cols</span>
+      <select id="footerCols" class="footer-select">
         <option value="1">1</option><option value="2">2</option>
         <option value="3" selected>3</option><option value="4">4</option>
       </select>
-      <label class="chip" for="footerDensity">Density</label>
-      <select class="chip-select" id="footerDensity">
+
+      <span class="footer-label">Density</span>
+      <select id="footerDensity" class="footer-select">
         <option value="cozy">Cozy</option>
         <option value="comfortable" selected>Comfortable</option>
         <option value="roomy">Roomy</option>
       </select>
+
+      <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
 
-    <div class="controls-wrap" id="footerControlsRight">
-      <span class="chip" id="countWrap"><span id="countArchive">0</span>&nbsp;in Archive</span>
-      <button class="chip" id="archiveToggle" type="button">Open</button>
+    <div class="title" style="gap:12px">
+      <span class="footer-chip" id="countChip"><span id="countArchive">0</span> in Archive</span>
+      <button class="footer-chip" id="archiveToggle" type="button">Open</button>
     </div>
   </div>
 
@@ -223,88 +252,101 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 
 <script>
 (()=>{'use strict';
-/* ========== helpers & storage ========== */
+/* ===== utils & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode', view:'ao_view', viewAs:'ao_view_as' };
+
+/* Soft labels */
 const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced' };
 
-/* ========== view (grid/density) ========== */
+/* View settings */
 function defaultView(){ return { cols:3, density:'comfortable' }; }
 function getView(){ return store.get(K.view, defaultView()); }
 function saveView(v){ store.set(K.view, v); applyView(); }
 function applyView(){
-  const v=getView(); const grid=$('#pageGrid');
-  if(!grid) return;
-  grid.style.gridTemplateColumns = `repeat(${Math.max(1,Math.min(4,Number(v.cols)||3))}, 1fr)`;
-  const pad = v.density==='cozy' ? 14 : (v.density==='roomy' ? 22 : 18);
-  document.documentElement.style.setProperty('--hero-pad', pad+'px');
-  grid.style.gap = (v.cols>=3 ? 36 : 18)+'px';
+  const v=getView();
+  const grid=$('#pageGrid');
+  if(grid){
+    grid.style.gridTemplateColumns = `repeat(${Math.max(1,Math.min(4,Number(v.cols)||3))}, 1fr)`;
+    const pad = v.density==='cozy' ? 14 : (v.density==='roomy' ? 22 : 18);
+    document.documentElement.style.setProperty('--hero-pad', pad+'px');
+    grid.style.gap = (v.cols>=3 ? 36 : 18)+'px';
+  }
 }
 
-/* ========== roles & modes ========== */
+/* Roles + Director Mode + View-as override */
 function baseRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
-function directorMode(){ return !!store.get(K.directorMode,false); }
+function viewOverride(){ return store.get(K.viewAs,''); }
 function getRole(){
-  const ov = store.get(K.viewAs,'');
-  if((document.body.classList.contains('dev-on') || document.body.classList.contains('dir-on')) && ov) return ov;
+  const override = viewOverride();
+  if((document.body.classList.contains('config-on') || document.body.classList.contains('dir-on')) && override) return override;
   return baseRole();
 }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
+function directorMode(){ return !!store.get(K.directorMode,false); }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
 
-/* ========== avatar paint ========== */
+/* Avatar paint */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
   const role=getRole();
   const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
   $('#avatarLvl').textContent = friendly;
-  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#ffe066',admin:'#0A84FF'};
+  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
   const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
 }
 
-/* ========== avatar drawer & subsheet ========== */
+/* Avatar drawer & subsheet */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){ avatarSheet.style.display='block'; avatarBtn.setAttribute('aria-expanded','true'); }
-function closeDrawer(){ avatarSheet.style.display='none'; avatarBtn.setAttribute('aria-expanded','false'); }
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); document.body.classList.add('lock'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('lock'); }
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame');
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
+  sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
-  subSheet.style.display='block';
+  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
+  document.body.classList.add('lock');
 }
-function closeSubSheet(){ subSheet.style.display='none'; subFrame.src='about:blank'; }
+function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; document.body.classList.remove('lock'); }
 $('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
-subSheet.addEventListener('click', e=>{ /* click outside iframe closes */ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
 $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
 }, {passive:false}));
 
-/* ========== settings model ========== */
+/* ===== settings & flags ===== */
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  for(let i=1;i<=10;i++){ const id=`co-${i}`;
+  for(let i=1;i<=10;i++){
+    const id=`co-${i}`;
     heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
     pageOrder.push({type:'hero',id});
   }
-  for(let i=11;i<=50;i++){ const id=`co-${i}`;
+  for(let i=11;i<=50;i++){
+    const id=`co-${i}`;
     heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
   if(!cfg || typeof cfg!=='object') return defaults();
-  cfg.heroFlags=cfg.heroFlags||{}; cfg.heroLabels=cfg.heroLabels||{};
-  cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[]; cfg.heroAssets=cfg.heroAssets||{}; cfg.heroProgress=cfg.heroProgress||{};
-  for(let i=1;i<=50;i++){ const id=`co-${i}`;
+  cfg.heroFlags=cfg.heroFlags||{};
+  cfg.heroLabels=cfg.heroLabels||{};
+  cfg.heroAssets=cfg.heroAssets||{};
+  cfg.heroProgress=cfg.heroProgress||{};
+  cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
+  for(let i=1;i<=50;i++){
+    const id=`co-${i}`;
     if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
     const onPage = cfg.heroFlags[id].place==='page';
     if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
@@ -315,50 +357,44 @@ function sanitize(cfg){
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
 function saveSettings(s){ store.set(K.settings,sanitize(s)); }
 
+/* SELF-HEAL if empty */
 (function repairIfEmpty(){
   const s = store.get(K.settings,null);
   if(!s){ store.set(K.settings, defaults()); return; }
   const cfg = sanitize(s);
   const hasPage = cfg.pageOrder.some(it=> it.type==='hero' && cfg.heroFlags[it.id]?.place==='page');
   const hasArchive = Object.values(cfg.heroFlags).some(f=>f.place==='archive');
-  if(!hasPage && !hasArchive){ store.set(K.settings, defaults()); } else { store.set(K.settings, cfg); }
+  if(!hasPage && !hasArchive){ store.set(K.settings, defaults()); }
+  else{ store.set(K.settings, cfg); }
 })();
 
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-/* ========== DOM builders ========== */
+/* DOM builders */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
-  const completed = !!(s.heroProgress[id]?.complete);
-  const inprogress = !completed && !!(s.heroProgress[id]?.inprogress);
-  const art = s.heroAssets[id]?.heroCard;
+  const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
+  const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
+  const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
-  const devOn = document.body.classList.contains('dev-on');
+  const devOn = document.body.classList.contains('config-on');
+  const dirOn = document.body.classList.contains('dir-on') && directorMode();
 
-  // Controls visibility:
-  const showLiveChip = (isAdmin() || isDirector());             // always visible to staff
-  const liveDisabled = !devOn;                                   // read-only unless Dev mode ON
-  const showArchive = devOn && isAdmin();                        // admin + Dev only
-  const showAudience = devOn || document.body.classList.contains('dir-on'); // Dev or Director mode
+  const canEdit = (isAdmin() && devOn) || (isDirector() && dirOn);
 
+  // Always-visible status
+  const statusPill = `<span class="status-pill ${f.state==='live'?'status-live':'status-off'}">${f.state==='live'?'Live':'Offline'}</span>`;
+
+  // Edit controls only when tools are on
   let ctrlsHTML = '';
-  if(showLiveChip || showArchive){
-    ctrlsHTML += `<div class="ctrls">`;
-    if(showLiveChip){
-      const label = f.state==='live'?'Live':'Offline';
-      const cls   = f.state==='live'?'badge-live':'badge-off';
-      const dis   = liveDisabled ? 'disabled aria-disabled="true"' : '';
-      ctrlsHTML += `<button class="chip ${cls}" data-act="toggle" ${dis} type="button">${label}</button>`;
-    }
-    if(showArchive){
-      ctrlsHTML += `<button class="chip" data-act="move" type="button">Archive</button>`;
-    }
-    if(devOn){
-      ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Art</button>`;
-    }
+  if(canEdit){
+    ctrlsHTML += `<div class="ctrls hide-when-normal">`;
+    ctrlsHTML += `<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`;
+    if(isAdmin()) ctrlsHTML += `<button class="chip" data-act="move" type="button">Archive</button>`;
+    ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
     ctrlsHTML += `</div>`;
   }
 
@@ -371,15 +407,17 @@ function heroCard(id){
 
   el.innerHTML=`
     ${artLayer}
-    <div class="hero-arrows">${devOn?`
+    ${statusPill}
+    <button class="cfg-pin hide-when-normal" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
+    <div class="hero-arrows hide-when-normal">
       <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
-      <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>`:''}
+      <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
     </div>
     <span class="label">${labelFor(id)}</span>
     ${ctrlsHTML}
     <div class="cta-left">
       <button class="btn blue" data-act="enter" type="button">${btnLabel}</button>
-      ${showAudience?`
+      ${(canEdit)?`
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
@@ -390,16 +428,22 @@ function heroCard(id){
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
 
-  if(art && art.crop){ const img = el.querySelector('.art img');
-    if(img){ const {cx=0,cy=0,scale=1}=art.crop; img.style.transform=`translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${scale})`; } }
+  if(art && art.crop){
+    const img = el.querySelector('.art img');
+    if(img){
+      const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
+      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
+    }
+  }
   return el;
 }
 
 function dividerEl(obj){
-  const devOrDir = document.body.classList.contains('dev-on') || document.body.classList.contains('dir-on');
-  const isDev = document.body.classList.contains('dev-on') && isAdmin();
+  const devOn = document.body.classList.contains('config-on');
+  const dirOn = document.body.classList.contains('dir-on') && directorMode();
+  const canEdit = (isAdmin() && devOn) || (isDirector() && dirOn);
 
-  const tools = isDev ? `
+  const tools = (canEdit && isAdmin()) ? `
     <div class="dctrls">
       <button class="chip" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
       <button class="chip" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
@@ -407,8 +451,7 @@ function dividerEl(obj){
       <button class="chip" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
     </div>` : '';
 
-  const showAud = devOrDir;
-  const audLine = showAud ? `
+  const audLine = canEdit ? `
     <div class="aud-line">
       <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Beginner</button>
       <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Intermediate</button>
@@ -420,83 +463,98 @@ function dividerEl(obj){
   return el;
 }
 
-/* ========== painting ========== */
+/* Paint page */
 function paintPage(){
   const grid=$('#pageGrid'); grid.innerHTML='';
   applyView(); paintAvatar();
-  const s=getSettings(); const role=getRole(); const devOrDir = document.body.classList.contains('dev-on') || document.body.classList.contains('dir-on');
-
+  const s=getSettings(); const role=getRole();
   s.pageOrder.forEach(it=>{
     if(it.type==='hero'){
       const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
-      if(!seesAll() && !devOrDir){
+      if(!seesAll()){
         if(f.state!=='live') return;
         if(!f.aud[role]) return;
       }
       grid.appendChild(heroCard(id));
     }else if(it.type==='divider'){
       const aud=it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll() && !devOrDir){ if(!aud[role]) return; }
+      if(!seesAll()){ if(!aud[role]) return; }
       grid.appendChild(dividerEl(it));
     }
   });
 }
 
-/* ========== footer visibility & skin ========== */
+/* Footer visibility + skin */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
-
-function applyFooterVisibility(){
-  if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+function applyArchiveVisibility(){
+  if((getRole()==='admin') || (getRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
-function applyFooterSkin(){
-  const role = getRole();
+function applyArchiveSkin(){
+  const role=getRole();
   $('#archiveTitle').textContent = role==='director' ? 'Director Mode' : 'Developer Mode';
-  if(role==='director'){ dock.style.background='#ffd60a'; dock.style.color='#000'; $('#dirModeToggle').style.display='inline-flex'; }
-  else { dock.style.background='var(--red)'; dock.style.color='#fff'; $('#dirModeToggle').style.display='none'; }
+  if(role==='director'){
+    dock.style.background = '#ffd60a';
+    dock.style.color = '#000';
+    $('#dirModeToggle').style.display='inline-flex';
+    document.body.classList.remove('config-on'); // avoid cross-state confusion
+  }else{
+    dock.style.background = 'var(--red)';
+    dock.style.color = '#fff';
+    $('#dirModeToggle').style.display='none';
+    document.body.classList.remove('dir-on');
+  }
+  updateFooterModeControls();
 }
-function syncFooterControlsVisibility(){
-  const base = baseRole();
-  const devOn = document.body.classList.contains('dev-on');
+applyArchiveVisibility(); applyArchiveSkin();
 
-  // View As visible for Admin/Director
-  const showViewAs = (base==='admin' || base==='director');
-  $('#viewAs').style.display = showViewAs ? 'inline-flex' : 'none';
-  $('#viewAsLabel').style.display = showViewAs ? 'inline-flex' : 'none';
-
-  // Add heading only for Admin + Dev ON
-  $('#addHeadingBtn').style.display = (base==='admin' && devOn) ? 'inline-flex' : 'none';
-
-  // Toggle labels
+/* Footer mode controls text */
+function updateFooterModeControls(){
+  const devOn = document.body.classList.contains('config-on');
   $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
   if($('#dirModeToggle').style.display!=='none'){
-    $('#dirModeToggle').textContent = `Director: ${store.get(K.directorMode,false)?'On':'Off'}`;
+    const dirOn = document.body.classList.contains('dir-on') && directorMode();
+    $('#dirModeToggle').textContent = `Director: ${dirOn?'On':'Off'}`;
   }
-}
-function syncFooterViewControls(){
-  const v=getView(); $('#footerCols').value=String(v.cols||3); $('#footerDensity').value=v.density||'comfortable';
+  // Show Add Heading only for admin while dev is ON
+  $('#addHeadingBtn').style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
 }
 
-/* ========== archive drawer ========== */
+/* Footer view controls */
+function syncFooterViewControls(){
+  const v=getView();
+  $('#footerCols').value=String(v.cols||3);
+  $('#footerDensity').value=v.density||'comfortable';
+}
+syncFooterViewControls();
+$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
+$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
+
+/* View-as override lives in footer (always visible to admin/director) */
+$('#viewAs').addEventListener('change', e=>{
+  store.set(K.viewAs, e.target.value||''); paintAvatar(); paintPage(); applyArchiveSkin();
+},{passive:true});
+
+/* Archive list */
 function paintArchive(){
-  const s=getSettings(), flags=s.heroFlags;
+  const s=getSettings(); const flags=s.heroFlags;
   archiveList.innerHTML='';
   const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
     .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    const ctl = (isAdmin() || isDirector()) ? `
+    const controls = `
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${document.body.classList.contains('dev-on')?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>
-        ${document.body.classList.contains('dev-on') && isAdmin()?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
-      </div>` : '';
-    row.innerHTML=`<span class="chip">${labelFor(id)}</span>${ctl}`;
+        ${(isAdmin())?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
+      </div>`;
+    row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
     archiveList.appendChild(row);
   });
 }
+paintArchive();
 
-/* open/close */
+/* Archive open/close + body lock */
 let savedScrollY=0;
 function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
@@ -508,122 +566,134 @@ $('#archiveToggle').addEventListener('click',()=>{
   if(!isOpen) lockBody(); else unlockBody();
 }, {passive:true});
 
-/* ========== footer interactions ========== */
-$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
-$('#viewAs').addEventListener('change', e=>{ store.set(K.viewAs, e.target.value||''); paintAvatar(); paintPage(); applyFooterSkin(); }, {passive:true});
-
+/* Footer mode toggle handlers */
 $('#devToggle').addEventListener('click', ()=>{
-  if(!(baseRole()==='admin' || baseRole()==='director')) return;
-  document.body.classList.toggle('dev-on');
-  paintPage(); paintArchive();
-  syncFooterControlsVisibility();
+  if(!['admin','director'].includes(baseRole())) return;
+  // Developer mode toggles body class (not role)
+  document.body.classList.toggle('config-on');
+  // ensure director marker off when dev on
+  if(document.body.classList.contains('config-on')) document.body.classList.remove('dir-on');
+  updateFooterModeControls(); paintPage();
 }, {passive:true});
 
 $('#dirModeToggle').addEventListener('click', ()=>{
   if(baseRole()!=='director') return;
-  const next=!store.get(K.directorMode,false); store.set(K.directorMode,next);
+  const next=!directorMode();
+  store.set(K.directorMode,next);
   document.body.classList.toggle('dir-on', next);
-  paintPage(); paintArchive(); applyFooterSkin(); syncFooterControlsVisibility();
+  if(next) document.body.classList.remove('config-on');
+  updateFooterModeControls(); paintPage(); paintArchive(); applyArchiveSkin();
 }, {passive:true});
 
-/* Add heading (admin + dev only) */
+/* Add Heading (footer) */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
-  if(!(baseRole()==='admin' && document.body.classList.contains('dev-on'))) return;
+  if(!isAdmin() || !document.body.classList.contains('config-on')) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
 }, {passive:false});
 
-/* ========== click handlers across page ========== */
+/* Click handlers across page */
 document.addEventListener('click',(e)=>{
-  // start course
+  // Start (open course full-screen)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
     const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
     openSubSheet(labelFor(id), url); return;
   }
-  // toggle live (dev-only)
+  // Live toggle (ONLY when editor tools are on)
   if(e.target.closest('[data-act="toggle"]')){
-    if(!document.body.classList.contains('dev-on')) return;
+    const devOn = document.body.classList.contains('config-on');
+    const dirOn = document.body.classList.contains('dir-on') && directorMode();
+    if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
-    s.heroFlags[id]={...cur, state:cur.state==='live'?'off':'live'};
+    const next = cur.state==='live' ? 'off' : 'live';
+    if(!confirm(`Set this to ${next==='live'?'LIVE':'OFFLINE'}?`)) return;
+    s.heroFlags[id]={...cur, state:next};
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // move archive/page (dev + admin)
+  // Move to/from archive (admin + dev only)
   if(e.target.closest('[data-act="move"]')){
-    if(!(document.body.classList.contains('dev-on') && isAdmin())) return;
+    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
+    if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
     s.heroFlags[id]={...cur, place:dest};
     if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
     else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
     saveSettings(s); paintPage(); paintArchive(); return;
   }
-  // audience chips (dev or dir)
+  // Audience chips — only while editor tools are on
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    if(!(document.body.classList.contains('dev-on') || document.body.classList.contains('dir-on'))) return;
+    const devOn = document.body.classList.contains('config-on');
+    const dirOn = document.body.classList.contains('dir-on') && directorMode();
+    if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
     const key=audBtn.getAttribute('data-aud');
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id];
-    s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:!cur.aud[key]}}; saveSettings(s);
+    const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
     paintPage(); paintArchive(); return;
   }
-  // divider buttons (dev admin)
-  if(e.target.dataset.divAct){
-    if(!(document.body.classList.contains('dev-on') && isAdmin())) return;
-    const id=e.target.getAttribute('data-div-id'); const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-    const act=e.target.dataset.divAct;
-    if(act==='rename'){
-      const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
-      if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
-    }else if(act==='remove'){
-      if(confirm('Remove this heading?')){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); }
-    }else if(act==='up' || act==='down'){
-      const to = act==='up' ? Math.max(0, idx-1) : Math.min(s.pageOrder.length-1, idx+1);
-      if(to!==idx){ const [it]=s.pageOrder.splice(idx,1); s.pageOrder.splice(to,0,it); saveSettings(s); paintPage(); }
-    }
+  // Heading audience (same rule)
+  if(e.target.dataset.divAud){
+    const devOn = document.body.classList.contains('config-on');
+    const dirOn = document.body.classList.contains('dir-on') && directorMode();
+    if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
+    const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
+    const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
+    s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
+  }
+  // Rename hero (admin + dev)
+  if(e.target.matches('[data-cfg-rename]')){
+    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
+    const id=e.target.getAttribute('data-cfg-rename');
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const next=prompt('Hero label', cur);
+    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
-  // hero sort arrows (dev admin)
+  // Sort arrows (admin + dev)
   if(e.target.matches('.cfg-arrow')){
-    if(!(document.body.classList.contains('dev-on') && isAdmin())) return;
+    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
     const dir = e.target.dataset.sort==='up' ? -1 : 1;
     const to = Math.min(Math.max(0, from+dir), keys.length-1);
-    if(to!==from){ const [it]=s.pageOrder.splice(from,1); s.pageOrder.splice(to,0,it); saveSettings(s); paintPage(); }
+    if(to!==from){
+      const objFrom = s.pageOrder[from];
+      s.pageOrder.splice(from,1);
+      s.pageOrder.splice(to,0,objFrom);
+      saveSettings(s); paintPage();
+    }
     return;
   }
-  // pick hero art (dev only) — enter path under /images/...
+  // Pick hero art (admin + dev)
   if(e.target.closest('[data-act="pickart"]')){
-    if(!document.body.classList.contains('dev-on')) return;
+    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
     const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
     const s=getSettings(); s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
     saveSettings(s); paintPage(); return;
   }
-},{passive:false});
+}, {passive:false});
 
-/* ========== boot ========== */
+/* Initial render */
 applyView();
 paintAvatar();
 paintPage();
-applyFooterVisibility();
-applyFooterSkin();
-syncFooterControlsVisibility();
-syncFooterViewControls();
 paintArchive();
-
-/* default mode class sync with stored director flag */
-document.body.classList.toggle('dir-on', store.get(K.directorMode,false));
+applyArchiveSkin();
+updateFooterModeControls();
+syncFooterViewControls();
 })();
 </script>
 </body>
