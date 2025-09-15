@@ -11,7 +11,7 @@
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
-  --hero-pad:16px; /* density-controlled */
+  --hero-pad:16px; /* density-driven */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
@@ -21,7 +21,8 @@ html,body{
 }
 a{color:inherit;text-decoration:none}
 button{user-select:none;-webkit-user-select:none}
-.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
+/* Removed legacy background image; solid page bg only */
+.bg{position:fixed;inset:0;z-index:-1;background:var(--bg)}
 
 /* Top bar */
 .nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -39,7 +40,7 @@ button{user-select:none;-webkit-user-select:none}
 /* Layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid (responsive defaults; user setting will override inline) */
+/* Grid (defaults; user View overrides inline) */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
@@ -75,6 +76,8 @@ button{user-select:none;-webkit-user-select:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
+/* Completed button style */
+.btn.done{background:#3a3a3a;border-color:#3a3a3a;color:#cfcfcf}
 
 /* Audience chips */
 .aud-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -211,6 +214,8 @@ body.lock{position:fixed;inset:0;overflow:hidden}
     <nav class="menu-list" id="avatarMenu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
+      <!-- Direct link into your Display Options section -->
+      <a href="avatar/settings.html#display" data-pop="Display Options">Display Options<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
@@ -278,20 +283,31 @@ const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced' }
 
 /* URL reset hook */
 const Q=new URLSearchParams(location.search);
-if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); }
+if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); localStorage.removeItem(K.view); localStorage.removeItem(K.viewAs); }
 
 /* View settings */
-function defaultView(){ return { cols:3, density:'comfortable' }; }
-function getView(){ return store.get(K.view, defaultView()); }
+function defaultView(){
+  // Smart default: phone portrait = 1 column
+  let cols=3;
+  const portrait = window.innerHeight > window.innerWidth;
+  if ((window.innerWidth <= 600 && portrait) || window.innerWidth <= 420) cols=1;
+  return { cols, density:'comfortable' };
+}
+function getView(){ return store.get(K.view, null) || (store.set(K.view, defaultView()), store.get(K.view)); }
 function saveView(v){ store.set(K.view, v); applyView(); }
 function applyView(){
   const v=getView();
   const grid=$('#pageGrid');
   if(grid){
-    grid.style.gridTemplateColumns = `repeat(${Math.max(1,Math.min(4,Number(v.cols)||3))}, 1fr)`;
-    const pad = v.density==='cozy' ? 14 : (v.density==='roomy' ? 22 : 18);
-    document.documentElement.style.setProperty('--hero-pad', pad+'px');
-    grid.style.gap = (v.cols>=3 ? 36 : 18)+'px';
+    const cols = Math.max(1,Math.min(4,Number(v.cols)||3));
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    // Density maps to spacing & hero padding
+    const gapMap = { cozy:14, comfortable:24, roomy:36 };
+    const padMap = { cozy:14, comfortable:18, roomy:22 };
+    const g = gapMap[v.density] ?? 24;
+    const p = padMap[v.density] ?? 18;
+    grid.style.gap = g+'px';
+    document.documentElement.style.setProperty('--hero-pad', p+'px');
   }
 }
 
@@ -354,7 +370,7 @@ function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAtt
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -465,10 +481,11 @@ function heroCard(id){
     ctrlsHTML += `</div>`;
   }
 
-  // Decide CTA label based on progress state (UI-only)
+  // CTA label + style based on progress state
   let btnLabel = 'Start';
-  if(completed) btnLabel = 'Completed';
-  else if(inprogress) btnLabel = 'In Progress';
+  let btnClass = 'btn blue';
+  if(completed){ btnLabel='Completed'; btnClass='btn done'; }
+  else if(inprogress){ btnLabel='In Progress'; btnClass='btn blue'; }
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
 
@@ -484,7 +501,7 @@ function heroCard(id){
     <span class="label">${labelFor(id)}</span>
     ${ctrlsHTML}
     <div class="cta-left">
-      <button class="btn blue" data-act="enter" type="button">${btnLabel}</button>
+      <button class="${btnClass}" data-act="enter" type="button">${btnLabel}</button>
       ${showAudience?`
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
@@ -553,7 +570,7 @@ function paintPage(){
 }
 
 /* Archive footer visibility (Admin OR Director) */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
 function applyArchiveVisibility(){
   if((getRole()==='admin') || (getRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -604,7 +621,7 @@ $('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('
 
 /* Click handlers with confirmations */
 document.addEventListener('click',(e)=>{
-  // Start (OPEN courses/1–50.html in subsheet)
+  // Start / In Progress / Completed (OPEN courses/1–50.html in subsheet)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
@@ -713,4 +730,3 @@ paintArchive();
 </script>
 </body>
 </html>
-
