@@ -1,3 +1,7 @@
+That would be amazing, in display setting please, 
+
+This is my settings.html
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -50,7 +54,7 @@ select,.input{width:100%;height:42px;padding:0 12px;border-radius:10px;border:1p
 </header>
 
 <main class="container">
-  <!-- Display Settings -->
+  <!-- Display Settings only -->
   <section class="section" aria-labelledby="sec-display">
     <button class="section-head" id="sec-display"><span>Display Settings</span><span class="chev">›</span></button>
     <div class="content">
@@ -65,32 +69,11 @@ select,.input{width:100%;height:42px;padding:0 12px;border-radius:10px;border:1p
           </select>
         </div>
         <div>
-          <label for="background">Home background</label>
+          <label for="background">Background</label>
           <select id="background">
             <option value="art-default">Art — Default</option>
             <option value="gradient-1">Gradient — Midnight</option>
             <option value="texture-1">Texture — Canvas</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Home grid view controls -->
-      <div class="row">
-        <div>
-          <label for="viewCols">Home grid — Columns</label>
-          <select id="viewCols">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-        </div>
-        <div>
-          <label for="viewDensity">Home grid — Density</label>
-          <select id="viewDensity">
-            <option value="cozy">Cozy</option>
-            <option value="comfortable">Comfortable</option>
-            <option value="roomy">Roomy</option>
           </select>
         </div>
       </div>
@@ -114,55 +97,33 @@ select,.input{width:100%;height:42px;padding:0 12px;border-radius:10px;border:1p
 (()=>{'use strict';
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ prefs:'ao_prefs', view:'ao_view' };
+const K={settings:'ao_settings'};
 const $=s=>document.querySelector(s);
 
-/* Prefs (display) */
-function defaultPrefs(){ return { display:{ theme:'system', background:'art-default', reduceMotion:false } }; }
-function getPrefs(){ return store.get(K.prefs, defaultPrefs()); }
-function setPrefs(p){
-  const cur=getPrefs();
-  const next={ display:{ ...(cur.display||{}), ...(p.display||{}) } };
-  store.set(K.prefs,next);
-  try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.prefs,newValue:JSON.stringify(next)})); }catch{}
+function getSettings(){ return store.get(K.settings,{display:{theme:'system',background:'art-default',reduceMotion:false}}); }
+function setSettings(s){ store.set(K.settings,s); try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.settings})); }catch{} }
+
+function flashSaved(){
+  const o=$('#saveConfirm'); o.classList.add('open'); o.setAttribute('aria-hidden','false');
+  const close=(e)=>{ if(e.target===o){ o.classList.remove('open'); o.setAttribute('aria-hidden','true'); window.removeEventListener('click',close); } };
+  setTimeout(()=>window.addEventListener('click',close,{once:true}),0);
 }
 
-/* View (home grid) */
-function defaultView(){
-  let cols=3;
-  const portrait = window.innerHeight > window.innerWidth;
-  if ((window.innerWidth <= 600 && portrait) || window.innerWidth <= 420) cols=1;
-  return { cols, density:'comfortable' };
-}
-function getView(){ return store.get(K.view, defaultView()); }
-function setView(v){
-  const next={ cols:Math.max(1,Math.min(4,Number(v.cols)||3)), density:(v.density||'comfortable') };
-  store.set(K.view,next);
-  try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.view,newValue:JSON.stringify(next)})); }catch{}
-}
-
-/* Fill UI */
-const p=getPrefs();
-$('#theme').value=p.display?.theme||'system';
-$('#background').value=p.display?.background||'art-default';
-$('#reduceMotion').checked=!!p.display?.reduceMotion;
-
-const v=getView();
-$('#viewCols').value=String(v.cols||3);
-$('#viewDensity').value=v.density||'comfortable';
+/* Fill */
+const s=getSettings(); const d=s.display||{};
+$('#theme').value=d.theme||'system';
+$('#background').value=d.background||'art-default';
+$('#reduceMotion').checked=!!d.reduceMotion;
 
 /* Save/Close */
 document.body.addEventListener('click',(e)=>{
   if(e.target.matches('[data-save="display"]')){
-    setPrefs({ display:{
-      theme:$('#theme').value,
-      background:$('#background').value,
-      reduceMotion:$('#reduceMotion').checked
-    }});
-    setView({ cols: $('#viewCols').value, density: $('#viewDensity').value });
-    flashSaved();
+    const cur=getSettings();
+    cur.display={ theme:$('#theme').value, background:$('#background').value, reduceMotion:$('#reduceMotion').checked };
+    setSettings(cur); flashSaved();
   }
   if(e.target.matches('[data-close="display"]')){
+    // collapse the section
     document.getElementById('sec-display').closest('.section').classList.add('collapsed');
   }
 });
@@ -174,13 +135,6 @@ document.getElementById('sec-display').addEventListener('click',()=>{
 
 /* Back */
 document.getElementById('backBtn').addEventListener('click',()=>history.back());
-
-/* Saved banner */
-function flashSaved(){
-  const o=document.getElementById('saveConfirm'); o.classList.add('open'); o.setAttribute('aria-hidden','false');
-  const close=(e)=>{ if(e.target===o){ o.classList.remove('open'); o.setAttribute('aria-hidden','true'); window.removeEventListener('click',close); } };
-  setTimeout(()=>window.addEventListener('click',close,{once:true}),0);
-}
 })();
 </script>
 </body>
