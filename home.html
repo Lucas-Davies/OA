@@ -45,15 +45,6 @@ button{user-select:none;-webkit-user-select:none}
 @media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
 @media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
 
-/* Config toolbar */
-.cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
-  display:none;align-items:center;gap:8px;padding:10px 14px}
-.config-on .cfgbar{display:flex}
-.cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
-.cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
-.cfgslot{display:flex;align-items:center;gap:8px;margin-left:4px}
-.cfgslot label{font-size:12px;opacity:.85}
-
 /* Hero */
 .hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:var(--hero-pad);min-height:240px}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
@@ -100,12 +91,12 @@ button{user-select:none;-webkit-user-select:none}
 :not(.config-on) .divider .aud-line{display:none}
 :not(.config-on) .divider .htext{padding:0;margin:0}
 
-/* Config affordances */
+/* Config affordances (rename pin) */
 .cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
   font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
 .config-on .cfg-pin{display:flex}
 
-/* Old arrow bar (kept for headings) */
+/* Old arrow bar for headings */
 .cfg-arrows{display:none;position:absolute;top:10px;left:42px;gap:6px;z-index:6}
 .config-on .cfg-arrows{display:flex}
 
@@ -116,45 +107,56 @@ button{user-select:none;-webkit-user-select:none}
 .menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
 .menu-list a:last-child{border-bottom:none}
 
-/* Subsheet */
+/* Full-screen Subsheet (course frame) */
 #subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
-#subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));height:min(78vh,calc(100% - (var(--nav-h) + 24px)));
-  background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px;display:flex;flex-direction:column}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
-.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
-#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
+#subSheet .inner{
+  position:fixed; inset:0;      /* full screen */
+  background:#0f1116; border:0; border-radius:0; padding:0;
+  display:flex; flex-direction:column;
+}
+.sheet-head{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding:10px 12px; background:#0f1116; border-bottom:1px solid var(--stroke);
+}
+.sheet-close{
+  width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);
+  background:#121212;color:#fff;font-weight:900;cursor:pointer
+}
+#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;background:#0b0c10;}
 
-/* Archive Footer */
-#archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
-  transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain}
-#archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900}
-#archiveDock .bar .count{opacity:.95}
-#archiveDock .content{background:#160b0b;max-height:calc(60vh - 48px);overflow:auto}
+/* Footer (Developer/Director bar) */
+#archiveDock{
+  position:fixed;left:0;right:0;bottom:0;z-index:55;
+  background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
+  transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain
+}
+#archiveDock .bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 14px;font-weight:900;
+  overflow-x:auto; /* horizontal scroll if overflow */
+}
+#archiveDock .bar::-webkit-scrollbar{height:8px}
+#archiveDock .bar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:8px}
+.footer-left,.footer-right{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.footer-left>*,
+.footer-right>*{flex:0 0 auto}
+.footer-controls select{
+  height:28px;border-radius:8px;border:1px solid var(--stroke);
+  background:#141416;color:#fff;font-weight:800;padding:0 8px;
+}
+#archiveDock .content{background:#160b0b;max-height:calc(100vh - 48px);overflow:auto}
 #archiveDock .list{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
 #archiveDock .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#0d0d10;border-radius:10px}
 #archiveDock .row .num{font-weight:900}
 #archiveDock .row .chip{height:26px}
 #archiveDock.collapsed{max-height:48px}
-#archiveDock.open{max-height:60vh}
+#archiveDock.open{max-height:100vh}
 
-/* Footer view + mode controls */
-.footer-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.footer-controls select{
-  height:28px;border-radius:8px;border:1px solid var(--stroke);
-  background:#141416;color:#fff;font-weight:800;padding:0 8px;
-}
-
-/* View panel (kept but button removed) */
-#viewPanel{position:absolute;right:160px;top:10px;background:#0f1116;border:1px solid var(--stroke);border-radius:12px;padding:10px 12px;display:none;z-index:51}
-#viewPanel.open{display:block}
-#viewPanel .row{display:flex;align-items:center;gap:10px;margin:8px 0}
-#viewPanel select{height:30px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:700}
-
-/* Lock body when drawer open */
+/* Lock body when drawers or frame open */
 body.lock{position:fixed;inset:0;overflow:hidden}
 
-/* Completed & In-Progress visual + hero art */
+/* Completed & In-Progress visuals + hero art */
 .hero.completed{ border:2px solid #888; }
 .hero.inprogress{ border:2px solid var(--green); }
 
@@ -180,7 +182,6 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left"><span class="title-tab">Courses</span></div>
   <div class="nav-right">
-    <!-- View button removed by request -->
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
       <span class="lvl" id="avatarLvl">Admin</span>
@@ -188,30 +189,11 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   </div>
 </header>
 
-<!-- Config toolbar -->
-<div id="cfgbar" class="cfgbar" aria-hidden="true">
-  <button class="cfgbtn blue" id="addHeadingBtn" type="button">Add Heading</button>
-  <button class="cfgbtn" id="exitCfgBtn" type="button">Exit Developer</button>
-  <!-- View-as (Dev bar only) -->
-  <div class="cfgslot">
-    <label for="viewAs">View as:</label>
-    <select id="viewAs">
-      <option value="">Actual</option>
-      <option value="bronze">Beginner</option>
-      <option value="silver">Intermediate</option>
-      <option value="gold">Advanced</option>
-      <option value="support">Support</option>
-      <option value="director">Director</option>
-      <option value="admin">Admin</option>
-    </select>
-  </div>
-</div>
-
 <main class="wrap">
   <section class="grid" id="pageGrid"></section>
 </main>
 
-<!-- Avatar Drawer -->
+<!-- Avatar Drawer (no mode toggles here anymore) -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
     <nav class="menu-list" id="avatarMenu">
@@ -220,12 +202,11 @@ body.lock{position:fixed;inset:0;overflow:hidden}
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
-      <!-- Developer/Director toggles removed from avatar -->
     </nav>
   </div>
 </div>
 
-<!-- Subsheet -->
+<!-- Full-screen Subsheet -->
 <div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="inner" role="document">
     <div class="sheet-head">
@@ -236,22 +217,37 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   </div>
 </div>
 
-<!-- Archive Footer (Admin/Director only) -->
+<!-- Footer control bar (Admin/Director only) -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
-    <div class="footer-controls">
+    <div class="footer-left">
       <span id="archiveTitle">Developer Mode</span>
-      <!-- Mode toggles live here -->
+      <!-- Toggles -->
       <button class="chip" id="devToggle" type="button">Developer: Off</button>
       <button class="chip" id="dirModeToggle" type="button" style="display:none">Director: Off</button>
 
-      <!-- Grid view controls (everyone) -->
-      <label for="footerCols" style="font-size:12px;opacity:.9;margin-left:10px">Cols</label>
+      <!-- View-as (always visible for Admin/Director) -->
+      <label for="footerViewAs" style="font-size:12px;opacity:.9;margin-left:8px">View as</label>
+      <select id="footerViewAs" title="View as">
+        <option value="">Actual</option>
+        <option value="bronze">Beginner</option>
+        <option value="silver">Intermediate</option>
+        <option value="gold">Advanced</option>
+        <option value="support">Support</option>
+        <option value="director">Director</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <!-- Add Heading (admin + dev only) -->
+      <button class="chip" id="addHeadingFooter" type="button" style="display:none">Add Heading</button>
+    </div>
+
+    <div class="footer-right">
+      <!-- Grid view controls (everyone in this bar) -->
+      <label for="footerCols" style="font-size:12px;opacity:.9">Cols</label>
       <select id="footerCols">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
+        <option value="1">1</option><option value="2">2</option>
+        <option value="3" selected>3</option><option value="4">4</option>
       </select>
       <label for="footerDensity" style="font-size:12px;opacity:.9">Density</label>
       <select id="footerDensity">
@@ -259,35 +255,14 @@ body.lock{position:fixed;inset:0;overflow:hidden}
         <option value="comfortable" selected>Comfortable</option>
         <option value="roomy">Roomy</option>
       </select>
-    </div>
-    <div class="footer-controls">
-      <span class="count" id="countArchive">0</span>
+
+      <span class="count" id="countArchive" style="margin-left:10px">0</span>
       <button class="chip" id="archiveToggle" type="button">Open</button>
     </div>
   </div>
+
   <div class="content">
     <div class="list" id="archiveList"></div>
-  </div>
-</div>
-
-<!-- View Panel (kept for later if you want it) -->
-<div id="viewPanel" role="dialog" aria-modal="false" aria-hidden="true">
-  <div class="row">
-    <label for="viewCols">Columns</label>
-    <select id="viewCols">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3" selected>3</option>
-      <option value="4">4</option>
-    </select>
-  </div>
-  <div class="row">
-    <label for="viewDensity">Density</label>
-    <select id="viewDensity">
-      <option value="cozy">Cozy</option>
-      <option value="comfortable" selected>Comfortable</option>
-      <option value="roomy">Roomy</option>
-    </select>
   </div>
 </div>
 
@@ -346,47 +321,126 @@ function paintAvatar(){
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
 }
 
-/* Avatar menu (no toggles now) */
-(function buildAvatarMenu(){
-  const menu = $('#avatarMenu');
-  // no dev/dir toggles here anymore
-  if(!['admin','director'].includes(baseRole())){
-    // nothing else to change
-  }
-})();
-
-/* Mark body with admin class & hide config for non-admin */
-if(baseRole()==='admin'){ document.body.classList.add('admin'); }
-else{
-  document.body.classList.remove('admin','config-on');
-  $('#cfgbar').setAttribute('aria-hidden','true');
-}
-
-/* Avatar drawer + subsheet */
+/* Avatar drawer */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
+$$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
+  e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
+}, {passive:false}));
 
+/* Full-screen course sheet */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  document.body.classList.add('lock');
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
 }
-function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; }
+function closeSubSheet(){
+  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
+  subFrame.src='about:blank';
+  document.body.classList.remove('lock');
+}
 $('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
 subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
-$$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
-  e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
-}, {passive:false}));
 
-/* Config toolbar "View as" override */
-$('#viewAs').addEventListener('change', e=>{ const v=e.target.value||''; store.set(K.viewAs, v); paintAvatar(); paintPage(); applyArchiveSkin(); updateFooterModeControls(); }, {passive:true});
+/* Footer visibility for Admin/Director */
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+function applyArchiveVisibility(){
+  if((baseRole()==='admin') || (baseRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
+}
+applyArchiveVisibility();
 
-/* ===== settings & flags ===== */
+/* Footer skin + title based on role */
+function applyArchiveSkin(){
+  const role=getRole();
+  const title = role==='director' ? 'Director Mode' : 'Developer Mode';
+  $('#archiveTitle').textContent = title;
+  if(role==='director'){
+    dock.style.background = '#ffd60a';
+    dock.style.color = '#000';
+    $('#dirModeToggle').style.display='inline-flex';
+  }else{
+    dock.style.background = 'var(--red)';
+    dock.style.color = '#fff';
+    $('#dirModeToggle').style.display='none';
+  }
+  updateFooterModeControls();
+}
+applyArchiveSkin();
+
+/* Footer mode controls text + Add Heading visibility */
+function updateFooterModeControls(){
+  const devOn = document.body.classList.contains('config-on');
+  $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
+  if($('#dirModeToggle').style.display!=='none'){
+    $('#dirModeToggle').textContent = `Director: ${directorMode()?'On':'Off'}`;
+  }
+  // Add Heading button (admin + dev only)
+  $('#addHeadingFooter').style.display = (baseRole()==='admin' && devOn) ? 'inline-flex' : 'none';
+}
+
+/* View state */
+function defaultView(){ return { cols:3, density:'comfortable' }; } // (redeclared to ensure scope)
+function getView(){ return store.get(K.view, defaultView()); }
+function saveView(v){ store.set(K.view, v); applyView(); }
+
+/* Footer view controls ⇄ view state */
+function syncFooterViewControls(){
+  const v=getView();
+  $('#footerCols').value=String(v.cols||3);
+  $('#footerDensity').value=v.density||'comfortable';
+}
+syncFooterViewControls();
+$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
+$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
+
+/* Footer View-as control */
+function syncFooterViewAs(){
+  const v = store.get(K.viewAs,'');
+  $('#footerViewAs').value = v || '';
+}
+syncFooterViewAs();
+$('#footerViewAs').addEventListener('change', e=>{
+  const v=e.target.value||'';
+  store.set(K.viewAs, v);
+  paintAvatar(); paintPage(); paintArchive(); applyArchiveSkin();
+}, {passive:true});
+
+/* Footer mode toggles */
+$('#devToggle').addEventListener('click', ()=>{
+  if(!['admin','director'].includes(baseRole())) return;
+  document.body.classList.toggle('config-on');
+  updateFooterModeControls();
+  paintPage();
+}, {passive:true});
+
+$('#dirModeToggle').addEventListener('click', ()=>{
+  if(baseRole()!=='director') return;
+  const next=!directorMode();
+  store.set(K.directorMode,next);
+  updateFooterModeControls();
+  paintPage(); paintArchive(); applyArchiveSkin();
+}, {passive:true});
+
+/* Footer open/close + body lock behavior (drawer of archived heroes) */
+let savedScrollY=0;
+function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
+  if(!isOpen) lockBody(); else unlockBody();
+}, {passive:true});
+
+/* Settings */
 function defaults(){
   const heroFlags={}, pageOrder=[];
   for(let i=1;i<=10;i++){
@@ -440,11 +494,14 @@ function heroCard(id){
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
-  const showMove = (getRole()==='admin'); // admin only
+  // Visibility of chips line: only in Admin Dev mode or Director+DirectorMode
+  const showAudience = (document.body.classList.contains('config-on') && baseRole()==='admin') ||
+                       (getRole()==='director' && directorMode());
+
+  const showMove = (getRole()==='admin');
   const showLiveAdmin = (getRole()==='admin');
   const showLiveDirector = (getRole()==='director') && directorMode();
   const showAnyLive = showLiveAdmin || showLiveDirector;
-  const showAudience = (getRole()==='admin') || ((getRole()==='director') && directorMode());
 
   let ctrlsHTML = '';
   if(showAnyLive || showMove){
@@ -486,6 +543,7 @@ function heroCard(id){
           <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
         </div>`:''}
     </div>`;
+
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
 
@@ -500,7 +558,8 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
-  const tools = (getRole()==='admin') ? `
+  // Heading tools only for Admin in Dev mode; audience for Admin Dev OR Director+DirectorMode
+  const tools = (baseRole()==='admin' && document.body.classList.contains('config-on')) ? `
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
       <button class="cfgbtn" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
@@ -508,7 +567,9 @@ function dividerEl(obj){
       <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
     </div>` : '';
 
-  const showAud = (getRole()==='admin') || ((getRole()==='director') && directorMode());
+  const showAud = (baseRole()==='admin' && document.body.classList.contains('config-on')) ||
+                  (getRole()==='director' && directorMode());
+
   const audLine = showAud ? `
     <div class="aud-line">
       <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Beginner</button>
@@ -543,52 +604,6 @@ function paintPage(){
   });
 }
 
-/* Archive footer visibility (Admin OR Director) */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
-function applyArchiveVisibility(){
-  if((getRole()==='admin') || (getRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
-  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
-}
-applyArchiveVisibility();
-
-/* Footer skin + title based on role */
-function applyArchiveSkin(){
-  const role=getRole();
-  const title = role==='director' ? 'Director Mode' : 'Developer Mode';
-  $('#archiveTitle').textContent = title;
-  if(role==='director'){
-    dock.style.background = '#ffd60a';
-    dock.style.color = '#000';
-    $('#dirModeToggle').style.display='inline-flex';
-  }else{
-    dock.style.background = 'var(--red)';
-    dock.style.color = '#fff';
-    $('#dirModeToggle').style.display='none';
-  }
-  updateFooterModeControls();
-}
-applyArchiveSkin();
-
-/* Footer mode controls text */
-function updateFooterModeControls(){
-  const devOn = document.body.classList.contains('config-on');
-  $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
-  if($('#dirModeToggle').style.display!=='none'){
-    $('#dirModeToggle').textContent = `Director: ${directorMode()?'On':'Off'}`;
-  }
-}
-
-/* Footer view controls ⇄ view state */
-function syncFooterViewControls(){
-  const v=getView();
-  $('#footerCols').value=String(v.cols||3);
-  $('#footerDensity').value=v.density||'comfortable';
-}
-syncFooterViewControls();
-
-$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
-
 /* Archive list */
 function paintArchive(){
   const s=getSettings(); const flags=s.heroFlags;
@@ -607,47 +622,18 @@ function paintArchive(){
     archiveList.appendChild(row);
   });
 }
-paintArchive();
 
-/* Archive open/close + body lock */
-let savedScrollY=0;
-function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
-function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
-$('#archiveToggle').addEventListener('click',()=>{
-  const isOpen=dock.classList.contains('open');
-  dock.classList.toggle('open', !isOpen);
-  dock.classList.toggle('collapsed', isOpen);
-  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
-  if(!isOpen) lockBody(); else unlockBody();
-}, {passive:true});
+/* Controls */
+function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; } // redeclared for scope
 
-/* Footer mode toggle handlers */
-$('#devToggle').addEventListener('click', ()=>{
-  if(!['admin','director'].includes(baseRole())) return;
-  document.body.classList.toggle('config-on');
-  const on=document.body.classList.contains('config-on');
-  $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
-  updateFooterModeControls();
-  paintPage();
-}, {passive:true});
-
-$('#dirModeToggle').addEventListener('click', ()=>{
-  if(baseRole()!=='director') return;
-  const next=!directorMode();
-  store.set(K.directorMode,next);
-  updateFooterModeControls();
-  paintPage(); paintArchive(); applyArchiveSkin();
-}, {passive:true});
-
-/* Config toolbar */
+/* Add heading (footer button) */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
-$('#addHeadingBtn').addEventListener('click',()=>{
-  if(getRole()!=='admin') return;
+$('#addHeadingFooter').addEventListener('click',()=>{
+  if(baseRole()!=='admin' || !document.body.classList.contains('config-on')) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
 }, {passive:false});
-$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); updateFooterModeControls(); paintAvatar(); paintPage(); }, {passive:true});
 
 /* Click handlers across page */
 document.addEventListener('click',(e)=>{
@@ -679,7 +665,7 @@ document.addEventListener('click',(e)=>{
   }
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    if(!((getRole()==='admin') || ((getRole()==='director') && directorMode()))) return;
+    if(!((getRole()==='admin' && document.body.classList.contains('config-on')) || ((getRole()==='director') && directorMode()))) return;
     const key=audBtn.getAttribute('data-aud');
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
@@ -688,7 +674,7 @@ document.addEventListener('click',(e)=>{
     paintPage(); paintArchive(); return;
   }
   if(e.target.dataset.divAud){
-    if(!((getRole()==='admin') || ((getRole()==='director') && directorMode()))) return;
+    if(!((getRole()==='admin' && document.body.classList.contains('config-on')) || ((getRole()==='director') && directorMode()))) return;
     const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
     const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
@@ -696,31 +682,15 @@ document.addEventListener('click',(e)=>{
     s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
   }
   if(e.target.matches('[data-cfg-rename]')){
-    if(getRole()!=='admin') return;
+    if(!(baseRole()==='admin' && document.body.classList.contains('config-on'))) return;
     const id=e.target.getAttribute('data-cfg-rename');
     const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
-  if(e.target.dataset.divAct){
-    if(getRole()!=='admin') return;
-    const id=e.target.getAttribute('data-div-id'); const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-    const act=e.target.dataset.divAct;
-    if(act==='rename'){
-      const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
-      if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
-    }else if(act==='remove'){
-      if(confirm('Remove this heading?')){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); }
-    }else if(act==='up' || act==='down'){
-      const to = act==='up' ? Math.max(0, idx-1) : Math.min(s.pageOrder.length-1, idx+1);
-      if(to!==idx){ const [it]=s.pageOrder.splice(idx,1); s.pageOrder.splice(to,0,it); saveSettings(s); paintPage(); }
-    }
-    return;
-  }
   if(e.target.matches('.cfg-arrow')){
-    if(getRole()!=='admin') return;
+    if(!(baseRole()==='admin' && document.body.classList.contains('config-on'))) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
@@ -744,13 +714,7 @@ paintArchive();
 applyArchiveSkin();
 updateFooterModeControls();
 syncFooterViewControls();
-
-// Also keep the hidden view panel inputs in sync if you ever show it
-(function initViewUI(){
-  const v=getView();
-  if($('#viewCols')) $('#viewCols').value = String(v.cols||3);
-  if($('#viewDensity')) $('#viewDensity').value = v.density||'comfortable';
-})();
+syncFooterViewAs();
 })();
 </script>
 </body>
