@@ -139,6 +139,13 @@ button{user-select:none;-webkit-user-select:none}
 #archiveDock.collapsed{max-height:48px}
 #archiveDock.open{max-height:60vh}
 
+/* Footer view controls */
+.footer-controls{display:flex;align-items:center;gap:8px}
+.footer-controls select{
+  height:28px;border-radius:8px;border:1px solid var(--stroke);
+  background:#141416;color:#fff;font-weight:800;padding:0 8px;
+}
+
 /* View panel */
 #viewPanel{position:absolute;right:160px;top:10px;background:#0f1116;border:1px solid var(--stroke);border-radius:12px;padding:10px 12px;display:none;z-index:51}
 #viewPanel.open{display:block}
@@ -234,9 +241,27 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 <!-- Archive Footer (Admin/Director only) -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
-    <span>Archived</span>
-    <span class="count" id="countArchive">0</span>
-    <button class="chip" id="archiveToggle" type="button">Open</button>
+    <div class="footer-controls">
+      <span id="archiveTitle">Developer Mode</span>
+      <!-- view controls (everyone) -->
+      <label for="footerCols" style="font-size:12px;opacity:.9;margin-left:10px">Cols</label>
+      <select id="footerCols">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+      </select>
+      <label for="footerDensity" style="font-size:12px;opacity:.9">Density</label>
+      <select id="footerDensity">
+        <option value="cozy">Cozy</option>
+        <option value="comfortable" selected>Comfortable</option>
+        <option value="roomy">Roomy</option>
+      </select>
+    </div>
+    <div class="footer-controls">
+      <span class="count" id="countArchive">0</span>
+      <button class="chip" id="archiveToggle" type="button">Open</button>
+    </div>
   </div>
   <div class="content">
     <div class="list" id="archiveList"></div>
@@ -335,7 +360,7 @@ function paintAvatar(){
       const next=!directorMode();
       store.set(K.directorMode,next);
       closeDrawer();
-      paintAvatar(); paintPage(); paintArchive();
+      paintAvatar(); paintPage(); paintArchive(); applyArchiveSkin();
     });
   }
 })();
@@ -381,11 +406,11 @@ $('#cfgToggle')?.addEventListener('click', e=>{
 /* View panel UI (everyone) */
 const vp=$('#viewPanel'), vb=$('#viewBtn');
 vb.addEventListener('click', ()=>{ vp.classList.toggle('open'); vp.setAttribute('aria-hidden', vp.classList.contains('open')?'false':'true'); }, {passive:true});
-$('#viewCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-$('#viewDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
+$('#viewCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); syncFooterViewControls(); }, {passive:true});
+$('#viewDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); syncFooterViewControls(); }, {passive:true});
 
 /* Dev-bar "View as" override */
-$('#viewAs').addEventListener('change', e=>{ const v=e.target.value||''; store.set(K.viewAs, v); paintAvatar(); paintPage(); }, {passive:true});
+$('#viewAs').addEventListener('change', e=>{ const v=e.target.value||''; store.set(K.viewAs, v); paintAvatar(); paintPage(); applyArchiveSkin(); }, {passive:true});
 
 /* ===== settings & flags ===== */
 function defaults(){
@@ -460,12 +485,13 @@ function heroCard(id){
       ctrlsHTML += `<button class="chip ${cls}" data-act="toggle" ${ro} type="button">${label}</button>`;
     }
     if(showMove){
-      ctrlsHTML += `<button class="chip" data-act="move" type="button">Move</button>`;
+      /* CHANGE: rename the chip to Archive on the hero card */
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">Archive</button>`;
     }
     ctrlsHTML += `</div>`;
   }
 
-  // Decide CTA label based on progress state (UI-only)
+  // Decide CTA label
   let btnLabel = 'Start';
   if(completed) btnLabel = 'Completed';
   else if(inprogress) btnLabel = 'In Progress';
@@ -559,6 +585,34 @@ function applyArchiveVisibility(){
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
 applyArchiveVisibility();
+
+/* Footer skin + title based on role */
+function applyArchiveSkin(){
+  const role=getRole();
+  const title = role==='director' ? 'Director Mode' : 'Developer Mode';
+  $('#archiveTitle').textContent = title;
+  if(role==='director'){
+    dock.style.background = '#ffd60a';
+    dock.style.color = '#000';
+  }else{
+    dock.style.background = 'var(--red)';
+    dock.style.color = '#fff';
+  }
+}
+applyArchiveSkin();
+
+/* Sync footer selects with stored view */
+function syncFooterViewControls(){
+  const v=getView();
+  const fc=$('#footerCols'), fd=$('#footerDensity');
+  if(fc) fc.value=String(v.cols||3);
+  if(fd) fd.value=v.density||'comfortable';
+}
+syncFooterViewControls();
+
+/* Hook footer selects -> view state */
+$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
+$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
 
 /* Archive list */
 function paintArchive(){
@@ -702,12 +756,14 @@ applyView();
 paintAvatar();
 paintPage();
 paintArchive();
+applyArchiveSkin();
 
 // Initialize view controls to stored values
 (function initViewUI(){
   const v=getView();
   $('#viewCols').value = String(v.cols||3);
   $('#viewDensity').value = v.density||'comfortable';
+  syncFooterViewControls();
 })();
 })();
 </script>
