@@ -11,7 +11,6 @@
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
-  --hero-pad:16px; /* density-driven */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
@@ -21,8 +20,7 @@ html,body{
 }
 a{color:inherit;text-decoration:none}
 button{user-select:none;-webkit-user-select:none}
-/* Removed legacy background image; solid page bg only */
-.bg{position:fixed;inset:0;z-index:-1;background:var(--bg)}
+.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
 /* Top bar */
 .nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -30,17 +28,16 @@ button{user-select:none;-webkit-user-select:none}
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .title-tab{font-weight:900;opacity:.92}
 
-/* Avatar pill + View chip */
+/* Avatar pill */
 .avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
   font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
 .avatarTab .name{font-size:15px;font-weight:900}
 .avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
-.viewChip{height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer;margin-right:8px}
 
 /* Layout */
 .wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
 
-/* Grid (defaults; user View overrides inline) */
+/* Grid (unchanged) */
 .grid{display:grid;gap:12px}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 @media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
@@ -53,11 +50,9 @@ button{user-select:none;-webkit-user-select:none}
 .config-on .cfgbar{display:flex}
 .cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
 .cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
-.cfgslot{display:flex;align-items:center;gap:8px;margin-left:4px}
-.cfgslot label{font-size:12px;opacity:.85}
 
 /* Hero */
-.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:var(--hero-pad);min-height:240px}
+.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
 .hero .label{font-weight:900;font-size:18px;opacity:.95}
 .ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
 .chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
@@ -65,22 +60,20 @@ button{user-select:none;-webkit-user-select:none}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
 
-/* Position locks */
+/* ===== POSITION LOCKS YOU ASKED FOR ===== */
 .hero .label{position:absolute;top:14px;left:16px;z-index:2}
 .cta-left{position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2}
 .hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
 .config-on .hero .hero-arrows{display:flex}
 .hero-arrows .cfg-arrow{height:24px;padding:0 6px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
 
-/* Buttons */
+/* Keep the legacy button styles (unchanged) */
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
-/* Completed button style */
-.btn.done{background:#3a3a3a;border-color:#3a3a3a;color:#cfcfcf}
 
 /* Audience chips */
-.aud-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.aud-line{display:flex;gap:8px;align-items:center}
 .aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
 .aud-chip.on{opacity:1;filter:brightness(1.22)}
 .aud-chip.on::after{content:" ✓";font-weight:900}
@@ -99,7 +92,8 @@ button{user-select:none;-webkit-user-select:none}
 /* Compact headings when NOT in config mode (tight, bottom-snapped) */
 :not(.config-on) .divider{
   border:none;background:transparent;min-height:0;
-  padding:0 2px 6px;margin:28px 2px 8px; display:flex;align-items:flex-end;
+  padding:0 2px 6px;margin:28px 2px 8px; /* more above, less below */
+  display:flex;align-items:flex-end;
 }
 :not(.config-on) .divider .aud-line{display:none}
 :not(.config-on) .divider .htext{padding:0;margin:0}
@@ -142,20 +136,17 @@ button{user-select:none;-webkit-user-select:none}
 #archiveDock.collapsed{max-height:48px}
 #archiveDock.open{max-height:60vh}
 
-/* View panel */
-#viewPanel{position:absolute;right:160px;top:10px;background:#0f1116;border:1px solid var(--stroke);border-radius:12px;padding:10px 12px;display:none;z-index:51}
-#viewPanel.open{display:block}
-#viewPanel .row{display:flex;align-items:center;gap:10px;margin:8px 0}
-#viewPanel select{height:30px;border-radius:8px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:700}
-
 /* Lock body when drawer open */
 body.lock{position:fixed;inset:0;overflow:hidden}
 
-/* Completed & In-Progress visual + hero art */
-.hero.completed{ border:2px solid #888; }
-.hero.inprogress{ border:2px solid var(--green); }
-
-/* Hero art layer */
+/* ====== Completed visual + hero art (from previous step) ====== */
+.hero.completed{ box-shadow: inset 0 0 0 3px var(--green), 0 0 0 1px var(--green); }
+.hero .complete-tick{
+  position:absolute; top:10px; left:10px; z-index:6;
+  width:28px; height:28px; border-radius:999px;
+  background:var(--green); color:#000; font-weight:900; display:grid; place-items:center;
+  border:1px solid rgba(0,0,0,.35);
+}
 .hero .art{ position:absolute; inset:0; z-index:0; opacity:.9; pointer-events:none; overflow:hidden; border-radius:16px; }
 .hero .art img{
   position:absolute; top:50%; left:50%;
@@ -164,6 +155,7 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   user-select:none; pointer-events:none;
   filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
+/* keep other elements above a subtle gradient overlay */
 .hero::after{
   content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
   background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
@@ -177,7 +169,6 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left"><span class="title-tab">Courses</span></div>
   <div class="nav-right">
-    <button id="viewBtn" class="viewChip" type="button">View</button>
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
       <span class="lvl" id="avatarLvl">Admin</span>
@@ -189,19 +180,6 @@ body.lock{position:fixed;inset:0;overflow:hidden}
 <div id="cfgbar" class="cfgbar" aria-hidden="true">
   <button class="cfgbtn blue" id="addHeadingBtn" type="button">Add Heading</button>
   <button class="cfgbtn" id="exitCfgBtn" type="button">Exit Developer</button>
-  <!-- View-as (Dev bar only) -->
-  <div class="cfgslot">
-    <label for="viewAs">View as:</label>
-    <select id="viewAs">
-      <option value="">Actual</option>
-      <option value="bronze">Beginner</option>
-      <option value="silver">Intermediate</option>
-      <option value="gold">Advanced</option>
-      <option value="support">Support</option>
-      <option value="director">Director</option>
-      <option value="admin">Admin</option>
-    </select>
-  </div>
 </div>
 
 <main class="wrap">
@@ -214,8 +192,6 @@ body.lock{position:fixed;inset:0;overflow:hidden}
     <nav class="menu-list" id="avatarMenu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
-      <!-- Direct link into your Display Options section -->
-      <a href="avatar/settings.html#display" data-pop="Display Options">Display Options<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
@@ -248,27 +224,6 @@ body.lock{position:fixed;inset:0;overflow:hidden}
   </div>
 </div>
 
-<!-- View Panel -->
-<div id="viewPanel" role="dialog" aria-modal="false" aria-hidden="true">
-  <div class="row">
-    <label for="viewCols">Columns</label>
-    <select id="viewCols">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3" selected>3</option>
-      <option value="4">4</option>
-    </select>
-  </div>
-  <div class="row">
-    <label for="viewDensity">Density</label>
-    <select id="viewDensity">
-      <option value="cozy">Cozy</option>
-      <option value="comfortable" selected>Comfortable</option>
-      <option value="roomy">Roomy</option>
-    </select>
-  </div>
-</div>
-
 <script>
 (()=>{'use strict';
 /* ===== utils & storage ===== */
@@ -276,48 +231,14 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode', view:'ao_view', viewAs:'ao_view_as' };
-
-/* Soft labels for bronze/silver/gold -> Beginner/Intermediate/Advanced */
-const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced' };
+const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode', prefs:'ao_prefs', view:'ao_view' };
 
 /* URL reset hook */
 const Q=new URLSearchParams(location.search);
-if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); localStorage.removeItem(K.view); localStorage.removeItem(K.viewAs); }
+if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); }
 
-/* View settings */
-function defaultView(){
-  // Smart default: phone portrait = 1 column
-  let cols=3;
-  const portrait = window.innerHeight > window.innerWidth;
-  if ((window.innerWidth <= 600 && portrait) || window.innerWidth <= 420) cols=1;
-  return { cols, density:'comfortable' };
-}
-function getView(){ return store.get(K.view, null) || (store.set(K.view, defaultView()), store.get(K.view)); }
-function saveView(v){ store.set(K.view, v); applyView(); }
-function applyView(){
-  const v=getView();
-  const grid=$('#pageGrid');
-  if(grid){
-    const cols = Math.max(1,Math.min(4,Number(v.cols)||3));
-    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    // Density maps to spacing & hero padding
-    const gapMap = { cozy:14, comfortable:24, roomy:36 };
-    const padMap = { cozy:14, comfortable:18, roomy:22 };
-    const g = gapMap[v.density] ?? 24;
-    const p = padMap[v.density] ?? 18;
-    grid.style.gap = g+'px';
-    document.documentElement.style.setProperty('--hero-pad', p+'px');
-  }
-}
-
-/* Roles + Director Mode + View-as override */
-function baseRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
-function getRole(){
-  const override = store.get(K.viewAs,'');
-  if(document.body.classList.contains('config-on') && override) return override;
-  return baseRole();
-}
+/* Roles + Director Mode */
+function getRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function directorMode(){ return !!store.get(K.directorMode,false); }
@@ -327,21 +248,55 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
-  const role=getRole();
-  const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
-  $('#avatarLvl').textContent = friendly;
+  const role=(p.skill||'admin').toLowerCase();
+  $('#avatarLvl').textContent = role.charAt(0).toUpperCase()+role.slice(1);
   const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
   const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
 }
+paintAvatar();
+
+/* ===== Apply background from settings (ao_prefs) ===== */
+function applyBackground(){
+  const prefs = store.get(K.prefs, {display:{background:'art-default'}});
+  const bgKey = prefs.display?.background || 'art-default';
+
+  // Map keys to assets or gradients
+  const BG_MAP = {
+    'art-default': './assets/home-bg.jpg',
+    'gradient-1': 'gradient:linear-gradient(180deg,#020617,#0b1220)',
+    'texture-1' : './assets/texture-canvas.jpg' // add asset later if desired
+  };
+
+  const el = document.querySelector('.bg');
+  if(!el) return;
+
+  const src = BG_MAP[bgKey] || BG_MAP['art-default'];
+  if(String(src).startsWith('gradient:')){
+    const g = src.replace(/^gradient:/,'');
+    el.style.background = g;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+  }else{
+    el.style.background = `#000 url("${src}") center/cover no-repeat`;
+  }
+}
+applyBackground();
+
+// Respond live when settings are saved
+window.addEventListener('storage',(e)=>{
+  if(e.key===K.prefs){ applyBackground(); }
+});
 
 /* Build avatar menu: hide Config for non-admin; add Director Mode toggle for directors */
 (function buildAvatarMenu(){
   const menu = $('#avatarMenu');
-  if(!['admin','director'].includes(baseRole())){
+  if(!isAdmin()){
+    // Hide Developer Mode entry entirely for non-admin
     const cfg = $('#cfgToggle'); if(cfg) cfg.style.display='none';
   }
-  if(baseRole()==='director'){
+  if(isDirector()){
+    // Inject Director Mode toggle
     const li=document.createElement('a');
     li.href='#'; li.id='dirToggle';
     li.innerHTML=`Director Mode <span>${directorMode()?'On':'Off'}</span>`;
@@ -350,14 +305,15 @@ function paintAvatar(){
       e.preventDefault();
       const next=!directorMode();
       store.set(K.directorMode,next);
+      // Close drawer and repaint UI to reflect mode change
       closeDrawer();
-      paintAvatar(); paintPage(); paintArchive();
+      paintPage(); paintArchive();
     });
   }
 })();
 
 /* Mark body with admin class & hide config for non-admin */
-if(baseRole()==='admin'){ document.body.classList.add('admin'); }
+if(isAdmin()){ document.body.classList.add('admin'); }
 else{
   document.body.classList.remove('admin','config-on');
   $('#cfgbar').setAttribute('aria-hidden','true');
@@ -367,10 +323,10 @@ else{
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
 function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
-avatarBtn.addEventListener('click', openDrawer, {passive:true});
+avatarBtn.addEventListener('click', openDrawer, {passive:true}); /* (typo fix not required if your version is fine) */
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -384,24 +340,14 @@ $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
 }, {passive:false}));
 
-/* Config toggle — admin only (or director, read-only) */
+/* Config toggle — admin only */
 $('#cfgToggle')?.addEventListener('click', e=>{
   e.preventDefault();
-  if(!['admin','director'].includes(baseRole())) return;
+  if(!isAdmin()) return;
   document.body.classList.toggle('config-on');
   const on=document.body.classList.contains('config-on');
   $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
-  paintAvatar(); paintPage();
 }, {passive:false});
-
-/* View panel UI (everyone) */
-const vp=$('#viewPanel'), vb=$('#viewBtn');
-vb.addEventListener('click', ()=>{ vp.classList.toggle('open'); vp.setAttribute('aria-hidden', vp.classList.contains('open')?'false':'true'); }, {passive:true});
-$('#viewCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-$('#viewDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
-
-/* Dev-bar "View as" override */
-$('#viewAs').addEventListener('change', e=>{ const v=e.target.value||''; store.set(K.viewAs, v); paintAvatar(); paintPage(); }, {passive:true});
 
 /* ===== settings & flags ===== */
 function defaults(){
@@ -453,17 +399,16 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
-  /* progress/completed flags + hero art */
+  /* completion + hero art */
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
-  const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
   // Permission booleans
-  const showMove = (getRole()==='admin'); // admin only
-  const showLiveAdmin = (getRole()==='admin');
-  const showLiveDirector = (getRole()==='director') && directorMode();
+  const showMove = isAdmin(); // admin only
+  const showLiveAdmin = isAdmin();
+  const showLiveDirector = isDirector() && directorMode();
   const showAnyLive = showLiveAdmin || showLiveDirector;
-  const showAudience = (getRole()==='admin') || ((getRole()==='director') && directorMode());
+  const showAudience = isAdmin() || (isDirector() && directorMode());
 
   // Build controls HTML
   let ctrlsHTML = '';
@@ -481,18 +426,14 @@ function heroCard(id){
     ctrlsHTML += `</div>`;
   }
 
-  // CTA label + style based on progress state
-  let btnLabel = 'Start';
-  let btnClass = 'btn blue';
-  if(completed){ btnLabel='Completed'; btnClass='btn done'; }
-  else if(inprogress){ btnLabel='In Progress'; btnClass='btn blue'; }
-
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
+  const tick = completed ? `<div class="complete-tick">✓</div>` : '';
 
   el.innerHTML=`
     ${artLayer}
+    ${tick}
     <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
     <div class="hero-arrows">
       <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
@@ -501,18 +442,16 @@ function heroCard(id){
     <span class="label">${labelFor(id)}</span>
     ${ctrlsHTML}
     <div class="cta-left">
-      <button class="${btnClass}" data-act="enter" type="button">${btnLabel}</button>
+      <button class="btn blue" data-act="enter" type="button">Start</button>
       ${showAudience?`
         <div class="aud-line">
-          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
-          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
-          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
+          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
+          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
+          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
         </div>`:''}
     </div>`;
 
   if(completed) el.classList.add('completed');
-  else if(inprogress) el.classList.add('inprogress');
-
   if(art && art.crop){
     const img = el.querySelector('.art img');
     if(img){
@@ -524,8 +463,8 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
-  // Heading tools shown in Dev; audience chips for Admin or Director (Director Mode)
-  const tools = (getRole()==='admin') ? `
+  // Heading tools & audience ONLY for Admin, and audience only meaningful in Config
+  const tools = isAdmin() ? `
     <div class="dctrls">
       <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
       <button class="cfgbtn" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
@@ -533,12 +472,11 @@ function dividerEl(obj){
       <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
     </div>` : '';
 
-  const showAud = (getRole()==='admin') || ((getRole()==='director') && directorMode());
-  const audLine = showAud ? `
+  const audLine = isAdmin() ? `
     <div class="aud-line">
-      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Beginner</button>
-      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Intermediate</button>
-      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Advanced</button>
+      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
+      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
+      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
     </div>` : '';
 
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
@@ -549,8 +487,6 @@ function dividerEl(obj){
 /* Paint page respecting visibility */
 function paintPage(){
   const grid=$('#pageGrid'); grid.innerHTML='';
-  applyView();
-  paintAvatar();
   const s=getSettings(); const role=getRole();
   s.pageOrder.forEach(it=>{
     if(it.type==='hero'){
@@ -566,13 +502,14 @@ function paintPage(){
       grid.appendChild(dividerEl(it));
     }
   });
+  // Update Director Mode menu label if present
   const dirItem = $('#dirToggle'); if(dirItem) dirItem.querySelector('span').textContent = directorMode()?'On':'Off';
 }
 
 /* Archive footer visibility (Admin OR Director) */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
 function applyArchiveVisibility(){
-  if((getRole()==='admin') || (getRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+  if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
 applyArchiveVisibility();
@@ -585,10 +522,11 @@ function paintArchive(){
     .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
+    // In archive, Move allowed only for Admin
     const controls = `
       <div style="display:flex;gap:8px;align-items:center">
-        ${((getRole()==='admin')|| ((getRole()==='director')&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${(getRole()==='admin')?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
-        ${(getRole()==='admin')?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
+        ${(isAdmin()|| (isDirector()&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin()?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
+        ${isAdmin()?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
       </div>`;
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
@@ -612,16 +550,16 @@ $('#archiveToggle').addEventListener('click',()=>{
 /* Config toolbar */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
-  if(getRole()!=='admin') return;
+  if(!isAdmin()) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
 }, {passive:false});
-$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); paintAvatar(); paintPage(); }, {passive:true});
+$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); }, {passive:true});
 
 /* Click handlers with confirmations */
 document.addEventListener('click',(e)=>{
-  // Start / In Progress / Completed (OPEN courses/1–50.html in subsheet)
+  // Start (OPEN courses/1–50.html in subsheet)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
@@ -630,7 +568,7 @@ document.addEventListener('click',(e)=>{
   }
   // Live toggle (Admin only). Directors see read-only chip in Director Mode.
   if(e.target.closest('[data-act="toggle"]')){
-    if(getRole()!=='admin') return;
+    if(!isAdmin()) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     const next = cur.state==='live' ? 'off' : 'live';
@@ -640,7 +578,7 @@ document.addEventListener('click',(e)=>{
   }
   // Move (page<->archive) — Admin only
   if(e.target.closest('[data-act="move"]')){
-    if(getRole()!=='admin') return;
+    if(!isAdmin()) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
@@ -653,7 +591,7 @@ document.addEventListener('click',(e)=>{
   // Audience chips on heroes — Admin OR Director (in Director Mode)
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    if(!((getRole()==='admin') || ((getRole()==='director') && directorMode()))) return;
+    if(!(isAdmin() || (isDirector() && directorMode()))) return;
     const key=audBtn.getAttribute('data-aud');
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
@@ -661,9 +599,9 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
     paintPage(); paintArchive(); return;
   }
-  // Audience chips on headings — Admin or Director(Mode)
+  // Audience chips on headings — Admin only (and shown in Config)
   if(e.target.dataset.divAud){
-    if(!((getRole()==='admin') || ((getRole()==='director') && directorMode()))) return;
+    if(!isAdmin()) return;
     const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
     const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
@@ -672,7 +610,7 @@ document.addEventListener('click',(e)=>{
   }
   // Rename hero label — Admin only
   if(e.target.matches('[data-cfg-rename]')){
-    if(getRole()!=='admin') return;
+    if(!isAdmin()) return;
     const id=e.target.getAttribute('data-cfg-rename');
     const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
@@ -681,7 +619,7 @@ document.addEventListener('click',(e)=>{
   }
   // Divider actions (rename / remove / arrows) — Admin only
   if(e.target.dataset.divAct){
-    if(getRole()!=='admin') return;
+    if(!isAdmin()) return;
     const id=e.target.getAttribute('data-div-id'); const s=getSettings();
     const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
     const act=e.target.dataset.divAct;
@@ -698,7 +636,7 @@ document.addEventListener('click',(e)=>{
   }
   // Hero sort arrows — Admin only (Developer Mode controls visibility)
   if(e.target.matches('.cfg-arrow')){
-    if(getRole()!=='admin') return;
+    if(!isAdmin()) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
@@ -715,17 +653,7 @@ document.addEventListener('click',(e)=>{
 }, {passive:false});
 
 /* Initial render */
-applyView();
-paintAvatar();
-paintPage();
-paintArchive();
-
-// Initialize view controls to stored values
-(function initViewUI(){
-  const v=getView();
-  $('#viewCols').value = String(v.cols||3);
-  $('#viewDensity').value = v.density||'comfortable';
-})();
+paintPage(); paintArchive();
 })();
 </script>
 </body>
