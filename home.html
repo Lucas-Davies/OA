@@ -1,3 +1,7 @@
+This is the home I wanted you to update 
+
+Can you update it for me and send it back fully updated? Nothing missing 
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -489,7 +493,7 @@ function showTab(name){
   currentTab=name;
   tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
   panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
-  $('#dockTitle').textContent=`Development Space — ${name.charAt(0).toUpperCase()+name.slice(1)}`;
+  $('#dockTitle').textContent=Development Space — ${name.charAt(0).toUpperCase()+name.slice(1)};
   paintWorkingDrawer(); // filter by tab
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -593,7 +597,7 @@ document.body.addEventListener('click',(e)=>{
     const id=hero.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
     const next=(cur.state==='live'?'off':'live');
-    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`);
+    const ok=confirm(Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?);
     if(!ok) return;
     s.heroFlags[id]={...cur, state:next}; saveSettings(s);
     applyHeroVisibility(); paintWorkingDrawer(); return;
@@ -650,7 +654,7 @@ function paintWorkingDrawer(){
     const f=flags[id]||{state:'live',place:'page'};
     if(f.place==='dev'){
       const card=document.createElement('article'); card.className='hero';
-      card.innerHTML=`<h2 class="title">${t}</h2>
+      card.innerHTML=<h2 class="title">${t}</h2>
         <div class="admin-ctrls" style="display:flex">
           <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
           <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
@@ -661,7 +665,7 @@ function paintWorkingDrawer(){
             </div>
           </button>
         </div>
-        <p class="meta">Dev preview only</p>`;
+        <p class="meta">Dev preview only</p>;
       devSpace.appendChild(card);
     }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
     else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
@@ -671,13 +675,13 @@ function paintWorkingDrawer(){
   LA.innerHTML=''; LT.innerHTML='';
   const renderRow=(host,it,bin)=>{
     const row=document.createElement('div'); row.className='item';
-    row.innerHTML=`<div class="name">${it.title}</div>
+    row.innerHTML=<div class="name">${it.title}</div>
       <div>
         <button class="small link" data-link-id="${it.id}">${it.link?'Change Link':'Set Link'}</button>
         <button class="small open" data-open-id="${it.id}">Open</button>
         <button class="small" data-move-id="${it.id}" data-place="page">To Page</button>
         <button class="small" data-move-id="${it.id}" data-place="${bin==='archive'?'tpl':'archive'}">To ${bin==='archive'?'Templates':'Archive'}</button>
-      </div>`;
+      </div>;
     host.appendChild(row);
   };
   archive.forEach(it=>renderRow(LA,it,'archive'));
@@ -726,7 +730,7 @@ document.getElementById('adminDock').addEventListener('click',(e)=>{
 })();
 (function bootDailyMeta(){
   const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const m=$('#dailyMeta'); if(m) m.textContent = `Begins ${dayNames[today.getDay()]}`;
+  const m=$('#dailyMeta'); if(m) m.textContent = Begins ${dayNames[today.getDay()]};
 })();
 
 /* ===== Tracker hero click -> iframe ===== */
