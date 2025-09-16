@@ -303,7 +303,6 @@ function applyView(){
   // Remove density-driven padding: set a single consistent hero padding
   document.documentElement.style.setProperty('--hero-pad', '18px');
 }
-}
 
 /* Roles + Director Mode + View-as override */
 function baseRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
