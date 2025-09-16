@@ -305,12 +305,23 @@ function applyView(){
 }
 
 /* Roles + Director Mode + View-as override */
-function baseRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
-function viewOverride(){ return store.get(K.viewAs,''); }
+function baseRole(){
+  const p = store.get(K.profile, { skill: 'admin', displayName: 'User' });
+  return (p.skill || 'admin').toLowerCase();
+}
+function viewOverride(){
+  return store.get(K.viewAs, '');
+}
 function getRole(){
+  const base = baseRole();
   const override = viewOverride();
-  if((document.body.classList.contains('config-on') || document.body.classList.contains('dir-on')) && override) return override;
-  return baseRole();
+
+  // Only apply override if one is selected
+  if (override && override.length > 0) {
+    return override.toLowerCase();
+  }
+
+  return base;
 }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
