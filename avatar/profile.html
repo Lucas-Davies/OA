@@ -19,7 +19,7 @@ img{display:block;max-width:100%}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--blue); outline-offset:2px; border-radius:10px}
 
-/* Remove our header so only your overlay title shows */
+/* No local header (you already show an overlay title) */
 header{display:none}
 
 /* Buttons */
@@ -34,7 +34,7 @@ header{display:none}
 
 /* Layout */
 .container{max-width:840px;margin:0 auto;padding:12px;
-  padding-top:8px; /* tiny top spacing since header is gone */
+  padding-top:8px;
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)
 }
 
@@ -58,13 +58,13 @@ input[disabled]{opacity:.7}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:640px){ .row{grid-template-columns:1fr} }
 
-/* Permissions list */
+/* Permissions grid */
 .perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:640px){ .perm-grid{grid-template-columns:1fr} }
 .perm-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:10px;background:#111}
 .perm-item label{margin:0;font-size:14px;color:var(--ink)}
 
-/* Avatar pill with built-in level switcher */
+/* Avatar pill with tappable level chip (cycles) */
 .avatarPill{
   position:relative; display:inline-flex; flex-direction:column; justify-content:center; gap:2px;
   padding:14px 16px; border-radius:14px; border:1px solid var(--stroke); background:#222; min-width:200px;
@@ -73,38 +73,38 @@ input[disabled]{opacity:.7}
 .avatarPill .name{font-size:18px;font-weight:900}
 .avatarPill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
 
-/* Chip that opens the level menu (bottom-right of pill) */
+/* Level chip (tap to cycle) */
 .level-chip{
   position:absolute; right:10px; bottom:10px;
   display:inline-flex; align-items:center; gap:6px;
   padding:6px 10px; border-radius:10px; border:1px solid var(--stroke);
   background:#14161c; font-weight:800; font-size:12px; cursor:pointer; user-select:none
 }
-.level-chip .caret{font-size:14px; line-height:1; opacity:.9}
 
-/* Level menu + backdrop (locks background scroll) */
-#levelBackdrop{
-  position:fixed; inset:0; z-index:40; display:none;
-  background:transparent; /* tap catcher */
+/* Admin code modal */
+.modal-backdrop{
+  position:fixed; inset:0; z-index:60; display:none;
+  background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px)
 }
-.level-menu{
-  position:absolute; right:10px; bottom:48px; min-width:220px; max-width:280px;
-  background:#0f1116; border:1px solid var(--stroke); border-radius:12px;
-  box-shadow:0 12px 24px rgba(0,0,0,.35); padding:6px; display:none; z-index:50;
-  max-height:60vh; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+.modal{ position:fixed; inset:0; display:none; z-index:70; place-items:center; padding:20px }
+.modal.open, .modal-backdrop.open{ display:grid }
+.modal .card{
+  width:min(460px, 92vw);
+  background:#0f1116; border:1px solid var(--stroke); border-radius:16px; padding:16px
 }
-.level-menu.open{display:block}
-.level-menu button{
-  all:unset; display:flex; align-items:center; gap:10px; width:100%;
-  padding:12px 12px; border-radius:10px; cursor:pointer; font-weight:800; font-size:14px
+.modal h2{ margin:0 0 8px; font-size:18px }
+.modal p{ margin:0 0 12px; opacity:.9 }
+.modal .rowf{ display:flex; gap:10px; align-items:center }
+.modal input{
+  flex:1 1 auto; height:44px; border-radius:10px; border:1px solid var(--stroke);
+  background:#111; color:var(--ink); padding:0 12px; letter-spacing:3px; text-align:center
 }
-.level-menu button:hover, .level-menu button:focus-visible{background:#151820}
-.level-swatch{width:14px; height:14px; border-radius:999px; border:1px solid rgba(255,255,255,.35)}
+.modal .actions{ justify-content:flex-end; margin-top:12px }
 
-/* Scroll lock helper */
-html.no-scroll, body.no-scroll{height:100%; overflow:hidden}
+/* Scroll lock */
+html.lock, body.lock{ height:100%; overflow:hidden }
 
-/* Save confirm overlay */
+/* Save toast */
 #saveConfirm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
   background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 #saveConfirm.open{display:flex}
@@ -118,7 +118,7 @@ html.no-scroll, body.no-scroll{height:100%; overflow:hidden}
 <body>
 
 <main class="container">
-  <!-- Avatar & Level (level selector lives inside the pill) -->
+  <!-- Avatar -->
   <section class="section" aria-labelledby="sec-avatar" data-key="avatar">
     <button class="section-head" id="sec-avatar">
       <span>Avatar</span><span class="chev" aria-hidden="true">›</span>
@@ -126,20 +126,12 @@ html.no-scroll, body.no-scroll{height:100%; overflow:hidden}
     <div class="content">
       <div id="avatarPill" class="avatarPill" aria-live="polite">
         <div class="name" id="avatarName">User</div>
-        <div class="lvl" id="avatarLvl">Silver</div>
+        <div class="lvl" id="avatarLvl">Beginner</div>
 
-        <!-- Level chip opens menu -->
-        <button class="level-chip" id="levelChip" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="levelMenu">
-          <span id="levelChipText">Silver</span><span class="caret">▾</span>
+        <!-- Level chip (tap to cycle) -->
+        <button class="level-chip" id="levelChip" type="button" aria-label="Change level">
+          <span id="levelChipText">Beginner</span>
         </button>
-
-        <!-- Transparent backdrop to trap taps/scrolls -->
-        <div id="levelBackdrop" aria-hidden="true"></div>
-
-        <!-- In-pill menu -->
-        <div class="level-menu" id="levelMenu" role="menu" aria-label="Choose level">
-          <!-- buttons injected by JS -->
-        </div>
       </div>
 
       <div class="actions">
@@ -158,9 +150,9 @@ html.no-scroll, body.no-scroll{height:100%; overflow:hidden}
           <label for="rolePreset">Role preset</label>
           <select id="rolePreset" class="btn ghost small" style="min-height:44px">
             <option value="custom">Custom</option>
-            <option value="bronze">Bronze</option>
-            <option value="silver">Silver</option>
-            <option value="gold">Gold</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
             <option value="support">Support</option>
             <option value="director">Director</option>
             <option value="admin">Admin</option>
@@ -232,7 +224,21 @@ html.no-scroll, body.no-scroll{height:100%; overflow:hidden}
   </section>
 </main>
 
-<!-- Save confirm -->
+<!-- Admin code modal -->
+<div class="modal-backdrop" id="codeBackdrop" aria-hidden="true"></div>
+<div class="modal" id="codeModal" role="dialog" aria-modal="true" aria-labelledby="codeTitle" aria-describedby="codeDesc">
+  <div class="card">
+    <h2 id="codeTitle">Admin access</h2>
+    <p id="codeDesc">Enter the 4-digit code to switch to Admin.</p>
+    <div class="rowf">
+      <input id="codeInput" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="4" placeholder="••••" aria-label="4 digit code" />
+      <button class="btn grey small" id="skipAdmin" type="button">Skip</button>
+      <button class="btn small" id="confirmAdmin" type="button">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save toast -->
 <div id="saveConfirm" aria-hidden="true"><div class="card">Saved ✓</div></div>
 
 <script>
@@ -244,74 +250,66 @@ const K={profile:'ao_profile',settings:'ao_settings',perms:'ao_permissions',ui:'
 const $=s=>document.querySelector(s);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* Role colours + labels */
-const COLORS={admin:'var(--blue)',director:'var(--director)',support:'var(--support)',gold:'var(--gold)',silver:'var(--silver)',bronze:'var(--bronze)'};
-const LEVELS=['admin','director','support','gold','silver','bronze'];
+/* Levels (new names) and ring colours */
+const LEVELS=['beginner','intermediate','advanced','support','director','admin'];
+const COLOR_VAR={beginner:'--bronze', intermediate:'--silver', advanced:'--gold', support:'--support', director:'--director', admin:'--blue'};
 
 /* Elements */
 const pill=$('#avatarPill'), pillName=$('#avatarName'), pillLvl=$('#avatarLvl');
-const levelChip=$('#levelChip'), levelChipText=$('#levelChipText'), levelMenu=$('#levelMenu'), levelBackdrop=$('#levelBackdrop');
+const levelChip=$('#levelChip'), levelChipText=$('#levelChipText');
 const first=$('#firstName'), last=$('#lastName'), displayName=$('#displayName'),
       email=$('#email'), username=$('#username'), password=$('#password');
 const saveConfirm=$('#saveConfirm');
+const codeModal=$('#codeModal'), codeBackdrop=$('#codeBackdrop'), codeInput=$('#codeInput');
+const confirmAdminBtn=$('#confirmAdmin'), skipAdminBtn=$('#skipAdmin');
 
-/* Load profile (defaults) */
-let p=store.get(K.profile,{ firstName:'', lastName:'', displayName:'User', email:'', username:'user', skill:'silver' });
+/* Load profile */
+let p=store.get(K.profile,{ firstName:'', lastName:'', displayName:'User', email:'', username:'user', skill:'beginner' });
 
-/* Permissions state (per-user entry) */
-function getPerms(username){ const all=store.get(K.perms,{}); return all[username]||null; }
-function setPerms(username, perms){ const all=store.get(K.perms,{}); all[username]=perms; store.set(K.perms,all); }
-
-/* Paint avatar */
-function paintPill(role, name){
-  pill.style.boxShadow = `0 0 0 2px ${COLORS[role]||COLORS.silver} inset`;
-  const nice = cap(role);
-  pillName.textContent = name || 'User';
-  pillLvl.textContent  = nice;
-  levelChipText.textContent = nice;
-}
-
-/* Role preset → permissions */
+/* Permissions per role */
 function presetPerms(role){
   const base = {move:false, hide:false, dock:false, rearr:false, tabs:false, config:false};
-  switch((role||'silver').toLowerCase()){
-    case 'bronze': return {...base};
-    case 'silver': return {...base};
-    case 'gold':   return {...base};
-    case 'support':return {...base, dock:true};
-    case 'director':return {...base, move:true, hide:true, dock:true};
-    case 'admin':  return {move:true, hide:true, dock:true, rearr:true, tabs:true, config:true};
-    default: return {...base};
+  switch((role||'beginner').toLowerCase()){
+    case 'support':  return {...base, dock:true};
+    case 'director': return {...base, move:true, hide:true, dock:true};
+    case 'admin':    return {move:true, hide:true, dock:true, rearr:true, tabs:true, config:true};
+    default:         return {...base};
   }
 }
 
-/* Admin check + section visibility */
+/* Admin visibility */
 function isAdmin(){ return (p.skill||'').toLowerCase()==='admin'; }
 function updatePermsVisibility(){ $('#permSection').hidden = !isAdmin(); }
 
-/* Paint form from profile */
+/* Paint avatar pill */
+function paintPill(role, name){
+  const v = COLOR_VAR[role] || '--silver';
+  pill.style.boxShadow = `0 0 0 2px var(${v}) inset`;
+  const label = cap(role);
+  pillName.textContent = name || 'User';
+  pillLvl.textContent  = label;
+  levelChipText.textContent = label;
+}
+
+/* Initial paint */
 function paintForm(){
-  const role=(p.skill||'silver').toLowerCase();
+  const role=(p.skill||'beginner').toLowerCase();
   paintPill(role, p.displayName||'User');
   first.value = p.firstName||''; last.value = p.lastName||'';
   displayName.value = p.displayName||''; email.value = p.email||'';
-  username.value = p.username||'user'; updatePermsVisibility();
-
+  username.value = p.username||'user';
   if(isAdmin()){
     $('#permUser').textContent = p.username||'user';
-    const cur = getPerms(p.username) || presetPerms(role);
+    const cur = store.get(K.perms,{})[p.username] || presetPerms(role);
     $('#rolePreset').value = 'custom';
-    $('#permMove').checked   = !!cur.move;
-    $('#permHide').checked   = !!cur.hide;
-    $('#permDock').checked   = !!cur.dock;
-    $('#permRearr').checked  = !!cur.rearr;
-    $('#permTabs').checked   = !!cur.tabs;
-    $('#permConfig').checked = !!cur.config;
+    $('#permMove').checked=!!cur.move; $('#permHide').checked=!!cur.hide; $('#permDock').checked=!!cur.dock;
+    $('#permRearr').checked=!!cur.rearr; $('#permTabs').checked=!!cur.tabs; $('#permConfig').checked=!!cur.config;
   }
+  updatePermsVisibility();
 }
 paintForm();
 
-/* Collapsibles + persist open/closed state */
+/* Collapsibles + UI state */
 document.querySelectorAll('.section').forEach(sec=>{
   const ui=store.get(K.ui,{});
   const key = sec.dataset.key;
@@ -330,49 +328,69 @@ document.querySelectorAll('.section-head').forEach(btn=>{
   });
 });
 
-/* ===== Level menu (bigger + scrollable + locks background) ===== */
-function buildLevelMenu(){
-  levelMenu.innerHTML='';
-  LEVELS.forEach(l=>{
-    const btn=document.createElement('button');
-    btn.setAttribute('role','menuitemradio');
-    btn.setAttribute('aria-checked', (p.skill===l).toString());
-    btn.dataset.value=l;
-    const sw=document.createElement('span'); sw.className='level-swatch'; sw.style.background = `var(${COLORS[l].replace('var(','').replace(')','')})`;
-    const label=document.createElement('span'); label.textContent=cap(l);
-    btn.appendChild(sw); btn.appendChild(label);
-    btn.addEventListener('click',()=>{
-      p.skill = l;
-      paintPill(l, displayName.value||p.displayName||'User');
-      setMenuOpen(false);
-    });
-    levelMenu.appendChild(btn);
-  });
+/* ===== Level cycling (chip tap) ===== */
+let pendingAdmin = false;
+function openCodeModal(){
+  document.documentElement.classList.add('lock'); document.body.classList.add('lock');
+  codeBackdrop.classList.add('open'); codeModal.classList.add('open');
+  codeInput.value=''; setTimeout(()=>codeInput.focus(), 30);
 }
-function setMenuOpen(open){
-  levelMenu.classList.toggle('open', open);
-  levelBackdrop.style.display = open ? 'block' : 'none';
-  levelChip.setAttribute('aria-expanded', open?'true':'false');
-  document.documentElement.classList.toggle('no-scroll', open);
-  document.body.classList.toggle('no-scroll', open);
+function closeCodeModal(){
+  document.documentElement.classList.remove('lock'); document.body.classList.remove('lock');
+  codeBackdrop.classList.remove('open'); codeModal.classList.remove('open');
 }
-buildLevelMenu();
 
-levelChip.addEventListener('click',(e)=>{ e.stopPropagation(); setMenuOpen(!levelMenu.classList.contains('open')); });
-levelBackdrop.addEventListener('click',()=> setMenuOpen(false));
-/* Prevent touch scrolling the page while interacting with the menu/backdrop */
-['touchmove','wheel'].forEach(evt=>{
-  levelBackdrop.addEventListener(evt, e=>e.preventDefault(), {passive:false});
+levelChip.addEventListener('click', ()=>{
+  const idx = LEVELS.indexOf((p.skill||'beginner').toLowerCase());
+  let next = LEVELS[(idx+1) % LEVELS.length];
+
+  if(next==='admin'){
+    pendingAdmin = true;
+    openCodeModal();
+    return; // wait for modal result
+  }
+
+  p.skill = next;
+  paintPill(next, displayName.value||p.displayName||'User');
+  updatePermsVisibility();
 });
 
-/* Save confirm helper */
+/* Admin modal logic */
+confirmAdminBtn.addEventListener('click', ()=>{
+  const code = (codeInput.value||'').trim();
+  if(code==='7931'){
+    p.skill='admin';
+    paintPill('admin', displayName.value||p.displayName||'User');
+  }else{
+    // wrong → skip admin and go back to beginner
+    p.skill='beginner';
+    paintPill('beginner', displayName.value||p.displayName||'User');
+  }
+  pendingAdmin=false;
+  updatePermsVisibility();
+  closeCodeModal();
+});
+skipAdminBtn.addEventListener('click', ()=>{
+  p.skill='beginner';
+  paintPill('beginner', displayName.value||p.displayName||'User');
+  pendingAdmin=false;
+  updatePermsVisibility();
+  closeCodeModal();
+});
+codeBackdrop.addEventListener('click', closeCodeModal);
+
+/* Save toast + persistence */
 function flashSaved(){
-  saveConfirm.classList.add('open'); saveConfirm.setAttribute('aria-hidden','false');
-  const closer = (e)=>{ if(e.target===saveConfirm){ saveConfirm.classList.remove('open'); saveConfirm.setAttribute('aria-hidden','true'); window.removeEventListener('click', closer); } };
-  setTimeout(()=>{ window.addEventListener('click', closer, {once:true}); }, 0);
+  const el=$('#saveConfirm');
+  el.classList.add('open'); el.setAttribute('aria-hidden','false');
+  const closer=(e)=>{ if(e.target===el){ el.classList.remove('open'); el.setAttribute('aria-hidden','true'); window.removeEventListener('click', closer); } };
+  setTimeout(()=>window.addEventListener('click', closer, {once:true}), 0);
 }
 
-/* Section Save/Close handlers */
+function getPermsAll(){ return store.get(K.perms,{}); }
+function setPerms(username, perms){ const all=getPermsAll(); all[username]=perms; store.set(K.perms,all); }
+
+/* Save/Close handlers */
 function saveSection(which){
   if(which==='avatar'){
     p.displayName = (displayName.value||p.displayName||'User').trim() || 'User';
@@ -412,19 +430,24 @@ function closeSection(which){
   }
 }
 
-/* Wire Save/Close buttons */
+/* Wire buttons */
 document.body.addEventListener('click',(e)=>{
   const sBtn=e.target.closest('[data-save]'); if(sBtn){ saveSection(sBtn.dataset.save); return; }
   const cBtn=e.target.closest('[data-close]'); if(cBtn){ closeSection(cBtn.dataset.close); return; }
 });
 
-/* Role preset → apply to checkboxes */
+/* Role preset quick apply */
 document.getElementById('rolePreset')?.addEventListener('change',()=>{
   const role=rolePreset.value;
   if(role==='custom') return;
-  const perms=presetPerms(role);
-  $('#permMove').checked=perms.move; $('#permHide').checked=perms.hide; $('#permDock').checked=perms.dock;
-  $('#permRearr').checked=perms.rearr; $('#permTabs').checked=perms.tabs; $('#permConfig').checked=perms.config;
+  // If user selects admin in preset but isn't admin yet, enforce code
+  if(role==='admin' && p.skill!=='admin'){
+    openCodeModal();
+    return;
+  }
+  p.skill=role;
+  paintPill(role, displayName.value||p.displayName||'User');
+  updatePermsVisibility();
 });
 
 /* Change password placeholder */
