@@ -299,9 +299,12 @@ function applyView(){
 function baseRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
 function viewOverride(){ return store.get(K.viewAs,''); }
 function getRole(){
+  // Real account role (privilege)
+  const br = baseRole();
+  // View-as override is always honored for Admin/Director even if tools are off
   const override = viewOverride();
-  if((document.body.classList.contains('config-on') || document.body.classList.contains('dir-on')) && override) return override;
-  return baseRole();
+  if ((br === 'admin' || br === 'director') && override) return override;
+  return br;
 }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
@@ -509,13 +512,18 @@ function paintPage(){
 /* Footer visibility + skin */
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
 function applyArchiveVisibility(){
-  if((getRole()==='admin') || (getRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
-  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
+  if (['admin','director'].includes(baseRole())) {
+    dock.style.display='block'; 
+    dock.setAttribute('aria-hidden','false');
+  } else {
+    dock.style.display='none'; 
+    dock.setAttribute('aria-hidden','true');
+  }
 }
 function applyArchiveSkin(){
-  const role=getRole();
-  $('#archiveTitle').textContent = role==='director' ? 'Director Mode' : 'Developer Mode';
-  if(role==='director'){
+  const real = baseRole();                 // <— real role
+  $('#archiveTitle').textContent = real==='director' ? 'Director Mode' : 'Developer Mode';
+  if(real==='director'){
     dock.style.background = '#ffd60a';
     dock.style.color = '#000';
     $('#dirModeToggle').style.display='inline-flex';
@@ -551,9 +559,10 @@ syncFooterViewControls();
 $('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
 $('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
 
-/* View-as override */
 $('#viewAs').addEventListener('change', e=>{
-  store.set(K.viewAs, e.target.value||''); paintAvatar(); paintPage(); applyArchiveSkin();
+  store.set(K.viewAs, e.target.value || '');
+  // hard refresh so *all* role-gated UI re-evaluates exactly as that audience
+  location.reload();
 },{passive:true});
 
 /* Archive list */
