@@ -70,6 +70,8 @@ button{user-select:none;-webkit-user-select:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
   font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
 .btn.blue{background:var(--blue);border-color:transparent;color:#000}
+/* NEW: grey CTA for completed */
+.btn.grey{background:#3a3a3a;color:#fff;border-color:var(--stroke)}
 
 /* Audience chips */
 .aud-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -98,6 +100,12 @@ button{user-select:none;-webkit-user-select:none}
 #avatarSheet .panel{
   position:absolute; inset:0; margin:auto; width:100%; height:100%; background:#0f1116; border:1px solid var(--stroke);
   border-radius:0; padding:12px; overflow:auto;
+}
+/* NEW: tiny close button for the avatar drawer */
+#avatarClose{
+  position:absolute; right:12px; top:12px; width:32px; height:32px;
+  border-radius:10px; border:1px solid var(--stroke); background:#121212;
+  color:#fff; font-weight:900; line-height:1; cursor:pointer; z-index:2;
 }
 @media (min-width:820px){
   #avatarSheet .panel{ width:min(780px, 92vw); height:min(86vh, 920px); right:12px; left:auto; top:calc(var(--nav-h) + 8px); bottom:auto; border-radius:14px }
@@ -182,6 +190,7 @@ button{user-select:none;-webkit-user-select:none}
 <!-- Avatar Drawer -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
+    <button id="avatarClose" aria-label="Close">×</button>
     <nav class="menu-list" id="avatarMenu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
@@ -308,6 +317,8 @@ function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribu
 function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('lock'); }
 avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
+/* NEW: avatar close button */
+document.addEventListener('click', e=>{ if(e.target && e.target.id==='avatarClose') closeDrawer(); }, {passive:true});
 
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
@@ -382,7 +393,6 @@ function heroCard(id){
 
   const devOn = document.body.classList.contains('config-on');
   const dirOn = document.body.classList.contains('dir-on') && directorMode();
-
   const canEdit = (isAdmin() && devOn) || (isDirector() && dirOn);
 
   // Always-visible status
@@ -398,9 +408,11 @@ function heroCard(id){
     ctrlsHTML += `</div>`;
   }
 
+  // CTA label & style
   let btnLabel = 'Start';
-  if(completed) btnLabel = 'Completed';
-  else if(inprogress) btnLabel = 'In Progress';
+  let btnClass = 'blue';
+  if(completed){ btnLabel = 'Complete'; btnClass = 'grey'; }
+  else if(inprogress){ btnLabel = 'In Progress'; }
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
@@ -416,7 +428,7 @@ function heroCard(id){
     <span class="label">${labelFor(id)}</span>
     ${ctrlsHTML}
     <div class="cta-left">
-      <button class="btn blue" data-act="enter" type="button">${btnLabel}</button>
+      <button class="btn ${btnClass}" data-act="enter" type="button">${btnLabel}</button>
       ${(canEdit)?`
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
@@ -485,7 +497,7 @@ function paintPage(){
 }
 
 /* Footer visibility + skin */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive']);
 function applyArchiveVisibility(){
   if((getRole()==='admin') || (getRole()==='director')){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -596,7 +608,7 @@ $('#addHeadingBtn').addEventListener('click',()=>{
 
 /* Click handlers across page */
 document.addEventListener('click',(e)=>{
-  // Start (open course full-screen)
+  // Start / Complete (open course full-screen)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
