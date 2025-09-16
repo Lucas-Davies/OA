@@ -53,11 +53,13 @@ button{user-select:none;-webkit-user-select:none}
 .chip[disabled]{opacity:.55;cursor:default;filter:grayscale(.15)}
 .badge-live{background:#0a0}
 .badge-off{background:#b00020}
+.badge-dev{background:var(--blue);color:#000;border-color:transparent}
 
-/* Read-only status badge (always visible) */
-.status-pill{position:absolute;top:12px;right:12px;height:28px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-weight:900;z-index:4}
-.status-live{background:#1c6b1c;color:#fff;border:1px solid rgba(255,255,255,.18)}
-.status-off{background:#5a0d12;color:#fff;border:1px solid rgba(255,255,255,.18)}
+/* Read-only status pill (conditional visibility) */
+.status-pill{position:absolute;top:12px;right:12px;height:28px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-weight:900;z-index:4;border:1px solid rgba(255,255,255,.18)}
+.status-live{background:#1c6b1c;color:#fff}
+.status-off{background:#5a0d12;color:#fff}
+.status-dev{background:var(--blue);color:#000;border-color:transparent}
 
 /* Position locks */
 .hero .label{position:absolute;top:14px;left:16px;z-index:2}
@@ -266,7 +268,7 @@ const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
 const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode', view:'ao_view', viewAs:'ao_view_as' };
 
-/* URL reset hook (handy when things get corrupted) */
+/* URL reset hook */
 const Q=new URLSearchParams(location.search);
 if(Q.get('reset')==='1'){
   localStorage.removeItem(K.settings);
@@ -303,6 +305,7 @@ function getRole(){
 }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
+function isSupport(){ return getRole()==='support'; }
 function directorMode(){ return !!store.get(K.directorMode,false); }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
 
@@ -312,7 +315,7 @@ function paintAvatar(){
   $('#avatarName').textContent = p.displayName || 'User';
   const role=getRole();
   const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
-  $('#avatarLvl').textContent = friendly;
+  $('#avatarLvl').textContent = friendly || role;
   const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
   const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
   pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
@@ -356,7 +359,6 @@ function defaults(){
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
-  // robust sanitize + reseed if empty
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
@@ -366,7 +368,6 @@ function sanitize(cfg){
     const onPage = c.heroFlags[id].place==='page';
     if(onPage && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)) c.pageOrder.push({type:'hero',id});
   }
-  // If somehow no heroes on page, reseed 1–10 visibly live
   const hasPage = c.pageOrder.some(it=>it.type==='hero' && c.heroFlags[it.id]?.place==='page');
   if(!hasPage){
     for(let i=1;i<=10;i++){
@@ -381,13 +382,8 @@ function sanitize(cfg){
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
 function saveSettings(s){ store.set(K.settings,sanitize(s)); }
 
-/* SELF-HEAL of obviously broken states */
-(function repairIfEmpty(){
-  const s = store.get(K.settings,null);
-  if(!s){ store.set(K.settings, defaults()); return; }
-  const cfg = sanitize(s);
-  store.set(K.settings, cfg);
-})();
+/* Heal */
+(function(){ const s=store.get(K.settings,null); store.set(K.settings, sanitize(s)); })();
 
 function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
@@ -405,12 +401,20 @@ function heroCard(id){
   const dirOn = document.body.classList.contains('dir-on') && directorMode();
   const canEdit = (isAdmin() && devOn) || (isDirector() && dirOn);
 
-  const statusPill = `<span class="status-pill ${f.state==='live'?'status-live':'status-off'}">${f.state==='live'?'Live':'Offline'}</span>`;
+  const role = getRole();
+  const showPill = (role==='admin' || role==='director' || role==='support') ||
+                   (f.state==='dev' && (role==='admin' || role==='director'));
+
+  const statusPill = showPill ? `<span class="status-pill ${
+      f.state==='live'?'status-live' : (f.state==='dev'?'status-dev':'status-off')
+    }">${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}</span>` : '';
 
   let ctrlsHTML = '';
   if(canEdit){
+    const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
+    const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
     ctrlsHTML += `<div class="ctrls hide-when-normal">`;
-    ctrlsHTML += `<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`;
+    ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button">${editLabel}</button>`;
     if(isAdmin()) ctrlsHTML += `<button class="chip" data-act="move" type="button">Archive</button>`;
     ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
     ctrlsHTML += `</div>`;
@@ -609,25 +613,28 @@ $('#addHeadingBtn').addEventListener('click',()=>{
   saveSettings(s); paintPage();
 }, {passive:false});
 
-/* Click handlers across page */
+/* Page click handlers */
 document.addEventListener('click',(e)=>{
+  // Enter (open course)
   if(e.target.closest('[data-act="enter"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
     const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
     openSubSheet(labelFor(id), url); return;
   }
+  // Cycle status (admin/director while tools on): live → off → dev → live
   if(e.target.closest('[data-act="toggle"]')){
     const devOn = document.body.classList.contains('config-on');
     const dirOn = document.body.classList.contains('dir-on') && directorMode();
     if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
-    const next = cur.state==='live' ? 'off' : 'live';
-    if(!confirm(`Set this to ${next==='live'?'LIVE':'OFFLINE'}?`)) return;
-    s.heroFlags[id]={...cur, state:next};
+    const order=['live','off','dev'];
+    const ni=(order.indexOf(cur.state)+1)%order.length;
+    s.heroFlags[id]={...cur, state:order[ni]};
     saveSettings(s); paintPage(); paintArchive(); return;
   }
+  // Move to/from archive (admin + dev only)
   if(e.target.closest('[data-act="move"]')){
     if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const host=e.target.closest('[data-hero-id], .row');
@@ -639,6 +646,7 @@ document.addEventListener('click',(e)=>{
     else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
     saveSettings(s); paintPage(); paintArchive(); return;
   }
+  // Audience chips — only while editor tools are on
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
     const devOn = document.body.classList.contains('config-on');
@@ -651,6 +659,7 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
     paintPage(); paintArchive(); return;
   }
+  // Heading audience (same rule)
   if(e.target.dataset.divAud){
     const devOn = document.body.classList.contains('config-on');
     const dirOn = document.body.classList.contains('dir-on') && directorMode();
@@ -661,6 +670,7 @@ document.addEventListener('click',(e)=>{
     if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
     s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
   }
+  // Rename hero (admin + dev)
   if(e.target.matches('[data-cfg-rename]')){
     if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const id=e.target.getAttribute('data-cfg-rename');
@@ -669,6 +679,7 @@ document.addEventListener('click',(e)=>{
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
+  // Sort arrows (admin + dev)
   if(e.target.matches('.cfg-arrow')){
     if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const key=e.target.dataset.key; const s=getSettings();
@@ -684,6 +695,7 @@ document.addEventListener('click',(e)=>{
     }
     return;
   }
+  // Pick hero art (admin + dev)
   if(e.target.closest('[data-act="pickart"]')){
     if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
     const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
