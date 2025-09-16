@@ -5,176 +5,167 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
+
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
-  --hero-pad:16px;
+  --bg:#000; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --green:#32d74b; --gold:#ffd700; --silver:#c0c7d1;
+  --bronze:#b87333; --red:#ff3b30; --black:#111;
+  --gap:12px; --r:14px; --maxw:1240px;
+  --nav-h:68px; --btn-h:44px; --btn-bottom:14px;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
 html,body{
-  height:100%;margin:0;background:var(--bg);color:var(--ink);
+  height:100%; margin:0; background:var(--bg); color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain;overflow-x:hidden;user-select:none;-webkit-user-select:none;
+  overscroll-behavior-y:contain; overscroll-behavior-x:none; overflow-x:hidden;
 }
-a{color:inherit;text-decoration:none}
-button{user-select:none;-webkit-user-select:none}
-.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
+a{color:inherit; text-decoration:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
-/* Top bar */
-.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:8px 12px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.title-tab{font-weight:900;opacity:.92}
+/* Background */
+.bg{position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
 
-/* Avatar pill */
-.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
-  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
-.avatarTab .name{font-size:15px;font-weight:900}
-.avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
+/* ===== NAV BAR ===== */
+.nav{
+  position:fixed; top:0; left:0; right:0; height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 12px; z-index:50;
+  background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.55) 60%, rgba(0,0,0,.3));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.nav-left{display:flex; gap:8px; align-items:center}
+.btn-tab{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:104px; height:44px; padding:0 14px;
+  border-radius:12px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.55); color:var(--ink); font-weight:900; cursor:pointer;
+  transition:transform .06s ease, filter .15s ease; font-size:15px;
+  white-space:nowrap;
+}
+.btn-tab:active{transform:translateY(1px)}
+.btn-tab.is-active{background:var(--blue); border-color:transparent; color:#000}
+@media (max-width:420px){
+  .btn-tab{min-width:0; padding:0 12px; font-size:14px}
+}
 
-/* Layout */
-.wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
+/* Avatar pill (text-only; solid colour by role) */
+.avatarTab{
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+  padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
+  font-weight:900; line-height:1.1; text-align:left; cursor:pointer;
+  border:1px solid var(--stroke); background:#222;
+}
+.avatarTab .name{font-size:15px; font-weight:900}
+.avatarTab .lvl{font-size:12px; opacity:.95; text-transform:capitalize}
 
-/* Grid */
-.grid{display:grid;gap:12px}
-@media (max-width:600px){.grid{grid-template-columns:1fr}}
-@media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
-@media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
-@media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+/* Content wrap */
+.wrap{max-width:var(--maxw); margin:0 auto;
+  padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 140px}
 
-/* Hero */
-.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:var(--hero-pad);min-height:240px}
-.hero .label{font-weight:900;font-size:18px;opacity:.95}
-.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
-.chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap}
-.chip[disabled]{opacity:.55;cursor:default;filter:grayscale(.15)}
-.badge-live{background:#0a0}
-.badge-off{background:#b00020}
-.badge-dev{background:var(--blue);color:#000;border-color:transparent}
+/* ===== HERO ===== */
+.hero{
+  position:relative; overflow:hidden; background:#060708;
+  border:1px solid var(--stroke); border-radius:16px; padding:16px; margin:12px 0;
+}
+.hero .title{margin:0 0 6px; font-weight:900; font-size:20px}
+.hero .meta{margin:0 0 6px; color:var(--ink-dim)}
+.hero .desc{margin:8px 0 56px; color:var(--muted)}
+.cta-left{position:absolute; left:16px; bottom:var(--btn-bottom); display:flex; gap:10px}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-width:130px; height:var(--btn-h); padding:0 16px; border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink); cursor:pointer}
+.btn.blue{background:var(--blue); border-color:transparent; color:#000}
+.btn.grey{background:#3a3a3a; color:#fff}
+.badge{display:inline-flex; align-items:center; height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); font-weight:900; font-size:12px}
 
-/* Read-only status pill (conditional visibility) */
-.status-pill{position:absolute;top:12px;right:12px;height:28px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;font-weight:900;z-index:4;border:1px solid rgba(255,255,255,.18)}
-.status-live{background:#1c6b1c;color:#fff}
-.status-off{background:#5a0d12;color:#fff}
-.status-dev{background:var(--blue);color:#000;border-color:transparent}
+/* Daily skin gloss */
+#dailyHero[data-skin="bronze"]{ background:linear-gradient(135deg,#5e3515,#b86b2e 40%,#ffb067 70%,#5e3515 95%); color:#fff }
+#dailyHero[data-skin="silver"]{ background:linear-gradient(135deg,#7c838a,#cfd6dd 35%,#f7f9fa 60%,#7c838a 90%); color:#111 }
+#dailyHero[data-skin="gold"]{ background:linear-gradient(135deg,#9c7a00,#d4af37 35%,#ffe680 65%,#9c7a00 95%); color:#111 }
+#dailyHero[data-skin="black"]{ background:linear-gradient(135deg,#000,#222 30%,#444 50%,#111 70%,#000 95%); color:#fff; border-color:rgba(255,255,255,.22) }
+#dailyHero .level{ position:absolute; top:12px; right:16px; font-weight:800; font-size:18px }
 
-/* Position locks */
-.hero .label{position:absolute;top:14px;left:16px;z-index:2}
-.cta-left{position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2}
-.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
-.config-on .hero .hero-arrows{display:flex}
-.hero-arrows .cfg-arrow{height:24px;padding:0 6px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
+/* ===== TRACKER (Daily only) ===== */
+.tracker{cursor:pointer}
+.tracker .cards{display:grid; grid-template-columns:1fr; gap:var(--gap)}
+.tracker .card{border:1px solid var(--stroke); border-radius:12px; padding:12px; background:rgba(255,255,255,.03)}
+.tracker .kpi{display:flex; align-items:center; gap:8px; color:var(--ink-dim); font-weight:700}
+.medals{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:10px}
+.medal{width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.22); background:transparent}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
-  font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
-.btn.blue{background:var(--blue);border-color:transparent;color:#000}
-.btn.grey{background:#3a3a3a;color:#fff;border-color:var(--stroke)} /* grey Complete */
+/* PANELS */
+[data-panel]{display:none}
+[data-panel].panel-active{display:block}
 
-/* Audience chips */
-.aud-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
-.aud-chip.on{opacity:1;filter:brightness(1.22)}
-.aud-chip.on::after{content:" ✓";font-weight:900}
-.aud-chip.bronze{box-shadow:inset 0 0 0 2px #b87333}
-.aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
-.aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
+/* ===== Admin inline controls (fixed to top-right of hero) ===== */
+.admin-ctrls{position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:5}
+.admin-ctrls .ctl{height:28px; padding:0 10px; border-radius:999px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
+.admin-ctrls .state-live{background:#0a0}
+.admin-ctrls .state-off{background:#b00020}
+.admin-ctrls .move{background:#1b1f2a; position:relative}
 
-/* Divider (Heading) */
-.divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px;grid-column:1 / -1;}
-.divider .htext{font-weight:900;opacity:.92}
-.divider .dctrls{position:absolute;top:10px;right:10px;display:none;gap:6px}
-.config-on .divider .dctrls{display:flex}
-.divider .aud-line{position:absolute;left:16px;bottom:14px}
+/* Move popover (chips live only inside this menu) */
+.move-menu{position:absolute; top:32px; right:0; background:#0f0f12; border:1px solid var(--stroke); border-radius:10px; padding:6px; display:none; z-index:20; min-width:220px}
+.move-menu.open{display:block}
+.move-menu button{display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:1px solid var(--stroke); background:#141416; color:#fff; font-weight:800; font-size:12px; margin:4px 0; cursor:pointer}
+.move-menu button:hover{filter:brightness(1.1)}
 
-/* Compact headings when NOT in config mode */
-:not(.config-on) .divider{border:none;background:transparent;min-height:0;padding:0 2px 6px;margin:28px 2px 8px; display:flex;align-items:flex-end;}
-:not(.config-on) .divider .aud-line{display:none}
-:not(.config-on) .divider .htext{padding:0;margin:0}
+/* Guard legacy chips that were previously injected on hero */
+article.hero [data-move-to]{display:none!important}
+article.hero .move-menu [data-move-to]{display:block!important}
+#adminDock [data-dock-to]{display:inline-block!important}
 
-/* Avatar Drawer (full-screen on phone, large sheet on bigger screens) */
-#avatarSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+/* ===== Avatar Drawer ===== */
+#avatarSheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
 #avatarSheet.open{display:block}
-#avatarSheet .panel{
-  position:absolute; inset:0; margin:auto; width:100%; height:100%; background:#0f1116; border:1px solid var(--stroke);
-  border-radius:0; padding:12px; overflow:auto;
-}
-#avatarClose{
-  position:absolute; right:12px; top:12px; width:32px; height:32px;
-  border-radius:10px; border:1px solid var(--stroke); background:#121212;
-  color:#fff; font-weight:900; line-height:1; cursor:pointer; z-index:2;
-}
-@media (min-width:820px){
-  #avatarSheet .panel{ width:min(780px, 92vw); height:min(86vh, 920px); right:12px; left:auto; top:calc(var(--nav-h) + 8px); bottom:auto; border-radius:14px }
-}
-.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
-.menu-list a:last-child{border-bottom:none}
+#avatarSheet .panel{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:320px; max-height:70vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px}
+.menu a{display:flex; align-items:center; justify-content:space-between; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+.menu a:last-child{border-bottom:none}
 
-/* Subsheet (courses) — FULL SCREEN */
-#subSheet{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+/* ===== Subsheet (iframe) ===== */
+#subSheet{position:fixed; inset:0; z-index:70; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
 #subSheet.open{display:block}
-#subSheet .inner{position:absolute;inset:0;background:#0f1116;border:none;border-radius:0;padding:0;display:flex;flex-direction:column}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--stroke)}
-.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
-#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;background:#0b0c10;overflow:hidden}
+#subSheet .inner{position:absolute; top:calc(var(--nav-h) + 6px); right:12px; width:min(820px,calc(100% - 24px)); height:min(78vh,calc(100% - (var(--nav-h) + 24px))); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; display:flex; flex-direction:column}
+.sheet-head{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 4px 10px}
+.sheet-head h2{margin:0; font-size:22px; font-weight:900}
+.sheet-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer}
+#subFrame{flex:1 1 auto; width:100%; height:100%; border:none; border-radius:12px; background:#0b0c10; overflow:hidden}
 
-/* Footer Dock (Dev/Director) */
-#archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:75;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
-  transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain}
-#archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900;overflow-x:auto;white-space:nowrap}
-#archiveDock .bar::-webkit-scrollbar{display:none}
-#archiveDock .title{display:inline-flex;align-items:center;gap:8px}
-#archiveDock .content{background:#160b0b;max-height:calc(60vh - 48px);overflow:auto}
-#archiveDock .list{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
-#archiveDock .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#0d0d10;border-radius:10px}
-#archiveDock .row .num{font-weight:900}
-#archiveDock .row .chip{height:26px}
-#archiveDock.collapsed{max-height:48px}
-#archiveDock.open{max-height:80vh}
+/* ===== Config pencil ===== */
+.cfg-pin{display:none; position:absolute; top:10px; left:10px; width:24px; height:24px; border-radius:8px; background:#111; border:1px solid var(--stroke); font-size:14px; font-weight:900; color:#fff; align-items:center; justify-content:center}
+.config-on .cfg-pin{display:flex}
 
-/* Footer uniform controls */
-.footer-chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#1b1f2a;color:#fff;font-weight:800}
-.footer-select{appearance:none;background:#10131b;border:1px solid var(--stroke);color:#fff;height:34px;border-radius:999px;padding:0 38px 0 12px;font-weight:800}
-.footer-label{opacity:.9;margin-left:10px;font-size:12px}
-
-/* Completed/In-Progress */
-.hero.completed{ border:2px solid #888; }
-.hero.inprogress{ border:2px solid var(--green); }
-
-/* Hero art layer */
-.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:16px; }
-.hero .art img{
-  position:absolute; top:50%; left:50%;
-  transform:translate(-50%,-50%) scale(1);
-  width:auto; height:110%; min-width:110%;
-  user-select:none; pointer-events:none;
-  filter:saturate(1.02) contrast(1.02) brightness(0.95);
-}
-.hero::after{
-  content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
-  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
-  z-index:1;
-}
-
-/* Hide editor-only bits when not in dev/dir */
-.hide-when-normal{ display:none }
-.config-on .hide-when-normal,
-.dir-on .hide-when-normal{ display:flex }
-
-/* In normal view hide audience line entirely */
-.normal-hide{ display:none }
-.config-on .normal-hide,
-.dir-on .normal-hide{ display:flex }
+/* ===== Admin footer / Working Drawer (always fixed) ===== */
+#adminTab{position:fixed; left:0; right:0; bottom:0; height:42px; display:flex; align-items:center; justify-content:center; z-index:90; pointer-events:auto}
+#adminTab button{background:var(--red); color:#fff; border:0; border-top-left-radius:12px; border-top-right-radius:12px; padding:10px 16px; font-weight:900}
+#adminDock{position:fixed; left:0; right:0; top:0; bottom:0; transform:translateY(100%); transition:transform .18s ease; z-index:89; background:#0e0b0b}
+#adminDock.open{transform:translateY(0)}
+#adminDock header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; font-weight:900; color:#fff; background:#1a0e0e; position:sticky; top:0; z-index:1}
+#adminDock .space{position:absolute; top:52px; bottom:180px; left:0; right:0; overflow:auto; padding:12px}
+#adminDock .bins{position:absolute; left:0; right:0; bottom:0; height:180px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.14); background:#120c0c; overflow:auto}
+.admin-group{border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px; margin-bottom:14px}
+.admin-group h3{margin:0 0 10px; font-size:15px}
+.bin{border:1px dashed rgba(255,255,255,.18); border-radius:10px; margin:8px 0}
+.bin > summary{cursor:pointer; padding:10px 12px; list-style:none; font-weight:900}
+.bin > summary::-webkit-details-marker{display:none}
+.bin .list{padding:8px 12px 12px}
+.list .item{display:flex; align-items:center; justify-content:space-between; padding:10px 8px; border-radius:10px; background:#0d0d0f; margin:6px 0; border:1px solid var(--stroke)}
+.list .name{font-size:14px}
+.small{height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--stroke); background:#131416; color:#fff; font-weight:800; font-size:12px; cursor:pointer}
+.small.open{background:#0A84FF; color:#000}
+.small.link{background:#222}
 </style>
 </head>
-<body ontouchstart="">
+<body>
 <div class="bg" aria-hidden="true"></div>
 
 <header class="nav" role="navigation" aria-label="Primary">
-  <div class="nav-left"><span class="title-tab">Courses</span></div>
+  <div class="nav-left" role="tablist" aria-label="Sections">
+    <button class="btn-tab is-active" data-tab="feed" aria-selected="true">Feed</button>
+    <button class="btn-tab" data-tab="challenges" aria-selected="false">Challenges</button>
+    <button class="btn-tab" data-tab="courses" aria-selected="false">Courses</button>
+    <button class="btn-tab" data-tab="live" aria-selected="false">Live</button>
+  </div>
   <div class="nav-right">
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
@@ -184,544 +175,567 @@ button{user-select:none;-webkit-user-select:none}
 </header>
 
 <main class="wrap">
-  <section class="grid" id="pageGrid"></section>
+  <!-- ===== FEED (5 placeholders) ===== -->
+  <section id="panel-feed" class="panel-active" data-panel="feed">
+    <!-- feed-1..5 -->
+    <article class="hero" data-hero-id="feed-1">
+      <button class="cfg-pin" data-cfg="feed-title-1">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="feed-title-1">Placeholder news-hero1</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+
+    <article class="hero" data-hero-id="feed-2">
+      <button class="cfg-pin" data-cfg="feed-title-2">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="feed-title-2">Placeholder news-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+
+    <article class="hero" data-hero-id="feed-3">
+      <button class="cfg-pin" data-cfg="feed-title-3">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="feed-title-3">Placeholder news-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+
+    <article class="hero" data-hero-id="feed-4">
+      <button class="cfg-pin" data-cfg="feed-title-4">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="feed-title-4">Placeholder news-hero4</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+
+    <article class="hero" data-hero-id="feed-5">
+      <button class="cfg-pin" data-cfg="feed-title-5">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="feed-title-5">Placeholder news-hero5</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+  </section>
+
+  <!-- ===== CHALLENGES ===== -->
+  <section id="panel-challenges" data-panel="challenges">
+    <!-- Tracker -->
+    <article class="hero tracker" id="trackerHero" data-hero-id="ch-tracker" aria-labelledby="trackerTitle">
+      <button class="cfg-pin" data-cfg="tracker-title">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" id="trackerTitle" data-cfg-target="tracker-title">Challenge Tracker</h2>
+      <p class="meta">Daily 7d</p>
+      <div class="cards">
+        <div class="card">
+          <div class="kpi">Daily 7d</div>
+          <div class="medals" id="dailyMedals"></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Daily -->
+    <article class="hero" id="dailyHero" data-skin="bronze" data-hero-id="ch-daily" aria-labelledby="dailyTitle">
+      <button class="cfg-pin" data-cfg="daily-title">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" id="dailyTitle" data-cfg-target="daily-title">Daily Challenge</h2>
+      <p class="meta" id="dailyMeta">Begins today</p>
+      <p class="desc">A focused prompt matched to your level. Finish it to earn your streak.</p>
+      <div class="cta-left">
+        <button class="btn blue" id="btnDailyStart">Start</button>
+        <button class="btn grey" id="btnDailyComplete">Complete</button>
+      </div>
+      <div class="level" id="dailyLevel">Beginner</div>
+    </article>
+  </section>
+
+  <!-- ===== COURSES (3 placeholders) ===== -->
+  <section id="panel-courses" data-panel="courses">
+    <article class="hero" data-hero-id="co-1">
+      <button class="cfg-pin" data-cfg="cr-1">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="cr-1">Placeholder course-hero1</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-2">
+      <button class="cfg-pin" data-cfg="cr-2">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="cr-2">Placeholder course-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+    <article class="hero" data-hero-id="co-3">
+      <button class="cfg-pin" data-cfg="cr-3">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="cr-3">Placeholder course-hero3</h2>
+      <p class="meta">Coming Soon</p><p class="desc">—</p>
+    </article>
+  </section>
+
+  <!-- ===== LIVE (2 placeholders) ===== -->
+  <section id="panel-live" data-panel="live">
+    <article class="hero" data-hero-id="lv-1">
+      <button class="cfg-pin" data-cfg="lv-1">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="lv-1">Placeholder live-hero1</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+    <article class="hero" data-hero-id="lv-2">
+      <button class="cfg-pin" data-cfg="lv-2">✎</button>
+      <div class="admin-ctrls">
+        <button class="ctl state-live" data-toggle-state>Live</button>
+        <button class="ctl move" data-move>Move
+          <div class="move-menu">
+            <button data-move-to="dev">Move to Development Space</button>
+            <button data-move-to="archive">Move to Archive</button>
+            <button data-move-to="tpl">Move to Templates</button>
+            <button data-move-to="page">Move to Page</button>
+          </div>
+        </button>
+      </div>
+      <h2 class="title" data-cfg-target="lv-2">Placeholder live-hero2</h2>
+      <p class="meta">Coming Soon</p><p class="desc">Coming Soon</p>
+    </article>
+  </section>
 </main>
 
-<!-- Avatar Drawer -->
+<!-- ===== AVATAR DRAWER ===== -->
 <div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="panel" role="document">
-    <button id="avatarClose" aria-label="Close">×</button>
-    <nav class="menu-list" id="avatarMenu">
+    <nav class="menu">
       <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
       <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
       <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
+      <a href="avatar/challengetracker.html" data-pop="Challenge Tracker">Challenge Tracker<span>›</span></a>
       <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
       <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
+      <a href="#" id="cfgToggle">Config Mode<span>⌁</span></a>
     </nav>
   </div>
 </div>
 
-<!-- Subsheet (courses) -->
+<!-- ===== SUB SHEET ===== -->
 <div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="inner" role="document">
     <div class="sheet-head">
       <h2 id="sheetTitle">—</h2>
-      <button class="sheet-close" id="sheetClose" aria-label="Close" type="button">×</button>
+      <button class="sheet-close" id="sheetClose" aria-label="Close">×</button>
     </div>
     <iframe id="subFrame" title="Panel"></iframe>
   </div>
 </div>
 
-<!-- Footer Dock -->
-<div id="archiveDock" class="collapsed" aria-hidden="true">
-  <div class="bar">
-    <div class="title">
-      <span id="archiveTitle">Developer Mode</span>
-
-      <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
-      <button class="footer-chip" id="dirModeToggle" type="button" style="display:none">Director: Off</button>
-
-      <span class="footer-label">View As</span>
-      <select id="viewAs" class="footer-select">
-        <option value="">Actual</option>
-        <option value="bronze">Beginner</option>
-        <option value="silver">Intermediate</option>
-        <option value="gold">Advanced</option>
-        <option value="support">Support</option>
-        <option value="director">Director</option>
-        <option value="admin">Admin</option>
-      </select>
-
-      <span class="footer-label">Cols</span>
-      <select id="footerCols" class="footer-select">
-        <option value="1">1</option><option value="2">2</option>
-        <option value="3" selected>3</option><option value="4">4</option>
-      </select>
-
-      <span class="footer-label">Density</span>
-      <select id="footerDensity" class="footer-select">
-        <option value="cozy">Cozy</option>
-        <option value="comfortable" selected>Comfortable</option>
-        <option value="roomy">Roomy</option>
-      </select>
-
-      <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
-    </div>
-
-    <div class="title" style="gap:12px">
-      <span class="footer-chip" id="countChip"><span id="countArchive">0</span> in Archive</span>
-      <button class="footer-chip" id="archiveToggle" type="button">Open</button>
-    </div>
-  </div>
-
-  <div class="content">
-    <div class="list" id="archiveList"></div>
+<!-- ===== ADMIN TAB & DOCK (Working Drawer) ===== -->
+<div id="adminTab"><button id="toggleDockBtn">Working Drawer</button></div>
+<div id="adminDock" aria-hidden="true">
+  <header>
+    <div id="dockTitle">Development Space — Feed</div>
+  </header>
+  <div class="space" id="devSpace"></div>
+  <div class="bins">
+    <details class="bin" id="binArchive"><summary>Archived</summary><div class="list" id="listArchive"></div></details>
+    <details class="bin" id="binTpl"><summary>Templates</summary><div class="list" id="listTpl"></div></details>
   </div>
 </div>
 
 <script>
 (()=>{'use strict';
+
+/* ===== tiny error guard (keeps later binds alive) ===== */
+window.addEventListener('error', (ev)=>console.warn('[FAOA] runtime error:', ev.message));
+
 /* ===== utils & storage ===== */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode', view:'ao_view', viewAs:'ao_view_as' };
 
-/* URL reset hook */
-const Q=new URLSearchParams(location.search);
-if(Q.get('reset')==='1'){
-  localStorage.removeItem(K.settings);
-  localStorage.removeItem(K.directorMode);
-  localStorage.removeItem(K.view);
-  localStorage.removeItem(K.viewAs);
+/* Keys */
+const K={ profile:'ao_profile', settings:'ao_settings', heroLinks:'ao_hero_links' };
+
+/* Force admin during build */
+function currentRole(){ return 'admin'; }
+const ROLE_SKINS={
+  bronze:{pill:'var(--bronze)', text:'#111', daily:'bronze'},
+  silver:{pill:'var(--silver)', text:'#0b0c10', daily:'silver'},
+  gold:{pill:'var(--gold)', text:'#0b0c10', daily:'gold'},
+  support:{pill:'#6a4cff', text:'#fff', daily:'black'},
+  director:{pill:'#444', text:'#fff', daily:'black'},
+  admin:{pill:'var(--blue)', text:'#0b0c10', daily:'black'}
+};
+function isAdmin(){ return true; } // while scaffolding
+
+/* Avatar paint + daily gloss */
+function applyProfile(){
+  const p=store.get(K.profile,{displayName:'User',skill:currentRole()});
+  const role=(p.skill||currentRole()).toLowerCase();
+  const skin=ROLE_SKINS[role]||ROLE_SKINS.silver;
+  $('#avatarName').textContent=p.displayName||'User';
+  $('#avatarLvl').textContent=role.charAt(0).toUpperCase()+role.slice(1);
+  const pill=$('#avatarTab'); pill.style.background=skin.pill; pill.style.color=skin.text;
+  const daily=document.getElementById('dailyHero'); if(daily){ daily.setAttribute('data-skin', skin.daily); }
 }
+applyProfile();
 
-/* Soft labels */
-const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced' };
-
-/* View settings */
-function defaultView(){ return { cols:3, density:'comfortable' }; }
-function getView(){ return store.get(K.view, defaultView()); }
-function saveView(v){ store.set(K.view, v); applyView(); }
-function applyView(){
-  const v=getView();
-  const grid=$('#pageGrid');
-  if(grid){
-    grid.style.gridTemplateColumns = `repeat(${Math.max(1,Math.min(4,Number(v.cols)||3))}, 1fr)`;
-    const pad = v.density==='cozy' ? 14 : (v.density==='roomy' ? 22 : 18);
-    document.documentElement.style.setProperty('--hero-pad', pad+'px');
-    grid.style.gap = (v.cols>=3 ? 36 : 18)+'px';
-  }
+/* ===== Tabs ===== */
+let currentTab='feed';
+const tabBtns=$$('.btn-tab[data-tab]'); const panels=$$('[data-panel]');
+function showTab(name){
+  currentTab=name;
+  tabBtns.forEach(b=>{ const on=b.dataset.tab===name; b.classList.toggle('is-active',on); b.setAttribute('aria-selected',on?'true':'false'); });
+  panels.forEach(p=>p.classList.toggle('panel-active', p.dataset.panel===name));
+  $('#dockTitle').textContent=`Development Space — ${name.charAt(0).toUpperCase()+name.slice(1)}`;
+  paintWorkingDrawer(); // filter by tab
+  window.scrollTo({top:0,behavior:'smooth'});
 }
+tabBtns.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+showTab('feed');
 
-/* Roles + Director Mode + View-as override */
-function baseRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
-function viewOverride(){ return store.get(K.viewAs,''); }
-function getRole(){
-  // Real account role (privilege)
-  const br = baseRole();
-  // View-as override is always honored for Admin/Director even if tools are off
-  const override = viewOverride();
-  if ((br === 'admin' || br === 'director') && override) return override;
-  return br;
-}
-function isAdmin(){ return getRole()==='admin'; }
-function isDirector(){ return getRole()==='director'; }
-function isSupport(){ return getRole()==='support'; }
-function directorMode(){ return !!store.get(K.directorMode,false); }
-function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
-
-/* Avatar paint */
-function paintAvatar(){
-  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
-  $('#avatarName').textContent = p.displayName || 'User';
-  const role=getRole();
-  const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
-  $('#avatarLvl').textContent = friendly || role;
-  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
-  const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
-  pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
-}
-
-/* Avatar drawer & subsheet */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); document.body.classList.add('lock'); }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('lock'); }
-avatarBtn.addEventListener('click', openDrawer, {passive:true});
-avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
-document.addEventListener('click', e=>{ if(e.target && e.target.id==='avatarClose') closeDrawer(); }, {passive:true});
+/* ===== Avatar Drawer & Subsheet ===== */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet'), adminTab=$('#adminTab');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); adminTab.style.display='none'; }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); adminTab.style.display='flex'; }
+avatarBtn.addEventListener('click', openDrawer);
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); });
 
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   sheetTitle.textContent=title;
-  if(!url){ alert('401 — Not linked yet'); return; }
   subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  subFrame.addEventListener('load', ()=>{
+    try{
+      const d=subFrame.contentDocument||subFrame.contentWindow.document;
+      const st=d.createElement('style'); st.textContent='html,body{overflow-x:hidden!important}'; d.head.appendChild(st);
+    }catch{}
+  }, {once:true});
   subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
-  document.body.classList.add('lock');
 }
-function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; document.body.classList.remove('lock'); }
-$('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
-subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
-$$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
-  e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
-}, {passive:false}));
-
-/* ===== settings & flags ===== */
-function defaults(){
-  const heroFlags={}, pageOrder=[];
-  for(let i=1;i<=10;i++){
-    const id=`co-${i}`;
-    heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
-    pageOrder.push({type:'hero',id});
-  }
-  for(let i=11;i<=50;i++){
-    const id=`co-${i}`;
-    heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
-  }
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, pageOrder, _seeded:true };
+function closeSubSheet(){
+  subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true');
+  subFrame.src='about:blank';
 }
-function sanitize(cfg){
-  let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
-  c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
-  c.heroProgress=c.heroProgress||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
-  for(let i=1;i<=50;i++){
-    const id=`co-${i}`;
-    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
-    const onPage = c.heroFlags[id].place==='page';
-    if(onPage && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)) c.pageOrder.push({type:'hero',id});
-  }
-  const hasPage = c.pageOrder.some(it=>it.type==='hero' && c.heroFlags[it.id]?.place==='page');
-  if(!hasPage){
-    for(let i=1;i<=10;i++){
-      const id=`co-${i}`;
-      c.heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
-      if(!c.pageOrder.some(it=>it.type==='hero' && it.id===id)) c.pageOrder.push({type:'hero',id});
-    }
-  }
-  c.pageOrder=c.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
-  return c;
+$('#sheetClose').addEventListener('click', closeSubSheet);
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); });
+$$('#avatarSheet [data-pop]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
+  });
+});
+$('#cfgToggle').addEventListener('click', (e)=>{
+  e.preventDefault(); document.body.classList.toggle('config-on'); closeDrawer();
+});
+
+/* ===== Settings & hero flags =====
+   heroFlags[id] = { state:'live'|'off', place:'page'|'dev'|'archive'|'tpl' }
+*/
+function defaults(){ return { heroFlags:{} }; }
+function getSettings(){
+  const cur=store.get(K.settings,null);
+  if(!cur){ const def=defaults(); store.set(K.settings,def); return def; }
+  return {...defaults(), ...cur, heroFlags:{...(cur.heroFlags||{})}};
 }
-function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
-function saveSettings(s){ store.set(K.settings,sanitize(s)); }
+function saveSettings(s){ store.set(K.settings,s); }
 
-/* Heal */
-(function(){ const s=store.get(K.settings,null); store.set(K.settings, sanitize(s)); })();
-
-function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
-function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-
-/* DOM builders */
-function heroCard(id){
-  const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
-
-  const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
-  const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
-  const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
-
-  const devOn = document.body.classList.contains('config-on');
-  const dirOn = document.body.classList.contains('dir-on') && directorMode();
-  const canEdit = (isAdmin() && devOn) || (isDirector() && dirOn);
-
-  const role = getRole();
-  const showPill = (role==='admin' || role==='director' || role==='support') ||
-                   (f.state==='dev' && (role==='admin' || role==='director'));
-
-  const statusPill = showPill ? `<span class="status-pill ${
-      f.state==='live'?'status-live' : (f.state==='dev'?'status-dev':'status-off')
-    }">${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}</span>` : '';
-
-  let ctrlsHTML = '';
-  if(canEdit){
-    const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
-    const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-    ctrlsHTML += `<div class="ctrls hide-when-normal">`;
-    ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button">${editLabel}</button>`;
-    if(isAdmin()) ctrlsHTML += `<button class="chip" data-act="move" type="button">Archive</button>`;
-    ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
-    ctrlsHTML += `</div>`;
-  }
-
-  let btnLabel = 'Start', btnClass='blue';
-  if(completed){ btnLabel='Complete'; btnClass='grey'; }
-  else if(inprogress){ btnLabel='In Progress'; }
-
-  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
-  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
-
-  el.innerHTML=`
-    ${artLayer}
-    ${statusPill}
-    <button class="cfg-pin hide-when-normal" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
-    <div class="hero-arrows hide-when-normal">
-      <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
-      <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
-    </div>
-    <span class="label">${labelFor(id)}</span>
-    ${ctrlsHTML}
-    <div class="cta-left">
-      <button class="btn ${btnClass}" data-act="enter" type="button">${btnLabel}</button>
-      ${(canEdit)?`
-        <div class="aud-line">
-          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
-          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
-          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
-        </div>`:''}
-    </div>`;
-
-  if(completed) el.classList.add('completed');
-  else if(inprogress) el.classList.add('inprogress');
-
-  if(art && art.crop){
-    const img = el.querySelector('.art img');
-    if(img){
-      const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
-      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
-    }
-  }
-  return el;
+/* hero id -> tab */
+function heroTab(id){
+  if(id.startsWith('feed-')) return 'feed';
+  if(id.startsWith('ch-'))   return 'challenges';
+  if(id.startsWith('co-'))   return 'courses';
+  if(id.startsWith('lv-'))   return 'live';
+  return 'feed';
 }
 
-function dividerEl(obj){
-  const devOn = document.body.classList.contains('config-on');
-  const dirOn = document.body.classList.contains('dir-on') && directorMode();
-  const canEdit = (isAdmin() && devOn) || (isDirector() && dirOn);
+/* Links map for archived/templates (open in iframe) */
+function getLinks(){ return store.get(K.heroLinks,{}); }
+function setLink(id,url){ const L=getLinks(); L[id]=url; store.set(K.heroLinks,L); }
 
-  const tools = (canEdit && isAdmin()) ? `
-    <div class="dctrls">
-      <button class="chip" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
-      <button class="chip" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
-      <button class="chip" data-div-act="down" data-div-id="${obj.id}" type="button">▼</button>
-      <button class="chip" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
-    </div>` : '';
-
-  const audLine = canEdit ? `
-    <div class="aud-line">
-      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Beginner</button>
-      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Intermediate</button>
-      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Advanced</button>
-    </div>` : '';
-
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>${tools}${audLine}`;
-  return el;
-}
-
-/* Paint page */
-function paintPage(){
-  const grid=$('#pageGrid'); grid.innerHTML='';
-  applyView(); paintAvatar();
-  const s=getSettings(); const role=getRole();
-  s.pageOrder.forEach(it=>{
-    if(it.type==='hero'){
-      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
-      if(!seesAll()){
-        if(f.state!=='live') return;
-        if(!f.aud[role]) return;
-      }
-      grid.appendChild(heroCard(id));
-    }else if(it.type==='divider'){
-      const aud=it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll()){ if(!aud[role]) return; }
-      grid.appendChild(dividerEl(it));
+/* ===== Visibility paint ===== */
+function applyHeroVisibility(){
+  const flags=getSettings().heroFlags;
+  $$('[data-hero-id]').forEach(el=>{
+    const id=el.dataset.heroId;
+    const f=flags[id]||{state:'live',place:'page'};
+    let show = (f.place==='page');
+    if(!isAdmin()) show = show && (f.state==='live');
+    el.style.display = show ? '' : 'none';
+    const btn=el.querySelector('[data-toggle-state]');
+    if(btn){
+      btn.textContent = (f.state==='live'?'Live':'Offline');
+      btn.classList.toggle('state-live', f.state==='live');
+      btn.classList.toggle('state-off', f.state!=='live');
     }
   });
 }
+applyHeroVisibility();
 
-/* Footer visibility + skin */
-const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
-function applyArchiveVisibility(){
-  if (['admin','director'].includes(baseRole())) {
-    dock.style.display='block'; 
-    dock.setAttribute('aria-hidden','false');
-  } else {
-    dock.style.display='none'; 
-    dock.setAttribute('aria-hidden','true');
+/* ===== Normalise any legacy on-hero chips into the popover (safety) ===== */
+function normaliseLegacyChips(){
+  $$('[data-hero-id]').forEach(hero=>{
+    const stray=Array.from(hero.querySelectorAll(':scope > [data-move-to]'));
+    if(!stray.length) return;
+    const menu = hero.querySelector('.move-menu');
+    stray.forEach(ch=>menu.appendChild(ch));
+  });
+}
+normaliseLegacyChips();
+
+/* ===== Admin live/off + Move (popover) ===== */
+document.body.addEventListener('click',(e)=>{
+  const hero=e.target.closest('[data-hero-id]');
+
+  // toggle live/off
+  if(hero && e.target.matches('[data-toggle-state]')){
+    const id=hero.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+    const next=(cur.state==='live'?'off':'live');
+    const ok=confirm(`Set this hero ${next==='live'?'LIVE (visible)':'OFFLINE (hidden)'}?`);
+    if(!ok) return;
+    s.heroFlags[id]={...cur, state:next}; saveSettings(s);
+    applyHeroVisibility(); paintWorkingDrawer(); return;
   }
-}
-function applyArchiveSkin(){
-  const real = baseRole();                 // <— real role
-  $('#archiveTitle').textContent = real==='director' ? 'Director Mode' : 'Developer Mode';
-  if(real==='director'){
-    dock.style.background = '#ffd60a';
-    dock.style.color = '#000';
-    $('#dirModeToggle').style.display='inline-flex';
-    document.body.classList.remove('config-on');
-  }else{
-    dock.style.background = 'var(--red)';
-    dock.style.color = '#fff';
-    $('#dirModeToggle').style.display='none';
-    document.body.classList.remove('dir-on');
+
+  // open/close move popover
+  if(hero && (e.target.matches('[data-move]') || e.target.closest('[data-move]'))){
+    const btn=e.target.closest('[data-move]');
+    const menu=btn.querySelector('.move-menu');
+    const open=!menu.classList.contains('open');
+    $$('.move-menu.open').forEach(m=>m.classList.remove('open'));
+    if(open) menu.classList.add('open');
+    e.stopPropagation();
+    return;
   }
-  updateFooterModeControls();
-}
-applyArchiveVisibility(); applyArchiveSkin();
 
-/* Footer mode controls text */
-function updateFooterModeControls(){
-  const devOn = document.body.classList.contains('config-on');
-  $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
-  if($('#dirModeToggle').style.display!=='none'){
-    const dirOn = document.body.classList.contains('dir-on') && directorMode();
-    $('#dirModeToggle').textContent = `Director: ${dirOn?'On':'Off'}`;
+  // choose destination
+  if(hero && e.target.matches('.move-menu [data-move-to]')){
+    const id=hero.dataset.heroId; const dest=e.target.getAttribute('data-move-to');
+    moveHero(id, dest);
+    const menu=hero.querySelector('.move-menu'); if(menu) menu.classList.remove('open');
+    e.stopPropagation(); return;
   }
-  $('#addHeadingBtn').style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
+});
+// click-away to close popovers
+document.addEventListener('click',()=>{$$('.move-menu.open').forEach(m=>m.classList.remove('open'))});
+
+/* Move with "three cards max" rule in Dev Space per-tab */
+function moveHero(id, place){
+  const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+  if(place==='dev'){
+    const countDev = Object.entries(s.heroFlags).filter(([hid,flag])=>heroTab(hid)===heroTab(id) && flag?.place==='dev').length;
+    if(cur.place!=='dev' && countDev>=3){ alert('Development Space can hold only 3 cards.'); return; }
+  }
+  s.heroFlags[id]={...cur, place}; saveSettings(s);
+  applyHeroVisibility(); paintWorkingDrawer();
 }
 
-/* Footer view controls */
-function syncFooterViewControls(){
-  const v=getView();
-  $('#footerCols').value=String(v.cols||3);
-  $('#footerDensity').value=v.density||'comfortable';
-}
-syncFooterViewControls();
-$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
+/* ===== Working Drawer ===== */
+const toggleDockBtn=$('#toggleDockBtn'), adminDock=$('#adminDock'), devSpace=$('#devSpace');
+function openDock(){ adminDock.classList.add('open'); toggleDockBtn.textContent='Close Working Drawer'; }
+function closeDock(){ adminDock.classList.remove('open'); toggleDockBtn.textContent='Working Drawer'; }
+toggleDockBtn.addEventListener('click', ()=> adminDock.classList.contains('open') ? closeDock() : openDock());
 
-$('#viewAs').addEventListener('change', e=>{
-  store.set(K.viewAs, e.target.value || '');
-  // hard refresh so *all* role-gated UI re-evaluates exactly as that audience
-  location.reload();
-},{passive:true});
-
-/* Archive list */
-function paintArchive(){
-  const s=getSettings(); const flags=s.heroFlags;
-  archiveList.innerHTML='';
-  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
-    .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
-  countArchive.textContent=items.length;
-  items.forEach(([id,f])=>{
-    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    const controls = `
-      <div style="display:flex;gap:8px;align-items:center">
-        ${(isAdmin())?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
+function paintWorkingDrawer(){
+  const flags=getSettings().heroFlags||{};
+  const links=getLinks();
+  devSpace.innerHTML='';
+  const archive=[], tpl=[];
+  $$('[data-hero-id]').forEach(el=>{
+    const id=el.dataset.heroId;
+    if(heroTab(id)!==currentTab) return; // per-tab draw
+    const t=el.querySelector('.title')?.textContent?.trim()||id;
+    const f=flags[id]||{state:'live',place:'page'};
+    if(f.place==='dev'){
+      const card=document.createElement('article'); card.className='hero';
+      card.innerHTML=`<h2 class="title">${t}</h2>
+        <div class="admin-ctrls" style="display:flex">
+          <button class="ctl ${f.state==='live'?'state-live':'state-off'}" data-dock-id="${id}" data-dock-act="toggle">${f.state==='live'?'Live':'Offline'}</button>
+          <button class="ctl move" data-dock-id="${id}" data-dock-move>Move
+            <div class="move-menu">
+              <button data-dock-id="${id}" data-dock-to="page">Move to Page</button>
+              <button data-dock-id="${id}" data-dock-to="archive">Move to Archive</button>
+              <button data-dock-id="${id}" data-dock-to="tpl">Move to Templates</button>
+            </div>
+          </button>
+        </div>
+        <p class="meta">Dev preview only</p>`;
+      devSpace.appendChild(card);
+    }else if(f.place==='archive'){ archive.push({id, title:t, link:links[id]||''}); }
+    else if(f.place==='tpl'){ tpl.push({id, title:t, link:links[id]||''}); }
+  });
+  // paint lists
+  const LA=$('#listArchive'); const LT=$('#listTpl');
+  LA.innerHTML=''; LT.innerHTML='';
+  const renderRow=(host,it,bin)=>{
+    const row=document.createElement('div'); row.className='item';
+    row.innerHTML=`<div class="name">${it.title}</div>
+      <div>
+        <button class="small link" data-link-id="${it.id}">${it.link?'Change Link':'Set Link'}</button>
+        <button class="small open" data-open-id="${it.id}">Open</button>
+        <button class="small" data-move-id="${it.id}" data-place="page">To Page</button>
+        <button class="small" data-move-id="${it.id}" data-place="${bin==='archive'?'tpl':'archive'}">To ${bin==='archive'?'Templates':'Archive'}</button>
       </div>`;
-    row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
-    archiveList.appendChild(row);
-  });
+    host.appendChild(row);
+  };
+  archive.forEach(it=>renderRow(LA,it,'archive'));
+  tpl.forEach(it=>renderRow(LT,it,'tpl'));
 }
-paintArchive();
+paintWorkingDrawer();
 
-/* Archive open/close + body lock */
-let savedScrollY=0;
-function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
-function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
-$('#archiveToggle').addEventListener('click',()=>{
-  const isOpen=dock.classList.contains('open');
-  dock.classList.toggle('open', !isOpen);
-  dock.classList.toggle('collapsed', isOpen);
-  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
-  if(!isOpen) lockBody(); else unlockBody();
-}, {passive:true});
+/* Drawer interactions (dev space + bins) */
+document.getElementById('adminDock').addEventListener('click',(e)=>{
+  // toggle live/off (dev card)
+  if(e.target.matches('[data-dock-act="toggle"]')){
+    const id=e.target.dataset.dockId;
+    const s=getSettings(); const cur=s.heroFlags[id]||{state:'live',place:'page'};
+    s.heroFlags[id]={...cur, state:(cur.state==='live'?'off':'live')};
+    saveSettings(s); applyHeroVisibility(); paintWorkingDrawer(); return;
+  }
 
-/* Footer mode toggle handlers */
-$('#devToggle').addEventListener('click', ()=>{
-  if(!['admin','director'].includes(baseRole())) return;
-  document.body.classList.toggle('config-on');
-  if(document.body.classList.contains('config-on')) document.body.classList.remove('dir-on');
-  updateFooterModeControls(); paintPage();
-}, {passive:true});
-
-$('#dirModeToggle').addEventListener('click', ()=>{
-  if(baseRole()!=='director') return;
-  const next=!directorMode();
-  store.set(K.directorMode,next);
-  document.body.classList.toggle('dir-on', next);
-  if(next) document.body.classList.remove('config-on');
-  updateFooterModeControls(); paintPage(); paintArchive(); applyArchiveSkin();
-}, {passive:true});
-
-/* Add Heading (footer) */
-function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
-$('#addHeadingBtn').addEventListener('click',()=>{
-  if(!isAdmin() || !document.body.classList.contains('config-on')) return;
-  const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
-  saveSettings(s); paintPage();
-}, {passive:false});
-
-/* Page click handlers */
-document.addEventListener('click',(e)=>{
-  // Enter (open course)
-  if(e.target.closest('[data-act="enter"]')){
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
-    const n = Number(((id||'').match(/\d+/)||[])[0]||0);
-    const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
-    openSubSheet(labelFor(id), url); return;
-  }
-  // Cycle status (admin/director while tools on): live → off → dev → live
-  if(e.target.closest('[data-act="toggle"]')){
-    const devOn = document.body.classList.contains('config-on');
-    const dirOn = document.body.classList.contains('dir-on') && directorMode();
-    if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
-    const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id];
-    const order=['live','off','dev'];
-    const ni=(order.indexOf(cur.state)+1)%order.length;
-    s.heroFlags[id]={...cur, state:order[ni]};
-    saveSettings(s); paintPage(); paintArchive(); return;
-  }
-  // Move to/from archive (admin + dev only)
-  if(e.target.closest('[data-act="move"]')){
-    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
-    const dest = (cur.place==='page') ? 'archive' : 'page';
-    if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
-    s.heroFlags[id]={...cur, place:dest};
-    if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
-    else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
-    saveSettings(s); paintPage(); paintArchive(); return;
-  }
-  // Audience chips — only while editor tools are on
-  const audBtn=e.target.closest('[data-aud]');
-  if(audBtn){
-    const devOn = document.body.classList.contains('config-on');
-    const dirOn = document.body.classList.contains('dir-on') && directorMode();
-    if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
-    const key=audBtn.getAttribute('data-aud');
-    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
-    s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
-    paintPage(); paintArchive(); return;
-  }
-  // Heading audience (same rule)
-  if(e.target.dataset.divAud){
-    const devOn = document.body.classList.contains('config-on');
-    const dirOn = document.body.classList.contains('dir-on') && directorMode();
-    if(!( (isAdmin() && devOn) || (isDirector() && dirOn) )) return;
-    const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-    const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
-    s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
-  }
-  // Rename hero (admin + dev)
-  if(e.target.matches('[data-cfg-rename]')){
-    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
-    const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
-    const next=prompt('Hero label', cur);
-    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
+  // move actions (accept id from either attribute; handles bin rows and dev-card menus)
+  if(e.target.matches('[data-dock-to], [data-move-id], [data-place]')){
+    const id   = e.target.dataset.dockId || e.target.dataset.moveId;
+    const dest = e.target.dataset.dockTo || e.target.dataset.place;
+    if(id && dest){ moveHero(id, dest); }
     return;
   }
-  // Sort arrows (admin + dev)
-  if(e.target.matches('.cfg-arrow')){
-    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
-    const key=e.target.dataset.key; const s=getSettings();
-    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-    const from = keys.indexOf(key); if(from<0) return;
-    const dir = e.target.dataset.sort==='up' ? -1 : 1;
-    const to = Math.min(Math.max(0, from+dir), keys.length-1);
-    if(to!==from){
-      const objFrom = s.pageOrder[from];
-      s.pageOrder.splice(from,1);
-      s.pageOrder.splice(to,0,objFrom);
-      saveSettings(s); paintPage();
-    }
+
+  // set/change link
+  if(e.target.matches('[data-link-id]')){
+    const id=e.target.dataset.linkId; const cur=getLinks()[id]||'';
+    const url=prompt('Enter linked HTML/URL', cur||'');
+    if(url!=null && url.trim()!==''){ setLink(id,url.trim()); paintWorkingDrawer(); }
     return;
   }
-  // Pick hero art (admin + dev)
-  if(e.target.closest('[data-act="pickart"]')){
-    if(!(isAdmin() && document.body.classList.contains('config-on'))) return;
-    const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
-    const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
-    const s=getSettings(); s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-    saveSettings(s); paintPage(); return;
-  }
-}, {passive:false});
 
-/* Initial render */
-applyView();
-paintAvatar();
-paintPage();
-paintArchive();
-applyArchiveSkin();
-updateFooterModeControls();
-syncFooterViewControls();
+  // open link
+  if(e.target.matches('[data-open-id]')){
+    const id=e.target.dataset.openId; const url=getLinks()[id];
+    if(!url){ alert('No link set yet. Use “Set Link”.'); return; }
+    openSubSheet('Hero', url); return;
+  }
+});
+
+/* ===== Daily medals placeholder & meta ===== */
+(function paintEmpty(){
+  const dm=$('#dailyMedals'); if(!dm) return;
+  dm.innerHTML=''; for(let i=0;i<7;i++){ const m=document.createElement('div'); m.className='medal'; dm.appendChild(m); }
+})();
+(function bootDailyMeta(){
+  const today=new Date(); const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const m=$('#dailyMeta'); if(m) m.textContent = `Begins ${dayNames[today.getDay()]}`;
+})();
+
+/* ===== Tracker hero click -> iframe ===== */
+const th=$('#trackerHero'); if(th){ th.addEventListener('click',()=>openSubSheet('Challenge Tracker','avatar/challengetracker.html')); }
+
+/* ===== Close any open move popover on ESC ===== */
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ $$('.move-menu.open').forEach(m=>m.classList.remove('open')); closeSubSheet(); closeDrawer(); } });
+
+console.log('[FAOA] home loaded ✓');
 })();
 </script>
 </body>
