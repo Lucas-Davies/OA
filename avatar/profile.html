@@ -19,12 +19,8 @@ img{display:block;max-width:100%}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--blue); outline-offset:2px; border-radius:10px}
 
-/* Header (no back button) */
-header{
-  position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;
-  padding:12px;background:#111;border-bottom:1px solid var(--stroke)
-}
-header h1{margin:0;font-size:20px;font-weight:900}
+/* Remove our header so only your overlay title shows */
+header{display:none}
 
 /* Buttons */
 .btn{
@@ -38,6 +34,7 @@ header h1{margin:0;font-size:20px;font-weight:900}
 
 /* Layout */
 .container{max-width:840px;margin:0 auto;padding:12px;
+  padding-top:8px; /* tiny top spacing since header is gone */
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)
 }
 
@@ -85,19 +82,27 @@ input[disabled]{opacity:.7}
 }
 .level-chip .caret{font-size:14px; line-height:1; opacity:.9}
 
-/* In-pill menu */
+/* Level menu + backdrop (locks background scroll) */
+#levelBackdrop{
+  position:fixed; inset:0; z-index:40; display:none;
+  background:transparent; /* tap catcher */
+}
 .level-menu{
-  position:absolute; right:10px; bottom:48px; min-width:160px;
+  position:absolute; right:10px; bottom:48px; min-width:220px; max-width:280px;
   background:#0f1116; border:1px solid var(--stroke); border-radius:12px;
-  box-shadow:0 12px 24px rgba(0,0,0,.35); padding:6px; display:none; z-index:3
+  box-shadow:0 12px 24px rgba(0,0,0,.35); padding:6px; display:none; z-index:50;
+  max-height:60vh; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
 }
 .level-menu.open{display:block}
 .level-menu button{
-  all:unset; display:flex; align-items:center; gap:8px; width:100%;
-  padding:10px 10px; border-radius:10px; cursor:pointer; font-weight:800; font-size:13px
+  all:unset; display:flex; align-items:center; gap:10px; width:100%;
+  padding:12px 12px; border-radius:10px; cursor:pointer; font-weight:800; font-size:14px
 }
 .level-menu button:hover, .level-menu button:focus-visible{background:#151820}
 .level-swatch{width:14px; height:14px; border-radius:999px; border:1px solid rgba(255,255,255,.35)}
+
+/* Scroll lock helper */
+html.no-scroll, body.no-scroll{height:100%; overflow:hidden}
 
 /* Save confirm overlay */
 #saveConfirm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
@@ -111,9 +116,6 @@ input[disabled]{opacity:.7}
 </style>
 </head>
 <body>
-<header>
-  <h1>Profile</h1>
-</header>
 
 <main class="container">
   <!-- Avatar & Level (level selector lives inside the pill) -->
@@ -130,6 +132,9 @@ input[disabled]{opacity:.7}
         <button class="level-chip" id="levelChip" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="levelMenu">
           <span id="levelChipText">Silver</span><span class="caret">▾</span>
         </button>
+
+        <!-- Transparent backdrop to trap taps/scrolls -->
+        <div id="levelBackdrop" aria-hidden="true"></div>
 
         <!-- In-pill menu -->
         <div class="level-menu" id="levelMenu" role="menu" aria-label="Choose level">
@@ -239,21 +244,19 @@ const K={profile:'ao_profile',settings:'ao_settings',perms:'ao_permissions',ui:'
 const $=s=>document.querySelector(s);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
-/* Role colours for avatar ring */
-const RING={admin:'var(--blue)',director:'var(--director)',support:'var(--support)',gold:'var(--gold)',silver:'var(--silver)',bronze:'var(--bronze)'};
+/* Role colours + labels */
+const COLORS={admin:'var(--blue)',director:'var(--director)',support:'var(--support)',gold:'var(--gold)',silver:'var(--silver)',bronze:'var(--bronze)'};
 const LEVELS=['admin','director','support','gold','silver','bronze'];
 
 /* Elements */
 const pill=$('#avatarPill'), pillName=$('#avatarName'), pillLvl=$('#avatarLvl');
-const levelChip=$('#levelChip'), levelChipText=$('#levelChipText'), levelMenu=$('#levelMenu');
+const levelChip=$('#levelChip'), levelChipText=$('#levelChipText'), levelMenu=$('#levelMenu'), levelBackdrop=$('#levelBackdrop');
 const first=$('#firstName'), last=$('#lastName'), displayName=$('#displayName'),
       email=$('#email'), username=$('#username'), password=$('#password');
 const saveConfirm=$('#saveConfirm');
 
 /* Load profile (defaults) */
-let p=store.get(K.profile,{
-  firstName:'', lastName:'', displayName:'User', email:'', username:'user', skill:'silver'
-});
+let p=store.get(K.profile,{ firstName:'', lastName:'', displayName:'User', email:'', username:'user', skill:'silver' });
 
 /* Permissions state (per-user entry) */
 function getPerms(username){ const all=store.get(K.perms,{}); return all[username]||null; }
@@ -261,7 +264,7 @@ function setPerms(username, perms){ const all=store.get(K.perms,{}); all[usernam
 
 /* Paint avatar */
 function paintPill(role, name){
-  pill.style.boxShadow = `0 0 0 2px ${RING[role]||RING.silver} inset`;
+  pill.style.boxShadow = `0 0 0 2px ${COLORS[role]||COLORS.silver} inset`;
   const nice = cap(role);
   pillName.textContent = name || 'User';
   pillLvl.textContent  = nice;
@@ -284,21 +287,15 @@ function presetPerms(role){
 
 /* Admin check + section visibility */
 function isAdmin(){ return (p.skill||'').toLowerCase()==='admin'; }
-function updatePermsVisibility(){
-  const sec=$('#permSection');
-  sec.hidden = !isAdmin();
-}
+function updatePermsVisibility(){ $('#permSection').hidden = !isAdmin(); }
 
 /* Paint form from profile */
 function paintForm(){
   const role=(p.skill||'silver').toLowerCase();
   paintPill(role, p.displayName||'User');
-  first.value = p.firstName||'';
-  last.value  = p.lastName||'';
-  displayName.value = p.displayName||'';
-  email.value = p.email||'';
-  username.value = p.username||'user';
-  updatePermsVisibility();
+  first.value = p.firstName||''; last.value = p.lastName||'';
+  displayName.value = p.displayName||''; email.value = p.email||'';
+  username.value = p.username||'user'; updatePermsVisibility();
 
   if(isAdmin()){
     $('#permUser').textContent = p.username||'user';
@@ -333,19 +330,7 @@ document.querySelectorAll('.section-head').forEach(btn=>{
   });
 });
 
-/* Deep-link hash opens target section */
-function openHashSection(){
-  const id = location.hash.replace('#','');
-  if(!id) return;
-  const head = document.getElementById(id);
-  const sec = head?.closest('.section'); if(!sec) return;
-  sec.classList.remove('collapsed');
-  const key = sec.dataset.key; if(key){ const s=store.get(K.ui,{}); s[key]='open'; store.set(K.ui,s); }
-}
-window.addEventListener('hashchange',openHashSection);
-openHashSection();
-
-/* ===== In-pill level menu ===== */
+/* ===== Level menu (bigger + scrollable + locks background) ===== */
 function buildLevelMenu(){
   levelMenu.innerHTML='';
   LEVELS.forEach(l=>{
@@ -353,9 +338,7 @@ function buildLevelMenu(){
     btn.setAttribute('role','menuitemradio');
     btn.setAttribute('aria-checked', (p.skill===l).toString());
     btn.dataset.value=l;
-    const sw=document.createElement('span'); sw.className='level-swatch'; sw.style.background= getComputedStyle(document.documentElement).getPropertyValue(RING[l]? '' : '');
-    // swatch colour fallback:
-    sw.style.background = getComputedStyle(document.documentElement).getPropertyValue(RING[l]? RING[l].replace('var(','').replace(')','') : '--silver') || '#999';
+    const sw=document.createElement('span'); sw.className='level-swatch'; sw.style.background = `var(${COLORS[l].replace('var(','').replace(')','')})`;
     const label=document.createElement('span'); label.textContent=cap(l);
     btn.appendChild(sw); btn.appendChild(label);
     btn.addEventListener('click',()=>{
@@ -368,19 +351,21 @@ function buildLevelMenu(){
 }
 function setMenuOpen(open){
   levelMenu.classList.toggle('open', open);
+  levelBackdrop.style.display = open ? 'block' : 'none';
   levelChip.setAttribute('aria-expanded', open?'true':'false');
+  document.documentElement.classList.toggle('no-scroll', open);
+  document.body.classList.toggle('no-scroll', open);
 }
 buildLevelMenu();
 
-levelChip.addEventListener('click',(e)=>{
-  e.stopPropagation();
-  setMenuOpen(!levelMenu.classList.contains('open'));
-});
-document.addEventListener('click',(e)=>{
-  if(!levelMenu.contains(e.target) && !levelChip.contains(e.target)) setMenuOpen(false);
+levelChip.addEventListener('click',(e)=>{ e.stopPropagation(); setMenuOpen(!levelMenu.classList.contains('open')); });
+levelBackdrop.addEventListener('click',()=> setMenuOpen(false));
+/* Prevent touch scrolling the page while interacting with the menu/backdrop */
+['touchmove','wheel'].forEach(evt=>{
+  levelBackdrop.addEventListener(evt, e=>e.preventDefault(), {passive:false});
 });
 
-/* Save confirmation helper */
+/* Save confirm helper */
 function flashSaved(){
   saveConfirm.classList.add('open'); saveConfirm.setAttribute('aria-hidden','false');
   const closer = (e)=>{ if(e.target===saveConfirm){ saveConfirm.classList.remove('open'); saveConfirm.setAttribute('aria-hidden','true'); window.removeEventListener('click', closer); } };
@@ -392,35 +377,27 @@ function saveSection(which){
   if(which==='avatar'){
     p.displayName = (displayName.value||p.displayName||'User').trim() || 'User';
     store.set(K.profile,p);
-    updatePermsVisibility();
-    paintForm();
+    updatePermsVisibility(); paintForm();
     try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
   }
   if(which==='perms' && isAdmin()){
     const perms={
-      move:   $('#permMove').checked,
-      hide:   $('#permHide').checked,
-      dock:   $('#permDock').checked,
-      rearr:  $('#permRearr').checked,
-      tabs:   $('#permTabs').checked,
-      config: $('#permConfig').checked
+      move:   $('#permMove').checked, hide: $('#permHide').checked, dock: $('#permDock').checked,
+      rearr:  $('#permRearr').checked, tabs: $('#permTabs').checked, config: $('#permConfig').checked
     };
     setPerms(p.username||'user', perms);
     const s=store.get(K.settings,{}); s.permsCurrent=perms; store.set(K.settings,s);
     try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.settings})); }catch{}
   }
   if(which==='details'){
-    p.firstName = first.value.trim();
-    p.lastName  = last.value.trim();
+    p.firstName = first.value.trim(); p.lastName = last.value.trim();
     p.displayName = (displayName.value||'User').trim() || 'User';
-    p.email = email.value.trim();
-    store.set(K.profile,p);
+    p.email = email.value.trim(); store.set(K.profile,p);
     try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
     paintForm();
   }
   if(which==='auth'){
-    const pw=password.value.trim();
-    if(pw){ p.password=pw; store.set(K.profile,p); }
+    const pw=password.value.trim(); if(pw){ p.password=pw; store.set(K.profile,p); }
   }
   flashSaved();
 }
@@ -442,17 +419,12 @@ document.body.addEventListener('click',(e)=>{
 });
 
 /* Role preset → apply to checkboxes */
-const rolePresetEl = document.getElementById('rolePreset');
-rolePresetEl?.addEventListener('change',()=>{
-  const role=rolePresetEl.value;
+document.getElementById('rolePreset')?.addEventListener('change',()=>{
+  const role=rolePreset.value;
   if(role==='custom') return;
   const perms=presetPerms(role);
-  $('#permMove').checked   = perms.move;
-  $('#permHide').checked   = perms.hide;
-  $('#permDock').checked   = perms.dock;
-  $('#permRearr').checked  = perms.rearr;
-  $('#permTabs').checked   = perms.tabs;
-  $('#permConfig').checked = perms.config;
+  $('#permMove').checked=perms.move; $('#permHide').checked=perms.hide; $('#permDock').checked=perms.dock;
+  $('#permRearr').checked=perms.rearr; $('#permTabs').checked=perms.tabs; $('#permConfig').checked=perms.config;
 });
 
 /* Change password placeholder */
