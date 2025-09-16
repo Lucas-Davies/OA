@@ -238,13 +238,6 @@ button{user-select:none;-webkit-user-select:none}
         <option value="3" selected>3</option><option value="4">4</option>
       </select>
 
-      <span class="footer-label">Density</span>
-      <select id="footerDensity" class="footer-select">
-        <option value="cozy">Cozy</option>
-        <option value="comfortable" selected>Comfortable</option>
-        <option value="roomy">Roomy</option>
-      </select>
-
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
 
@@ -280,19 +273,36 @@ if(Q.get('reset')==='1'){
 /* Soft labels */
 const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced' };
 
-/* View settings */
-function defaultView(){ return { cols:3, density:'comfortable' }; }
-function getView(){ return store.get(K.view, defaultView()); }
-function saveView(v){ store.set(K.view, v); applyView(); }
+/* View settings (density removed) */
+function defaultView(){ 
+  return { cols: 3 }; 
+}
+
+function getView(){
+  const raw = store.get(K.view, defaultView()) || {};
+  const cols = Math.min(4, Math.max(1, Number(raw.cols) || 3));
+  return { cols };
+}
+
+function saveView(v){
+  const cols = Math.min(4, Math.max(1, Number((v && v.cols) || 3)));
+  store.set(K.view, { cols });   // strip legacy density if it exists
+  applyView();
+}
+
 function applyView(){
-  const v=getView();
-  const grid=$('#pageGrid');
-  if(grid){
-    grid.style.gridTemplateColumns = `repeat(${Math.max(1,Math.min(4,Number(v.cols)||3))}, 1fr)`;
-    const pad = v.density==='cozy' ? 14 : (v.density==='roomy' ? 22 : 18);
-    document.documentElement.style.setProperty('--hero-pad', pad+'px');
-    grid.style.gap = (v.cols>=3 ? 36 : 18)+'px';
-  }
+  const v = getView();
+  // Prefer a grid container if you have one; otherwise, no-op.
+  const grid = document.querySelector('#pageGrid, .grid');
+  if(!grid) return;
+
+  grid.style.gridTemplateColumns = `repeat(${v.cols}, 1fr)`;
+  // Keep a sensible gap based on column count
+  grid.style.gap = (v.cols >= 3 ? 36 : 18) + 'px';
+
+  // Remove density-driven padding: set a single consistent hero padding
+  document.documentElement.style.setProperty('--hero-pad', '18px');
+}
 }
 
 /* Roles + Director Mode + View-as override */
@@ -545,11 +555,9 @@ function updateFooterModeControls(){
 function syncFooterViewControls(){
   const v=getView();
   $('#footerCols').value=String(v.cols||3);
-  $('#footerDensity').value=v.density||'comfortable';
 }
 syncFooterViewControls();
 $('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-$('#footerDensity').addEventListener('change', e=>{ const v=getView(); v.density=e.target.value; saveView(v); }, {passive:true});
 
 /* View-as override */
 $('#viewAs').addEventListener('change', e=>{
