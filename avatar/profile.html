@@ -10,57 +10,56 @@
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333;
-  --support:#6a4cff; --director:#333; --danger:#ff3b30;
+  --support:#6a4cff; --director:#8a93a6; --danger:#ff3b30;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+img{display:block;max-width:100%}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue); outline-offset:2px; border-radius:10px}
 
-/* Header */
-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;
-  padding:12px;background:#111;border-bottom:1px solid var(--stroke)}
+/* Header (no back button) */
+header{
+  position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;
+  padding:12px;background:#111;border-bottom:1px solid var(--stroke)
+}
 header h1{margin:0;font-size:20px;font-weight:900}
-.btn{background:var(--blue);color:#000;padding:8px 12px;border-radius:10px;border:1px solid transparent;font-weight:900;cursor:pointer}
+
+/* Buttons */
+.btn{
+  background:var(--blue);color:#000;padding:0 12px;border-radius:10px;border:1px solid transparent;
+  font-weight:900;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center
+}
 .btn.grey{background:#222;color:#fff;border-color:var(--stroke)}
 .btn.ghost{background:#14161c;color:#fff;border:1px solid var(--stroke)}
 .btn.danger{background:var(--danger);color:#fff;border-color:transparent}
-.btn.small{height:36px;padding:6px 10px;border-radius:8px;font-size:13px}
+.btn.small{min-height:36px;padding:0 10px;border-radius:8px;font-size:13px}
 
 /* Layout */
-.container{max-width:840px;margin:0 auto;padding:12px}
-
-/* Avatar pill (text-only) */
-.avatarPill{display:inline-flex;flex-direction:column;justify-content:center;gap:2px;
-  padding:10px 14px;border-radius:14px;border:1px solid var(--stroke);background:#222;min-width:180px;
-  box-shadow:0 0 0 2px var(--silver) inset}
-.avatarPill .name{font-size:18px;font-weight:900}
-.avatarPill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
-
-/* Simple selects/inputs */
-.inlineControls{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
-.label{font-size:12px;color:var(--ink-dim)}
-.select{appearance:none;-webkit-appearance:none;height:40px;border-radius:10px;border:1px solid var(--stroke);
-  background:#111;color:var(--ink);padding:0 12px;font:inherit;font-weight:800;cursor:pointer}
-input, select{font:inherit}
+.container{max-width:840px;margin:0 auto;padding:12px;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)
+}
 
 /* Sections */
 .section{border:1px solid var(--stroke);border-radius:14px;background:#0b0c10;margin:12px 0}
 .section>button.section-head{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;
   padding:12px 14px;cursor:pointer;font-weight:900}
-.section>button.section-head .chev{opacity:.85}
-.section .content{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.section>button.section-head .chev{opacity:.85;transition:transform .18s ease}
 .section.collapsed .content{display:none}
+.section:not(.collapsed) .section-head .chev{transform:rotate(90deg)}
+.section .content{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
+
+.actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 0}
 
 /* Inputs */
 label{display:block;font-size:12px;color:var(--ink-dim);margin:10px 2px 6px}
 input[type="text"],input[type="email"],input[type="password"]{
-  width:100%;height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);
+  width:100%;height:44px;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);
   background:#111;color:var(--ink)}
 input[disabled]{opacity:.7}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:640px){ .row{grid-template-columns:1fr} }
-
-.actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 0}
 
 /* Permissions list */
 .perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -68,65 +67,91 @@ input[disabled]{opacity:.7}
 .perm-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:10px;background:#111}
 .perm-item label{margin:0;font-size:14px;color:var(--ink)}
 
-/* Save confirmation overlay */
+/* Avatar pill with built-in level switcher */
+.avatarPill{
+  position:relative; display:inline-flex; flex-direction:column; justify-content:center; gap:2px;
+  padding:14px 16px; border-radius:14px; border:1px solid var(--stroke); background:#222; min-width:200px;
+  box-shadow:0 0 0 2px var(--silver) inset
+}
+.avatarPill .name{font-size:18px;font-weight:900}
+.avatarPill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
+
+/* Chip that opens the level menu (bottom-right of pill) */
+.level-chip{
+  position:absolute; right:10px; bottom:10px;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border-radius:10px; border:1px solid var(--stroke);
+  background:#14161c; font-weight:800; font-size:12px; cursor:pointer; user-select:none
+}
+.level-chip .caret{font-size:14px; line-height:1; opacity:.9}
+
+/* In-pill menu */
+.level-menu{
+  position:absolute; right:10px; bottom:48px; min-width:160px;
+  background:#0f1116; border:1px solid var(--stroke); border-radius:12px;
+  box-shadow:0 12px 24px rgba(0,0,0,.35); padding:6px; display:none; z-index:3
+}
+.level-menu.open{display:block}
+.level-menu button{
+  all:unset; display:flex; align-items:center; gap:8px; width:100%;
+  padding:10px 10px; border-radius:10px; cursor:pointer; font-weight:800; font-size:13px
+}
+.level-menu button:hover, .level-menu button:focus-visible{background:#151820}
+.level-swatch{width:14px; height:14px; border-radius:999px; border:1px solid rgba(255,255,255,.35)}
+
+/* Save confirm overlay */
 #saveConfirm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
   background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 #saveConfirm.open{display:flex}
 #saveConfirm .card{background:#101217;border:1px solid var(--stroke);border-radius:12px;padding:14px 16px;font-weight:900}
 
-/* mono */
+/* mono + small */
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 .small{font-size:12px;opacity:.85}
 </style>
 </head>
 <body>
 <header>
-  <button class="btn grey" type="button" id="backBtn">‹ Back</button>
   <h1>Profile</h1>
 </header>
 
 <main class="container">
-  <!-- Avatar & Level -->
-  <section class="section" aria-labelledby="sec-avatar">
+  <!-- Avatar & Level (level selector lives inside the pill) -->
+  <section class="section" aria-labelledby="sec-avatar" data-key="avatar">
     <button class="section-head" id="sec-avatar">
-      <span>Avatar</span><span class="chev">›</span>
+      <span>Avatar</span><span class="chev" aria-hidden="true">›</span>
     </button>
     <div class="content">
-      <div id="avatarPill" class="avatarPill">
+      <div id="avatarPill" class="avatarPill" aria-live="polite">
         <div class="name" id="avatarName">User</div>
         <div class="lvl" id="avatarLvl">Silver</div>
-      </div>
 
-      <div class="inlineControls">
-        <span class="label">Level</span>
-        <select id="level" class="select" aria-label="User level">
-          <option value="admin">Admin</option>
-          <option value="director">Director</option>
-          <option value="support">Support</option>
-          <option value="gold">Gold</option>
-          <option value="silver">Silver</option>
-          <option value="bronze">Bronze</option>
-        </select>
+        <!-- Level chip opens menu -->
+        <button class="level-chip" id="levelChip" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="levelMenu">
+          <span id="levelChipText">Silver</span><span class="caret">▾</span>
+        </button>
+
+        <!-- In-pill menu -->
+        <div class="level-menu" id="levelMenu" role="menu" aria-label="Choose level">
+          <!-- buttons injected by JS -->
+        </div>
       </div>
 
       <div class="actions">
         <button class="btn grey small" type="button" data-close="avatar">Close</button>
         <button class="btn small" type="button" data-save="avatar">Save</button>
       </div>
-      <p class="small" style="margin:-6px 2px 0">
-        Avatar is text-only and uses your level colour. No photo is used.
-      </p>
     </div>
   </section>
 
   <!-- Permissions (ADMIN ONLY) -->
-  <section class="section collapsed" id="permSection" aria-labelledby="sec-perms" hidden>
-    <button class="section-head" id="sec-perms"><span>Permissions</span><span class="chev">›</span></button>
+  <section class="section collapsed" id="permSection" aria-labelledby="sec-perms" data-key="perms" hidden>
+    <button class="section-head" id="sec-perms"><span>Permissions</span><span class="chev" aria-hidden="true">›</span></button>
     <div class="content">
       <div class="row">
         <div>
           <label for="rolePreset">Role preset</label>
-          <select id="rolePreset" class="select">
+          <select id="rolePreset" class="btn ghost small" style="min-height:44px">
             <option value="custom">Custom</option>
             <option value="bronze">Bronze</option>
             <option value="silver">Silver</option>
@@ -139,7 +164,7 @@ input[disabled]{opacity:.7}
         </div>
         <div>
           <label>Current username</label>
-          <div class="mono" id="permUser" style="height:42px;display:flex;align-items:center;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#111"></div>
+          <div class="mono" id="permUser" style="height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#111"></div>
         </div>
       </div>
 
@@ -159,9 +184,9 @@ input[disabled]{opacity:.7}
     </div>
   </section>
 
-  <!-- My Details (collapsed by default) -->
-  <section class="section collapsed" aria-labelledby="sec-details">
-    <button class="section-head" id="sec-details"><span>My Details</span><span class="chev">›</span></button>
+  <!-- My Details -->
+  <section class="section collapsed" aria-labelledby="sec-details" data-key="details">
+    <button class="section-head" id="sec-details"><span>My Details</span><span class="chev" aria-hidden="true">›</span></button>
     <div class="content">
       <div class="row">
         <div><label for="firstName">First name</label><input id="firstName" autocomplete="given-name" type="text"></div>
@@ -178,9 +203,9 @@ input[disabled]{opacity:.7}
     </div>
   </section>
 
-  <!-- Username & Password (collapsed) -->
-  <section class="section collapsed" aria-labelledby="sec-auth">
-    <button class="section-head" id="sec-auth"><span>Username & Password</span><span class="chev">›</span></button>
+  <!-- Username & Password -->
+  <section class="section collapsed" aria-labelledby="sec-auth" data-key="auth">
+    <button class="section-head" id="sec-auth"><span>Username & Password</span><span class="chev" aria-hidden="true">›</span></button>
     <div class="content">
       <div class="row">
         <div>
@@ -200,23 +225,9 @@ input[disabled]{opacity:.7}
       </div>
     </div>
   </section>
-
-  <!-- My Data (collapsed) -->
-  <section class="section collapsed" aria-labelledby="sec-data">
-    <button class="section-head" id="sec-data"><span>My Data</span><span class="chev">›</span></button>
-    <div class="content">
-      <p class="small">Headlines only (groups & latest timestamps). Export is admin-only.</p>
-      <div id="dataSummary" class="small"></div>
-      <div class="actions">
-        <button class="btn grey small" type="button" id="viewData">View Details</button>
-        <button class="btn small" type="button" id="exportData" style="display:none">Export (Admin)</button>
-        <button class="btn grey small" type="button" data-close="data">Close</button>
-      </div>
-    </div>
-  </section>
 </main>
 
-<!-- Save confirm (tap anywhere outside to dismiss) -->
+<!-- Save confirm -->
 <div id="saveConfirm" aria-hidden="true"><div class="card">Saved ✓</div></div>
 
 <script>
@@ -224,16 +235,17 @@ input[disabled]{opacity:.7}
 /* Storage helpers */
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={profile:'ao_profile',settings:'ao_settings',perms:'ao_permissions'};
+const K={profile:'ao_profile',settings:'ao_settings',perms:'ao_permissions',ui:'ao_profile_ui'};
 const $=s=>document.querySelector(s);
 const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
 
 /* Role colours for avatar ring */
 const RING={admin:'var(--blue)',director:'var(--director)',support:'var(--support)',gold:'var(--gold)',silver:'var(--silver)',bronze:'var(--bronze)'};
+const LEVELS=['admin','director','support','gold','silver','bronze'];
 
 /* Elements */
 const pill=$('#avatarPill'), pillName=$('#avatarName'), pillLvl=$('#avatarLvl');
-const levelSel=$('#level');
+const levelChip=$('#levelChip'), levelChipText=$('#levelChipText'), levelMenu=$('#levelMenu');
 const first=$('#firstName'), last=$('#lastName'), displayName=$('#displayName'),
       email=$('#email'), username=$('#username'), password=$('#password');
 const saveConfirm=$('#saveConfirm');
@@ -250,8 +262,10 @@ function setPerms(username, perms){ const all=store.get(K.perms,{}); all[usernam
 /* Paint avatar */
 function paintPill(role, name){
   pill.style.boxShadow = `0 0 0 2px ${RING[role]||RING.silver} inset`;
+  const nice = cap(role);
   pillName.textContent = name || 'User';
-  pillLvl.textContent  = cap(role);
+  pillLvl.textContent  = nice;
+  levelChipText.textContent = nice;
 }
 
 /* Role preset → permissions */
@@ -268,26 +282,24 @@ function presetPerms(role){
   }
 }
 
-/* Show/hide Permissions section for admin */
+/* Admin check + section visibility */
 function isAdmin(){ return (p.skill||'').toLowerCase()==='admin'; }
-function showPermsIfAdmin(){
+function updatePermsVisibility(){
   const sec=$('#permSection');
-  if(isAdmin()){ sec.hidden=false; } else { sec.hidden=true; }
+  sec.hidden = !isAdmin();
 }
-showPermsIfAdmin();
 
 /* Paint form from profile */
 function paintForm(){
   const role=(p.skill||'silver').toLowerCase();
   paintPill(role, p.displayName||'User');
-  levelSel.value = role;
   first.value = p.firstName||'';
   last.value  = p.lastName||'';
   displayName.value = p.displayName||'';
   email.value = p.email||'';
   username.value = p.username||'user';
+  updatePermsVisibility();
 
-  // permissions UI (admin only)
   if(isAdmin()){
     $('#permUser').textContent = p.username||'user';
     const cur = getPerms(p.username) || presetPerms(role);
@@ -302,29 +314,86 @@ function paintForm(){
 }
 paintForm();
 
-/* Collapsibles */
+/* Collapsibles + persist open/closed state */
+document.querySelectorAll('.section').forEach(sec=>{
+  const ui=store.get(K.ui,{});
+  const key = sec.dataset.key;
+  if (key && ui[key]==='open') sec.classList.remove('collapsed');
+});
 document.querySelectorAll('.section-head').forEach(btn=>{
-  btn.addEventListener('click',()=>btn.parentElement.classList.toggle('collapsed'));
+  btn.addEventListener('click',()=>{
+    const sec = btn.parentElement;
+    sec.classList.toggle('collapsed');
+    const key = sec.dataset.key;
+    if(key){
+      const s = store.get(K.ui,{});
+      s[key] = sec.classList.contains('collapsed') ? 'closed' : 'open';
+      store.set(K.ui,s);
+    }
+  });
 });
 
-/* Live avatar updates */
-levelSel.addEventListener('change',()=> paintPill(levelSel.value, displayName.value||'User'));
-displayName.addEventListener('input',()=> paintPill(levelSel.value, displayName.value||'User'));
+/* Deep-link hash opens target section */
+function openHashSection(){
+  const id = location.hash.replace('#','');
+  if(!id) return;
+  const head = document.getElementById(id);
+  const sec = head?.closest('.section'); if(!sec) return;
+  sec.classList.remove('collapsed');
+  const key = sec.dataset.key; if(key){ const s=store.get(K.ui,{}); s[key]='open'; store.set(K.ui,s); }
+}
+window.addEventListener('hashchange',openHashSection);
+openHashSection();
+
+/* ===== In-pill level menu ===== */
+function buildLevelMenu(){
+  levelMenu.innerHTML='';
+  LEVELS.forEach(l=>{
+    const btn=document.createElement('button');
+    btn.setAttribute('role','menuitemradio');
+    btn.setAttribute('aria-checked', (p.skill===l).toString());
+    btn.dataset.value=l;
+    const sw=document.createElement('span'); sw.className='level-swatch'; sw.style.background= getComputedStyle(document.documentElement).getPropertyValue(RING[l]? '' : '');
+    // swatch colour fallback:
+    sw.style.background = getComputedStyle(document.documentElement).getPropertyValue(RING[l]? RING[l].replace('var(','').replace(')','') : '--silver') || '#999';
+    const label=document.createElement('span'); label.textContent=cap(l);
+    btn.appendChild(sw); btn.appendChild(label);
+    btn.addEventListener('click',()=>{
+      p.skill = l;
+      paintPill(l, displayName.value||p.displayName||'User');
+      setMenuOpen(false);
+    });
+    levelMenu.appendChild(btn);
+  });
+}
+function setMenuOpen(open){
+  levelMenu.classList.toggle('open', open);
+  levelChip.setAttribute('aria-expanded', open?'true':'false');
+}
+buildLevelMenu();
+
+levelChip.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  setMenuOpen(!levelMenu.classList.contains('open'));
+});
+document.addEventListener('click',(e)=>{
+  if(!levelMenu.contains(e.target) && !levelChip.contains(e.target)) setMenuOpen(false);
+});
 
 /* Save confirmation helper */
 function flashSaved(){
   saveConfirm.classList.add('open'); saveConfirm.setAttribute('aria-hidden','false');
-  const close = (e)=>{ if(e.target===saveConfirm){ saveConfirm.classList.remove('open'); saveConfirm.setAttribute('aria-hidden','true'); window.removeEventListener('click', close); } };
-  setTimeout(()=>{ window.addEventListener('click', close, {once:true}); }, 0);
+  const closer = (e)=>{ if(e.target===saveConfirm){ saveConfirm.classList.remove('open'); saveConfirm.setAttribute('aria-hidden','true'); window.removeEventListener('click', closer); } };
+  setTimeout(()=>{ window.addEventListener('click', closer, {once:true}); }, 0);
 }
 
 /* Section Save/Close handlers */
 function saveSection(which){
   if(which==='avatar'){
-    p.skill = levelSel.value;
     p.displayName = (displayName.value||p.displayName||'User').trim() || 'User';
     store.set(K.profile,p);
-    // inform parent (home) to repaint immediately
+    updatePermsVisibility();
+    paintForm();
     try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
   }
   if(which==='perms' && isAdmin()){
@@ -337,7 +406,6 @@ function saveSection(which){
       config: $('#permConfig').checked
     };
     setPerms(p.username||'user', perms);
-    // also mirror a convenience flag into settings for the active user (optional)
     const s=store.get(K.settings,{}); s.permsCurrent=perms; store.set(K.settings,s);
     try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.settings})); }catch{}
   }
@@ -348,32 +416,35 @@ function saveSection(which){
     p.email = email.value.trim();
     store.set(K.profile,p);
     try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
+    paintForm();
   }
   if(which==='auth'){
     const pw=password.value.trim();
     if(pw){ p.password=pw; store.set(K.profile,p); }
   }
-  if(which==='data'){
-    // nothing to persist here
-  }
   flashSaved();
 }
 function closeSection(which){
-  const map={avatar:'sec-avatar', perms:'sec-perms', details:'sec-details', auth:'sec-auth', data:'sec-data'};
+  const map={avatar:'sec-avatar', perms:'sec-perms', details:'sec-details', auth:'sec-auth'};
   const id=map[which]; if(!id) return;
   const sec=document.getElementById(id)?.closest('.section');
-  if(sec) sec.classList.add('collapsed');
+  if(sec){
+    sec.classList.add('collapsed');
+    const key = sec.dataset.key;
+    if(key){ const s=store.get(K.ui,{}); s[key]='closed'; store.set(K.ui,s); }
+  }
 }
 
-/* Wire Save/Close buttons (event delegation) */
+/* Wire Save/Close buttons */
 document.body.addEventListener('click',(e)=>{
   const sBtn=e.target.closest('[data-save]'); if(sBtn){ saveSection(sBtn.dataset.save); return; }
   const cBtn=e.target.closest('[data-close]'); if(cBtn){ closeSection(cBtn.dataset.close); return; }
 });
 
 /* Role preset → apply to checkboxes */
-$('#rolePreset').addEventListener('change',()=>{
-  const role=$('#rolePreset').value;
+const rolePresetEl = document.getElementById('rolePreset');
+rolePresetEl?.addEventListener('change',()=>{
+  const role=rolePresetEl.value;
   if(role==='custom') return;
   const perms=presetPerms(role);
   $('#permMove').checked   = perms.move;
@@ -384,37 +455,11 @@ $('#rolePreset').addEventListener('change',()=>{
   $('#permConfig').checked = perms.config;
 });
 
-/* My Data summary */
-function paintDataSummary(){
-  const s=store.get(K.settings,{});
-  const now=new Date().toLocaleString();
-  const lines=[
-    `• User information — updated ${now}`,
-    `• Heroes config — ${s.heroFlags ? Object.keys(s.heroFlags).length : 0} items`,
-    `• Text overrides — ${s.textOverrides ? Object.keys(s.textOverrides).length : 0} groups`
-  ];
-  document.getElementById('dataSummary').textContent = lines.join('\n');
-}
-paintDataSummary();
-
-/* Export (admin only) */
-if(isAdmin()) document.getElementById('exportData').style.display='inline-block';
-document.getElementById('exportData').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify({profile:store.get(K.profile,{}),settings:store.get(K.settings,{}),permissions:store.get(K.perms,{})},null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='faoa-export.json'; a.click(); URL.revokeObjectURL(url);
-});
-
-/* View details */
-document.getElementById('viewData').addEventListener('click',()=>{ window.location.href='mydata.html'; });
-
 /* Change password placeholder */
-document.getElementById('changePw').addEventListener('click',()=>{
+document.getElementById('changePw')?.addEventListener('click',()=>{
   if(!password.value.trim()){ alert('Enter a new password first.'); return; }
   flashSaved();
 });
-
-/* Back */
-document.getElementById('backBtn').addEventListener('click',()=>history.back());
 })();
 </script>
 </body>
