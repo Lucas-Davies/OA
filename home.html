@@ -1,3 +1,7 @@
+Home html
+
+Code freeze 
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -12,8 +16,6 @@
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --hero-pad:16px;
-  /* tile size the footer “Cols” will control */
-  --tile: clamp(180px, 28vw, 280px);
 }
 
 /* Resets / base */
@@ -53,42 +55,21 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Grid now stacks headings + rows */
-.grid{
-  display:flex;
-  flex-direction:column;
-  gap:24px;
-}
+/* Grid */
+.grid{ display:grid; gap:12px }
+@media (max-width:600px){ .grid{ grid-template-columns:1fr } }
+@media (min-width:601px) and (max-width:900px){ .grid{ grid-template-columns:1fr 1fr } }
+@media (min-width:901px) and (max-width:1180px){ .grid{ grid-template-columns:1fr 1fr 1fr } }
+@media (min-width:1181px){ .grid{ grid-template-columns:1fr 1fr 1fr 1fr } }
 
-/* Each row: horizontal scroll of square heroes */
-.row{
-  display:grid;
-  grid-auto-flow:column;
-  grid-auto-columns:var(--tile); /* controlled by footer “Cols” */
-  gap:var(--gap);
-  overflow-x:auto;
-  padding-bottom:8px;
-  scroll-snap-type:x mandatory;
-}
-.row::-webkit-scrollbar{ display:none }
-.row > *{ scroll-snap-align:start }
-
-/* Hero squares */
+/* Hero */
 .hero{
-  position:relative;
-  overflow:hidden;
-  background:#060708;
-  border:1px solid var(--stroke);
-  border-radius:16px;
-  padding:var(--hero-pad);
-  aspect-ratio:1/1;          /* force square */
+  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
+  border-radius:16px; padding:var(--hero-pad); min-height:240px;
 }
-.hero .label{
-  font-weight:900; font-size:18px; opacity:.95;
-  position:absolute; top:14px; left:16px; z-index:2;
-}
+.hero .label{ font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2 }
 
-/* rename pencil */
+/* NEW: rename pencil */
 .cfg-pin{
   position:absolute; top:10px; left:12px; z-index:5;
   width:28px; height:28px; border-radius:8px;
@@ -195,7 +176,7 @@ body.lock{ position:fixed; width:100% }
 .sheet-close{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900 }
 #subFrame{ flex:1 1 auto; width:100%; height:100%; border:none; background:#0b0c10; overflow:hidden }
 
-/* Footer Dock (Developer only, single Archived chip + Add Heading) */
+/* Footer Dock (Developer only) */
 #archiveDock{
   position:fixed; left:0; right:0; bottom:0; z-index:75; background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
   transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain
@@ -217,7 +198,7 @@ body.lock{ position:fixed; width:100% }
 #archiveDock.collapsed{ max-height:48px }
 #archiveDock.open{ max-height:80vh }
 
-/* Footer controls */
+/* Footer uniform controls */
 .footer-chip{
   display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 12px; border-radius:999px;
   border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:800
@@ -228,10 +209,9 @@ body.lock{ position:fixed; width:100% }
 }
 .footer-label{ opacity:.9; margin-left:10px; font-size:12px }
 
-/* Completed / In-Progress / DEV priority order */
-.hero.completed{ border:2px solid #888 }            /* completed = grey */
-.hero.inprogress{ border:2px solid var(--green) }   /* in-progress = green */
-.hero.devstate{ border:2px solid var(--blue) }      /* DEV = blue (highest) */
+/* Completed/In-Progress */
+.hero.completed{ border:2px solid #888 }
+.hero.inprogress{ border:2px solid var(--green) }
 
 /* Hero art layer */
 .hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:16px }
@@ -250,7 +230,7 @@ body.lock{ position:fixed; width:100% }
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
 
-/* In normal view hide audience line entirely unless director-on-dev (unchanged) */
+/* In normal view hide audience line entirely unless director-on-dev */
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
 </style>
@@ -310,11 +290,13 @@ body.lock{ position:fixed; width:100% }
         <option value="1">1</option><option value="2">2</option>
         <option value="3" selected>3</option><option value="4">4</option>
       </select>
+
+      <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
 
     <div class="title" style="gap:12px">
-      <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
-      <button class="footer-chip" id="addHeadingBtn" type="button">+ Heading</button>
+      <span class="footer-chip" id="countChip"><span id="countArchive">0</span> in Archive</span>
+      <button class="footer-chip" id="archiveToggle" type="button">Open</button>
     </div>
   </div>
 
@@ -326,228 +308,155 @@ body.lock{ position:fixed; width:100% }
 <script>
 (()=>{'use strict';
 
-/* =========================
-   Small, safe utilities
-========================= */
-const $ = (s,root=document)=>root.querySelector(s);
-const $$= (s,root=document)=>Array.from(root.querySelectorAll(s));
-
-// Escape any user-entered text before injecting into HTML
-const esc = s => String(s ?? '')
-  .replace(/&/g,'&amp;')
-  .replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;')
-  .replace(/'/g,'&#39;');
-
-// Safe JSON read/write
-function safeParse(str, fallback){
-  try{ return JSON.parse(str) }catch{ return fallback }
-}
-function safeSetLS(k,v){
-  try{ localStorage.setItem(k, JSON.stringify(v)); return true }catch{ return false }
-}
-function safeGetLS(k,f){ return safeParse(localStorage.getItem(k), f) }
-
-/* =========================
-   Keys / schema versioning
-========================= */
-const K = {
-  profile:'ao_profile',
-  settings:'ao_settings',
-  view:'ao_view',
-  schemaVer:'ao_schema_version'
+/* ===== utils & storage ===== */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const store={
+  get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } },
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
-const SCHEMA_VERSION = 2; // bump if we change shape
+const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view' };
 
-// If URL has ?reset=1, clear persisted UI state
-try{
-  const Q=new URLSearchParams(location.search);
-  if(Q.get('reset')==='1'){
-    localStorage.removeItem(K.settings);
-    localStorage.removeItem(K.view);
-    localStorage.removeItem(K.schemaVer);
-  }
-}catch{}
-
-/* =========================
-   View / role helpers
-========================= */
-function defaultView(){ return { cols:3 }; }
-function getView(){
-  const raw = safeGetLS(K.view, defaultView()) || {};
-  const cols = Math.min(4, Math.max(1, Number(raw.cols)||3));
-  return { cols };
-}
-function saveView(v){
-  const cols = Math.min(4, Math.max(1, Number((v && v.cols)||3)));
-  safeSetLS(K.view, { cols });
-  applyView();
-}
-function applyView(){
-  // map “Cols” to a reasonable tile size
-  const v = getView();
-  let px = 260;
-  if(v.cols===1) px=360;
-  else if(v.cols===2) px=300;
-  else if(v.cols===3) px=260;
-  else if(v.cols===4) px=220;
-  document.documentElement.style.setProperty('--tile', px+'px');
-  document.documentElement.style.setProperty('--hero-pad', '18px');
+/* URL reset hook */
+const Q=new URLSearchParams(location.search);
+if(Q.get('reset')==='1'){
+  localStorage.removeItem(K.settings);
+  localStorage.removeItem(K.view);
 }
 
-const ROLE_MAP = { beginner:'bronze', intermediate:'silver', advanced:'gold' };
+/* Friendly role labels shown in pill */
 const ROLE_LABEL = {
   bronze:'Beginner', silver:'Intermediate', gold:'Advanced',
   support:'Support', director:'Director', admin:'Admin'
 };
-function normalizeRole(r){ r=String(r||'').toLowerCase(); return ROLE_MAP[r] || r; }
+
+/* ===== view settings (cols only) ===== */
+function defaultView(){ return { cols:3 }; }
+function getView(){
+  const raw = store.get(K.view, defaultView()) || {};
+  const cols = Math.min(4, Math.max(1, Number(raw.cols) || 3));
+  return { cols };
+}
+function saveView(v){
+  const cols = Math.min(4, Math.max(1, Number((v && v.cols) || 3)));
+  store.set(K.view, { cols });
+  applyView();
+}
+function applyView(){
+  const v = getView();
+  const grid = document.querySelector('#pageGrid, .grid');
+  if(!grid) return;
+  grid.style.gridTemplateColumns = `repeat(${v.cols}, 1fr)`;
+  grid.style.gap = (v.cols >= 3 ? 36 : 18) + 'px';
+  document.documentElement.style.setProperty('--hero-pad', '18px');
+}
+
+/* ===== roles ===== (profile only) with normalization */
+const ROLE_MAP = {
+  beginner:'bronze', intermediate:'silver', advanced:'gold'
+};
+function normalizeRole(r){
+  r = String(r||'').toLowerCase();
+  return ROLE_MAP[r] || r; // map friendly names to audience keys
+}
 function baseRole(){
-  const p = safeGetLS(K.profile, { skill:'admin', displayName:'User' });
+  const p = store.get(K.profile, { skill:'admin', displayName:'User' });
   return normalizeRole(p.skill || 'admin');
 }
 function getRole(){ return baseRole(); }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function isSupport(){ return getRole()==='support'; }
-function devModeOn(){ return document.body.classList.contains('config-on'); }
-function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; }
-function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
-function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 
-/* =========================
-   Avatar + drawers
-========================= */
+/* Edit permissions */
+function devModeOn(){ return document.body.classList.contains('config-on'); }
+function canAdminEdit(){ return isAdmin() && devModeOn(); }
+function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; } // director gets photo/audience on DEV (no rename)
+
+/* Visibility helpers */
+function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
+function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); } // hidden from bronze/silver/gold
+
+/* ===== avatar paint ===== */
 function paintAvatar(){
-  const p=safeGetLS(K.profile,{displayName:'User',skill:'admin'});
-  const nameEl=$('#avatarName');
-  const lvlEl=$('#avatarLvl');
-  const pill=$('#avatarTab');
-  if(nameEl) nameEl.textContent = p.displayName || 'User';
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  $('#avatarName').textContent = p.displayName || 'User';
   const role=getRole();
   const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
-  if(lvlEl) lvlEl.textContent = friendly || role;
+  $('#avatarLvl').textContent = friendly || role;
   const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#6a4cff',admin:'#0A84FF'};
-  if(pill){
-    pill.style.background = map[role] || '#222';
-    pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
-  }
+  const pill=$('#avatarTab');
+  pill.style.background = map[role] || '#222';
+  pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
 }
 
+/* ===== avatar drawer & subsheet ===== */
 const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function lockBody(){
-  try{
-    lockBody._y = window.scrollY || document.documentElement.scrollTop || 0;
-    document.body.classList.add('lock');
-    document.body.style.top = `-${lockBody._y}px`;
-  }catch{}
-}
-function unlockBody(){
-  try{
-    document.body.classList.remove('lock');
-    document.body.style.top = '';
-    window.scrollTo(0, lockBody._y||0);
-  }catch{}
-}
-function openDrawer(){ if(!avatarSheet||!avatarBtn) return; avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); lockBody(); }
-function closeDrawer(){ if(!avatarSheet||!avatarBtn) return; avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); unlockBody(); }
-if(avatarBtn) avatarBtn.addEventListener('click', openDrawer, {passive:true});
-if(avatarSheet) avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); lockBody(); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); unlockBody(); }
+avatarBtn.addEventListener('click', openDrawer, {passive:true});
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 document.addEventListener('click', e=>{ if(e.target && e.target.id==='avatarClose') closeDrawer(); }, {passive:true});
 
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
-function openSubSheet(title,url,heroId){
-  if(sheetTitle) sheetTitle.textContent = title || '—';
+function openSubSheet(title,url){
+  sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
-  const origin = encodeURIComponent(location.origin);
-  const hid = encodeURIComponent(heroId||'');
-  if(subFrame) subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now() + `&heroId=${hid}&parent=${origin}`;
-  if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); lockBody(); }
+  subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
+  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); lockBody();
 }
-function closeSubSheet(){ if(subSheet && subFrame){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; unlockBody(); } }
-const sheetClose=$('#sheetClose');
-if(sheetClose) sheetClose.addEventListener('click', closeSubSheet, {passive:true});
-if(subSheet) subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
+function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; unlockBody(); }
+$('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
 $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
 }, {passive:false}));
 
-/* =========================
-   Settings + migration
-========================= */
-function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
-function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-
+/* ===== settings & seed ===== */
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  heroFlags['co-1']={state:'live',place:'page',aud:{bronze:true,silver:false,gold:false}}; pageOrder.push({type:'hero',id:'co-1'});
-  heroFlags['co-2']={state:'live',place:'page',aud:{bronze:false,silver:true,gold:false}}; pageOrder.push({type:'hero',id:'co-2'});
-  heroFlags['co-3']={state:'live',place:'page',aud:{bronze:false,silver:false,gold:true}}; pageOrder.push({type:'hero',id:'co-3'});
-  heroFlags['co-4']={state:'dev', place:'page',aud:{bronze:false,silver:false,gold:false}}; pageOrder.push({type:'hero',id:'co-4'});
-  heroFlags['co-5']={state:'off', place:'page',aud:{bronze:true,silver:true,gold:true}};  pageOrder.push({type:'hero',id:'co-5'});
-  heroFlags['co-6']={state:'off', place:'page',aud:{bronze:true,silver:true,gold:true}};  pageOrder.push({type:'hero',id:'co-6'});
-  for(let i=7;i<=50;i++){ const id=`co-${i}`; heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}}; }
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
+  for(let i=1;i<=10;i++){
+    const id=`co-${i}`;
+    heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
+    pageOrder.push({type:'hero',id});
+  }
+  for(let i=11;i<=50;i++){
+    const id=`co-${i}`;
+    heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+  }
+  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, pageOrder, _seeded:true };
 }
-
-// sanitize + migrate
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
-  c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
+  c.heroProgress=c.heroProgress||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
-    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
     const onPage = c.heroFlags[id].place==='page';
     if(onPage && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)) c.pageOrder.push({type:'hero',id});
   }
-  if(!c.pageOrder.some(it=>it.type==='hero' && c.heroFlags[it.id]?.place==='page')){
-    ['co-1','co-2','co-3','co-4','co-5','co-6'].forEach(id=>{
+  const hasPage = c.pageOrder.some(it=>it.type==='hero' && c.heroFlags[it.id]?.place==='page');
+  if(!hasPage){
+    for(let i=1;i<=10;i++){
+      const id=`co-${i}`;
+      c.heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
       if(!c.pageOrder.some(it=>it.type==='hero' && it.id===id)) c.pageOrder.push({type:'hero',id});
-    });
+    }
   }
   c.pageOrder=c.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
   return c;
 }
+function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
+function saveSettings(s){ store.set(K.settings,sanitize(s)); }
+(function(){ const s=store.get(K.settings,null); store.set(K.settings, sanitize(s)); })();
 
-// In-memory settings cache to avoid repeated LS hits
-let S=null;
-function loadSettings(){
-  const currentVer = Number(safeGetLS(K.schemaVer, 0)) || 0;
-  const raw = safeGetLS(K.settings, null);
-  if(currentVer !== SCHEMA_VERSION){
-    S = sanitize(raw);
-    safeSetLS(K.settings, S);
-    safeSetLS(K.schemaVer, SCHEMA_VERSION);
-  }else{
-    S = sanitize(raw);
-  }
-  return S;
-}
-function getSettings(){ return S || loadSettings(); }
-function saveSettings(next){
-  S = sanitize(next || S || defaults());
-  safeSetLS(K.settings, S);
-}
+/* ===== helpers ===== */
+function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
-// convenience
-function labelFor(id){ const s=getSettings(); const lbl = s.heroLabels[id]; return lbl ? String(lbl) : `#${numberFromId(id)}`; }
-
-/* =========================
-   Rendering (debounced)
-========================= */
-let rafId=null;
-function queueRender(cb){
-  if(cb) try{ cb() }catch{}
-  if(rafId) return;
-  rafId = requestAnimationFrame(()=>{ rafId=null; try{
-    applyView(); paintAvatar(); paintArchive(); paintPage(); updateFooterModeControls();
-  }catch(e){ console.error(e); }});
-}
-
-/* =========================
-   DOM builders (escape!)
-========================= */
+/* ===== DOM builders ===== */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
@@ -555,43 +464,38 @@ function heroCard(id){
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
+  const role = getRole();
   const devOn = devModeOn();
 
-  // Director-only in normal mode on DEV heroes
-  const showDirectorDevChip = (isDirector() && f.state==='dev' && !devOn);
-
-  // Status pill hidden when showing the director chip pair
-  const showStatusPill = (!devOn) && canSeeStatusPill() && !showDirectorDevChip;
+  /* Status pill vs chip rules */
+  const showStatusPill = (!devOn) && canSeeStatusPill(); // staff-only, normal mode
   const statusPill = showStatusPill ? 
-    `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
-      ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
-     </span>` : '';
+    `<span class="status-pill ${
+      f.state==='live'?'status-live' : (f.state==='dev'?'status-dev':'status-off')
+    }">${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}</span>` : '';
 
-  // Controls visibility
+  /* Controls visibility */
   const showArchiveChip = isAdmin() && devOn;
-  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector());
-  const statusChipDisabled = !isAdmin();
-  const showPhotoChip = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
-  const showRenamePencil = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
-  const showAudienceLine = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
+  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // visible to staff in dev; clickable only for admin
+  const statusChipDisabled = !isAdmin(); // only admin toggles
+  const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets photo when hero is DEV even in normal mode
+  const showRenamePencil = (isAdmin() && devOn); // ADMIN ONLY
+  const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director can edit audiences on DEV heroes
 
-  // Build controls
+  /* Build editor controls (right-top chips: Archive | Status | Photo) */
   let ctrlsHTML = '';
-  if (showDirectorDevChip || showArchiveChip || showStatusChipInDev || showPhotoChip){
+  if (showArchiveChip || showStatusChipInDev || showPhotoChip){
     ctrlsHTML += `<div class="ctrls">`;
-    if (showDirectorDevChip){
-      ctrlsHTML += `<button class="chip badge-dev" type="button" disabled>Dev</button>`;
-      if (showPhotoChip){ ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`; }
-    } else {
-      if(showArchiveChip){
-        ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
-      }
-      if(showStatusChipInDev){
-        const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
-        const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-        ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
-      }
-      if(showPhotoChip){ ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`; }
+    if(showArchiveChip){
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
+    }
+    if(showStatusChipInDev){
+      const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
+      const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
+      ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
+    }
+    if(showPhotoChip){
+      ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
     }
     ctrlsHTML += `</div>`;
   }
@@ -601,23 +505,22 @@ function heroCard(id){
   else if(inprogress){ btnLabel='In Progress'; }
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
-  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
-  const labelColor = (s.heroStyle && s.heroStyle[id] && s.heroStyle[id].labelColor) ? `style="color:${esc(s.heroStyle[id].labelColor)}"` : '';
+  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
 
   el.innerHTML =
     `${artLayer}
      ${statusPill}
-     ${showRenamePencil ? `<button class="cfg-pin" title="Rename" data-cfg-rename="${esc(id)}" type="button">✎</button>` : ``}
+     ${showRenamePencil ? `<button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>` : ``}
      ${(isAdmin() && devOn) ? `
        <div class="hero-arrows">
-         <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
-         <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
+         <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
+         <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
        </div>` : ``}
-     <span class="label" ${labelColor}>${esc(labelFor(id))}</span>
+     <span class="label">${labelFor(id)}</span>
      ${ctrlsHTML}
      <div class="cta-left">
        <button class="btn ${btnClass}" data-act="enter" type="button">${btnLabel}</button>
-       ${showAudienceLine ? `
+       ${(showAudienceLine) ? `
          <div class="aud-line">
            <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
            <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
@@ -625,10 +528,9 @@ function heroCard(id){
          </div>` : ``}
      </div>`;
 
-  if(showRenamePencil) el.classList.add('has-pencil');
+  if(showRenamePencil){ el.classList.add('has-pencil'); }
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
-  if(f.state === 'dev') el.classList.add('devstate');
 
   if(art && art.crop){
     const img = el.querySelector('.art img');
@@ -641,112 +543,88 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
+  // Divider tools remain ADMIN + DEV only
   const editable = isAdmin() && devModeOn();
+
   const tools = editable ? 
     `<div class="dctrls">
-      <button class="chip" data-div-act="rename" data-div-id="${esc(obj.id)}" type="button">Rename</button>
-      <button class="chip" data-div-act="color"  data-div-id="${esc(obj.id)}" type="button">Color</button>
-      <button class="chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
-      <button class="chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
-      <button class="chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
+      <button class="chip" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
+      <button class="chip" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
+      <button class="chip" data-div-act="down" data-div-id="${obj.id}" type="button">▼</button>
+      <button class="chip" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
     </div>` : '';
 
   const audLine = editable ? 
     `<div class="aud-line">
-      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
-      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
-      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
+      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Beginner</button>
+      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Intermediate</button>
+      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Advanced</button>
     </div>` : '';
 
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`<span class="htext" style="${obj.color?`color:${esc(obj.color)}`:''}">${esc(obj.title||'Heading')}</span>${tools}${audLine}`;
+  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>${tools}${audLine}`;
   return el;
 }
 
-/* =========================
-   Paint page + archive
-========================= */
+/* ===== paint page ===== */
 function paintPage(){
-  const grid = $('#pageGrid'); 
-  if(!grid) return;
-  grid.innerHTML = '';
-
-  const s = getSettings(); 
-  const role = getRole();
-
-  let currentRow = null;
-
+  const grid=$('#pageGrid'); if(!grid) return;
+  grid.innerHTML='';
+  applyView(); paintAvatar();
+  const s=getSettings(); const role=getRole();
   s.pageOrder.forEach(it=>{
-    if(it.type==='divider'){
-      currentRow = null;
-
-      const aud = it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll() && !aud[role]) return;
-
-      grid.appendChild(dividerEl(it));
-
-      currentRow = document.createElement('div');
-      currentRow.className = 'row';
-      currentRow.dataset.divId = it.id;
-      grid.appendChild(currentRow);
-
-    } else if(it.type==='hero'){
-      const id = it.id; 
-      const f = s.heroFlags[id]; 
-      if(!f || f.place!=='page') return;
-
+    if(it.type==='hero'){
+      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
       if(!seesAll()){
-        if(f.state!=='live') return;
-        if(!f.aud[role]) return;
+        if(f.state!=='live') return;         // non-staff only see live
+        if(!f.aud[role]) return;             // and only if their audience is on
       }
-
       const card = heroCard(id);
-      if(card){
-        if(!currentRow){
-          currentRow = document.createElement('div');
-          currentRow.className = 'row';
-          grid.appendChild(currentRow);
-        }
-        currentRow.appendChild(card);
-      }
+      if(card) grid.appendChild(card);
+    }else if(it.type==='divider'){
+      const aud=it.aud || {bronze:true,silver:true,gold:true};
+      if(!seesAll()){ if(!aud[role]) return; }
+      grid.appendChild(dividerEl(it));
     }
   });
-
-  // Remove empty rows (eg a heading with no visible heroes)
-  grid.querySelectorAll('.row').forEach(r => { if (!r.children.length) r.remove(); });
 }
 
-const dock=$('#archiveDock'), archiveList=$('#archiveList');
+/* ===== footer / archive ===== */
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+
 function applyArchiveVisibility(){
-  if(!dock) return;
-  if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
-  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
+  // Developer dock visible to Admin only.
+  if(isAdmin()){
+    dock.style.display='block'; dock.setAttribute('aria-hidden','false');
+  }else{
+    dock.style.display='none'; dock.setAttribute('aria-hidden','true');
+  }
 }
 function applyArchiveSkin(){
-  const t=$('#archiveTitle');
-  if(t) t.textContent = 'Developer Mode';
-  if(dock){
-    dock.style.background = 'var(--red)';
-    dock.style.color = '#fff';
-  }
+  $('#archiveTitle').textContent = 'Developer Mode';
+  dock.style.background = 'var(--red)';
+  dock.style.color = '#fff';
   updateFooterModeControls();
 }
+
 function updateFooterModeControls(){
   const devOn = devModeOn();
-  const btn=$('#devToggle');
-  if(btn) btn.textContent = `Developer: ${devOn?'On':'Off'}`;
+  $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
+  $('#addHeadingBtn').style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
 }
+
 function syncFooterViewControls(){
   const v=getView();
-  const sel=$('#footerCols');
-  if(sel) sel.value=String(v.cols||3);
+  $('#footerCols').value=String(v.cols||3);
 }
+
+/* archive list */
 function paintArchive(){
-  if(!archiveList) return;
   const s=getSettings(); const flags=s.heroFlags;
   archiveList.innerHTML='';
   const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
     .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
+  countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
@@ -755,270 +633,175 @@ function paintArchive(){
       <button class="chip" data-act="move" type="button">Move to Page</button>
       <button class="chip ${statusClass}" data-act="toggle" type="button">${statusLabel}</button>
     </div>` : `<div></div>`;
-    row.innerHTML = `<span class="num">${esc(labelFor(id))}</span>${controls}`;
+    row.innerHTML = `<span class="num">${labelFor(id)}</span>${controls}`;
     archiveList.appendChild(row);
   });
 }
 
-/* =========================
-   Progress wiring
-========================= */
-window.addEventListener('message', (evt)=>{
-  try{
-    const data = evt?.data || {};
-    if(data && data.type==='ao-progress'){
-      const s=getSettings();
-      const heroId = data.heroId || (subFrame ? (new URL(subFrame.src||'about:blank')).searchParams.get('heroId') : '');
-      if(!heroId || !s.heroFlags[heroId]) return;
-      s.heroProgress = s.heroProgress || {};
-      if(data.status==='inprogress'){
-        s.heroProgress[heroId] = { inprogress:true, complete:false };
-      }else if(data.status==='complete'){
-        s.heroProgress[heroId] = { inprogress:false, complete:true };
-      }else if(data.status==='reset'){
-        delete s.heroProgress[heroId];
-      }
-      saveSettings(s); queueRender();
-    }
-  }catch(e){ console.warn('progress message ignored', e); }
-}, false);
-
-/* =========================
-   Boot (guarded)
-========================= */
-try{
-  loadSettings();
-  applyView();
-  paintAvatar();
-  applyArchiveVisibility(); 
-  applyArchiveSkin();
-  paintArchive();
-  paintPage();
-  syncFooterViewControls();
-  updateFooterModeControls();
-}catch(e){
-  console.error('Boot error', e);
+/* ===== body lock helpers (drawers/dock) ===== */
+let savedScrollY=0;
+function lockBody(){
+  savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.classList.add('lock');
+  document.body.style.top = `-${savedScrollY}px`;
+}
+function unlockBody(){
+  document.body.classList.remove('lock');
+  document.body.style.top = '';
+  window.scrollTo(0, savedScrollY||0);
 }
 
-/* =========================
-   Footer listeners (null-safe)
-========================= */
-const colsEl = $('#footerCols');
-if (colsEl) {
-  colsEl.addEventListener('change', e=>{
-    const v=getView(); v.cols=Number(e.target.value)||3; saveView(v);
-  }, {passive:true});
-}
+/* ===== event wiring ===== */
+applyView();
+paintAvatar();
 
-const archBtn = $('#archiveToggle');
-if (archBtn && dock) {
-  archBtn.addEventListener('click',()=>{
-    const isOpen=dock.classList.contains('open');
-    dock.classList.toggle('open', !isOpen);
-    dock.classList.toggle('collapsed', isOpen);
-    archBtn.textContent = !isOpen ? 'Close' : 'Archived';
-    if(!isOpen) lockBody(); else unlockBody();
-  }, {passive:true});
-}
+applyArchiveVisibility(); 
+applyArchiveSkin();
+paintArchive();
+paintPage();
+syncFooterViewControls();
 
-const devBtn = $('#devToggle');
-if (devBtn) {
-  devBtn.addEventListener('click', ()=>{
-    if(!isAdmin()) return;
-    document.body.classList.toggle('config-on');
-    queueRender();
-  }, {passive:true});
-}
+/* Footer view controls */
+$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
 
-/* =========================
-   Main click delegation
-========================= */
+/* Archive open/close + body lock */
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
+  if(!isOpen) lockBody(); else unlockBody();
+}, {passive:true});
+
+/* Developer mode toggle */
+$('#devToggle').addEventListener('click', ()=>{
+  if(!isAdmin()) return;
+  document.body.classList.toggle('config-on');
+  updateFooterModeControls(); paintPage(); paintArchive();
+}, {passive:true});
+
+/* Add Heading (footer) */
+function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
+$('#addHeadingBtn').addEventListener('click',()=>{
+  if(!(isAdmin() && devModeOn())) return;
+  const title=prompt('Heading title','Section'); if(title==null) return;
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
+  saveSettings(s); paintPage();
+}, {passive:false});
+
+/* Page click handlers (delegate) */
 document.addEventListener('click',(e)=>{
-  /* Enter hero */
   const actEnter = e.target.closest('[data-act="enter"]');
   if(actEnter){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n = Number(((id||'').match(/\d+/)||[])[0]||0);
     const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
-    openSubSheet(labelFor(id), url, id); return;
+    openSubSheet(labelFor(id), url); return;
   }
 
-  /* Toggle status — Admin in Dev only */
   const actToggle = e.target.closest('[data-act="toggle"]');
   if(actToggle){
+    // Only Admin in Developer mode can toggle status
     if(!(isAdmin() && devModeOn())) return;
-    const host=e.target.closest('[data-hero-id], .row'); const id=host?.dataset?.heroId; if(!id) return;
-    const s=getSettings(); const cur=s.heroFlags[id]; if(!cur) return;
+    const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id];
     const order=['live','off','dev'];
     const ni=(order.indexOf(cur.state)+1)%order.length;
     s.heroFlags[id]={...cur, state:order[ni]};
-    saveSettings(s); queueRender(); return;
+    saveSettings(s); paintPage(); paintArchive(); return;
   }
 
-  /* Move to/from archive — Admin in Dev only */
   const actMove = e.target.closest('[data-act="move"]');
   if(actMove){
     if(!(isAdmin() && devModeOn())) return;
-    const host=e.target.closest('[data-hero-id], .row'); const id=host?.dataset?.heroId; if(!id) return;
-    const s=getSettings(); const cur=s.heroFlags[id]; if(!cur) return;
+    const host=e.target.closest('[data-hero-id], .row');
+    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
     if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
     s.heroFlags[id]={...cur, place:dest};
     if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
     else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
-    saveSettings(s); queueRender(); return;
+    saveSettings(s); paintPage(); paintArchive(); return;
   }
 
-  /* Audience chips — Admin+Dev OR Director on DEV */
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId; if(!id) return;
-    const s=getSettings(); const f=s.heroFlags[id]; if(!f) return;
+    // Admin+dev OR Director editing DEV hero (audience only)
+    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
     const key=audBtn.getAttribute('data-aud');
     const nextVal=!f.aud[key];
     if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s);
-    queueRender(); return;
+    paintPage(); paintArchive(); return;
   }
 
-  /* Pencil rename — Admin in Dev mode OR Director when hero is DEV */
-  const pin = e.target.closest('[data-cfg-rename]');
-  if(pin){
-    const id=pin.getAttribute('data-cfg-rename'); if(!id) return;
-    const s=getSettings(); const f=s.heroFlags[id]; if(!f) return;
-    const allow = (isAdmin() && devModeOn()) || (isDirector() && f.state==='dev');
-    if(!allow) return;
-
-    const curLabel=s.heroLabels[id] || `#${numberFromId(id)}`;
-    const next=prompt('Hero label', curLabel);
-    if(next!=null){
-      const v=next.trim();
-      if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
-
-      const curColor=(s.heroStyle&&s.heroStyle[id]&&s.heroStyle[id].labelColor)||'#eef3ff';
-      const color=prompt('Hero title colour (CSS value, e.g. #0A84FF or #ffd700)', curColor);
-      if(color!=null){
-        s.heroStyle = s.heroStyle || {};
-        s.heroStyle[id] = {...(s.heroStyle[id]||{}), labelColor: color.trim()};
-      }
-      saveSettings(s); queueRender();
-    }
+  if(e.target.matches('[data-cfg-rename]')){
+    // ADMIN ONLY (in dev mode)
+    if(!(isAdmin() && devModeOn())) return;
+    const id=e.target.getAttribute('data-cfg-rename');
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const next=prompt('Hero label', cur);
+    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
 
-  /* Sort arrows — Admin+Dev only */
-  const sortBtn=e.target.closest('.cfg-arrow');
-  if(sortBtn){
+  if(e.target.matches('.cfg-arrow')){
+    // Reorder is Admin+dev only
     if(!(isAdmin() && devModeOn())) return;
-    const key=sortBtn.dataset.key; const s=getSettings();
+    const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
-    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
+    const dir = e.target.dataset.sort==='up' ? -1 : 1;
     const to = Math.min(Math.max(0, from+dir), keys.length-1);
     if(to!==from){
       const objFrom = s.pageOrder.splice(from,1)[0];
       s.pageOrder.splice(to,0,objFrom);
-      saveSettings(s); queueRender();
+      saveSettings(s); paintPage();
     }
     return;
   }
 
-  /* Photo — Admin+Dev OR Director-on-DEV */
-  const photoBtn=e.target.closest('[data-act="pickart"]');
-  if(photoBtn){
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId; if(!id) return;
-    const s=getSettings(); const f=s.heroFlags[id]; if(!f) return;
+  if(e.target.closest('[data-act="pickart"]')){
+    // Admin+dev OR Director editing DEV hero (photo only)
+    const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
-    const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg');
-    if(!url) return;
+    const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
     s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-    saveSettings(s); queueRender(); return;
+    saveSettings(s); paintPage(); return;
   }
 
-  /* Divider tools — Admin+Dev (robust) */
-  const divBtn = e.target.closest('[data-div-act]');
-  if (divBtn) {
-    if (!(isAdmin() && devModeOn())) return;
-    const divAct = divBtn.dataset.divAct;
-    const id     = divBtn.dataset.divId;
-    const s      = getSettings();
-    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
-    if (idx < 0) return;
-
-    if (divAct === 'rename') {
-      const cur  = s.pageOrder[idx].title || 'Heading';
-      const next = prompt('Heading title', cur);
-      if (next != null) {
-        s.pageOrder[idx].title = (next.trim() || 'Heading');
-        const curC = s.pageOrder[idx].color || '#eef3ff';
-        const color = prompt('Heading colour (CSS value, e.g. #ffd700)', curC);
-        if(color!=null){ s.pageOrder[idx].color = color.trim(); }
-        saveSettings(s); queueRender();
-      }
-      return;
-    }
-    if (divAct === 'color') {
-      const cur = s.pageOrder[idx].color || '#eef3ff';
-      const next = prompt('Heading colour (CSS value, e.g. #ffd700)', cur);
-      if(next!=null){ s.pageOrder[idx].color = next.trim(); saveSettings(s); queueRender(); }
-      return;
-    }
-    if (divAct === 'up' || divAct === 'down') {
-      const dir = (divAct === 'up') ? -1 : 1;
-      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-      if (to !== idx) {
-        const obj = s.pageOrder.splice(idx, 1)[0];
-        s.pageOrder.splice(to, 0, obj);
-        saveSettings(s); queueRender();
-      }
-      return;
-    }
-    if (divAct === 'remove') {
-      if (confirm('Remove this heading?')) {
-        s.pageOrder.splice(idx, 1);
-        saveSettings(s); queueRender();
-      }
-      return;
-    }
-  }
-
-  /* Divider audience chips — Admin+Dev (robust) */
-  const audDivBtn = e.target.closest('[data-div-aud]');
-  if (audDivBtn) {
-    if (!(isAdmin() && devModeOn())) return;
-    const key = audDivBtn.dataset.divAud;
-    const id  = audDivBtn.dataset.divId;
-    const s   = getSettings();
-    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
-    if (idx < 0) return;
-
-    const cur = s.pageOrder[idx].aud || { bronze:true, silver:true, gold:true };
-    const nextVal = !cur[key];
-    if (!confirm(`${nextVal ? 'Allow' : 'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title || 'Heading'}"?`)) return;
-
-    s.pageOrder[idx].aud = { ...cur, [key]: nextVal };
-    saveSettings(s); queueRender();
-    return;
-  }
-
-  /* Add Heading (footer chip) — Admin+Dev only */
-  const addHeadBtn = e.target.closest('#addHeadingBtn');
-  if (addHeadBtn){
+  /* Divider tools remain Admin-only in dev */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
     if(!(isAdmin() && devModeOn())) return;
+    const id=e.target.dataset.divId;
     const s=getSettings();
-    const title = prompt('New heading title', 'New Section');
-    if(title==null) return;
-    const id = 'h-' + Date.now();
-    s.pageOrder.push({ type:'divider', id, title: title.trim()||'Heading', color:'#eef3ff', aud:{bronze:true,silver:true,gold:true} });
-    saveSettings(s); queueRender();
-    return;
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='rename'){
+      const cur=s.pageOrder[idx].title||'Heading';
+      const next=prompt('Heading title', cur);
+      if(next!=null){ s.pageOrder[idx].title=(next.trim()||'Heading'); saveSettings(s); paintPage(); }
+    }else if(divAct==='up' || divAct==='down'){
+      const dir = divAct==='up' ? -1 : 1;
+      const to = Math.min(Math.max(0, idx+dir), s.pageOrder.length-1);
+      if(to!==idx){
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj); saveSettings(s); paintPage();
+      }
+    }else if(divAct==='remove'){
+      if(confirm('Remove this heading?')){
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      }
+    }
   }
-
 }, {passive:false});
 
-/* Final state sync once more */
-queueRender();
+/* ===== initial ===== */
+updateFooterModeControls();
 
 })();</script>
 </body>
