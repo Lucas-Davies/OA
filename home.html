@@ -370,7 +370,37 @@ function paintAvatar(){
   $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
 }
 paintAvatar();
+/* ===== avatar drawer wiring ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const avatarBtn = document.querySelector('#avatarTab');
+  const avatarSheet = document.querySelector('#avatarSheet');
+  const closeBtn = document.querySelector('#avatarClose');
 
+  function openDrawer(){
+    avatarSheet.classList.add('open');
+    avatarSheet.setAttribute('aria-hidden','false');
+    avatarBtn.setAttribute('aria-expanded','true');
+    lockBody();
+  }
+  function closeDrawer(){
+    avatarSheet.classList.remove('open');
+    avatarSheet.setAttribute('aria-hidden','true');
+    avatarBtn.setAttribute('aria-expanded','false');
+    unlockBody();
+  }
+
+  if(avatarBtn && avatarSheet){
+    avatarBtn.addEventListener('click', openDrawer, {passive:true});
+  }
+  if(closeBtn){
+    closeBtn.addEventListener('click', closeDrawer, {passive:true});
+  }
+  if(avatarSheet){
+    avatarSheet.addEventListener('click', e=>{
+      if(e.target===avatarSheet) closeDrawer();
+    }, {passive:true});
+  }
+});
 /* =========================
    Label helpers
 ========================= */
@@ -475,20 +505,33 @@ function heroCard(id){
          <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button" style="display:none">▲</button>
          <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button" style="display:none">▼</button>
        </div>` : ``}
-     <span class="label"${labelStyle}>${esc(labelFor(id))}</span>
-     <div class="ctrls">
-       ${kebabHTML}
-       ${(!canAdminDev && canDirOnDev) ? `<button class="footer-chip" disabled style="height:28px">Dev</button><button class="footer-chip" data-act="pickart" style="height:28px">Photo</button>`:''}
-     </div>
-     <div class="cta-left">
-       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">${completed?'Complete':(inprogress?'In Progress':'Start')}</button>
-       ${((canAdminDev)||canDirOnDev) ? `
-         <div class="aud-line">
-           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
-           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
-           <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
-         </div>` : ``}
-     </div>`;
+ ${showRenamePencil ? `<button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>` : ``}
+
+${(isAdmin() && devModeOn()) ? `
+  <div class="hero-arrows">
+    <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
+    <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
+  </div>` : ``}
+
+<span class="label"${labelStyle}>${esc(labelFor(id))}</span>
+<div class="ctrls">
+  ${kebabHTML}
+  ${(!canAdminDev && canDirOnDev) ? `
+    <button class="footer-chip" disabled style="height:28px">Dev</button>
+    <button class="footer-chip" data-act="pickart" style="height:28px">Photo</button>` : ``}
+</div>
+
+<div class="cta-left">
+  <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
+    ${completed?'Complete':(inprogress?'In Progress':'Start')}
+  </button>
+  ${((canAdminDev)||canDirOnDev) ? `
+    <div class="aud-line">
+      <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
+      <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
+      <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
+    </div>` : ``}
+</div>
 
   if(showPencil) el.classList.add('has-pencil');
   if(completed) el.classList.add('completed');
