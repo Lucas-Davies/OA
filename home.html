@@ -51,19 +51,45 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Grid */
-.grid{ display:grid; gap:12px }
-@media (max-width:600px){ .grid{ grid-template-columns:1fr } }
-@media (min-width:601px) and (max-width:900px){ .grid{ grid-template-columns:1fr 1fr } }
-@media (min-width:901px) and (max-width:1180px){ .grid{ grid-template-columns:1fr 1fr 1fr } }
-@media (min-width:1181px){ .grid{ grid-template-columns:1fr 1fr 1fr 1fr } }
-
-/* Hero */
-.hero{
-  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-  border-radius:16px; padding:var(--hero-pad); min-height:240px;
+/* Grid now stacks headings + rows */
+.grid{
+  display:flex;
+  flex-direction:column;
+  gap:24px;
 }
-.hero .label{ font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2 }
+
+/* Each row: horizontal scroll of square heroes */
+.row{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:clamp(180px, 28vw, 280px);
+  gap:var(--gap);
+  overflow-x:auto;
+  padding-bottom:8px;
+  scroll-snap-type:x mandatory;
+}
+.row::-webkit-scrollbar{ display:none }
+.row > *{ scroll-snap-align:start }
+
+/* Hero squares */
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:#060708;
+  border:1px solid var(--stroke);
+  border-radius:16px;
+  padding:var(--hero-pad);
+  aspect-ratio:1/1;          /* force square */
+}
+.hero .label{
+  font-weight:900;
+  font-size:18px;
+  opacity:.95;
+  position:absolute;
+  top:14px;
+  left:16px;
+  z-index:2;
+}
 
 /* rename pencil */
 .cfg-pin{
@@ -657,19 +683,27 @@ function paintPage(){
   const grid=$('#pageGrid'); if(!grid) return;
   grid.innerHTML='';
   const s=getSettings(); const role=getRole();
+  let currentRow=null;
+
   s.pageOrder.forEach(it=>{
-    if(it.type==='hero'){
+    if(it.type==='divider'){
+      currentRow=null; // new section, reset row
+      grid.appendChild(dividerEl(it));
+    }else if(it.type==='hero'){
       const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
       if(!seesAll()){
         if(f.state!=='live') return;
         if(!f.aud[role]) return;
       }
       const card = heroCard(id);
-      if(card) grid.appendChild(card);
-    }else if(it.type==='divider'){
-      const aud=it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll()){ if(!aud[role]) return; }
-      grid.appendChild(dividerEl(it));
+      if(card){
+        if(!currentRow){
+          currentRow=document.createElement('div');
+          currentRow.className='row';
+          grid.appendChild(currentRow);
+        }
+        currentRow.appendChild(card);
+      }
     }
   });
 }
