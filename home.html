@@ -905,7 +905,6 @@ document.addEventListener('click',(e)=>{
     }
     return;
   }
-
   /* Divider audience chips (Admin+Dev) — robust */
   const audDivBtn = e.target.closest('[data-div-aud]');
   if (audDivBtn) {
@@ -925,7 +924,13 @@ document.addEventListener('click',(e)=>{
     saveSettings(s); paintPage();
     return;
   }
-  
+
+}, {passive:false});  // <-- THIS closes document.addEventListener('click', ...)
+
+/* ===== initial ===== */
+updateFooterModeControls();
+
+})();
 /* ===== initial ===== */
 updateFooterModeControls();
 
