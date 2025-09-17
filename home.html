@@ -64,6 +64,15 @@ body.lock{ position:fixed; width:100% }
   border-radius:16px; padding:var(--hero-pad); min-height:240px;
 }
 .hero .label{ font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2 }
+
+/* NEW: rename pencil */
+.cfg-pin{
+  position:absolute; top:10px; left:12px; z-index:5;
+  width:28px; height:28px; border-radius:8px;
+  border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; line-height:1;
+}
+.hero.has-pencil .label{ left:46px } /* nudge label when pencil is present */
+
 .ctrls{ position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:5 }
 .chip{
   height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
@@ -338,10 +347,17 @@ function applyView(){
   document.documentElement.style.setProperty('--hero-pad', '18px');
 }
 
-/* ===== roles ===== (profile only) */
+/* ===== roles ===== (profile only) with normalization */
+const ROLE_MAP = {
+  beginner:'bronze', intermediate:'silver', advanced:'gold'
+};
+function normalizeRole(r){
+  r = String(r||'').toLowerCase();
+  return ROLE_MAP[r] || r; // map friendly names to audience keys
+}
 function baseRole(){
   const p = store.get(K.profile, { skill:'admin', displayName:'User' });
-  return (p.skill || 'admin').toLowerCase();
+  return normalizeRole(p.skill || 'admin');
 }
 function getRole(){ return baseRole(); }
 function isAdmin(){ return getRole()==='admin'; }
@@ -353,7 +369,7 @@ function devModeOn(){ return document.body.classList.contains('config-on'); }
 function canAdminEdit(){ return isAdmin() && devModeOn(); }
 function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; } // director gets photo/audience on DEV (no rename)
 
-/* Visibility */
+/* Visibility helpers */
 function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
 function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); } // hidden from bronze/silver/gold
 
@@ -459,10 +475,10 @@ function heroCard(id){
   const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // visible to staff in dev; clickable only for admin
   const statusChipDisabled = !isAdmin(); // only admin toggles
   const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets photo when hero is DEV even in normal mode
-  const showRenamePencil = (isAdmin() && devOn); // ADMIN ONLY (your request)
+  const showRenamePencil = (isAdmin() && devOn); // ADMIN ONLY
   const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director can edit audiences on DEV heroes
 
-  /* Build editor controls (right-top chips) */
+  /* Build editor controls (right-top chips: Archive | Status | Photo) */
   let ctrlsHTML = '';
   if (showArchiveChip || showStatusChipInDev || showPhotoChip){
     ctrlsHTML += `<div class="ctrls">`;
@@ -508,6 +524,7 @@ function heroCard(id){
          </div>` : ``}
      </div>`;
 
+  if(showRenamePencil){ el.classList.add('has-pencil'); }
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
 
@@ -555,8 +572,8 @@ function paintPage(){
     if(it.type==='hero'){
       const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
       if(!seesAll()){
-        if(f.state!=='live') return;
-        if(!f.aud[role]) return;
+        if(f.state!=='live') return;         // non-staff only see live
+        if(!f.aud[role]) return;             // and only if their audience is on
       }
       const card = heroCard(id);
       if(card) grid.appendChild(card);
@@ -735,8 +752,7 @@ document.addEventListener('click',(e)=>{
     const dir = e.target.dataset.sort==='up' ? -1 : 1;
     const to = Math.min(Math.max(0, from+dir), keys.length-1);
     if(to!==from){
-      const objFrom = s.pageOrder[from];
-      s.pageOrder.splice(from,1);
+      const objFrom = s.pageOrder.splice(from,1)[0];
       s.pageOrder.splice(to,0,objFrom);
       saveSettings(s); paintPage();
     }
