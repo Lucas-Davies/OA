@@ -740,18 +740,25 @@ paintArchive();
 paintPage();
 syncFooterViewControls();
 
-/* Footer view controls */
-$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
+/* Footer view controls (null-safe) */
+const colsEl = $('#footerCols');
+if (colsEl) {
+  colsEl.addEventListener('change', e=>{
+    const v=getView(); v.cols=Number(e.target.value)||3; saveView(v);
+  }, {passive:true});
+}
 
-/* Archive open/close */
-$('#archiveToggle').addEventListener('click',()=>{
-  const isOpen=dock.classList.contains('open');
-  dock.classList.toggle('open', !isOpen);
-  dock.classList.toggle('collapsed', isOpen);
-  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
-  if(!isOpen) lockBody(); else unlockBody();
-}, {passive:true});
-
+/* Archive open/close + body lock (null-safe) */
+const archBtn = $('#archiveToggle');
+if (archBtn) {
+  archBtn.addEventListener('click',()=>{
+    const isOpen=dock.classList.contains('open');
+    dock.classList.toggle('open', !isOpen);
+    dock.classList.toggle('collapsed', isOpen);
+    $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
+    if(!isOpen) lockBody(); else unlockBody();
+  }, {passive:true});
+}
 /* Developer mode toggle */
 $('#devToggle').addEventListener('click', ()=>{
   if(!isAdmin()) return;
@@ -845,7 +852,6 @@ document.addEventListener('click',(e)=>{
     }
     return;
   }
-
   /* Photo (Admin+Dev OR Director-on-DEV) */
   if(e.target.closest('[data-act="pickart"]')){
     const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
@@ -855,55 +861,71 @@ document.addEventListener('click',(e)=>{
     s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
     saveSettings(s); paintPage(); return;
   }
+  /* Divider tools (Admin+Dev) — robust */
+  const divBtn = e.target.closest('[data-div-act]');
+  if (divBtn) {
+    if (!(isAdmin() && devModeOn())) return;
 
-  /* Divider tools (Admin+Dev) */
-  const divAct = e.target.dataset.divAct;
-  if(divAct){
-    if(!(isAdmin() && devModeOn())) return;
-    const id=e.target.dataset.divId;
-    const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    if(divAct==='rename'){
-      const cur=s.pageOrder[idx].title||'Heading';
-      const next=prompt('Heading title', cur);
-      if(next!=null){
-        s.pageOrder[idx].title=(next.trim()||'Heading');
+    const divAct = divBtn.dataset.divAct;
+    const id     = divBtn.dataset.divId;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
+    if (idx < 0) return;
+
+    if (divAct === 'rename') {
+      const cur  = s.pageOrder[idx].title || 'Heading';
+      const next = prompt('Heading title', cur);
+      if (next != null) {
+        s.pageOrder[idx].title = (next.trim() || 'Heading');
         const curC = s.pageOrder[idx].color || '#eef3ff';
         showColorPalette(curC, (color)=>{
           s.pageOrder[idx].color = color;
           saveSettings(s); paintPage();
         });
       }
-    }else if(divAct==='color'){
+    } else if (divAct === 'color') {
       const cur = s.pageOrder[idx].color || '#eef3ff';
-      showColorPalette(cur, (color)=>{ s.pageOrder[idx].color = color; saveSettings(s); paintPage(); });
-    }else if(divAct==='up' || divAct==='down'){
-      const dir = divAct==='up' ? -1 : 1;
-      const to = Math.min(Math.max(0, idx+dir), s.pageOrder.length-1);
-      if(to!==idx){
-        const obj = s.pageOrder.splice(idx,1)[0];
-        s.pageOrder.splice(to,0,obj); saveSettings(s); paintPage();
+      showColorPalette(cur, (color)=>{
+        s.pageOrder[idx].color = color;
+        saveSettings(s); paintPage();
+      });
+    } else if (divAct === 'up' || divAct === 'down') {
+      const dir = (divAct === 'up') ? -1 : 1;
+      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
+      if (to !== idx) {
+        const obj = s.pageOrder.splice(idx, 1)[0];
+        s.pageOrder.splice(to, 0, obj);
+        saveSettings(s); paintPage();
       }
-    }else if(divAct==='remove'){
-      if(confirm('Remove this heading?')){
-        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+    } else if (divAct === 'remove') {
+      if (confirm('Remove this heading?')) {
+        s.pageOrder.splice(idx, 1);
+        saveSettings(s); paintPage();
       }
     }
     return;
   }
 
-  /* Divider audience chips (Admin+Dev) — FIXED */
-  if(e.target.dataset && e.target.dataset.divAud){
-    if(!(isAdmin() && devModeOn())) return;
-    const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
-    const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
-    s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
-  }
-}, {passive:false});
+  /* Divider audience chips (Admin+Dev) — robust */
+  const audDivBtn = e.target.closest('[data-div-aud]');
+  if (audDivBtn) {
+    if (!(isAdmin() && devModeOn())) return;
 
+    const key = audDivBtn.dataset.divAud;
+    const id  = audDivBtn.dataset.divId;
+    const s   = getSettings();
+    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
+    if (idx < 0) return;
+
+    const cur = s.pageOrder[idx].aud || { bronze:true, silver:true, gold:true };
+    const nextVal = !cur[key];
+    if (!confirm(`${nextVal ? 'Allow' : 'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title || 'Heading'}"?`)) return;
+
+    s.pageOrder[idx].aud = { ...cur, [key]: nextVal };
+    saveSettings(s); paintPage();
+    return;
+  }
+  
 /* ===== initial ===== */
 updateFooterModeControls();
 
