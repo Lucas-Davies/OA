@@ -272,17 +272,6 @@ body.lock{ position:fixed; width:100% } /* we set inline top/scroll in JS */
       <span id="archiveTitle">Developer Mode</span>
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
 
-      <span class="footer-label">View As</span>
-      <select id="viewAs" class="footer-select">
-        <option value="">Actual</option>
-        <option value="bronze">Beginner</option>
-        <option value="silver">Intermediate</option>
-        <option value="gold">Advanced</option>
-        <option value="support">Support</option>
-        <option value="director">Director</option>
-        <option value="admin">Admin</option>
-      </select>
-
       <span class="footer-label">Cols</span>
       <select id="footerCols" class="footer-select">
         <option value="1">1</option><option value="2">2</option>
@@ -313,14 +302,14 @@ const store={
   get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } },
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
-const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', viewAs:'ao_view_as' };
+/* no viewAs key anymore */
+const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view' };
 
 /* URL reset hook */
 const Q=new URLSearchParams(location.search);
 if(Q.get('reset')==='1'){
   localStorage.removeItem(K.settings);
   localStorage.removeItem(K.view);
-  localStorage.removeItem(K.viewAs);
 }
 
 /* Friendly role labels shown in pill */
@@ -351,12 +340,12 @@ function applyView(){
 }
 
 /* ===== roles ===== */
+/* role comes ONLY from profile now */
 function baseRole(){
   const p = store.get(K.profile, { skill:'admin', displayName:'User' });
   return (p.skill || 'admin').toLowerCase();
 }
-function viewOverride(){ return (store.get(K.viewAs,'') || '').toLowerCase(); }
-function getRole(){ const o=viewOverride(); return o ? o : baseRole(); }
+function getRole(){ return baseRole(); }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function isSupport(){ return getRole()==='support'; }
@@ -366,13 +355,8 @@ function canEditNow(){
   // Only admin + dev tools on can edit.
   return isAdmin() && document.body.classList.contains('config-on');
 }
-// Later: if you want to re-enable director edit for DEV heroes only,
-// change canEditNow(heroFlag) and check heroFlag.state==='dev' && isDirector()
-// (keep admin editing as-is).
-
-/* View permissions (who sees non-live / all audiences) */
 function seesAll(){
-  // Admin, Support, and Director can see everything; others restricted.
+  // Admin, Support, and Director see everything; others restricted.
   const r=getRole(); return r==='admin' || r==='support' || r==='director';
 }
 
@@ -469,7 +453,7 @@ function heroCard(id){
 
   const role = getRole();
   const showPill = (role==='admin' || role==='director' || role==='support') ||
-                   (f.state==='dev' && role==='admin'); // pill visible for staff; dev pill also fine
+                   (f.state==='dev' && role==='admin');
 
   const statusPill = showPill ? 
     `<span class="status-pill ${
@@ -578,7 +562,7 @@ function paintPage(){
 const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
 
 function applyArchiveVisibility(){
-  // Developer dock visible to Admin only (director footer removed).
+  // Developer dock visible to Admin only.
   if(isAdmin()){
     dock.style.display='block'; dock.setAttribute('aria-hidden','false');
   }else{
@@ -646,11 +630,6 @@ syncFooterViewControls();
 
 /* Footer view controls */
 $('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
-
-/* View-as override */
-$('#viewAs').addEventListener('change', e=>{
-  store.set(K.viewAs, e.target.value||''); paintAvatar(); paintPage(); applyArchiveSkin(); applyArchiveVisibility();
-},{passive:true});
 
 /* Archive open/close + body lock */
 $('#archiveToggle').addEventListener('click',()=>{
