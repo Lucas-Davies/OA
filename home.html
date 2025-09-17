@@ -4,458 +4,626 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Profile — FAOA</title>
+<title>Home — FAOA</title>
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --gold:#ffd700; --silver:#c0c7d1; --bronze:#b87333;
-  --support:#6a4cff; --director:#8a93a6; --danger:#ff3b30;
+  --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
-  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
-img{display:block;max-width:100%}
-button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--blue); outline-offset:2px; border-radius:10px}
-
-/* No local header (you already show an overlay title) */
-header{display:none}
-
-/* Buttons */
-.btn{
-  background:var(--blue);color:#000;padding:0 12px;border-radius:10px;border:1px solid transparent;
-  font-weight:900;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center
+html,body{
+  height:100%;margin:0;background:var(--bg);color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  overscroll-behavior-y:contain;overflow-x:hidden;user-select:none;-webkit-user-select:none;
 }
-.btn.grey{background:#222;color:#fff;border-color:var(--stroke)}
-.btn.ghost{background:#14161c;color:#fff;border:1px solid var(--stroke)}
-.btn.danger{background:var(--danger);color:#fff;border-color:transparent}
-.btn.small{min-height:36px;padding:0 10px;border-radius:8px;font-size:13px}
+a{color:inherit;text-decoration:none}
+button{user-select:none;-webkit-user-select:none}
+.bg{position:fixed;inset:0;z-index:-1;background:#000 url("./assets/home-bg.jpg") center/cover no-repeat}
+
+/* Top bar */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 12px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.title-tab{font-weight:900;opacity:.92}
+
+/* Avatar pill */
+.avatarTab{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 12px;border-radius:12px;min-width:132px;height:44px;
+  font-weight:900;line-height:1.1;text-align:left;cursor:pointer;border:1px solid var(--stroke);background:#222;color:#eef3ff}
+.avatarTab .name{font-size:15px;font-weight:900}
+.avatarTab .lvl{font-size:12px;opacity:.95;text-transform:capitalize}
 
 /* Layout */
-.container{max-width:840px;margin:0 auto;padding:12px;
-  padding-top:8px;
-  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px)
+.wrap{max-width:var(--maxw);margin:0 auto;padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px}
+
+/* Grid (unchanged) */
+.grid{display:grid;gap:12px}
+@media (max-width:600px){.grid{grid-template-columns:1fr}}
+@media (min-width:601px) and (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media (min-width:901px) and (max-width:1180px){.grid{grid-template-columns:1fr 1fr 1fr}}
+@media (min-width:1181px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+
+/* Config toolbar */
+.cfgbar{position:sticky;top:var(--nav-h);z-index:49;background:#0d0f14;border-bottom:1px solid var(--stroke);
+  display:none;align-items:center;gap:8px;padding:10px 14px}
+.config-on .cfgbar{display:flex}
+.cfgbtn{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:800;cursor:pointer}
+.cfgbtn.blue{background:var(--blue);border-color:transparent;color:#000}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;background:#060708;border:1px solid var(--stroke);border-radius:16px;padding:16px;min-height:240px}
+.hero .label{font-weight:900;font-size:18px;opacity:.95}
+.ctrls{position:absolute;top:10px;right:10px;display:flex;gap:8px;z-index:5}
+.chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--chip);color:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.chip[disabled]{opacity:.55;cursor:default;filter:grayscale(.15)}
+.badge-live{background:#0a0}
+.badge-off{background:#b00020}
+
+/* ===== POSITION LOCKS YOU ASKED FOR ===== */
+.hero .label{position:absolute;top:14px;left:16px;z-index:2}
+.cta-left{position:absolute;left:16px;bottom:16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2}
+.hero-arrows{display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;gap:6px}
+.config-on .hero .hero-arrows{display:flex}
+.hero-arrows .cfg-arrow{height:24px;padding:0 6px;border-radius:8px;border:1px solid var(--stroke);background:#161922;color:#fff;font-weight:900;cursor:pointer;font-size:12px}
+
+/* Keep the legacy button styles (unchanged) */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-width:120px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--stroke);
+  font-weight:900;background:#0f1116;color:var(--ink);cursor:pointer}
+.btn.blue{background:var(--blue);border-color:transparent;color:#000}
+
+/* Audience chips */
+.aud-line{display:flex;gap:8px;align-items:center}
+.aud-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke);background:#141416;color:#fff;font-weight:800;font-size:12px;cursor:pointer;opacity:.9}
+.aud-chip.on{opacity:1;filter:brightness(1.22)}
+.aud-chip.on::after{content:" ✓";font-weight:900}
+.aud-chip.bronze{box-shadow:inset 0 0 0 2px #b87333}
+.aud-chip.silver{box-shadow:inset 0 0 0 2px #c0c7d1}
+.aud-chip.gold  {box-shadow:inset 0 0 0 2px #ffd700}
+
+/* Divider (Heading) — full grid width */
+.divider{position:relative;border:1px dashed var(--stroke);border-radius:14px;background:#0b0d12;padding:14px 16px 56px;min-height:58px;
+  grid-column:1 / -1;}
+.divider .htext{font-weight:900;opacity:.92}
+.divider .dctrls{position:absolute;top:10px;right:10px;display:none;gap:6px}
+.config-on .divider .dctrls{display:flex}
+.divider .aud-line{position:absolute;left:16px;bottom:14px}
+
+/* Compact headings when NOT in config mode (tight, bottom-snapped) */
+:not(.config-on) .divider{
+  border:none;background:transparent;min-height:0;
+  padding:0 2px 6px;margin:28px 2px 8px; /* more above, less below */
+  display:flex;align-items:flex-end;
 }
+:not(.config-on) .divider .aud-line{display:none}
+:not(.config-on) .divider .htext{padding:0;margin:0}
 
-/* Sections */
-.section{border:1px solid var(--stroke);border-radius:14px;background:#0b0c10;margin:12px 0}
-.section>button.section-head{all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;
-  padding:12px 14px;cursor:pointer;font-weight:900}
-.section>button.section-head .chev{opacity:.85;transition:transform .18s ease}
-.section.collapsed .content{display:none}
-.section:not(.collapsed) .section-head .chev{transform:rotate(90deg)}
-.section .content{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
+/* Config affordances */
+.cfg-pin{display:none;position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;background:#111;border:1px solid var(--stroke);
+  font-size:14px;font-weight:900;color:#fff;align-items:center;justify-content:center;z-index:6}
+.config-on .cfg-pin{display:flex}
 
-.actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 0}
+/* Old arrow bar (kept for headings). New hero arrows below. */
+.cfg-arrows{display:none;position:absolute;top:10px;left:42px;gap:6px;z-index:6}
+.config-on .cfg-arrows{display:flex}
 
-/* Inputs */
-label{display:block;font-size:12px;color:var(--ink-dim);margin:10px 2px 6px}
-input[type="text"],input[type="email"],input[type="password"]{
-  width:100%;height:44px;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);
-  background:#111;color:var(--ink)}
-input[disabled]{opacity:.7}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:640px){ .row{grid-template-columns:1fr} }
+/* Avatar Drawer */
+#avatarSheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#avatarSheet.open{display:block}
+#avatarSheet .panel{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:320px;max-height:70vh;overflow:auto;background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px}
+.menu-list a{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.menu-list a:last-child{border-bottom:none}
 
-/* Permissions grid */
-.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:640px){ .perm-grid{grid-template-columns:1fr} }
-.perm-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:10px;background:#111}
-.perm-item label{margin:0;font-size:14px;color:var(--ink)}
+/* Subsheet */
+#subSheet{position:fixed;inset:0;z-index:70;display:none;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#subSheet.open{display:block}
+#subSheet .inner{position:absolute;top:calc(var(--nav-h) + 6px);right:12px;width:min(820px,calc(100% - 24px));height:min(78vh,calc(100% - (var(--nav-h) + 24px)));
+  background:#0f1116;border:1px solid var(--stroke);border-radius:14px;padding:12px;display:flex;flex-direction:column}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 10px}
+.sheet-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--stroke);background:#121212;color:#fff;font-weight:900;cursor:pointer}
+#subFrame{flex:1 1 auto;width:100%;height:100%;border:none;border-radius:12px;background:#0b0c10;overflow:hidden}
 
-/* Avatar pill with tappable level chip (cycles) */
-.avatarPill{
-  position:relative; display:inline-flex; flex-direction:column; justify-content:center; gap:2px;
-  padding:14px 16px; border-radius:14px; border:1px solid var(--stroke); background:#222; min-width:200px;
-  box-shadow:0 0 0 2px var(--silver) inset
+/* Archive Footer */
+#archiveDock{position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--red);color:#fff;border-top:1px solid rgba(255,255,255,.25);
+  transition:max-height .22s ease;overflow:hidden;overscroll-behavior:contain}
+#archiveDock .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;font-weight:900}
+#archiveDock .bar .count{opacity:.95}
+#archiveDock .content{background:#160b0b;max-height:calc(60vh - 48px);overflow:auto}
+#archiveDock .list{padding:8px 12px 16px;display:flex;flex-direction:column;gap:8px}
+#archiveDock .row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:#0d0d10;border-radius:10px}
+#archiveDock .row .num{font-weight:900}
+#archiveDock .row .chip{height:26px}
+#archiveDock.collapsed{max-height:48px}
+#archiveDock.open{max-height:60vh}
+
+/* Lock body when drawer open */
+body.lock{position:fixed;inset:0;overflow:hidden}
+
+/* ====== Completed visual + hero art (from previous step) ====== */
+.hero.completed{ box-shadow: inset 0 0 0 3px var(--green), 0 0 0 1px var(--green); }
+.hero .complete-tick{
+  position:absolute; top:10px; left:10px; z-index:6;
+  width:28px; height:28px; border-radius:999px;
+  background:var(--green); color:#000; font-weight:900; display:grid; place-items:center;
+  border:1px solid rgba(0,0,0,.35);
 }
-.avatarPill .name{font-size:18px;font-weight:900}
-.avatarPill .lvl{font-size:13px;opacity:.95;text-transform:capitalize}
-
-/* Level chip (tap to cycle) */
-.level-chip{
-  position:absolute; right:10px; bottom:10px;
-  display:inline-flex; align-items:center; gap:6px;
-  padding:6px 10px; border-radius:10px; border:1px solid var(--stroke);
-  background:#14161c; font-weight:800; font-size:12px; cursor:pointer; user-select:none
+.hero .art{ position:absolute; inset:0; z-index:0; opacity:.9; pointer-events:none; overflow:hidden; border-radius:16px; }
+.hero .art img{
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(1);
+  width:auto; height:110%; min-width:110%;
+  user-select:none; pointer-events:none;
+  filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
-
-/* Admin code modal */
-.modal-backdrop{
-  position:fixed; inset:0; z-index:60; display:none;
-  background:rgba(0,0,0,.45); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px)
+/* keep other elements above a subtle gradient overlay */
+.hero::after{
+  content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
+  z-index:1;
 }
-.modal{ position:fixed; inset:0; display:none; z-index:70; place-items:center; padding:20px }
-.modal.open, .modal-backdrop.open{ display:grid }
-.modal .card{
-  width:min(460px, 92vw);
-  background:#0f1116; border:1px solid var(--stroke); border-radius:16px; padding:16px
-}
-.modal h2{ margin:0 0 8px; font-size:18px }
-.modal p{ margin:0 0 12px; opacity:.9 }
-.modal .rowf{ display:flex; gap:10px; align-items:center }
-.modal input{
-  flex:1 1 auto; height:44px; border-radius:10px; border:1px solid var(--stroke);
-  background:#111; color:var(--ink); padding:0 12px; letter-spacing:3px; text-align:center
-}
-.modal .actions{ justify-content:flex-end; margin-top:12px }
-
-/* Scroll lock */
-html.lock, body.lock{ height:100%; overflow:hidden }
-
-/* Save toast */
-#saveConfirm{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;
-  background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-#saveConfirm.open{display:flex}
-#saveConfirm .card{background:#101217;border:1px solid var(--stroke);border-radius:12px;padding:14px 16px;font-weight:900}
-
-/* mono + small */
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-.small{font-size:12px;opacity:.85}
 </style>
 </head>
-<body>
+<body ontouchstart="">
+<div class="bg" aria-hidden="true"></div>
 
-<main class="container">
-  <!-- Avatar -->
-  <section class="section" aria-labelledby="sec-avatar" data-key="avatar">
-    <button class="section-head" id="sec-avatar">
-      <span>Avatar</span><span class="chev" aria-hidden="true">›</span>
+<header class="nav" role="navigation" aria-label="Primary">
+  <div class="nav-left"><span class="title-tab">Courses</span></div>
+  <div class="nav-right">
+    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
+      <span class="name" id="avatarName">User</span>
+      <span class="lvl" id="avatarLvl">Admin</span>
     </button>
-    <div class="content">
-      <div id="avatarPill" class="avatarPill" aria-live="polite">
-        <div class="name" id="avatarName">User</div>
-        <div class="lvl" id="avatarLvl">Beginner</div>
+  </div>
+</header>
 
-        <!-- Level chip (tap to cycle) -->
-        <button class="level-chip" id="levelChip" type="button" aria-label="Change level">
-          <span id="levelChipText">Beginner</span>
-        </button>
-      </div>
+<!-- Config toolbar -->
+<div id="cfgbar" class="cfgbar" aria-hidden="true">
+  <button class="cfgbtn blue" id="addHeadingBtn" type="button">Add Heading</button>
+  <button class="cfgbtn" id="exitCfgBtn" type="button">Exit Developer</button>
+</div>
 
-      <div class="actions">
-        <button class="btn grey small" type="button" data-close="avatar">Close</button>
-        <button class="btn small" type="button" data-save="avatar">Save</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Permissions (ADMIN ONLY) -->
-  <section class="section collapsed" id="permSection" aria-labelledby="sec-perms" data-key="perms" hidden>
-    <button class="section-head" id="sec-perms"><span>Permissions</span><span class="chev" aria-hidden="true">›</span></button>
-    <div class="content">
-      <div class="row">
-        <div>
-          <label for="rolePreset">Role preset</label>
-          <select id="rolePreset" class="btn ghost small" style="min-height:44px">
-            <option value="custom">Custom</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-            <option value="support">Support</option>
-            <option value="director">Director</option>
-            <option value="admin">Admin</option>
-          </select>
-          <p class="small">Use a preset as a starting point, then fine-tune below.</p>
-        </div>
-        <div>
-          <label>Current username</label>
-          <div class="mono" id="permUser" style="height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#111"></div>
-        </div>
-      </div>
-
-      <div class="perm-grid" style="margin-top:6px">
-        <div class="perm-item"><input type="checkbox" id="permMove"   /><label for="permMove">Move heroes (page/dev/archive/templates)</label></div>
-        <div class="perm-item"><input type="checkbox" id="permHide"   /><label for="permHide">Toggle Live/Offline</label></div>
-        <div class="perm-item"><input type="checkbox" id="permDock"   /><label for="permDock">Open Working Drawer</label></div>
-        <div class="perm-item"><input type="checkbox" id="permRearr"  /><label for="permRearr">Rearrange heroes on page</label></div>
-        <div class="perm-item"><input type="checkbox" id="permTabs"   /><label for="permTabs">Rearrange / hide tabs (config)</label></div>
-        <div class="perm-item"><input type="checkbox" id="permConfig"/><label for="permConfig">Config mode (inline edit)</label></div>
-      </div>
-
-      <div class="actions">
-        <button class="btn grey small" type="button" data-close="perms">Close</button>
-        <button class="btn small" type="button" data-save="perms">Save</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- My Details -->
-  <section class="section collapsed" aria-labelledby="sec-details" data-key="details">
-    <button class="section-head" id="sec-details"><span>My Details</span><span class="chev" aria-hidden="true">›</span></button>
-    <div class="content">
-      <div class="row">
-        <div><label for="firstName">First name</label><input id="firstName" autocomplete="given-name" type="text"></div>
-        <div><label for="lastName">Surname</label><input id="lastName" autocomplete="family-name" type="text"></div>
-      </div>
-      <div class="row">
-        <div><label for="displayName">Display name</label><input id="displayName" autocomplete="nickname" type="text"></div>
-        <div><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
-      </div>
-      <div class="actions">
-        <button class="btn grey small" type="button" data-close="details">Close</button>
-        <button class="btn small" type="button" data-save="details">Save</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Username & Password -->
-  <section class="section collapsed" aria-labelledby="sec-auth" data-key="auth">
-    <button class="section-head" id="sec-auth"><span>Username & Password</span><span class="chev" aria-hidden="true">›</span></button>
-    <div class="content">
-      <div class="row">
-        <div>
-          <label for="username">Username</label>
-          <input id="username" class="mono" disabled type="text">
-          <p class="small">Usernames are permanent.</p>
-        </div>
-        <div>
-          <label for="password">Password</label>
-          <input id="password" type="password" autocomplete="new-password" placeholder="••••••••">
-          <button class="btn ghost small" id="changePw" type="button" style="margin-top:8px">Change Password</button>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn grey small" type="button" data-close="auth">Close</button>
-        <button class="btn small" type="button" data-save="auth">Save</button>
-      </div>
-    </div>
-  </section>
+<main class="wrap">
+  <section class="grid" id="pageGrid"></section>
 </main>
 
-<!-- Admin code modal -->
-<div class="modal-backdrop" id="codeBackdrop" aria-hidden="true"></div>
-<div class="modal" id="codeModal" role="dialog" aria-modal="true" aria-labelledby="codeTitle" aria-describedby="codeDesc">
-  <div class="card">
-    <h2 id="codeTitle">Admin access</h2>
-    <p id="codeDesc">Enter the 4-digit code to switch to Admin.</p>
-    <div class="rowf">
-      <input id="codeInput" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="4" placeholder="••••" aria-label="4 digit code" />
-      <button class="btn grey small" id="skipAdmin" type="button">Skip</button>
-      <button class="btn small" id="confirmAdmin" type="button">Unlock</button>
-    </div>
+<!-- Avatar Drawer -->
+<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
+    <nav class="menu-list" id="avatarMenu">
+      <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
+      <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
+      <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
+      <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
+      <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
+      <a href="#" id="cfgToggle">Developer Mode<span>⌁</span></a>
+      <!-- Director Mode toggle is injected here only for Directors -->
+    </nav>
   </div>
 </div>
 
-<!-- Save toast -->
-<div id="saveConfirm" aria-hidden="true"><div class="card">Saved ✓</div></div>
+<!-- Subsheet -->
+<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="inner" role="document">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">—</h2>
+      <button class="sheet-close" id="sheetClose" aria-label="Close" type="button">×</button>
+    </div>
+    <iframe id="subFrame" title="Panel"></iframe>
+  </div>
+</div>
+
+<!-- Archive Footer (Admin/Director only) -->
+<div id="archiveDock" class="collapsed" aria-hidden="true">
+  <div class="bar">
+    <span>Archived</span>
+    <span class="count" id="countArchive">0</span>
+    <button class="chip" id="archiveToggle" type="button">Open</button>
+  </div>
+  <div class="content">
+    <div class="list" id="archiveList"></div>
+  </div>
+</div>
 
 <script>
 (()=>{'use strict';
-/* Storage helpers */
+/* ===== utils & storage ===== */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
 const store={get:(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}},
              set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const K={profile:'ao_profile',settings:'ao_settings',perms:'ao_permissions',ui:'ao_profile_ui'};
-const $=s=>document.querySelector(s);
-const cap=s=>(s||'').replace(/\b\w/g,m=>m.toUpperCase());
+const K={ profile:'ao_profile', settings:'ao_settings', directorMode:'ao_director_mode' };
 
-/* Levels (new names) and ring colours */
-const LEVELS=['beginner','intermediate','advanced','support','director','admin'];
-const COLOR_VAR={beginner:'--bronze', intermediate:'--silver', advanced:'--gold', support:'--support', director:'--director', admin:'--blue'};
+/* URL reset hook */
+const Q=new URLSearchParams(location.search);
+if(Q.get('reset')==='1'){ localStorage.removeItem(K.settings); localStorage.removeItem(K.directorMode); }
 
-/* Elements */
-const pill=$('#avatarPill'), pillName=$('#avatarName'), pillLvl=$('#avatarLvl');
-const levelChip=$('#levelChip'), levelChipText=$('#levelChipText');
-const first=$('#firstName'), last=$('#lastName'), displayName=$('#displayName'),
-      email=$('#email'), username=$('#username'), password=$('#password');
-const saveConfirm=$('#saveConfirm');
-const codeModal=$('#codeModal'), codeBackdrop=$('#codeBackdrop'), codeInput=$('#codeInput');
-const confirmAdminBtn=$('#confirmAdmin'), skipAdminBtn=$('#skipAdmin');
+/* Roles + Director Mode */
+function getRole(){ const p=store.get(K.profile,{skill:'admin',displayName:'User'}); return (p.skill||'admin').toLowerCase(); }
+function isAdmin(){ return getRole()==='admin'; }
+function isDirector(){ return getRole()==='director'; }
+function directorMode(){ return !!store.get(K.directorMode,false); }
+function seesAll(){ const r=getRole(); return r==='admin' || r==='director' || r==='support'; }
 
-/* Load profile */
-let p=store.get(K.profile,{ firstName:'', lastName:'', displayName:'User', email:'', username:'user', skill:'beginner' });
+/* Avatar paint */
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  $('#avatarName').textContent = p.displayName || 'User';
+  const role=(p.skill||'admin').toLowerCase();
+  $('#avatarLvl').textContent = role.charAt(0).toUpperCase()+role.slice(1);
+  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#333',admin:'#0A84FF'};
+  const pill=$('#avatarTab'); pill.style.background= map[role] || '#222';
+  pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
+}
+paintAvatar();
 
-/* Permissions per role */
-function presetPerms(role){
-  const base = {move:false, hide:false, dock:false, rearr:false, tabs:false, config:false};
-  switch((role||'beginner').toLowerCase()){
-    case 'support':  return {...base, dock:true};
-    case 'director': return {...base, move:true, hide:true, dock:true};
-    case 'admin':    return {move:true, hide:true, dock:true, rearr:true, tabs:true, config:true};
-    default:         return {...base};
+/* Build avatar menu: hide Config for non-admin; add Director Mode toggle for directors */
+(function buildAvatarMenu(){
+  const menu = $('#avatarMenu');
+  if(!isAdmin()){
+    // Hide Developer Mode entry entirely for non-admin
+    const cfg = $('#cfgToggle'); if(cfg) cfg.style.display='none';
   }
-}
-
-/* Admin visibility */
-function isAdmin(){ return (p.skill||'').toLowerCase()==='admin'; }
-function updatePermsVisibility(){ $('#permSection').hidden = !isAdmin(); }
-
-/* Paint avatar pill */
-function paintPill(role, name){
-  const v = COLOR_VAR[role] || '--silver';
-  pill.style.boxShadow = `0 0 0 2px var(${v}) inset`;
-  const label = cap(role);
-  pillName.textContent = name || 'User';
-  pillLvl.textContent  = label;
-  levelChipText.textContent = label;
-}
-
-/* Initial paint */
-function paintForm(){
-  const role=(p.skill||'beginner').toLowerCase();
-  paintPill(role, p.displayName||'User');
-  first.value = p.firstName||''; last.value = p.lastName||'';
-  displayName.value = p.displayName||''; email.value = p.email||'';
-  username.value = p.username||'user';
-  if(isAdmin()){
-    $('#permUser').textContent = p.username||'user';
-    const cur = store.get(K.perms,{})[p.username] || presetPerms(role);
-    $('#rolePreset').value = 'custom';
-    $('#permMove').checked=!!cur.move; $('#permHide').checked=!!cur.hide; $('#permDock').checked=!!cur.dock;
-    $('#permRearr').checked=!!cur.rearr; $('#permTabs').checked=!!cur.tabs; $('#permConfig').checked=!!cur.config;
+  if(isDirector()){
+    // Inject Director Mode toggle
+    const li=document.createElement('a');
+    li.href='#'; li.id='dirToggle';
+    li.innerHTML=`Director Mode <span>${directorMode()?'On':'Off'}</span>`;
+    menu.appendChild(li);
+    li.addEventListener('click',e=>{
+      e.preventDefault();
+      const next=!directorMode();
+      store.set(K.directorMode,next);
+      // Close drawer and repaint UI to reflect mode change
+      closeDrawer();
+      paintPage(); paintArchive();
+    });
   }
-  updatePermsVisibility();
-}
-paintForm();
+})();
 
-/* Collapsibles + UI state */
-document.querySelectorAll('.section').forEach(sec=>{
-  const ui=store.get(K.ui,{});
-  const key = sec.dataset.key;
-  if (key && ui[key]==='open') sec.classList.remove('collapsed');
-});
-document.querySelectorAll('.section-head').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const sec = btn.parentElement;
-    sec.classList.toggle('collapsed');
-    const key = sec.dataset.key;
-    if(key){
-      const s = store.get(K.ui,{});
-      s[key] = sec.classList.contains('collapsed') ? 'closed' : 'open';
-      store.set(K.ui,s);
+/* Mark body with admin class & hide config for non-admin */
+if(isAdmin()){ document.body.classList.add('admin'); }
+else{
+  document.body.classList.remove('admin','config-on');
+  $('#cfgbar').setAttribute('aria-hidden','true');
+}
+
+/* Avatar drawer + subsheet */
+const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
+function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+avatarBtn.addEventListener('click', openDrawer, {passive:true}); /* (typo fix not required if your version is fine) */
+avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
+
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function openSubSheet(title,url){
+  sheetTitle.textContent=title;
+  if(!url){ alert('401 — Not linked yet'); return; }
+  subFrame.src=url+(url.includes('?')?'&':'?')+'v='+Date.now();
+  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false');
+}
+function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; }
+$('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
+subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
+$$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
+  e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
+}, {passive:false}));
+
+/* Config toggle — admin only */
+$('#cfgToggle')?.addEventListener('click', e=>{
+  e.preventDefault();
+  if(!isAdmin()) return;
+  document.body.classList.toggle('config-on');
+  const on=document.body.classList.contains('config-on');
+  $('#cfgbar').setAttribute('aria-hidden', on?'false':'true');
+}, {passive:false});
+
+/* ===== settings & flags ===== */
+function defaults(){
+  const heroFlags={}, pageOrder=[];
+  for(let i=1;i<=10;i++){
+    const id=`co-${i}`;
+    heroFlags[id]={state:'live',place:'page',aud:{bronze:true,silver:true,gold:true}};
+    pageOrder.push({type:'hero',id});
+  }
+  for(let i=11;i<=50;i++){
+    const id=`co-${i}`;
+    heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+  }
+  return { heroFlags, heroLabels:{}, pageOrder, _seeded:true };
+}
+function sanitize(cfg){
+  if(!cfg || typeof cfg!=='object') return defaults();
+  cfg.heroFlags=cfg.heroFlags||{};
+  cfg.heroLabels=cfg.heroLabels||{};
+  cfg.pageOrder=Array.isArray(cfg.pageOrder)?cfg.pageOrder:[];
+  for(let i=1;i<=50;i++){
+    const id=`co-${i}`;
+    if(!cfg.heroFlags[id]) cfg.heroFlags[id]={state:'off',place:i<=10?'page':'archive',aud:{bronze:true,silver:true,gold:true}};
+    const onPage = cfg.heroFlags[id].place==='page';
+    if(onPage && !cfg.pageOrder.some(it=>it.type==='hero' && it.id===id)) cfg.pageOrder.push({type:'hero',id});
+  }
+  cfg.pageOrder=cfg.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
+  return cfg;
+}
+function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
+function saveSettings(s){ store.set(K.settings,sanitize(s)); }
+
+/* SELF-HEAL if empty */
+(function repairIfEmpty(){
+  const s = store.get(K.settings,null);
+  if(!s){ store.set(K.settings, defaults()); return; }
+  const cfg = sanitize(s);
+  const hasPage = cfg.pageOrder.some(it=> it.type==='hero' && cfg.heroFlags[it.id]?.place==='page');
+  const hasArchive = Object.values(cfg.heroFlags).some(f=>f.place==='archive');
+  if(!hasPage && !hasArchive){ store.set(K.settings, defaults()); }
+  else{ store.set(K.settings, cfg); }
+})();
+
+function numberFromId(id){ const m=id.match(/\d+/); return m?m[0]:'?'; }
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+/* DOM builders */
+function heroCard(id){
+  const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
+
+  /* completion + hero art */
+  const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
+  const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
+
+  // Permission booleans
+  const showMove = isAdmin(); // admin only
+  const showLiveAdmin = isAdmin();
+  const showLiveDirector = isDirector() && directorMode();
+  const showAnyLive = showLiveAdmin || showLiveDirector;
+  const showAudience = isAdmin() || (isDirector() && directorMode());
+
+  // Build controls HTML
+  let ctrlsHTML = '';
+  if(showAnyLive || showMove){
+    ctrlsHTML += `<div class="ctrls">`;
+    if(showAnyLive){
+      const label = f.state==='live'?'Live':'Offline';
+      const cls   = f.state==='live'?'badge-live':'badge-off';
+      const ro    = showLiveDirector && !showLiveAdmin ? ' disabled aria-disabled="true" ' : '';
+      ctrlsHTML += `<button class="chip ${cls}" data-act="toggle" ${ro} type="button">${label}</button>`;
+    }
+    if(showMove){
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">Move</button>`;
+    }
+    ctrlsHTML += `</div>`;
+  }
+
+  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
+
+  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
+  const tick = completed ? `<div class="complete-tick">✓</div>` : '';
+
+  el.innerHTML=`
+    ${artLayer}
+    ${tick}
+    <button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>
+    <div class="hero-arrows">
+      <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
+      <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
+    </div>
+    <span class="label">${labelFor(id)}</span>
+    ${ctrlsHTML}
+    <div class="cta-left">
+      <button class="btn blue" data-act="enter" type="button">Start</button>
+      ${showAudience?`
+        <div class="aud-line">
+          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Bronze</button>
+          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Silver</button>
+          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Gold</button>
+        </div>`:''}
+    </div>`;
+
+  if(completed) el.classList.add('completed');
+  if(art && art.crop){
+    const img = el.querySelector('.art img');
+    if(img){
+      const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
+      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
+    }
+  }
+  return el;
+}
+
+function dividerEl(obj){
+  // Heading tools & audience ONLY for Admin, and audience only meaningful in Config
+  const tools = isAdmin() ? `
+    <div class="dctrls">
+      <button class="cfgbtn" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
+      <button class="cfgbtn" data-div-act="up" data-div-id="${obj.id}" type="button">▲</button>
+      <button class="cfgbtn" data-div-act="down" data-div-id="${obj.id}" type="button">▼</button>
+      <button class="cfgbtn" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
+    </div>` : '';
+
+  const audLine = isAdmin() ? `
+    <div class="aud-line">
+      <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${obj.id}" type="button">Bronze</button>
+      <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${obj.id}" type="button">Silver</button>
+      <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${obj.id}" type="button">Gold</button>
+    </div>` : '';
+
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  el.innerHTML=`<span class="htext">${obj.title||'Heading'}</span>${tools}${audLine}`;
+  return el;
+}
+
+/* Paint page respecting visibility */
+function paintPage(){
+  const grid=$('#pageGrid'); grid.innerHTML='';
+  const s=getSettings(); const role=getRole();
+  s.pageOrder.forEach(it=>{
+    if(it.type==='hero'){
+      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
+      if(!seesAll()){
+        if(f.state!=='live') return;
+        if(!f.aud[role]) return;
+      }
+      grid.appendChild(heroCard(id));
+    }else if(it.type==='divider'){
+      const aud=it.aud || {bronze:true,silver:true,gold:true};
+      if(!seesAll()){ if(!aud[role]) return; }
+      grid.appendChild(dividerEl(it));
     }
   });
-});
-
-/* ===== Level cycling (chip tap) ===== */
-let pendingAdmin = false;
-function openCodeModal(){
-  document.documentElement.classList.add('lock'); document.body.classList.add('lock');
-  codeBackdrop.classList.add('open'); codeModal.classList.add('open');
-  codeInput.value=''; setTimeout(()=>codeInput.focus(), 30);
-}
-function closeCodeModal(){
-  document.documentElement.classList.remove('lock'); document.body.classList.remove('lock');
-  codeBackdrop.classList.remove('open'); codeModal.classList.remove('open');
+  // Update Director Mode menu label if present
+  const dirItem = $('#dirToggle'); if(dirItem) dirItem.querySelector('span').textContent = directorMode()?'On':'Off';
 }
 
-levelChip.addEventListener('click', ()=>{
-  const idx = LEVELS.indexOf((p.skill||'beginner').toLowerCase());
-  let next = LEVELS[(idx+1) % LEVELS.length];
-
-  if(next==='admin'){
-    pendingAdmin = true;
-    openCodeModal();
-    return; // wait for modal result
-  }
-
-  p.skill = next;
-  paintPill(next, displayName.value||p.displayName||'User');
-  updatePermsVisibility();
-});
-
-/* Admin modal logic */
-confirmAdminBtn.addEventListener('click', ()=>{
-  const code = (codeInput.value||'').trim();
-  if(code==='7931'){
-    p.skill='admin';
-    paintPill('admin', displayName.value||p.displayName||'User');
-  }else{
-    // wrong → skip admin and go back to beginner
-    p.skill='beginner';
-    paintPill('beginner', displayName.value||p.displayName||'User');
-  }
-  pendingAdmin=false;
-  updatePermsVisibility();
-  closeCodeModal();
-});
-skipAdminBtn.addEventListener('click', ()=>{
-  p.skill='beginner';
-  paintPill('beginner', displayName.value||p.displayName||'User');
-  pendingAdmin=false;
-  updatePermsVisibility();
-  closeCodeModal();
-});
-codeBackdrop.addEventListener('click', closeCodeModal);
-
-/* Save toast + persistence */
-function flashSaved(){
-  const el=$('#saveConfirm');
-  el.classList.add('open'); el.setAttribute('aria-hidden','false');
-  const closer=(e)=>{ if(e.target===el){ el.classList.remove('open'); el.setAttribute('aria-hidden','true'); window.removeEventListener('click', closer); } };
-  setTimeout(()=>window.addEventListener('click', closer, {once:true}), 0);
+/* Archive footer visibility (Admin OR Director) */
+const dock=$('#archiveDock'), archiveList=$('#archiveList'), countArchive=$('#countArchive');
+function applyArchiveVisibility(){
+  if(isAdmin() || isDirector()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
+applyArchiveVisibility();
 
-function getPermsAll(){ return store.get(K.perms,{}); }
-function setPerms(username, perms){ const all=getPermsAll(); all[username]=perms; store.set(K.perms,all); }
-
-/* Save/Close handlers */
-function saveSection(which){
-  if(which==='avatar'){
-    p.displayName = (displayName.value||p.displayName||'User').trim() || 'User';
-    store.set(K.profile,p);
-    updatePermsVisibility(); paintForm();
-    try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
-  }
-  if(which==='perms' && isAdmin()){
-    const perms={
-      move:   $('#permMove').checked, hide: $('#permHide').checked, dock: $('#permDock').checked,
-      rearr:  $('#permRearr').checked, tabs: $('#permTabs').checked, config: $('#permConfig').checked
-    };
-    setPerms(p.username||'user', perms);
-    const s=store.get(K.settings,{}); s.permsCurrent=perms; store.set(K.settings,s);
-    try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.settings})); }catch{}
-  }
-  if(which==='details'){
-    p.firstName = first.value.trim(); p.lastName = last.value.trim();
-    p.displayName = (displayName.value||'User').trim() || 'User';
-    p.email = email.value.trim(); store.set(K.profile,p);
-    try{ window.parent && window.parent.dispatchEvent(new StorageEvent('storage',{key:K.profile})); }catch{}
-    paintForm();
-  }
-  if(which==='auth'){
-    const pw=password.value.trim(); if(pw){ p.password=pw; store.set(K.profile,p); }
-  }
-  flashSaved();
+/* Archive list */
+function paintArchive(){
+  const s=getSettings(); const flags=s.heroFlags;
+  archiveList.innerHTML='';
+  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
+    .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
+  countArchive.textContent=items.length;
+  items.forEach(([id,f])=>{
+    // In archive, Move allowed only for Admin
+    const controls = `
+      <div style="display:flex;gap:8px;align-items:center">
+        ${(isAdmin()|| (isDirector()&&directorMode()))?`<button class="chip ${f.state==='live'?'badge-live':'badge-off'}" ${isAdmin()?'':'disabled aria-disabled="true"'} data-act="toggle" type="button">${f.state==='live'?'Live':'Offline'}</button>`:''}
+        ${isAdmin()?`<button class="chip" data-act="move" type="button">Move to Page</button>`:''}
+      </div>`;
+    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
+    row.innerHTML=`<span class="num">${labelFor(id)}</span>${controls}`;
+    archiveList.appendChild(row);
+  });
 }
-function closeSection(which){
-  const map={avatar:'sec-avatar', perms:'sec-perms', details:'sec-details', auth:'sec-auth'};
-  const id=map[which]; if(!id) return;
-  const sec=document.getElementById(id)?.closest('.section');
-  if(sec){
-    sec.classList.add('collapsed');
-    const key = sec.dataset.key;
-    if(key){ const s=store.get(K.ui,{}); s[key]='closed'; store.set(K.ui,s); }
+paintArchive();
+
+/* Archive open/close + body lock */
+let savedScrollY=0;
+function lockBody(){ savedScrollY=window.scrollY; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY); }
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Open';
+  if(!isOpen) lockBody(); else unlockBody();
+}, {passive:true});
+
+/* Config toolbar */
+function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
+$('#addHeadingBtn').addEventListener('click',()=>{
+  if(!isAdmin()) return;
+  const title=prompt('Heading title','Section'); if(title==null) return;
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
+  saveSettings(s); paintPage();
+}, {passive:false});
+$('#exitCfgBtn').addEventListener('click',()=>{ document.body.classList.remove('config-on'); $('#cfgbar').setAttribute('aria-hidden','true'); }, {passive:true});
+
+/* Click handlers with confirmations */
+document.addEventListener('click',(e)=>{
+  // Start (OPEN courses/1–50.html in subsheet)
+  if(e.target.closest('[data-act="enter"]')){
+    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
+    const n = Number(((id||'').match(/\d+/)||[])[0]||0);
+    const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
+    openSubSheet(labelFor(id), url); return;
   }
-}
-
-/* Wire buttons */
-document.body.addEventListener('click',(e)=>{
-  const sBtn=e.target.closest('[data-save]'); if(sBtn){ saveSection(sBtn.dataset.save); return; }
-  const cBtn=e.target.closest('[data-close]'); if(cBtn){ closeSection(cBtn.dataset.close); return; }
-});
-
-/* Role preset quick apply */
-document.getElementById('rolePreset')?.addEventListener('change',()=>{
-  const role=rolePreset.value;
-  if(role==='custom') return;
-  // If user selects admin in preset but isn't admin yet, enforce code
-  if(role==='admin' && p.skill!=='admin'){
-    openCodeModal();
+  // Live toggle (Admin only). Directors see read-only chip in Director Mode.
+  if(e.target.closest('[data-act="toggle"]')){
+    if(!isAdmin()) return;
+    const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id];
+    const next = cur.state==='live' ? 'off' : 'live';
+    if(!confirm(`Are you sure you want to set this to ${next==='live'?'LIVE':'OFFLINE'}?`)) return;
+    s.heroFlags[id]={...cur, state:next};
+    saveSettings(s); paintPage(); paintArchive(); return;
+  }
+  // Move (page<->archive) — Admin only
+  if(e.target.closest('[data-act="move"]')){
+    if(!isAdmin()) return;
+    const host=e.target.closest('[data-hero-id], .row');
+    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
+    const dest = (cur.place==='page') ? 'archive' : 'page';
+    if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
+    s.heroFlags[id]={...cur, place:dest};
+    if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
+    else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
+    saveSettings(s); paintPage(); paintArchive(); return;
+  }
+  // Audience chips on heroes — Admin OR Director (in Director Mode)
+  const audBtn=e.target.closest('[data-aud]');
+  if(audBtn){
+    if(!(isAdmin() || (isDirector() && directorMode()))) return;
+    const key=audBtn.getAttribute('data-aud');
+    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
+    const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
+    paintPage(); paintArchive(); return;
+  }
+  // Audience chips on headings — Admin only (and shown in Config)
+  if(e.target.dataset.divAud){
+    if(!isAdmin()) return;
+    const key=e.target.dataset.divAud; const id=e.target.dataset.divId;
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
+    const cur=s.pageOrder[idx].aud || {bronze:true,silver:true,gold:true}; const nextVal=!cur[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title||'Heading'}"?`)) return;
+    s.pageOrder[idx].aud={...cur,[key]:nextVal}; saveSettings(s); paintPage(); return;
+  }
+  // Rename hero label — Admin only
+  if(e.target.matches('[data-cfg-rename]')){
+    if(!isAdmin()) return;
+    const id=e.target.getAttribute('data-cfg-rename');
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const next=prompt('Hero label', cur);
+    if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
-  p.skill=role;
-  paintPill(role, displayName.value||p.displayName||'User');
-  updatePermsVisibility();
-});
+  // Divider actions (rename / remove / arrows) — Admin only
+  if(e.target.dataset.divAct){
+    if(!isAdmin()) return;
+    const id=e.target.getAttribute('data-div-id'); const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id); if(idx<0) return;
+    const act=e.target.dataset.divAct;
+    if(act==='rename'){
+      const next=prompt('Heading title', s.pageOrder[idx].title||'Heading');
+      if(next!=null){ s.pageOrder[idx].title=next.trim()||'Heading'; saveSettings(s); paintPage(); }
+    }else if(act==='remove'){
+      if(confirm('Remove this heading?')){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); }
+    }else if(act==='up' || act==='down'){
+      const to = act==='up' ? Math.max(0, idx-1) : Math.min(s.pageOrder.length-1, idx+1);
+      if(to!==idx){ const [it]=s.pageOrder.splice(idx,1); s.pageOrder.splice(to,0,it); saveSettings(s); paintPage(); }
+    }
+    return;
+  }
+  // Hero sort arrows — Admin only (Developer Mode controls visibility)
+  if(e.target.matches('.cfg-arrow')){
+    if(!isAdmin()) return;
+    const key=e.target.dataset.key; const s=getSettings();
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf(key); if(from<0) return;
+    const dir = e.target.dataset.sort==='up' ? -1 : 1;
+    const to = Math.min(Math.max(0, from+dir), keys.length-1);
+    if(to!==from){
+      const objFrom = s.pageOrder[from];
+      s.pageOrder.splice(from,1);
+      s.pageOrder.splice(to,0,objFrom);
+      saveSettings(s); paintPage();
+    }
+    return;
+  }
+}, {passive:false});
 
-/* Change password placeholder */
-document.getElementById('changePw')?.addEventListener('click',()=>{
-  if(!password.value.trim()){ alert('Enter a new password first.'); return; }
-  flashSaved();
-});
+/* Initial render */
+paintPage(); paintArchive();
 })();
 </script>
 </body>
 </html>
+
