@@ -51,35 +51,31 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* ===== Carousels (one row per heading) ===== */
-.section{
-  margin:26px 0 18px;
-}
-.section .htext{
-  font-weight:900; font-size:18px; opacity:.95; display:block; margin:0 4px 10px;
-}
-.track{
+/* Grid: horizontal scroll, snapping squares */
+.grid{
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns:clamp(180px, 28vw, 280px);
   gap:var(--gap);
   overflow-x:auto;
-  padding:6px 2px 10px;
+  padding-bottom:10px;
   scroll-snap-type:x mandatory;
 }
-.track::-webkit-scrollbar{ display:none }
+.grid::-webkit-scrollbar{ display:none }
 
-/* Hero (square tiles) */
+/* Hero squares */
 .hero{
   position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-  border-radius:16px; padding:var(--hero-pad);
-  aspect-ratio:1/1; scroll-snap-align:start;
+  border-radius:16px; padding:var(--hero-pad); aspect-ratio:1/1; scroll-snap-align:start;
 }
+.hero.devstate{ border:2px solid var(--blue) } /* BLUE BORDER for DEV */
+
+/* Labels */
 .hero .label{
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* rename pencil (Admin+Dev, OR Director on DEV) */
+/* Pencil (hero + divider) */
 .cfg-pin{
   position:absolute; top:10px; left:12px; z-index:5;
   width:28px; height:28px; border-radius:8px;
@@ -87,18 +83,19 @@ body.lock{ position:fixed; width:100% }
 }
 .hero.has-pencil .label{ left:46px }
 
-/* right-top chips (Archive / Status / Photo) */
-.ctrls{ position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:5; align-items:center }
-.chip{
-  height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
-  background:var(--chip); color:#fff; font-weight:800; font-size:12px; white-space:nowrap
+/* Kebab (admin+dev on heroes) */
+.ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
+.kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
+.kebab-menu{
+  position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
+  display:none; flex-direction:column; min-width:150px; z-index:20; padding:6px;
 }
-.chip[disabled]{ opacity:.55; filter:grayscale(.15) }
-.badge-live{ background:#0a0 }
-.badge-off{ background:#b00020 }
-.badge-dev{ background:var(--blue); color:#000; border-color:transparent }
+.kebab-menu button{
+  background:none; border:none; color:#fff; padding:8px 10px; text-align:left; font-weight:700; cursor:pointer; border-radius:8px;
+}
+.kebab-menu button:hover{ background:#2a2f3a }
 
-/* Status pill (normal mode only for staff; hidden when showing Dev chip pair) */
+/* Status pill (normal mode) */
 .status-pill{
   position:absolute; top:12px; right:12px; height:28px; padding:0 12px; border-radius:999px;
   display:inline-flex; align-items:center; font-weight:900; z-index:4; border:1px solid rgba(255,255,255,.18)
@@ -106,14 +103,6 @@ body.lock{ position:fixed; width:100% }
 .status-live{ background:#1c6b1c; color:#fff }
 .status-off{ background:#5a0d12; color:#fff }
 .status-dev{ background:var(--blue); color:#000; border-color:transparent }
-
-/* Sorting arrows (admin+dev) */
-.hero-arrows{ display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:4; flex-direction:column; gap:6px }
-.config-on .hero .hero-arrows{ display:flex }
-.hero-arrows .cfg-arrow{
-  height:24px; padding:0 6px; border-radius:8px; border:1px solid var(--stroke);
-  background:#161922; color:#fff; font-weight:900; font-size:12px
-}
 
 /* Buttons */
 .btn{
@@ -137,45 +126,22 @@ body.lock{ position:fixed; width:100% }
 .aud-chip.gold{   box-shadow:inset 0 0 0 2px #ffd700 }
 
 /* Divider (Heading) */
-.divider{ margin:26px 2px 10px; }
-.divider .htext{ font-weight:900; opacity:.95; }
+.divider{
+  position:relative; border:1px dashed var(--stroke); border-radius:14px; background:#0b0d12;
+  padding:14px 16px 56px; min-height:58px; margin:18px 0;
+}
+.divider .htext{ font-weight:900; opacity:.92 }
+.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px }
+.config-on .divider .dctrls{ display:flex }
+.divider .aud-line{ position:absolute; left:16px; bottom:14px }
 
-/* Avatar Drawer */
-#avatarSheet{
-  position:fixed; inset:0; z-index:70; display:none;
-  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
-}
-#avatarSheet.open{ display:block }
-#avatarSheet .panel{
-  position:absolute; inset:0; margin:auto; width:100%; height:100%;
-  background:#0f1116; border:1px solid var(--stroke); border-radius:0; padding:12px; overflow:auto;
-}
-#avatarClose{
-  position:absolute; right:12px; top:12px; width:32px; height:32px; border-radius:10px; border:1px solid var(--stroke);
-  background:#121212; color:#fff; font-weight:900; line-height:1; z-index:2;
-}
-@media (min-width:820px){
-  #avatarSheet .panel{ width:min(780px, 92vw); height:min(86vh, 920px); right:12px; left:auto; top:calc(var(--nav-h) + 8px); bottom:auto; border-radius:14px }
-}
-.menu-list a{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.08)
-}
-.menu-list a:last-child{ border-bottom:none }
+/* Divider pencil replaces "Rename" chip */
+.divider .cfg-pin{ position:absolute; top:10px; left:12px }
 
-/* Subsheet (courses) */
-#subSheet{
-  position:fixed; inset:0; z-index:80; display:none;
-  background:rgba(0,0,0,.75); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
-}
-#subSheet.open{ display:block }
-#subSheet .inner{
-  position:absolute; inset:0; background:#0f1116; border:none; border-radius:0; padding:0;
-  display:flex; flex-direction:column
-}
-.sheet-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-bottom:1px solid var(--stroke) }
-.sheet-close{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900 }
-#subFrame{ flex:1 1 auto; width:100%; height:100%; border:none; background:#0b0c10; overflow:hidden }
+/* Compact headings in normal mode */
+:not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
+:not(.config-on) .divider .aud-line{ display:none }
+:not(.config-on) .divider .htext{ padding:0; margin:0 }
 
 /* Footer Dock (Developer only) */
 #archiveDock{
@@ -195,18 +161,16 @@ body.lock{ position:fixed; width:100% }
   padding:10px 12px; border:1px solid rgba(255,255,255,.28); background:#0d0d10; border-radius:10px
 }
 #archiveDock .row .num{ font-weight:900 }
-#archiveDock .row .chip{ height:26px }
 #archiveDock.collapsed{ max-height:48px }
 #archiveDock.open{ max-height:80vh }
 
-/* Footer chips */
 .footer-chip{
   display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 12px; border-radius:999px;
   border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:800
 }
 .footer-label{ opacity:.9; margin-left:10px; font-size:12px }
 
-/* Completed/In-Progress borders */
+/* Completed/In-Progress flags */
 .hero.completed{ border:2px solid #888 }
 .hero.inprogress{ border:2px solid var(--green) }
 
@@ -225,20 +189,31 @@ body.lock{ position:fixed; width:100% }
 
 /* Hide editor-only bits when not in dev */
 .hide-when-normal{ display:none }
-.config-on .hide-when-normal{ display:inline-flex }
+.config-on .hide-when-normal{ display:flex }
 
-/* Simple palette popup */
-.palette{
-  position:fixed; inset:auto 12px 74px auto; z-index:90;
-  background:#0f1116; border:1px solid var(--stroke); border-radius:12px; padding:10px; display:none;
-  box-shadow:0 10px 30px rgba(0,0,0,.5)
+/* In normal view hide audience line unless director-on-dev */
+.normal-hide{ display:none }
+.config-on .normal-hide{ display:flex }
+
+/* Rename/Color dialog */
+#editDialog{
+  position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
 }
-.palette.open{ display:block }
-.palette .row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px }
-.palette .sw{ width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,.25); cursor:pointer }
-.palette input{ width:140px; height:32px; background:#12151c; color:#fff; border:1px solid var(--stroke); border-radius:8px; padding:0 8px; font-weight:700 }
-.palette .actions{ display:flex; gap:8px }
-.palette .btn{ height:32px; min-width:auto; padding:0 10px }
+#editDialog.open{ display:flex }
+#editPanel{
+  width:min(520px, 92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
+}
+#editPanel h3{ margin:0 0 10px; font-weight:900 }
+#editPanel .row{ display:flex; gap:10px; align-items:center; margin:10px 0 }
+#editPanel input[type="text"]{
+  flex:1; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
+}
+.palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
+.swatch{
+  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
+}
+.actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
 </style>
 </head>
 
@@ -255,30 +230,23 @@ body.lock{ position:fixed; width:100% }
   </div>
 </header>
 
-<main class="wrap" id="mainWrap"><!-- sections render here --></main>
+<main class="wrap">
+  <section class="grid" id="pageGrid"></section>
+</main>
 
-<!-- Avatar Drawer -->
-<div id="avatarSheet" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="panel" role="document">
-    <button id="avatarClose" aria-label="Close">×</button>
-    <nav class="menu-list" id="avatarMenu">
-      <a href="avatar/profile.html" data-pop="Profile">Profile<span>›</span></a>
-      <a href="avatar/settings.html" data-pop="Settings">Settings<span>›</span></a>
-      <a href="avatar/mydata.html" data-pop="My Data">My Data<span>›</span></a>
-      <a href="avatar/statistics.html" data-pop="Statistics">Statistics<span>›</span></a>
-      <a href="avatar/usersearch.html" data-pop="User Search">User Search<span>›</span></a>
-    </nav>
-  </div>
-</div>
-
-<!-- Subsheet (courses) -->
-<div id="subSheet" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="inner" role="document">
-    <div class="sheet-head">
-      <h2 id="sheetTitle">—</h2>
-      <button class="sheet-close" id="sheetClose" aria-label="Close" type="button">×</button>
+<!-- Edit Dialog -->
+<div id="editDialog" aria-modal="true" role="dialog">
+  <div id="editPanel" role="document">
+    <h3 id="editTitle">Edit</h3>
+    <div class="row"><input id="editText" type="text" placeholder="Title"></div>
+    <div class="row">
+      <div style="font-weight:800">Colour:</div>
+      <div class="palette" id="editPalette"></div>
     </div>
-    <iframe id="subFrame" title="Panel"></iframe>
+    <div class="actions">
+      <button class="footer-chip" id="editCancel">Cancel</button>
+      <button class="footer-chip" id="editSave">Save</button>
+    </div>
   </div>
 </div>
 
@@ -289,11 +257,10 @@ body.lock{ position:fixed; width:100% }
       <span id="archiveTitle">Developer Mode</span>
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
-      <button class="footer-chip hide-when-normal" id="openPaletteBtn" type="button">Palette</button>
     </div>
 
     <div class="title" style="gap:12px">
-      <button class="footer-chip" id="archiveToggle" type="button">Archive</button>
+      <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
 
@@ -302,265 +269,220 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 
-<!-- Color palette popover -->
-<div id="palette" class="palette" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="row" id="paletteSwatches"></div>
-  <div class="row">
-    <input id="paletteInput" placeholder="#hex or css" />
-  </div>
-  <div class="actions">
-    <button class="btn blue" id="paletteApply" type="button">Apply</button>
-    <button class="btn" id="paletteClose" type="button">Close</button>
-  </div>
-</div>
-
 <script>
 (()=>{'use strict';
 
-/* ===== utils & storage ===== */
-const $=(s,r=document)=>r.querySelector(s);
-const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+/* =========================
+   Utils / storage
+========================= */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
 const store={
   get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } },
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
-const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view' };
+const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
+const SCHEMA_VERSION=3;
 
-/* URL reset hook */
-const Q=new URLSearchParams(location.search);
-if(Q.get('reset')==='1'){
-  localStorage.removeItem(K.settings);
-  localStorage.removeItem(K.view);
-}
+/* Escape */
+const esc=s=>String(s??'')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-/* Friendly role labels shown in pill */
+/* =========================
+   Roles
+========================= */
+const ROLE_MAP = { beginner:'bronze', intermediate:'silver', advanced:'gold' };
 const ROLE_LABEL = {
   bronze:'Beginner', silver:'Intermediate', gold:'Advanced',
   support:'Support', director:'Director', admin:'Admin'
 };
-
-function normalizeRole(r){ const map={beginner:'bronze', intermediate:'silver', advanced:'gold'}; r=String(r||'').toLowerCase(); return map[r]||r; }
-function baseRole(){ const p=store.get(K.profile,{displayName:'User',skill:'admin'}); return normalizeRole(p.skill||'admin'); }
+function normalizeRole(r){ r=String(r||'').toLowerCase(); return ROLE_MAP[r] || r; }
+function baseRole(){
+  const p = store.get(K.profile, { skill:'admin', displayName:'User' });
+  return normalizeRole(p.skill || 'admin');
+}
 function getRole(){ return baseRole(); }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function isSupport(){ return getRole()==='support'; }
 function devModeOn(){ return document.body.classList.contains('config-on'); }
 function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; }
+function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
+function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 
-/* ===== avatar paint ===== */
-function paintAvatar(){
-  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
-  $('#avatarName').textContent = p.displayName || 'User';
-  const role=getRole();
-  const friendly = ROLE_LABEL[role] || (role.charAt(0).toUpperCase()+role.slice(1));
-  $('#avatarLvl').textContent = friendly || role;
-  const map={bronze:'#b87333',silver:'#c0c7d1',gold:'#ffd700',support:'#6a4cff',director:'#6a4cff',admin:'#0A84FF'};
-  const pill=$('#avatarTab');
-  pill.style.background = map[role] || '#222';
-  pill.style.color = (role==='gold'||role==='silver'||role==='admin') ? '#0b0c10' : '#eef3ff';
-}
+/* =========================
+   View
+========================= */
+function applyView(){ /* squares + carousel handled by CSS */ }
 
-/* ===== avatar drawer & subsheet ===== */
-const avatarBtn=$('#avatarTab'), avatarSheet=$('#avatarSheet');
-function lockBody(){ lockBody._y=window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=`-${lockBody._y}px`; }
-function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0, lockBody._y||0); }
-function openDrawer(){ avatarSheet.classList.add('open'); avatarSheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); lockBody(); }
-function closeDrawer(){ avatarSheet.classList.remove('open'); avatarSheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); unlockBody(); }
-avatarBtn.addEventListener('click', openDrawer, {passive:true});
-avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
-document.addEventListener('click', e=>{ if(e.target && e.target.id==='avatarClose') closeDrawer(); }, {passive:true});
-
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
-function openSubSheet(title,url,heroId){
-  sheetTitle.textContent=title;
-  if(!url){ alert('401 — Not linked yet'); return; }
-  const origin = encodeURIComponent(location.origin);
-  const hid = encodeURIComponent(heroId||'');
-  subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now() + `&heroId=${hid}&parent=${origin}`;
-  subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); lockBody();
-}
-function closeSubSheet(){ subSheet.classList.remove('open'); subSheet.setAttribute('aria-hidden','true'); subFrame.src='about:blank'; unlockBody(); }
-$('#sheetClose').addEventListener('click', closeSubSheet, {passive:true});
-subSheet.addEventListener('click', e=>{ if(e.target===subSheet) closeSubSheet(); }, {passive:true});
-$$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
-  e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
-}, {passive:false}));
-
-/* ===== settings & seed ===== */
+/* =========================
+   Settings + seed
+========================= */
+function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  // seed: some heroes, and one default heading to demonstrate rows
-  pageOrder.push({type:'divider', id:'div_default', title:'All Courses', aud:{bronze:true,silver:true,gold:true}});
-  for(let i=1;i<=10;i++){
-    const id=`co-${i}`;
-    heroFlags[id]={state: i<=8 ? 'live' : 'dev', place:'page', aud:{bronze:true,silver:true,gold:true}};
-    pageOrder.push({type:'hero', id});
-  }
-  for(let i=11;i<=50;i++){
-    const id=`co-${i}`;
-    heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
-  }
+  // Seed three heroes and one DEV hero to demo director edit
+  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}};
+  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}};
+  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}};
+  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
+  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
+  pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
-  // ensure refs exist
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
-  // guarantee at least one divider
-  if(!c.pageOrder.some(it=>it.type==='divider')){
-    c.pageOrder.unshift({type:'divider', id:'div_default', title:'All Courses', aud:{bronze:true,silver:true,gold:true}});
-  }
-  // ensure any page heroes in pageOrder
+  // Keep pageOrder entries for heroes present on page
+  c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
+  // Ensure heroes on page exist in pageOrder
   Object.keys(c.heroFlags).forEach(id=>{
-    const f=c.heroFlags[id]; if(f.place==='page' && !c.pageOrder.some(it=>it.type==='hero'&&it.id===id)) c.pageOrder.push({type:'hero',id});
+    if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){
+      c.pageOrder.push({type:'hero', id});
+    }
   });
-  // default aud on dividers
-  c.pageOrder=c.pageOrder.map(it=> it.type==='divider' ? ({aud:{bronze:true,silver:true,gold:true}, ...it}) : it);
   return c;
 }
-function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
-function saveSettings(s){ store.set(K.settings,sanitize(s)); }
+function loadSettings(){
+  const ver = Number(store.get(K.schemaVer, 0))||0;
+  const raw = store.get(K.settings, null);
+  const s = sanitize(raw);
+  if(ver!==SCHEMA_VERSION){ store.set(K.settings, s); store.set(K.schemaVer, SCHEMA_VERSION); }
+  return s;
+}
+let S = loadSettings();
+function getSettings(){ return S; }
+function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
-/* ===== helpers ===== */
-function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
+/* =========================
+   Avatar + drawers (minimal)
+========================= */
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  $('#avatarName').textContent = p.displayName || 'User';
+  const role=getRole();
+  $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
+}
+paintAvatar();
+
+/* =========================
+   Label helpers
+========================= */
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
-function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function labelColorFor(id){ const s=getSettings(); return (s.heroStyle && s.heroStyle[id] && s.heroStyle[id].labelColor)||''; }
 
-/* ===== palette ===== */
-const paletteEl = $('#palette');
-const swatchesEl = $('#paletteSwatches');
-const paletteInput = $('#paletteInput');
-const PALETTE = [
-  '#b87333','#c0c7d1','#ffd700', /* bronze/silver/gold */
-  '#0A84FF','#32d74b','#ff3b30',
-  '#ffffff','#e0e0e0','#9aa0a6','#5f6368','#202124','#000000'
+/* =========================
+   Rename + colour dialog
+========================= */
+const paletteColors = [
+  '#eef3ff','#cfd3e1','#ffffff','#000000','#808080',
+  '#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333',
+  '#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'
 ];
-let paletteTarget = null; // { type:'hero'|'divider', id }
 
-function openPalette(target){ // target: {type,id, current}
-  if(!isAdmin() || !devModeOn()) return;
-  paletteTarget = target||null;
-  paletteInput.value = (target?.current||'');
-  // build swatches once
-  if(!swatchesEl.dataset.ready){
-    PALETTE.forEach(c=>{
-      const b=document.createElement('button');
-      b.type='button'; b.className='sw'; b.style.background=c;
-      b.title=c; b.addEventListener('click', ()=>{ paletteInput.value=c; });
-      swatchesEl.appendChild(b);
-    });
-    swatchesEl.dataset.ready='1';
-  }
-  paletteEl.classList.add('open');
-  paletteEl.setAttribute('aria-hidden','false');
+let editCtx=null; // { type:'hero'|'divider', id }
+function openEditDialog(ctx, currentText, currentColor){
+  editCtx = ctx;
+  $('#editTitle').textContent = (ctx.type==='hero'?'Edit Hero':'Edit Heading');
+  $('#editText').value = currentText||'';
+  const pal = $('#editPalette'); pal.innerHTML='';
+  paletteColors.forEach(col=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
+    if(col===currentColor) b.style.outline='2px solid #fff';
+    b.addEventListener('click',()=>{ $$('.swatch').forEach(s=>s.style.outline='none'); b.style.outline='2px solid #fff'; b.dataset.selected='1'; pal.dataset.selected=col; }, {passive:true});
+    pal.appendChild(b);
+  });
+  pal.dataset.selected = currentColor || '';
+  $('#editDialog').classList.add('open');
 }
-function closePalette(){
-  paletteEl.classList.remove('open');
-  paletteEl.setAttribute('aria-hidden','true');
-  paletteTarget=null;
-}
-$('#paletteClose').addEventListener('click', closePalette, {passive:true});
-$('#paletteApply').addEventListener('click', ()=>{
-  if(!paletteTarget) return;
-  const val = (paletteInput.value||'').trim();
+function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; $('#editPalette').dataset.selected=''; }
+$('#editCancel').addEventListener('click', closeEditDialog);
+$('#editDialog').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeEditDialog(); }, {passive:true});
+$('#editSave').addEventListener('click', ()=>{
+  if(!editCtx) return;
   const s=getSettings();
-  if(paletteTarget.type==='hero'){
+  const text = $('#editText').value.trim();
+  const col = $('#editPalette').dataset.selected || '';
+  if(editCtx.type==='hero'){
+    if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
     s.heroStyle = s.heroStyle || {};
-    s.heroStyle[paletteTarget.id] = {...(s.heroStyle[paletteTarget.id]||{}), labelColor: val||undefined};
-  }else if(paletteTarget.type==='divider'){
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===paletteTarget.id);
-    if(idx>=0){ s.pageOrder[idx].color = val||undefined; }
+    s.heroStyle[editCtx.id] = {...(s.heroStyle[editCtx.id]||{}), labelColor: col };
+  }else{
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
+    if(idx>=0){
+      s.pageOrder[idx].title = text || 'Heading';
+      s.pageOrder[idx].color = col || '';
+    }
   }
-  saveSettings(s); paintPage(); closePalette();
-}, {passive:false});
+  saveSettings(s);
+  paintPage(); paintArchive();
+  closeEditDialog();
+});
 
-/* ===== DOM builders ===== */
+/* =========================
+   DOM builders
+========================= */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
 
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
-
   const devOn = devModeOn();
 
-  // Director on DEV (normal mode): show disabled Dev chip + Photo
-  const showDirectorDevPair = (isDirector() && f.state==='dev' && !devOn);
-
-  // Status pill (hide when showing director pair)
-  const showStatusPill = (!devOn) && (isAdmin() || isSupport() || isDirector()) && !showDirectorDevPair;
+  const showStatusPill = (!devOn) && canSeeStatusPill();
   const statusPill = showStatusPill ? 
     `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
       ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
      </span>` : '';
 
-  // Controls
-  const showArchiveChip = isAdmin() && devOn;
-  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // admin toggles
-  const statusChipDisabled = !isAdmin();
-  const showPhotoChip = (isAdmin() && devOn) || (isDirector() && f.state==='dev'); // director sees Photo on DEV
-  // Pencil: Admin+Dev OR Director on DEV
-  const showRenamePencil = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
-  // Audience: Admin+Dev OR Director on DEV
-  const showAudienceLine = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
-  // Color chip for Admin+Dev (hero title color)
-  const showColorChip = isAdmin() && devOn;
+  // Who can see what
+  const canAdminDev = isAdmin() && devOn;
+  const canDirOnDev = canDirectorDevEdit(f); // director in normal mode when hero is DEV
 
-  // Build controls (Dev chip first, then Photo) to avoid overlap
-  let ctrlsHTML = '';
-  if (showDirectorDevPair || showArchiveChip || showStatusChipInDev || showPhotoChip || showColorChip){
-    ctrlsHTML += `<div class="ctrls">`;
-    if (showDirectorDevPair){
-      ctrlsHTML += `<button class="chip badge-dev" type="button" disabled>Dev</button>`;
-      if (showPhotoChip){ ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`; }
-    } else {
-      if(showArchiveChip){
-        ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
-      }
-      if(showStatusChipInDev){
-        const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
-        const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-        ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
-      }
-      if(showPhotoChip){
-        ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
-      }
-      if(showColorChip){
-        ctrlsHTML += `<button class="chip" data-act="color-hero" type="button">Color</button>`;
-      }
-    }
-    ctrlsHTML += `</div>`;
-  }
-
-  let btnLabel = 'Start', btnClass='blue';
-  if(completed){ btnLabel='Complete'; btnClass='grey'; }
-  else if(inprogress){ btnLabel='In Progress'; }
+  // Pencil visibility:
+  const showPencil = (canAdminDev) || (canDirOnDev); // director can pencil DEV hero
+  const labelStyle = labelColorFor(id) ? ` style="color:${esc(labelColorFor(id))}"` : '';
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
-  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${art.src}"></div>` : '';
+  if(f.state==='dev') el.classList.add('devstate');
 
-  const labelColor = (s.heroStyle && s.heroStyle[id] && s.heroStyle[id].labelColor) ? `style="color:${s.heroStyle[id].labelColor}"` : '';
+  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
+
+  // Kebab for admin+dev
+  const kebabHTML = canAdminDev ? `
+    <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+    <div class="kebab-menu">
+      <button data-menu="rename">Rename</button>
+      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
+      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
+      <button data-menu="photo">Photo</button>
+    </div>` : '';
 
   el.innerHTML =
     `${artLayer}
      ${statusPill}
-     ${showRenamePencil ? `<button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>` : ``}
-     ${(isAdmin() && devOn) ? `
+     ${showPencil?`<button class="cfg-pin" title="Rename / Colour" data-cfg-rename="${esc(id)}" type="button">✎</button>`:''}
+     ${(canAdminDev) ? `
        <div class="hero-arrows">
-         <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
-         <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
+         <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button" style="display:none">▲</button>
+         <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button" style="display:none">▼</button>
        </div>` : ``}
-     <span class="label" ${labelColor}>${labelFor(id)}</span>
-     ${ctrlsHTML}
+     <span class="label"${labelStyle}>${esc(labelFor(id))}</span>
+     <div class="ctrls">
+       ${kebabHTML}
+       ${(!canAdminDev && canDirOnDev) ? `<button class="footer-chip" disabled style="height:28px">Dev</button><button class="footer-chip" data-act="pickart" style="height:28px">Photo</button>`:''}
+     </div>
      <div class="cta-left">
-       <button class="btn ${btnClass}" data-act="enter" type="button">${btnLabel}</button>
-       ${(showAudienceLine) ? `
+       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">${completed?'Complete':(inprogress?'In Progress':'Start')}</button>
+       ${((canAdminDev)||canDirOnDev) ? `
          <div class="aud-line">
            <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
            <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
@@ -568,7 +490,7 @@ function heroCard(id){
          </div>` : ``}
      </div>`;
 
-  if(showRenamePencil){ el.classList.add('has-pencil'); }
+  if(showPencil) el.classList.add('has-pencil');
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
 
@@ -584,273 +506,287 @@ function heroCard(id){
 
 function dividerEl(obj){
   const editable = isAdmin() && devModeOn();
-  const colorStyle = obj.color ? `style="color:${obj.color}"` : '';
-  const tools = editable ? 
-    `<div class="dctrls" style="display:flex; gap:8px; margin-left:8px">
-      <button class="chip" data-div-act="rename" data-div-id="${obj.id}" type="button">Rename</button>
-      <button class="chip" data-div-act="color"  data-div-id="${obj.id}" type="button">Color</button>
-      <button class="chip" data-div-act="up"     data-div-id="${obj.id}" type="button">▲</button>
-      <button class="chip" data-div-act="down"   data-div-id="${obj.id}" type="button">▼</button>
-      <button class="chip" data-div-act="remove" data-div-id="${obj.id}" type="button">Remove</button>
-    </div>` : '';
-
+  const colorStyle = obj.color ? `style="color:${esc(obj.color)}"` : '';
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`<span class="htext" ${colorStyle}>${obj.title||'Heading'}</span>${tools}`;
+  el.innerHTML=`
+    ${editable?`<button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>`:''}
+    <span class="htext" ${colorStyle}>${esc(obj.title||'Heading')}</span>
+    ${editable?`
+      <div class="dctrls">
+        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
+        <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
+      </div>`:''}
+    ${editable?`
+      <div class="aud-line">
+        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
+        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
+        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
+      </div>`:''}
+  `;
   return el;
 }
 
-/* ===== paint page into rows (carousel per section) ===== */
+/* =========================
+   Paint page + archive
+========================= */
 function paintPage(){
-  const wrap=$('#mainWrap'); if(!wrap) return;
-  wrap.innerHTML='';
+  const grid=$('#pageGrid'); if(!grid) return;
+  grid.innerHTML='';
   const s=getSettings(); const role=getRole();
-
-  let currentSection = null; // {container(track), id}
-
-  function ensureSection(titleObj){
-    // create a new section group with heading + track
-    const section = document.createElement('section'); section.className='section';
-    if(titleObj){
-      section.appendChild(dividerEl(titleObj));
-    }else{
-      section.appendChild(Object.assign(document.createElement('div'), {className:'divider', innerHTML:'<span class="htext">All Courses</span>'}));
-    }
-    const track = document.createElement('div'); track.className='track'; section.appendChild(track);
-    wrap.appendChild(section);
-    currentSection = { container: track, id: (titleObj?.id||'default') };
-  }
-
-  // start with a default section until we see the first divider
-  ensureSection(null);
-
   s.pageOrder.forEach(it=>{
-    if(it.type==='divider'){
-      // hide divider for non-staff if its audience forbids them
-      const aud=it.aud || {bronze:true,silver:true,gold:true};
-      if(!(isAdmin()||isSupport()||isDirector())){
-        if(!aud[role]){ currentSection=null; return; }
-      }
-      ensureSection(it);
-      return;
-    }
-
     if(it.type==='hero'){
       const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
-      // Non-staff: only live and allowed audience
-      if(!(isAdmin()||isSupport()||isDirector())){
+      if(!seesAll()){
         if(f.state!=='live') return;
         if(!f.aud[role]) return;
       }
-      const card=heroCard(id);
-      if(card){
-        currentSection.container.appendChild(card);
-      }
+      const card = heroCard(id); if(card) grid.appendChild(card);
+    }else if(it.type==='divider'){
+      const aud=it.aud || {bronze:true,silver:true,gold:true};
+      if(!seesAll()){ if(!aud[role]) return; }
+      grid.appendChild(dividerEl(it));
     }
   });
 }
 
-/* ===== footer / archive ===== */
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
+function applyArchiveVisibility(){ if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); } else { dock.style.display='none'; dock.setAttribute('aria-hidden','true'); } }
+function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
+function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
 
-function applyArchiveVisibility(){
-  if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
-  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
-}
-function applyArchiveSkin(){
-  $('#archiveTitle').textContent = 'Developer Mode';
-  dock.style.background = 'var(--red)';
-  dock.style.color = '#fff';
-  updateFooterModeControls();
-}
-function updateFooterModeControls(){
-  const devOn = devModeOn();
-  $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
-  $('#addHeadingBtn').style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
-  $('#openPaletteBtn').style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
-}
-
-/* archive list */
 function paintArchive(){
   const s=getSettings(); const flags=s.heroFlags;
   archiveList.innerHTML='';
   const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
     .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
   items.forEach(([id,f])=>{
-    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
     const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
-    const statusClass = (f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off'));
-    const controls = (isAdmin() && devModeOn()) ? `<div style="display:flex;gap:8px;align-items:center">
-      <button class="chip" data-act="move" type="button">Move to Page</button>
-      <button class="chip ${statusClass}" data-act="toggle" type="button">${statusLabel}</button>
-    </div>` : `<div></div>`;
-    row.innerHTML = `<span class="num">${labelFor(id)}</span>${controls}`;
+    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
+    row.innerHTML = `<span class="num">${esc(labelFor(id))}</span>
+    ${(isAdmin() && devModeOn())?`<div style="display:flex;gap:8px;align-items:center">
+      <button class="footer-chip" data-act="move" type="button">Move to Page</button>
+      <button class="footer-chip" data-act="toggle" type="button">${esc(statusLabel)}</button>
+    </div>`:`<div></div>`}`;
     archiveList.appendChild(row);
   });
 }
 
-/* ===== event wiring ===== */
-paintAvatar();
+/* =========================
+   Lock helpers
+========================= */
+let savedScrollY=0;
+function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
+
+/* =========================
+   Subsheet
+========================= */
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function openSubSheet(title,url){
+  if(!url){ alert('401 — Not linked yet'); return; }
+  sheetTitle.textContent=title;
+  subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
+  subSheet.classList.add('open'); subSheet?.setAttribute('aria-hidden','false'); lockBody();
+}
+
+/* =========================
+   Boot
+========================= */
 applyArchiveVisibility(); 
 applyArchiveSkin();
 paintArchive();
 paintPage();
+updateFooterModeControls();
 
-/* Archive open/close + body lock */
+/* =========================
+   Footer & global handlers
+========================= */
 $('#archiveToggle').addEventListener('click',()=>{
   const isOpen=dock.classList.contains('open');
   dock.classList.toggle('open', !isOpen);
   dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
   if(!isOpen) lockBody(); else unlockBody();
-}, {passive:true});
+});
 
-/* Developer mode toggle */
 $('#devToggle').addEventListener('click', ()=>{
   if(!isAdmin()) return;
   document.body.classList.toggle('config-on');
   updateFooterModeControls(); paintPage(); paintArchive();
-}, {passive:true});
+});
 
-/* Add Heading (footer) */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings();
-  s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
-}, {passive:false});
+});
 
-/* Quick open palette (no target: just open to pick, won’t apply until used from color chips) */
-$('#openPaletteBtn').addEventListener('click', ()=> openPalette(null), {passive:true});
-
-/* Page click handlers (delegate) */
+/* =========================
+   Delegated clicks (page)
+========================= */
 document.addEventListener('click',(e)=>{
-  const actEnter = e.target.closest('[data-act="enter"]');
-  if(actEnter){
+  /* Enter */
+  const enter = e.target.closest('[data-act="enter"]');
+  if(enter){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
-    const n = Number(((id||'').match(/\d+/)||[])[0]||0);
+    const n=Number(((id||'').match(/\d+/)||[])[0]||0);
     const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
-    openSubSheet(labelFor(id), url, id); return;
+    openSubSheet(labelFor(id), url); return;
   }
 
-  const actToggle = e.target.closest('[data-act="toggle"]');
-  if(actToggle){
-    if(!(isAdmin() && devModeOn())) return;
-    const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id];
-    const order=['live','off','dev'];
-    const ni=(order.indexOf(cur.state)+1)%order.length;
-    s.heroFlags[id]={...cur, state:order[ni]};
-    saveSettings(s); paintPage(); paintArchive(); return;
-  }
-
-  const actMove = e.target.closest('[data-act="move"]');
-  if(actMove){
-    if(!(isAdmin() && devModeOn())) return;
-    const host=e.target.closest('[data-hero-id], .row');
-    const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
-    const dest = (cur.place==='page') ? 'archive' : 'page';
-    if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
-    s.heroFlags[id]={...cur, place:dest};
-    if(dest==='page'){ const exists=s.pageOrder.some(it=>it.type==='hero' && it.id===id); if(!exists) s.pageOrder.push({type:'hero',id}); }
-    else{ s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); }
-    saveSettings(s); paintPage(); paintArchive(); return;
-  }
-
-  const audBtn=e.target.closest('[data-aud]');
-  if(audBtn){
-    const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
+  /* Pencil: hero */
+  const pinHero = e.target.closest('[data-cfg-rename]');
+  if(pinHero){
+    const id=pinHero.getAttribute('data-cfg-rename');
     const s=getSettings(); const f=s.heroFlags[id];
-    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
-    const key=audBtn.getAttribute('data-aud');
-    const nextVal=!f.aud[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
-    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s);
-    paintPage(); paintArchive(); return;
-  }
-
-  /* Pencil rename — Admin+Dev OR Director on DEV */
-  const pin = e.target.closest('[data-cfg-rename]');
-  if(pin){
-    const id=pin.getAttribute('data-cfg-rename');
-    const s=getSettings(); const f=s.heroFlags[id];
-    const allow = (isAdmin() && devModeOn()) || (isDirector() && f.state==='dev');
+    const allow = (isAdmin() && devModeOn()) || (canDirectorDevEdit(f));
     if(!allow) return;
-    const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
-    const next=prompt('Hero label', cur);
-    if(next!=null){
-      const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
+    openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, labelColorFor(id));
+    return;
+  }
+
+  /* Pencil: divider */
+  const pinDiv = e.target.closest('[data-div-pencil]');
+  if(pinDiv){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=pinDiv.getAttribute('data-div-pencil');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    const obj = s.pageOrder[idx]||{};
+    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'');
+    return;
+  }
+
+  /* Kebab open/close */
+  const keb = e.target.closest('.kebab');
+  if(keb){
+    const menu=keb.nextElementSibling;
+    const open = menu.style.display==='flex';
+    $$('.kebab-menu').forEach(m=>m.style.display='none');
+    menu.style.display = open ? 'none' : 'flex';
+    return;
+  }
+  if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
+
+  /* Kebab actions */
+  const menuBtn = e.target.closest('.kebab-menu button');
+  if(menuBtn){
+    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(!(isAdmin() && devModeOn())) return;
+
+    const act = menuBtn.dataset.menu;
+    if(act==='rename'){
+      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, labelColorFor(id));
+    }else if(act==='move'){
+      const dest = (f.place==='page') ? 'archive' : 'page';
+      if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
+      s.heroFlags[id]={...f, place:dest};
+      if(dest==='page'){
+        if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
+      }else{
+        s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
+      }
+      saveSettings(s); paintPage(); paintArchive();
+    }else if(act==='toggle'){
+      const order=['live','off','dev'];
+      const ni=(order.indexOf(f.state)+1)%order.length;
+      s.heroFlags[id]={...f, state:order[ni]};
+      saveSettings(s); paintPage(); paintArchive();
+    }else if(act==='photo'){
+      const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
+      s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
       saveSettings(s); paintPage();
     }
     return;
   }
 
-  /* Color HERO label (admin+dev) */
-  const colorHeroBtn = e.target.closest('[data-act="color-hero"]');
-  if(colorHeroBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId; if(!id) return;
-    const s=getSettings(); const cur = (s.heroStyle && s.heroStyle[id] && s.heroStyle[id].labelColor) || '';
-    openPalette({type:'hero', id, current:cur});
-    return;
-  }
-
-  /* Photo — Admin+Dev OR Director-on-DEV */
+  /* Director photo chip (DEV hero) */
   const photoBtn=e.target.closest('[data-act="pickart"]');
   if(photoBtn){
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId; if(!id) return;
-    const s=getSettings(); const f=s.heroFlags[id]; if(!f) return;
+    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
-    const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg');
-    if(!url) return;
+    const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
     s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
     saveSettings(s); paintPage(); return;
   }
 
-  /* Divider tools — Admin+Dev */
-  const divBtn = e.target.closest('[data-div-act]');
-  if (divBtn) {
-    if (!(isAdmin() && devModeOn())) return;
-    const divAct = divBtn.dataset.divAct;
-    const id     = divBtn.dataset.divId;
-    const s      = getSettings();
-    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
-    if (idx < 0) return;
+  /* Audience hero chips */
+  const audBtn=e.target.closest('[data-aud]');
+  if(audBtn){
+    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
+    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
+  }
 
-    if (divAct === 'rename') {
-      const cur  = s.pageOrder[idx].title || 'Heading';
-      const next = prompt('Heading title', cur);
-      if (next != null) { s.pageOrder[idx].title = (next.trim() || 'Heading'); saveSettings(s); paintPage(); }
-      return;
+  /* Reorder heroes/dividers (arrows kept hidden but supported) */
+  const sortBtn = e.target.closest('.cfg-arrow');
+  if(sortBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const key = sortBtn.dataset.key; // hero:co-1 or div:div_xxx
+    const s=getSettings();
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf(key); if(from<0) return;
+    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
+    const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
+    if(to!==from){
+      const objFrom = s.pageOrder.splice(from,1)[0];
+      s.pageOrder.splice(to,0,objFrom);
+      saveSettings(s); paintPage();
     }
-    if (divAct === 'color') {
-      const cur = s.pageOrder[idx].color || '';
-      openPalette({type:'divider', id, current:cur});
-      return;
-    }
-    if (divAct === 'up' || divAct === 'down') {
-      const dir = (divAct === 'up') ? -1 : 1;
+    return;
+  }
+
+  /* Divider tools */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = e.target.dataset.divId;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='up' || divAct==='down'){
+      const dir = (divAct==='up') ? -1 : 1;
       const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
       if (to !== idx) {
-        const obj = s.pageOrder.splice(idx, 1)[0];
-        s.pageOrder.splice(to, 0, obj);
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj);
         saveSettings(s); paintPage();
       }
       return;
     }
-    if (divAct === 'remove') {
-      if (confirm('Remove this heading?')) {
-        s.pageOrder.splice(idx, 1);
-        saveSettings(s); paintPage();
+    if(divAct==='remove'){
+      if(confirm('Remove this heading?')){
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
       }
       return;
     }
   }
 
+  /* Archive list actions */
+  const actToggle = e.target.closest('#archiveList [data-act="toggle"]');
+  const actMove = e.target.closest('#archiveList [data-act="move"]');
+  if(actToggle || actMove){
+    if(!(isAdmin() && devModeOn())) return;
+    const row = e.target.closest('.row'); const id=row.dataset.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(actToggle){
+      const order=['live','off','dev'];
+      const ni=(order.indexOf(f.state)+1)%order.length;
+      s.heroFlags[id]={...f, state:order[ni]};
+    }else if(actMove){
+      s.heroFlags[id]={...f, place:'page'};
+      if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
+    }
+    saveSettings(s); paintPage(); paintArchive();
+  }
 }, {passive:false});
-
-/* ===== initial ===== */
-updateFooterModeControls();
 
 })();</script>
 </body>
