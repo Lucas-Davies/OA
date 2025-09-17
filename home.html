@@ -73,8 +73,7 @@ body.lock{ position:fixed; width:100% }
 }
 .hero.has-pencil .label{ left:46px } /* nudge label when pencil is present */
 
-/* Right-top control chips */
-.ctrls{ position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:5; align-items:center; }
+.ctrls{ position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:5 }
 .chip{
   height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
   background:var(--chip); color:#fff; font-weight:800; font-size:12px; white-space:nowrap
@@ -84,7 +83,6 @@ body.lock{ position:fixed; width:100% }
 .badge-off{ background:#b00020 }
 .badge-dev{ background:var(--blue); color:#000; border-color:transparent }
 
-/* sort arrows (admin+dev) */
 .hero-arrows{ display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:4; flex-direction:column; gap:6px }
 .config-on .hero .hero-arrows{ display:flex }
 .hero-arrows .cfg-arrow{
@@ -174,7 +172,7 @@ body.lock{ position:fixed; width:100% }
 .sheet-close{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900 }
 #subFrame{ flex:1 1 auto; width:100%; height:100%; border:none; background:#0b0c10; overflow:hidden }
 
-/* Footer Dock (Developer only) */
+/* Footer Dock (Developer only, single Archived chip) */
 #archiveDock{
   position:fixed; left:0; right:0; bottom:0; z-index:75; background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
   transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain
@@ -229,24 +227,9 @@ body.lock{ position:fixed; width:100% }
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
 
-/* In normal view hide audience line entirely unless director-on-dev */
+/* In normal view hide audience line entirely unless director-on-dev (unchanged) */
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
-
-/* === tiny color palette modal === */
-.color-pop{
-  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,.55); z-index:120; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
-}
-.color-panel{
-  background:#0f1116; border:1px solid var(--stroke); border-radius:12px; padding:12px; width:min(420px,92vw);
-}
-.color-grid{ display:grid; grid-template-columns:repeat(8, 1fr); gap:8px; margin:8px 0 10px }
-.color-swatch{
-  height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
-}
-.color-actions{ display:flex; align-items:center; justify-content:flex-end; gap:8px; }
-.color-actions input[type="color"]{ width:42px; height:34px; border:none; background:transparent; padding:0 }
 </style>
 </head>
 
@@ -307,6 +290,7 @@ body.lock{ position:fixed; width:100% }
     </div>
 
     <div class="title" style="gap:12px">
+      <!-- Only one control: Archived/Close -->
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
@@ -376,11 +360,11 @@ function isSupport(){ return getRole()==='support'; }
 
 /* Edit permissions */
 function devModeOn(){ return document.body.classList.contains('config-on'); }
-function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; } // director gets audience/photo on DEV (and now rename)
+function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; } // director gets audience/photo on DEV (no rename)
 
 /* Visibility helpers */
 function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
-function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); } // hidden from learners
+function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); } // hidden from bronze/silver/gold
 
 /* ===== avatar paint ===== */
 function paintAvatar(){
@@ -403,7 +387,7 @@ avatarBtn.addEventListener('click', openDrawer, {passive:true});
 avatarSheet.addEventListener('click', e=>{ if(e.target===avatarSheet) closeDrawer(); }, {passive:true});
 document.addEventListener('click', e=>{ if(e.target && e.target.id==='avatarClose') closeDrawer(); }, {passive:true});
 
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle']);
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url,heroId){
   sheetTitle.textContent=title;
   if(!url){ alert('401 — Not linked yet'); return; }
@@ -419,9 +403,10 @@ $$('#avatarSheet [data-pop]').forEach(a=>a.addEventListener('click',e=>{
   e.preventDefault(); closeDrawer(); openSubSheet(a.dataset.pop, a.getAttribute('href'));
 }, {passive:false}));
 
-/* ===== settings & seed (same as CF2) ===== */
+/* ===== settings & seed ===== */
 function defaults(){
   const heroFlags={}, pageOrder=[];
+  // co-1..co-6 on page with specific states/audiences
   // 1: live bronze only
   heroFlags['co-1']={state:'live',place:'page',aud:{bronze:true,silver:false,gold:false}};
   pageOrder.push({type:'hero',id:'co-1'});
@@ -440,23 +425,27 @@ function defaults(){
   // 6: offline
   heroFlags['co-6']={state:'off',place:'page',aud:{bronze:true,silver:true,gold:true}};
   pageOrder.push({type:'hero',id:'co-6'});
-  // 7..50 offline in archive
+
+  // co-7..co-50 offline in archive
   for(let i=7;i<=50;i++){
     const id=`co-${i}`;
     heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
+
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
+  // ensure references exist & pageOrder contains placed heroes
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
     const onPage = c.heroFlags[id].place==='page';
     if(onPage && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)) c.pageOrder.push({type:'hero',id});
   }
+  // ensure at least one on page
   const hasPage = c.pageOrder.some(it=>it.type==='hero' && c.heroFlags[it.id]?.place==='page');
   if(!hasPage){
     ['co-1','co-2','co-3','co-4','co-5','co-6'].forEach(id=>{
@@ -468,41 +457,12 @@ function sanitize(cfg){
 }
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
 function saveSettings(s){ store.set(K.settings,sanitize(s)); }
+(function(){ const s=store.get(K.settings,null); store.set(K.settings, sanitize(s)); })();
 
-/* helpers */
+/* ===== helpers ===== */
 function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-
-/* ===== Color palette helper ===== */
-function showColorPalette(initial, onPick){
-  const presets=['#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#eef3ff','#ffffff','#ff9f0a','#64d2ff','#bf5af2','#64ffda','#34c759','#8e8e93','#ff375f','#ffcc00'];
-  const pop=document.createElement('div'); pop.className='color-pop';
-  pop.innerHTML=`
-    <div class="color-panel">
-      <strong>Pick a colour</strong>
-      <div class="color-grid">
-        ${presets.map(c=>`<button class="color-swatch" data-col="${c}" style="background:${c}"></button>`).join('')}
-      </div>
-      <div class="color-actions">
-        <input type="color" value="${/^#/.test(initial)?initial:'#0A84FF'}" />
-        <button class="chip" data-close>Cancel</button>
-        <button class="chip badge-dev" data-apply>Apply</button>
-      </div>
-    </div>`;
-  document.body.appendChild(pop);
-  function close(){ pop.remove(); }
-  pop.addEventListener('click', e=>{
-    if(e.target===pop) close();
-    if(e.target.matches('[data-close]')) close();
-    if(e.target.matches('.color-swatch')){
-      const col=e.target.getAttribute('data-col'); onPick && onPick(col); close();
-    }
-    if(e.target.matches('[data-apply]')){
-      const col=pop.querySelector('input[type="color"]').value; onPick && onPick(col); close();
-    }
-  }, {passive:false});
-}
 
 /* ===== DOM builders ===== */
 function heroCard(id){
@@ -515,11 +475,8 @@ function heroCard(id){
   const role = getRole();
   const devOn = devModeOn();
 
-  /* For director: when hero is DEV in normal mode, show a disabled Dev chip (left) + Photo chip (right) instead of the pill */
-  const showDirectorDevChip = (isDirector() && f.state==='dev' && !devOn);
-
   /* Status pill vs chip rules */
-  const showStatusPill = (!devOn) && canSeeStatusPill() && !showDirectorDevChip; // hide pill if we're showing the chip pair
+  const showStatusPill = (!devOn) && canSeeStatusPill(); // staff-only, normal mode
   const statusPill = showStatusPill ? 
     `<span class="status-pill ${
       f.state==='live'?'status-live' : (f.state==='dev'?'status-dev':'status-off')
@@ -527,36 +484,26 @@ function heroCard(id){
 
   /* Controls visibility */
   const showArchiveChip = isAdmin() && devOn;
-  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // staff in dev; admin toggles
-  const statusChipDisabled = !isAdmin();
-  const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director sees Photo on DEV even in normal mode
+  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // visible to staff in dev; clickable only for admin
+  const statusChipDisabled = !isAdmin(); // only admin toggles
+  const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets photo when hero is DEV even in normal mode
+  const showRenamePencil = (isAdmin() && devOn); // ADMIN ONLY
+  const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director can edit audiences on DEV heroes
 
-  /* Pencil: Admin in Dev, OR Director on DEV (normal mode ok). Hidden for director if not DEV. */
-  const showRenamePencil = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
-
-  /* Audience chips for card: Admin+Dev or Director-on-DEV */
-  const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f));
-
-  /* Controls (order matters: Dev chip (disabled) → Photo for director; Archive → Status → Photo in dev) */
+  /* Build controls (Archive | Status | Photo) */
   let ctrlsHTML = '';
-  const labelDevChip = `<button class="chip badge-dev" type="button" disabled>Dev</button>`;
-  if (showDirectorDevChip || showArchiveChip || showStatusChipInDev || showPhotoChip){
+  if (showArchiveChip || showStatusChipInDev || showPhotoChip){
     ctrlsHTML += `<div class="ctrls">`;
-    if(showDirectorDevChip){
-      ctrlsHTML += labelDevChip;             // left
-      if(showPhotoChip){ ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`; }
-    }else{
-      if(showArchiveChip){
-        ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
-      }
-      if(showStatusChipInDev){
-        const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
-        const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-        ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
-      }
-      if(showPhotoChip){
-        ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
-      }
+    if(showArchiveChip){
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
+    }
+    if(showStatusChipInDev){
+      const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
+      const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
+      ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
+    }
+    if(showPhotoChip){
+      ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
     }
     ctrlsHTML += `</div>`;
   }
@@ -595,7 +542,7 @@ function heroCard(id){
   if(showRenamePencil){ el.classList.add('has-pencil'); }
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
-  if(f.state === 'dev') el.classList.add('devstate'); // DEV border
+  if(f.state === 'dev') el.classList.add('devstate'); // DEV border (highest priority)
 
   if(art && art.crop){
     const img = el.querySelector('.art img');
@@ -608,7 +555,7 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
-  // Admin-only + Developer mode for tools and heading audience chips
+  // Admin-only + Developer mode for tools and audience on headings
   const editable = isAdmin() && devModeOn();
 
   const tools = editable ? 
@@ -642,8 +589,8 @@ function paintPage(){
     if(it.type==='hero'){
       const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
       if(!seesAll()){
-        if(f.state!=='live') return;         // learners only see live
-        if(!f.aud[role]) return;             // and audience-matched
+        if(f.state!=='live') return;         // non-staff only see live
+        if(!f.aud[role]) return;             // and only if their audience is on
       }
       const card = heroCard(id);
       if(card) grid.appendChild(card);
@@ -659,6 +606,7 @@ function paintPage(){
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
 
 function applyArchiveVisibility(){
+  // Developer dock visible to Admin only.
   if(isAdmin()){
     dock.style.display='block'; dock.setAttribute('aria-hidden','false');
   }else{
@@ -671,10 +619,12 @@ function applyArchiveSkin(){
   dock.style.color = '#fff';
   updateFooterModeControls();
 }
+
 function updateFooterModeControls(){
   const devOn = devModeOn();
   $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
 }
+
 function syncFooterViewControls(){
   const v=getView();
   $('#footerCols').value=String(v.cols||3);
@@ -699,7 +649,7 @@ function paintArchive(){
   });
 }
 
-/* === body lock for drawers === */
+/* ===== body lock helpers (drawers/dock) ===== */
 let savedScrollY=0;
 function lockBody(){
   savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -712,7 +662,11 @@ function unlockBody(){
   window.scrollTo(0, savedScrollY||0);
 }
 
-/* ===== progress wiring (unchanged) ===== */
+/* ===== progress wiring: listen for child hero updates via postMessage =====
+   Child course pages can send:
+   window.parent.postMessage({type:'ao-progress', heroId:'co-4', status:'inprogress'|'complete'|'reset'}, '*');
+   If heroId is omitted, we fall back to the ?heroId= param passed to the iframe URL.
+*/
 window.addEventListener('message', (evt)=>{
   const data = evt?.data || {};
   if(data && data.type==='ao-progress'){
@@ -734,31 +688,25 @@ window.addEventListener('message', (evt)=>{
 /* ===== event wiring ===== */
 applyView();
 paintAvatar();
+
 applyArchiveVisibility(); 
 applyArchiveSkin();
 paintArchive();
 paintPage();
 syncFooterViewControls();
 
-/* Footer view controls (null-safe) */
-const colsEl = $('#footerCols');
-if (colsEl) {
-  colsEl.addEventListener('change', e=>{
-    const v=getView(); v.cols=Number(e.target.value)||3; saveView(v);
-  }, {passive:true});
-}
+/* Footer view controls */
+$('#footerCols').addEventListener('change', e=>{ const v=getView(); v.cols=Number(e.target.value)||3; saveView(v); }, {passive:true});
 
-/* Archive open/close + body lock (null-safe) */
-const archBtn = $('#archiveToggle');
-if (archBtn) {
-  archBtn.addEventListener('click',()=>{
-    const isOpen=dock.classList.contains('open');
-    dock.classList.toggle('open', !isOpen);
-    dock.classList.toggle('collapsed', isOpen);
-    $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
-    if(!isOpen) lockBody(); else unlockBody();
-  }, {passive:true});
-}
+/* Archive open/close + body lock */
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
+  if(!isOpen) lockBody(); else unlockBody();
+}, {passive:true});
+
 /* Developer mode toggle */
 $('#devToggle').addEventListener('click', ()=>{
   if(!isAdmin()) return;
@@ -766,9 +714,11 @@ $('#devToggle').addEventListener('click', ()=>{
   updateFooterModeControls(); paintPage(); paintArchive();
 }, {passive:true});
 
-/* Click handlers */
+/* Add Heading (footer) — optional: still available via dev tools if you re-add button later */
+// function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
+
+/* Page click handlers (delegate) */
 document.addEventListener('click',(e)=>{
-  /* Enter hero */
   const actEnter = e.target.closest('[data-act="enter"]');
   if(actEnter){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
@@ -777,10 +727,10 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url, id); return;
   }
 
-  /* Toggle status */
   const actToggle = e.target.closest('[data-act="toggle"]');
   if(actToggle){
-    if(!(isAdmin() && devModeOn())) return; // only Admin in Dev
+    // Only Admin in Developer mode can toggle status
+    if(!(isAdmin() && devModeOn())) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     const order=['live','off','dev'];
@@ -789,7 +739,6 @@ document.addEventListener('click',(e)=>{
     saveSettings(s); paintPage(); paintArchive(); return;
   }
 
-  /* Move to/from archive */
   const actMove = e.target.closest('[data-act="move"]');
   if(actMove){
     if(!(isAdmin() && devModeOn())) return;
@@ -803,12 +752,12 @@ document.addEventListener('click',(e)=>{
     saveSettings(s); paintPage(); paintArchive(); return;
   }
 
-  /* Hero audience chips */
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
+    // Admin+dev OR Director editing DEV hero (audience only)
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
-    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;  // admin+dev OR director on DEV
+    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
     const key=audBtn.getAttribute('data-aud');
     const nextVal=!f.aud[key];
     if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
@@ -816,29 +765,28 @@ document.addEventListener('click',(e)=>{
     paintPage(); paintArchive(); return;
   }
 
-  /* Pencil rename — Admin+Dev OR Director-on-DEV */
   if(e.target.matches('[data-cfg-rename]')){
+    // ADMIN ONLY (in dev mode). Also do one-shot color prompt right after rename.
+    if(!(isAdmin() && devModeOn())) return;
     const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings(); const f=s.heroFlags[id];
-    const allow = (isAdmin() && devModeOn()) || (isDirector() && f?.state==='dev');
-    if(!allow) return;
-    const curLabel=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const s=getSettings(); const curLabel=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', curLabel);
     if(next!=null){
       const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
-      // palette after text entry
+      // one-shot color prompt (no persistent chip)
       const curColor=(s.heroStyle&&s.heroStyle[id]&&s.heroStyle[id].labelColor)||'#eef3ff';
-      showColorPalette(curColor, (color)=>{
+      const color=prompt('Hero title colour (CSS value, e.g. #0A84FF or #ffd700)', curColor);
+      if(color!=null){
         s.heroStyle = s.heroStyle || {};
-        s.heroStyle[id] = {...(s.heroStyle[id]||{}), labelColor: color};
-        saveSettings(s); paintPage(); paintArchive();
-      });
+        s.heroStyle[id] = {...(s.heroStyle[id]||{}), labelColor: color.trim()};
+      }
+      saveSettings(s); paintPage(); paintArchive();
     }
     return;
   }
 
-  /* Sort arrows (Admin+Dev) */
   if(e.target.matches('.cfg-arrow')){
+    // Reorder is Admin+dev only
     if(!(isAdmin() && devModeOn())) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
@@ -852,8 +800,9 @@ document.addEventListener('click',(e)=>{
     }
     return;
   }
-  /* Photo (Admin+Dev OR Director-on-DEV) */
+
   if(e.target.closest('[data-act="pickart"]')){
+    // Admin+dev OR Director editing DEV hero (photo only)
     const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
@@ -861,76 +810,46 @@ document.addEventListener('click',(e)=>{
     s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
     saveSettings(s); paintPage(); return;
   }
-  /* Divider tools (Admin+Dev) — robust */
-  const divBtn = e.target.closest('[data-div-act]');
-  if (divBtn) {
-    if (!(isAdmin() && devModeOn())) return;
 
-    const divAct = divBtn.dataset.divAct;
-    const id     = divBtn.dataset.divId;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
-    if (idx < 0) return;
-
-    if (divAct === 'rename') {
-      const cur  = s.pageOrder[idx].title || 'Heading';
-      const next = prompt('Heading title', cur);
-      if (next != null) {
-        s.pageOrder[idx].title = (next.trim() || 'Heading');
+  /* Divider tools — Admin-only + Dev mode; includes one-shot Color prompt after Rename if you prefer, but you asked color visible on pencil:
+     For headings we keep a dedicated "Color" chip in dev (admin-only). If you want the same one-shot flow, replace 'color' case to prompt right after rename only. */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=e.target.dataset.divId;
+    const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='rename'){
+      const cur=s.pageOrder[idx].title||'Heading';
+      const next=prompt('Heading title', cur);
+      if(next!=null){ s.pageOrder[idx].title=(next.trim()||'Heading'); 
+        // one-shot color prompt right after rename (matches your request)
         const curC = s.pageOrder[idx].color || '#eef3ff';
-        showColorPalette(curC, (color)=>{
-          s.pageOrder[idx].color = color;
-          saveSettings(s); paintPage();
-        });
+        const color = prompt('Heading colour (CSS value, e.g. #ffd700)', curC);
+        if(color!=null){ s.pageOrder[idx].color = color.trim(); }
+        saveSettings(s); paintPage(); 
       }
-    } else if (divAct === 'color') {
+    }else if(divAct==='color'){
+      // If you keep a dedicated color chip in dev, it still works:
       const cur = s.pageOrder[idx].color || '#eef3ff';
-      showColorPalette(cur, (color)=>{
-        s.pageOrder[idx].color = color;
-        saveSettings(s); paintPage();
-      });
-    } else if (divAct === 'up' || divAct === 'down') {
-      const dir = (divAct === 'up') ? -1 : 1;
-      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-      if (to !== idx) {
-        const obj = s.pageOrder.splice(idx, 1)[0];
-        s.pageOrder.splice(to, 0, obj);
-        saveSettings(s); paintPage();
+      const next = prompt('Heading colour (CSS value, e.g. #ffd700)', cur);
+      if(next!=null){ s.pageOrder[idx].color = next.trim(); saveSettings(s); paintPage(); }
+    }else if(divAct==='up' || divAct==='down'){
+      const dir = divAct==='up' ? -1 : 1;
+      const to = Math.min(Math.max(0, idx+dir), s.pageOrder.length-1);
+      if(to!==idx){
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj); saveSettings(s); paintPage();
       }
-    } else if (divAct === 'remove') {
-      if (confirm('Remove this heading?')) {
-        s.pageOrder.splice(idx, 1);
-        saveSettings(s); paintPage();
+    }else if(divAct==='remove'){
+      if(confirm('Remove this heading?')){
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
       }
     }
-    return;
   }
-  /* Divider audience chips (Admin+Dev) — robust */
-  const audDivBtn = e.target.closest('[data-div-aud]');
-  if (audDivBtn) {
-    if (!(isAdmin() && devModeOn())) return;
+}, {passive:false});
 
-    const key = audDivBtn.dataset.divAud;
-    const id  = audDivBtn.dataset.divId;
-    const s   = getSettings();
-    const idx = s.pageOrder.findIndex(it => it.type === 'divider' && it.id === id);
-    if (idx < 0) return;
-
-    const cur = s.pageOrder[idx].aud || { bronze:true, silver:true, gold:true };
-    const nextVal = !cur[key];
-    if (!confirm(`${nextVal ? 'Allow' : 'Disallow'} ${cap(key)} audience for heading "${s.pageOrder[idx].title || 'Heading'}"?`)) return;
-
-    s.pageOrder[idx].aud = { ...cur, [key]: nextVal };
-    saveSettings(s); paintPage();
-    return;
-  }
-
-}, {passive:false});  // <-- THIS closes document.addEventListener('click', ...)
-
-/* ===== initial ===== */
-updateFooterModeControls();
-
-})();
 /* ===== initial ===== */
 updateFooterModeControls();
 
