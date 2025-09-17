@@ -351,7 +351,7 @@ function isSupport(){ return getRole()==='support'; }
 /* Edit permissions */
 function devModeOn(){ return document.body.classList.contains('config-on'); }
 function canAdminEdit(){ return isAdmin() && devModeOn(); }
-function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; }
+function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; } // director gets photo/audience on DEV (no rename)
 
 /* Visibility */
 function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
@@ -459,7 +459,7 @@ function heroCard(id){
   const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // visible to staff in dev; clickable only for admin
   const statusChipDisabled = !isAdmin(); // only admin toggles
   const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets photo when hero is DEV even in normal mode
-  const showRenamePencil = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets pencil on DEV heroes
+  const showRenamePencil = (isAdmin() && devOn); // ADMIN ONLY (your request)
   const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director can edit audiences on DEV heroes
 
   /* Build editor controls (right-top chips) */
@@ -522,7 +522,7 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
-  // Divider tools remain admin+dev only
+  // Divider tools remain ADMIN + DEV only
   const editable = isAdmin() && devModeOn();
 
   const tools = editable ? 
@@ -705,7 +705,7 @@ document.addEventListener('click',(e)=>{
 
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    // Admin+dev OR Director editing DEV hero
+    // Admin+dev OR Director editing DEV hero (audience only)
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
@@ -717,11 +717,10 @@ document.addEventListener('click',(e)=>{
   }
 
   if(e.target.matches('[data-cfg-rename]')){
-    // Admin+dev OR Director editing DEV hero
+    // ADMIN ONLY (in dev mode)
+    if(!(isAdmin() && devModeOn())) return;
     const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings(); const f=s.heroFlags[id];
-    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
-    const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
@@ -745,13 +744,39 @@ document.addEventListener('click',(e)=>{
   }
 
   if(e.target.closest('[data-act="pickart"]')){
-    // Admin+dev OR Director editing DEV hero
+    // Admin+dev OR Director editing DEV hero (photo only)
     const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
     const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
     s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
     saveSettings(s); paintPage(); return;
+  }
+
+  /* Divider tools remain Admin-only in dev */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=e.target.dataset.divId;
+    const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='rename'){
+      const cur=s.pageOrder[idx].title||'Heading';
+      const next=prompt('Heading title', cur);
+      if(next!=null){ s.pageOrder[idx].title=(next.trim()||'Heading'); saveSettings(s); paintPage(); }
+    }else if(divAct==='up' || divAct==='down'){
+      const dir = divAct==='up' ? -1 : 1;
+      const to = Math.min(Math.max(0, idx+dir), s.pageOrder.length-1);
+      if(to!==idx){
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj); saveSettings(s); paintPage();
+      }
+    }else if(divAct==='remove'){
+      if(confirm('Remove this heading?')){
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      }
+    }
   }
 }, {passive:false});
 
