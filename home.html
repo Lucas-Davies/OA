@@ -839,27 +839,29 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s);
     queueRender(); return;
   }
+/* Pencil rename — Admin in Dev mode OR Director when hero is DEV */
+const pin = e.target.closest('[data-cfg-rename]');
+if(pin){
+  const id=pin.getAttribute('data-cfg-rename'); if(!id) return;
+  const s=getSettings(); const f=s.heroFlags[id]; if(!f) return;
+  const allow = (isAdmin() && devModeOn()) || (isDirector() && f.state==='dev');
+  if(!allow) return;
 
-  /* Pencil rename — ADMIN ONLY (Dev) */
-  const pin = e.target.closest('[data-cfg-rename]');
-  if(pin){
-    if(!(isAdmin() && devModeOn())) return;
-    const id=pin.getAttribute('data-cfg-rename'); if(!id) return;
-    const s=getSettings();
-    const curLabel=s.heroLabels[id] || `#${numberFromId(id)}`;
-    const next=prompt('Hero label', curLabel);
-    if(next!=null){
-      const v=next.trim();
-      if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
-      const curColor=(s.heroStyle&&s.heroStyle[id]&&s.heroStyle[id].labelColor)||'#eef3ff';
-      const color=prompt('Hero title colour (CSS value, e.g. #0A84FF or #ffd700)', curColor);
-      if(color!=null){
-        s.heroStyle = s.heroStyle || {};
-        s.heroStyle[id] = {...(s.heroStyle[id]||{}), labelColor: color.trim()};
-      }
-      saveSettings(s); queueRender();
+  const curLabel=s.heroLabels[id] || `#${numberFromId(id)}`;
+  const next=prompt('Hero label', curLabel);
+  if(next!=null){
+    const v=next.trim();
+    if(v) s.heroLabels[id]=v; else delete s.heroLabels[id];
+
+    const curColor=(s.heroStyle&&s.heroStyle[id]&&s.heroStyle[id].labelColor)||'#eef3ff';
+    const color=prompt('Hero title colour (CSS value, e.g. #0A84FF or #ffd700)', curColor);
+    if(color!=null){
+      s.heroStyle = s.heroStyle || {};
+      s.heroStyle[id] = {...(s.heroStyle[id]||{}), labelColor: color.trim()};
     }
-    return;
+    saveSettings(s); queueRender();
+  }
+  return;
   }
 
   /* Sort arrows — Admin+Dev only */
