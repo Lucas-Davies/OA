@@ -680,53 +680,66 @@ function dividerEl(obj){
 /* =========================
    Paint page + archive
 ========================= */
+/* ===== paint page (single row per heading; horizontal scrolling heroes) ===== */
 function paintPage(){
-  const grid = $('#pageGrid'); 
-  if(!grid) return;
+  const grid = $('#pageGrid');
+  if (!grid) return;
+
   grid.innerHTML = '';
-  const s = getSettings(); 
+
+  const s    = getSettings();
   const role = getRole();
 
-  let currentRow = null;
+  let currentRow = null; // the scrolling row under the most-recent heading
 
-  s.pageOrder.forEach(it=>{
-    if(it.type==='divider'){
+  s.pageOrder.forEach(item => {
+    if (item.type === 'divider') {
       // close any open row before starting a new section
       currentRow = null;
 
-      const aud = it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll()){ if(!aud[role]) return; }
+      // audience gating for non-staff
+      const aud = item.aud || { bronze:true, silver:true, gold:true };
+      if (!seesAll() && !aud[role]) return;
 
-      // add the divider
-      grid.appendChild(dividerEl(it));
+      // render the heading
+      grid.appendChild(dividerEl(item));
 
-      // new row for this heading
+      // start a fresh row for heroes under this heading
       currentRow = document.createElement('div');
       currentRow.className = 'row';
+      currentRow.dataset.divId = item.id;
       grid.appendChild(currentRow);
+      return;
+    }
 
-    } else if(it.type==='hero'){
-      const id = it.id; 
-      const f = s.heroFlags[id]; 
-      if(!f || f.place!=='page') return;
+    if (item.type === 'hero') {
+      const id = item.id;
+      const f  = s.heroFlags[id];
+      if (!f || f.place !== 'page') return;
 
-      if(!seesAll()){
-        if(f.state!=='live') return;
-        if(!f.aud[role]) return;
+      // learners only see live + audience-enabled
+      if (!seesAll()) {
+        if (f.state !== 'live') return;
+        if (!f.aud[role]) return;
       }
 
       const card = heroCard(id);
-      if(card){
-        if(!currentRow){
-          // no heading yet → put hero directly into grid
-          currentRow = document.createElement('div');
-          currentRow.className = 'row';
-          grid.appendChild(currentRow);
-        }
-        currentRow.appendChild(card);
+      if (!card) return;
+
+      // if there was no heading before this hero, create an implicit row
+      if (!currentRow) {
+        currentRow = document.createElement('div');
+        currentRow.className = 'row';
+        grid.appendChild(currentRow);
       }
+
+      currentRow.appendChild(card);
     }
   });
+
+  // clean up any empty rows (e.g., divider with no visible heroes)
+  grid.querySelectorAll('.row').forEach(r => { if (!r.children.length) r.remove(); });
+}
 
   // Dev-only: add "Add Heading" chip at the bottom
   if(isAdmin() && devModeOn()){
