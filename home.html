@@ -95,6 +95,34 @@ body.lock{ position:fixed; width:100% }
 }
 .kebab-menu button:hover{ background:#2a2f3a }
 
+/* Hero reorder arrows (Admin + Dev only) */
+.hero-arrows{
+  display:none;                /* hidden by default */
+  position:absolute;
+  right:8px;                   /* hug right edge */
+  top:50%;                     /* vertical center */
+  transform:translateY(-50%);  /* perfect centering */
+  z-index:6;                   /* above art/label */
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;                    /* space between ▲ and ▼ */
+}
+
+/* Show arrows only when body has Dev mode */
+.config-on .hero .hero-arrows{ display:flex }
+
+.hero-arrows .cfg-arrow{
+  width:32px; height:32px;     /* bigger tap target */
+  border-radius:8px;
+  border:1px solid var(--stroke);
+  background:#161922;
+  color:#fff;
+  font-weight:900;
+  font-size:14px;
+  line-height:1;
+}
+
 /* Status pill (normal mode) */
 .status-pill{
   position:absolute; top:12px; right:12px; height:28px; padding:0 12px; border-radius:999px;
