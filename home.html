@@ -23,7 +23,7 @@ html,body{
 }
 a{ color:inherit; text-decoration:none }
 button{ user-select:none; -webkit-user-select:none; cursor:pointer }
-body.lock{ position:fixed; width:100% } /* we set inline top/scroll in JS */
+body.lock{ position:fixed; width:100% }
 
 /* Background */
 .bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat }
@@ -102,7 +102,7 @@ body.lock{ position:fixed; width:100% } /* we set inline top/scroll in JS */
 .aud-chip.silver{ box-shadow:inset 0 0 0 2px #c0c7d1 }
 .aud-chip.gold{   box-shadow:inset 0 0 0 2px #ffd700 }
 
-/* Read-only status pill */
+/* Read-only status pill (normal mode only for staff) */
 .status-pill{
   position:absolute; top:12px; right:12px; height:28px; padding:0 12px; border-radius:999px;
   display:inline-flex; align-items:center; font-weight:900; z-index:4; border:1px solid rgba(255,255,255,.18)
@@ -217,7 +217,7 @@ body.lock{ position:fixed; width:100% } /* we set inline top/scroll in JS */
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
 
-/* In normal view hide audience line entirely */
+/* In normal view hide audience line entirely unless director-on-dev */
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
 </style>
@@ -302,7 +302,6 @@ const store={
   get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } },
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
-/* no viewAs key anymore */
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view' };
 
 /* URL reset hook */
@@ -339,8 +338,7 @@ function applyView(){
   document.documentElement.style.setProperty('--hero-pad', '18px');
 }
 
-/* ===== roles ===== */
-/* role comes ONLY from profile now */
+/* ===== roles ===== (profile only) */
 function baseRole(){
   const p = store.get(K.profile, { skill:'admin', displayName:'User' });
   return (p.skill || 'admin').toLowerCase();
@@ -350,15 +348,14 @@ function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function isSupport(){ return getRole()==='support'; }
 
-/* For now: director == support (see-all, no edit). */
-function canEditNow(){
-  // Only admin + dev tools on can edit.
-  return isAdmin() && document.body.classList.contains('config-on');
-}
-function seesAll(){
-  // Admin, Support, and Director see everything; others restricted.
-  const r=getRole(); return r==='admin' || r==='support' || r==='director';
-}
+/* Edit permissions */
+function devModeOn(){ return document.body.classList.contains('config-on'); }
+function canAdminEdit(){ return isAdmin() && devModeOn(); }
+function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; }
+
+/* Visibility */
+function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
+function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); } // hidden from bronze/silver/gold
 
 /* ===== avatar paint ===== */
 function paintAvatar(){
@@ -432,8 +429,6 @@ function sanitize(cfg){
 }
 function getSettings(){ return sanitize(store.get(K.settings,null) || (store.set(K.settings,defaults()), store.get(K.settings))); }
 function saveSettings(s){ store.set(K.settings,sanitize(s)); }
-
-/* heal existing local state */
 (function(){ const s=store.get(K.settings,null); store.set(K.settings, sanitize(s)); })();
 
 /* ===== helpers ===== */
@@ -449,25 +444,39 @@ function heroCard(id){
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
-  const editable = canEditNow(); // Admin + dev tools only
-
   const role = getRole();
-  const showPill = (role==='admin' || role==='director' || role==='support') ||
-                   (f.state==='dev' && role==='admin');
+  const devOn = devModeOn();
 
-  const statusPill = showPill ? 
+  /* Status pill vs chip rules */
+  const showStatusPill = (!devOn) && canSeeStatusPill(); // staff-only, normal mode
+  const statusPill = showStatusPill ? 
     `<span class="status-pill ${
       f.state==='live'?'status-live' : (f.state==='dev'?'status-dev':'status-off')
     }">${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}</span>` : '';
 
+  /* Controls visibility */
+  const showArchiveChip = isAdmin() && devOn;
+  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // visible to staff in dev; clickable only for admin
+  const statusChipDisabled = !isAdmin(); // only admin toggles
+  const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets photo when hero is DEV even in normal mode
+  const showRenamePencil = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director gets pencil on DEV heroes
+  const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f)); // director can edit audiences on DEV heroes
+
+  /* Build editor controls (right-top chips) */
   let ctrlsHTML = '';
-  if(editable){
-    const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
-    const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-    ctrlsHTML += `<div class="ctrls hide-when-normal">`;
-    ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button">${editLabel}</button>`;
-    ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
-    ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
+  if (showArchiveChip || showStatusChipInDev || showPhotoChip){
+    ctrlsHTML += `<div class="ctrls">`;
+    if(showArchiveChip){
+      ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
+    }
+    if(showStatusChipInDev){
+      const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
+      const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
+      ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
+    }
+    if(showPhotoChip){
+      ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
+    }
     ctrlsHTML += `</div>`;
   }
 
@@ -481,17 +490,17 @@ function heroCard(id){
   el.innerHTML =
     `${artLayer}
      ${statusPill}
-     ${editable ? `<button class="cfg-pin hide-when-normal" title="Rename" data-cfg-rename="${id}" type="button">✎</button>` : ``}
-     ${editable ? `
-     <div class="hero-arrows hide-when-normal">
-       <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
-       <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
-     </div>` : ``}
+     ${showRenamePencil ? `<button class="cfg-pin" title="Rename" data-cfg-rename="${id}" type="button">✎</button>` : ``}
+     ${(isAdmin() && devOn) ? `
+       <div class="hero-arrows">
+         <button class="cfg-arrow" data-sort="up" data-key="hero:${id}" type="button">▲</button>
+         <button class="cfg-arrow" data-sort="down" data-key="hero:${id}" type="button">▼</button>
+       </div>` : ``}
      <span class="label">${labelFor(id)}</span>
      ${ctrlsHTML}
      <div class="cta-left">
        <button class="btn ${btnClass}" data-act="enter" type="button">${btnLabel}</button>
-       ${editable ? `
+       ${(showAudienceLine) ? `
          <div class="aud-line">
            <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
            <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
@@ -513,7 +522,8 @@ function heroCard(id){
 }
 
 function dividerEl(obj){
-  const editable = canEditNow();
+  // Divider tools remain admin+dev only
+  const editable = isAdmin() && devModeOn();
 
   const tools = editable ? 
     `<div class="dctrls">
@@ -577,9 +587,9 @@ function applyArchiveSkin(){
 }
 
 function updateFooterModeControls(){
-  const devOn = document.body.classList.contains('config-on');
+  const devOn = devModeOn();
   $('#devToggle').textContent = `Developer: ${devOn?'On':'Off'}`;
-  $('#addHeadingBtn').style.display = canEditNow() ? 'inline-flex' : 'none';
+  $('#addHeadingBtn').style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
 }
 
 function syncFooterViewControls(){
@@ -596,9 +606,11 @@ function paintArchive(){
   countArchive.textContent=items.length;
   items.forEach(([id,f])=>{
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    const controls = canEditNow() ? `<div style="display:flex;gap:8px;align-items:center">
+    const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
+    const statusClass = (f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off'));
+    const controls = (isAdmin() && devModeOn()) ? `<div style="display:flex;gap:8px;align-items:center">
       <button class="chip" data-act="move" type="button">Move to Page</button>
-      <button class="chip" data-act="toggle" type="button">${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}</button>
+      <button class="chip ${statusClass}" data-act="toggle" type="button">${statusLabel}</button>
     </div>` : `<div></div>`;
     row.innerHTML = `<span class="num">${labelFor(id)}</span>${controls}`;
     archiveList.appendChild(row);
@@ -650,7 +662,7 @@ $('#devToggle').addEventListener('click', ()=>{
 /* Add Heading (footer) */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
-  if(!canEditNow()) return;
+  if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
   const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
   saveSettings(s); paintPage();
@@ -668,7 +680,8 @@ document.addEventListener('click',(e)=>{
 
   const actToggle = e.target.closest('[data-act="toggle"]');
   if(actToggle){
-    if(!canEditNow()) return;
+    // Only Admin in Developer mode can toggle status
+    if(!(isAdmin() && devModeOn())) return;
     const host=e.target.closest('[data-hero-id], .row'); const id=host.dataset.heroId;
     const s=getSettings(); const cur=s.heroFlags[id];
     const order=['live','off','dev'];
@@ -679,7 +692,7 @@ document.addEventListener('click',(e)=>{
 
   const actMove = e.target.closest('[data-act="move"]');
   if(actMove){
-    if(!canEditNow()) return;
+    if(!(isAdmin() && devModeOn())) return;
     const host=e.target.closest('[data-hero-id], .row');
     const id=host.dataset.heroId; const s=getSettings(); const cur=s.heroFlags[id];
     const dest = (cur.place==='page') ? 'archive' : 'page';
@@ -692,26 +705,31 @@ document.addEventListener('click',(e)=>{
 
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
-    if(!canEditNow()) return;
-    const key=audBtn.getAttribute('data-aud');
+    // Admin+dev OR Director editing DEV hero
     const hero=e.target.closest('[data-hero-id]'); const id=hero.dataset.heroId;
-    const s=getSettings(); const cur=s.heroFlags[id]; const nextVal=!cur.aud[key];
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
+    const key=audBtn.getAttribute('data-aud');
+    const nextVal=!f.aud[key];
     if(!confirm(`${nextVal?'Allow':'Disallow'} ${cap(key)} audience for ${labelFor(id)}?`)) return;
-    s.heroFlags[id]={...cur, aud:{...cur.aud, [key]:nextVal}}; saveSettings(s);
+    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s);
     paintPage(); paintArchive(); return;
   }
 
   if(e.target.matches('[data-cfg-rename]')){
-    if(!canEditNow()) return;
+    // Admin+dev OR Director editing DEV hero
     const id=e.target.getAttribute('data-cfg-rename');
-    const s=getSettings(); const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
+    const cur=s.heroLabels[id] || `#${numberFromId(id)}`;
     const next=prompt('Hero label', cur);
     if(next!=null){ const v=next.trim(); if(v) s.heroLabels[id]=v; else delete s.heroLabels[id]; saveSettings(s); paintPage(); paintArchive(); }
     return;
   }
 
   if(e.target.matches('.cfg-arrow')){
-    if(!canEditNow()) return;
+    // Reorder is Admin+dev only
+    if(!(isAdmin() && devModeOn())) return;
     const key=e.target.dataset.key; const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
@@ -727,10 +745,12 @@ document.addEventListener('click',(e)=>{
   }
 
   if(e.target.closest('[data-act="pickart"]')){
-    if(!canEditNow()) return;
+    // Admin+dev OR Director editing DEV hero
     const host=e.target.closest('[data-hero-id]'); const id=host.dataset.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
     const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
-    const s=getSettings(); s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
+    s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
     saveSettings(s); paintPage(); return;
   }
 }, {passive:false});
