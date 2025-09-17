@@ -532,32 +532,52 @@ function heroCard(id){
 
   const devOn = devModeOn();
 
-  const showStatusPill = (!devOn) && canSeeStatusPill();
+  // NEW: show "Dev" chip (disabled) + "Photo" chip for Director on DEV (normal mode)
+  const showDirectorDevChip = (isDirector() && f.state==='dev' && !devOn);
+
+  // Status pill is hidden when we’re showing the director chip pair
+  const showStatusPill = (!devOn) && canSeeStatusPill() && !showDirectorDevChip;
   const statusPill = showStatusPill ? 
     `<span class="status-pill ${
       f.state==='live'?'status-live' : (f.state==='dev'?'status-dev':'status-off')
     }">${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}</span>` : '';
 
+  // Controls visibility
   const showArchiveChip = isAdmin() && devOn;
-  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector());
+  const showStatusChipInDev = devOn && (isAdmin() || isSupport() || isDirector()); // visible to staff in dev; admin toggles
   const statusChipDisabled = !isAdmin();
-  const showPhotoChip = (isAdmin() && devOn) || (canDirectorDevEdit(f));
-  const showRenamePencil = (isAdmin() && devOn);
-  const showAudienceLine = (isAdmin() && devOn) || (canDirectorDevEdit(f));
+  const showPhotoChip = (isAdmin() && devOn) || (isDirector() && f.state==='dev'); // director sees Photo when hero is DEV
 
+  // Pencil: Admin in Dev, OR Director when hero is DEV (normal mode ok)
+  const showRenamePencil = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
+
+  // Audience chips: Admin+Dev OR Director-on-DEV
+  const showAudienceLine = (isAdmin() && devOn) || (isDirector() && f.state==='dev');
+
+  // Build controls (keep order so Dev chip is left of Photo)
   let ctrlsHTML = '';
-  if (showArchiveChip || showStatusChipInDev || showPhotoChip){
+  if (showDirectorDevChip || showArchiveChip || showStatusChipInDev || showPhotoChip){
     ctrlsHTML += `<div class="ctrls">`;
-    if(showArchiveChip){
-      ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
-    }
-    if(showStatusChipInDev){
-      const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
-      const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-      ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
-    }
-    if(showPhotoChip){
-      ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
+
+    // Director on DEV in normal mode: show disabled Dev chip, then Photo
+    if (showDirectorDevChip){
+      ctrlsHTML += `<button class="chip badge-dev" type="button" disabled>Dev</button>`;
+      if (showPhotoChip){
+        ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
+      }
+    } else {
+      // Dev mode controls for staff
+      if(showArchiveChip){
+        ctrlsHTML += `<button class="chip" data-act="move" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>`;
+      }
+      if(showStatusChipInDev){
+        const editClass = f.state==='live'?'badge-live':(f.state==='dev'?'badge-dev':'badge-off');
+        const editLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
+        ctrlsHTML += `<button class="chip ${editClass}" data-act="toggle" type="button" ${statusChipDisabled?'disabled':''}>${editLabel}</button>`;
+      }
+      if(showPhotoChip){
+        ctrlsHTML += `<button class="chip" data-act="pickart" type="button">Photo</button>`;
+      }
     }
     ctrlsHTML += `</div>`;
   }
