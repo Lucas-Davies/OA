@@ -155,14 +155,10 @@ body.lock{ position:fixed; width:100% }
   background:#161922; color:#fff; font-weight:900; font-size:14px; line-height:1;
 }
 
-/* Status pill (normal mode) */
-.status-pill{
-  position:absolute; top:12px; right:12px; height:28px; padding:0 12px; border-radius:999px;
-  display:inline-flex; align-items:center; font-weight:900; z-index:4; border:1px solid rgba(255,255,255,.18)
-}
-.status-live{ background:#1c6b1c; color:#fff }
-.status-off{ background:#5a0d12; color:#fff }
-.status-dev{ background:var(--blue); color:#000; border-color:transparent }
+/* Staff-only state borders (replace old pill styles) */
+.hero.state-live { border:2px solid var(--green); }
+.hero.state-dev  { border:2px solid var(--blue); }
+.hero.state-off  { border:2px solid var(--red); }
 
 /* Buttons */
 .btn{
