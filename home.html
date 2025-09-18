@@ -126,6 +126,15 @@ body.lock{ position:fixed; width:100% }
   position:fixed; left:0; top:0; z-index:100000;
 }
 
+/* When a menu is portaled to <body>, float it above everything */
+.kebab-menu.portaled{
+  position:fixed;
+  left:0; top:0;
+  z-index:100000;
+  /* shadow matches your base menu */
+  box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+
 /* Heading controls (arrows pinned on divider) */
 .divider .dctrls{ position:absolute; top:10px; right:54px; display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
