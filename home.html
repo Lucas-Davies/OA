@@ -261,6 +261,32 @@ body.lock{ position:fixed; width:100% }
 .preview{
   width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
 }
+/* --- Layering & kebab fixes --- */
+
+/* Make sure sections/headings create a higher layer than hero controls */
+.section { position: relative; z-index: 0; }
+.divider { position: relative; z-index: 50; }   /* heading row above heroes */
+
+/* Hero control layer kept low so menus can always sit above */
+.hero { position: relative; z-index: 1; }
+.hero .hero-arrows { z-index: 3; }
+.hero .ctrls .kebab { z-index: 4; }
+
+/* Heading kebab + menu — very high, sits above everything */
+.divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
+.divider .ctrls .kebab { z-index: 9001; }
+
+.kebab-menu{
+  /* keeps your existing visual styles, just ensure it wins the stack */
+  z-index: 10000 !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+
+/* Optional: prevent anything inside heroes from overlaying menus via pointer hacks */
+.hero .hero-arrows,
+.hero .ctrls { pointer-events: auto; }        /* normal */
+.kebab-menu{ pointer-events: auto; }          /* menu still clickable */
+
 </style>
 </head>
 
