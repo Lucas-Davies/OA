@@ -104,12 +104,9 @@ body.lock{ position:fixed; width:100% }
 /* Kebab (shared) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
-
-/* Base menu styling (used both inline and when portaled) */
 .kebab-menu{
-  display:none; flex-direction:column; min-width:210px; padding:6px;
-  background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+  position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
+  display:none; flex-direction:column; min-width:210px; z-index:200; padding:6px;
 }
 .kebab-menu button{
   background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
@@ -118,22 +115,10 @@ body.lock{ position:fixed; width:100% }
 .kebab-menu .group{ padding:4px 6px 8px 6px }
 .kebab-menu .title{ color:#fff; font-weight:900; padding:6px 8px 2px }
 .kebab-menu .opt{ display:flex; align-items:center; gap:8px; padding-left:18px }
-.kebab-menu .dot{ width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block }
-.kebab-menu .danger{ color:#ff453a; font-weight:900 }
-
-/* When menu is portaled to body, use position:fixed so it floats above all */
-.kebab-menu.portaled{
-  position:fixed; left:0; top:0; z-index:100000;
+.kebab-menu .dot{
+  width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block;
 }
-
-/* When a menu is portaled to <body>, float it above everything */
-.kebab-menu.portaled{
-  position:fixed;
-  left:0; top:0;
-  z-index:100000;
-  /* shadow matches your base menu */
-  box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
+.kebab-menu .danger{ color:#ff453a; font-weight:900; }
 
 /* Heading controls (arrows pinned on divider) */
 .divider .dctrls{ position:absolute; top:10px; right:54px; display:none; gap:6px; align-items:center }
@@ -276,6 +261,32 @@ body.lock{ position:fixed; width:100% }
 .preview{
   width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
 }
+/* --- Layering & kebab fixes --- */
+
+/* Make sure sections/headings create a higher layer than hero controls */
+.section { position: relative; z-index: 0; }
+.divider { position: relative; z-index: 50; }   /* heading row above heroes */
+
+/* Hero control layer kept low so menus can always sit above */
+.hero { position: relative; z-index: 1; }
+.hero .hero-arrows { z-index: 3; }
+.hero .ctrls .kebab { z-index: 4; }
+
+/* Heading kebab + menu — very high, sits above everything */
+.divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
+.divider .ctrls .kebab { z-index: 9001; }
+
+.kebab-menu{
+  /* keeps your existing visual styles, just ensure it wins the stack */
+  z-index: 10000 !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+
+/* Optional: prevent anything inside heroes from overlaying menus via pointer hacks */
+.hero .hero-arrows,
+.hero .ctrls { pointer-events: auto; }        /* normal */
+.kebab-menu{ pointer-events: auto; }          /* menu still clickable */
+
 </style>
 </head>
 
@@ -668,7 +679,7 @@ function heroCard(id){
   return el;
 }
 
-/* Divider (Heading) builder with kebab */
+/* Divider (Heading) builder with kebab — matches updated kebab CSS */
 function dividerEl(obj){
   const editable   = isAdmin() && devModeOn();
   const color      = obj.color || '';
@@ -834,4 +845,246 @@ function paintArchive(){
 /* =========================
    Lock helpers
 ========================= */
-let savedScrollY
+let savedScrollY=0;
+function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
+
+/* =========================
+   Subsheet
+========================= */
+const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
+function openSubSheet(title,url){
+  if(!url){ alert('401 — Not linked yet'); return; }
+  if(sheetTitle) sheetTitle.textContent=title;
+  if(subFrame) subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
+  if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); }
+  lockBody();
+}
+
+/* =========================
+   Boot
+========================= */
+applyArchiveVisibility(); 
+applyArchiveSkin();
+paintArchive();
+paintPage();
+updateFooterModeControls();
+
+/* =========================
+   Footer & global handlers
+========================= */
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
+  if(!isOpen) lockBody(); else unlockBody();
+});
+
+$('#devToggle').addEventListener('click', ()=>{
+  if(!isAdmin()) return;
+  document.body.classList.toggle('config-on');
+  updateFooterModeControls(); paintPage(); paintArchive();
+});
+
+function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
+$('#addHeadingBtn').addEventListener('click',()=>{
+  if(!(isAdmin() && devModeOn())) return;
+  const title=prompt('Heading title','Section'); if(title==null) return;
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, rowSize:'m'});
+  saveSettings(s); paintPage();
+});
+
+/* =========================
+   Delegated clicks (page)
+========================= */
+document.addEventListener('click',(e)=>{
+  /* Enter */
+  const enter = e.target.closest('[data-act="enter"]');
+  if(enter){
+    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
+    const n=Number(((id||'').match(/\d+/)||[])[0]||0);
+    const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
+    openSubSheet(labelFor(id), url); return;
+  }
+
+  /* Divider kebab toggle */
+  const divKebab = e.target.closest('.div-kebab');
+  if(divKebab){
+    const menu=divKebab.nextElementSibling;
+    const open = menu.style.display==='flex';
+    $$('.kebab-menu').forEach(m=>m.style.display='none');
+    menu.style.display = open ? 'none' : 'flex';
+    return;
+  }
+
+  /* Hero kebab toggle */
+  const keb = e.target.closest('.kebab:not(.div-kebab)');
+  if(keb){
+    const menu=keb.nextElementSibling;
+    const open = menu.style.display==='flex';
+    $$('.kebab-menu').forEach(m=>m.style.display='none');
+    menu.style.display = open ? 'none' : 'flex';
+    return;
+  }
+  if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
+
+  /* Divider kebab actions */
+  const dmb = e.target.closest('.div-menu button');
+  if(dmb){
+    if(!(isAdmin() && devModeOn())) return;
+    const s=getSettings();
+    const id=dmb.getAttribute('data-div-id');
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    const obj=s.pageOrder[idx];
+
+    const kind = dmb.dataset.divm;
+    if(kind==='rename'){
+      openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
+      return;
+    }
+    if(kind==='size'){
+      const size=dmb.dataset.size||'m';
+      if(!confirm(`Apply ${size.toUpperCase()} size to heroes under "${obj.title||'Heading'}"?`)) return;
+      obj.rowSize=size;
+      saveSettings(s); paintPage();
+      return;
+    }
+    if(kind==='aud'){
+      const key=dmb.dataset.aud;
+      const next=!obj.aud?.[key];
+      if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
+      obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
+      saveSettings(s); paintPage();
+      return;
+    }
+    if(kind==='remove'){
+      if(!confirm('Remove this heading?')) return;
+      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      return;
+    }
+  }
+
+  /* Divider tools (arrow + inline chips for audience kept for dev view) */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = e.target.dataset.divId;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='up' || divAct==='down'){
+      const dir = (divAct==='up') ? -1 : 1;
+      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
+      if (to !== idx) {
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj);
+        saveSettings(s); paintPage();
+      }
+      return;
+    }
+  }
+
+  /* Audience chips (divider inline) */
+  const divAud = e.target.closest('[data-div-aud]');
+  if(divAud){
+    if(!(isAdmin() && devModeOn())) return;
+    const key = divAud.getAttribute('data-div-aud');
+    const id  = divAud.getAttribute('data-div-id');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    const obj=s.pageOrder[idx];
+    const next=!obj.aud?.[key];
+    if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
+    obj.aud={...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
+    saveSettings(s); paintPage();
+    return;
+  }
+
+  /* Hero kebab actions (Admin + Dev) */
+  const menuBtn = e.target.closest('.kebab-menu button:not(.div-menu button)');
+  if(menuBtn && !menuBtn.closest('.div-menu')){
+    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(!(isAdmin() && devModeOn())) return;
+
+    const act = menuBtn.dataset.menu;
+    if(act==='rename'){
+      const st = styleFor(id);
+      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
+    }else if(act==='move'){
+      const dest = (f.place==='page') ? 'archive' : 'page';
+      if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
+      s.heroFlags[id]={...f, place:dest};
+      if(dest==='page'){
+        if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
+      }else{
+        s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
+      }
+      saveSettings(s); paintPage(); paintArchive();
+    }else if(act==='toggle'){
+      const order=['live','off','dev'];
+      const ni=(order.indexOf(f.state)+1)%order.length;
+      s.heroFlags[id]={...f, state:order[ni]};
+      saveSettings(s); paintPage(); paintArchive();
+    }else if(act==='photo'){
+      const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
+      s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
+      saveSettings(s); paintPage();
+    }
+    return;
+  }
+
+  /* Audience hero chips (Admin+Dev only) */
+  const audBtn=e.target.closest('[data-aud]');
+  if(audBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
+  }
+
+  /* Reorder heroes */
+  const sortBtn = e.target.closest('.cfg-arrow');
+  if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
+    if(!(isAdmin() && devModeOn())) return;
+    const key = sortBtn.dataset.key;
+    const s=getSettings();
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf(key); if(from<0) return;
+    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
+    const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
+    if(to!==from){
+      const objFrom = s.pageOrder.splice(from,1)[0];
+      s.pageOrder.splice(to,0,objFrom);
+      saveSettings(s); paintPage();
+    }
+    return;
+  }
+
+  /* Archive list actions */
+  const actToggle = e.target.closest('#archiveList [data-act="toggle"]');
+  const actMove = e.target.closest('#archiveList [data-act="move"]');
+  if(actToggle || actMove){
+    if(!(isAdmin() && devModeOn())) return;
+    const row = e.target.closest('.row'); const id=row.dataset.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    if(actToggle){
+      const order=['live','off','dev'];
+      const ni=(order.indexOf(f.state)+1)%order.length;
+      s.heroFlags[id]={...f, state:order[ni]};
+    }else if(actMove){
+      s.heroFlags[id]={...f, place:'page'};
+      if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
+    }
+    saveSettings(s); paintPage(); paintArchive();
+  }
+}, {passive:false});
+
+})();
+</script>
+</body>
+</html>
