@@ -41,7 +41,7 @@ body.lock{ position:fixed; width:100% }
 }
 .title-tab{ font-weight:900; opacity:.92 }
 
-/* Avatar pill */
+/* Avatar pill (vessel only; opens iframe overlay) */
 .avatarTab{
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
   padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
@@ -50,18 +50,6 @@ body.lock{ position:fixed; width:100% }
 }
 .avatarTab .name{ font-size:15px; font-weight:900 }
 .avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
-
-/* Avatar drawer */
-#avatarSheet{
-  position:fixed; inset:0; z-index:80; display:none;
-  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
-}
-#avatarSheet.open{ display:flex }
-#avatarCard{
-  margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
-}
-#avatarCard h3{ margin:0 0 12px; font-weight:900 }
-#avatarClose{ float:right; }
 
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
@@ -220,7 +208,27 @@ body.lock{ position:fixed; width:100% }
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
 
-/* Edit dialog */
+/* ===== Avatar Overlay (iframe container) ===== */
+#avatarOverlay{
+  position:fixed; inset:0; display:none; z-index:80;
+  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+#avatarOverlay.open{ display:flex }
+#avatarOverlay .panel{
+  margin:auto; width:min(480px,92vw); height:min(80vh, 680px);
+  background:#0f1116; border:1px solid var(--stroke); border-radius:14px;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+#avatarOverlay .head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 12px; border-bottom:1px solid var(--stroke); font-weight:900;
+}
+#avatarClose{ height:34px }
+#avatarFrame{
+  width:100%; height:100%; border:0; background:#0a0c10;
+}
+
+/* ===== Edit dialog ===== */
 #editDialog{
   position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
   background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
@@ -259,6 +267,7 @@ body.lock{ position:fixed; width:100% }
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left"><span class="title-tab">Courses</span></div>
   <div class="nav-right">
+    <!-- Avatar vessel (opens iframe overlay) -->
     <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
       <span class="name" id="avatarName">User</span>
       <span class="lvl" id="avatarLvl">Admin</span>
@@ -271,61 +280,14 @@ body.lock{ position:fixed; width:100% }
   <div id="pageGrid"></div>
 </main>
 
-<!-- Avatar Drawer -->
-<div id="avatarSheet" aria-hidden="true">
-  <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
-    <button id="avatarClose" class="footer-chip" type="button">Close</button>
-    <h3 id="avatarTitle">Profile</h3>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div><strong>Name:</strong> <span id="drawerName">User</span></div>
-      <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
-      <div class="hide-when-normal" style="gap:8px;display:flex">
-        <button id="drawerToggleDev" class="footer-chip" type="button">Toggle Developer</button>
-      </div>
+<!-- Avatar Overlay (loads avatar/avatar.html in an iframe) -->
+<div id="avatarOverlay" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
+    <div class="head">
+      <h3 id="avatarTitle" style="margin:0">Profile</h3>
+      <button id="avatarClose" class="footer-chip" type="button">Close</button>
     </div>
-  </div>
-</div>
-
-<!-- Edit Dialog -->
-<div id="editDialog" aria-modal="true" role="dialog">
-  <div id="editPanel" role="document">
-    <h3 id="editTitle">Edit</h3>
-
-    <div class="row">
-      <input id="editText" type="text" placeholder="Title">
-    </div>
-
-    <div class="row">
-      <div style="font-weight:800">Colour:</div>
-      <div class="palette" id="editPalette"></div>
-    </div>
-
-    <div class="row" id="fontControls">
-      <div style="font-weight:800">Font:</div>
-      <select id="fontFamily">
-        <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
-        <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
-        <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
-        <option value="'Comic Neue','Comic Sans MS',cursive">Comic Neue</option>
-        <option value="'Pacifico',cursive">Pacifico</option>
-        <option value="'Bangers',cursive">Bangers</option>
-        <option value="'Lobster',cursive">Lobster</option>
-        <option value="'Oswald',Arial,sans-serif">Oswald</option>
-        <option value="'Raleway',Arial,sans-serif">Raleway</option>
-      </select>
-      <button class="fontBtn" id="fontDown" type="button" aria-label="Decrease font size">A–</button>
-      <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
-      <span id="fontSizeLabel" style="opacity:.9;min-width:48px;text-align:right"></span>
-    </div>
-
-    <div class="row">
-      <div class="preview" id="editPreview">Preview</div>
-    </div>
-
-    <div class="actions">
-      <button class="footer-chip" id="editCancel">Cancel</button>
-      <button class="footer-chip" id="editSave">Save</button>
-    </div>
+    <iframe id="avatarFrame" title="Avatar"></iframe>
   </div>
 </div>
 
@@ -432,45 +394,57 @@ function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
 /* =========================
-   Avatar
+   Avatar (vessel + overlay)
 ========================= */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
   const role=getRole();
   $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
-  $('#drawerName').textContent = p.displayName || 'User';
-  $('#drawerRole').textContent = ROLE_LABEL[role] || role;
 }
 paintAvatar();
 
-/* Drawer wiring */
-(function wireAvatarDrawer(){
-  const avatarBtn = $('#avatarTab');
-  const sheet = $('#avatarSheet');
-  const closeBtn = $('#avatarClose');
-  const toggleDev = $('#drawerToggleDev');
+/* Keep pill live-updating if avatar.html changes localStorage */
+window.addEventListener('storage', (e)=>{
+  if(e.key===K.profile){ paintAvatar(); }
+});
 
-  function openDrawer(){
+/* Overlay wiring that loads avatar/avatar.html */
+(function wireAvatarOverlay(){
+  const btn = $('#avatarTab');
+  const sheet = $('#avatarOverlay');
+  const closeBtn = $('#avatarClose');
+  const frame = $('#avatarFrame');
+
+  function openOverlay(){
+    if(frame && !frame.src){
+      const ts = Date.now();
+      frame.src = `avatar/avatar.html?v=${ts}`;
+    }
     sheet.classList.add('open');
     sheet.setAttribute('aria-hidden','false');
-    avatarBtn.setAttribute('aria-expanded','true');
+    btn.setAttribute('aria-expanded','true');
     lockBody();
   }
-  function closeDrawer(){
+  function closeOverlay(){
     sheet.classList.remove('open');
     sheet.setAttribute('aria-hidden','true');
-    avatarBtn.setAttribute('aria-expanded','false');
+    btn.setAttribute('aria-expanded','false');
     unlockBody();
   }
-  avatarBtn?.addEventListener('click', openDrawer, {passive:true});
-  closeBtn?.addEventListener('click', closeDrawer, {passive:true});
-  sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
-  toggleDev?.addEventListener('click', ()=>{
-    if(!isAdmin()) return;
-    document.body.classList.toggle('config-on');
-    updateFooterModeControls(); paintPage(); paintArchive();
-  }, {passive:true});
+  btn?.addEventListener('click', openOverlay, {passive:true});
+  closeBtn?.addEventListener('click', closeOverlay, {passive:true});
+  sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeOverlay(); }, {passive:true});
+
+  /* Optional: receive postMessage events from avatar.html (e.g., profile saved) */
+  window.addEventListener('message', (ev)=>{
+    try{
+      const data = ev.data || {};
+      if(data && data.type==='avatar-profile-saved'){
+        paintAvatar(); // refresh pill immediately
+      }
+    }catch{}
+  });
 })();
 
 /* =========================
