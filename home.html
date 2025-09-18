@@ -8,7 +8,6 @@
 
 <!-- Google fonts for the rename dialog -->
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
-
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -238,7 +237,7 @@ body.lock{ position:fixed; width:100% }
 #kebabOverlay[hidden]{ display:none }
 #kebabBackdrop{ position:absolute; inset:0; background:transparent; pointer-events:auto }
 
-/* Course Sheet (unchanged visuals) */
+/* Course Sheet */
 #courseSheet{ position:fixed; inset:0; display:none; z-index:85; background:rgba(0,0,0,.55); backdrop-filter:blur(6px) }
 #coursePanel{
   position:absolute; left:50%; bottom:0; transform:translateX(-50%);
@@ -360,7 +359,7 @@ body.lock{ position:fixed; width:100% }
 </body>
 
 <script>
-()=>{'use strict';
+(()=>{'use strict';
 
 /* =========================
    Utils / storage
@@ -596,7 +595,7 @@ function heroCard(id){
 
   const dot = '<span class="dot" aria-hidden="true"></span>';
   const kebabHTML = canAdminDev ? `
-    <button class="kebab" aria-haspopup="true" aria-expanded="false">â®</button>
+    <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu" data-for="${esc(id)}">
       <div class="group">
         <div class="title">Orientation</div>
@@ -618,8 +617,8 @@ function heroCard(id){
     ${artLayer}
     ${canAdminDev ? `
       <div class="hero-arrows">
-        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">â²</button>
-        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">â¼</button>
+        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
+        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
       </div>` : ``}
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
     <div class="ctrls">${kebabHTML}</div>
@@ -657,11 +656,11 @@ function dividerEl(obj){
     <span class="htext" ${inline}>${esc(obj.title || 'Heading')}</span>
     ${editable ? `
       <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">â²</button>
-        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">â¼</button>
+        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button>
       </div>
       <div class="ctrls">
-        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">â®</button>
+        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">⋮</button>
         <div class="kebab-menu div-menu" role="menu" data-for="${esc(obj.id)}">
           <div class="group">
             <div class="title">Customise</div>
@@ -795,10 +794,10 @@ function unlockBody(){ document.body.classList.remove('lock'); document.body.sty
    Subsheet open
 ========================= */
 function openSubSheet(title,url){
-  if(!url){ alert('401 â Not linked yet'); return; }
+  if(!url){ alert('401 — Not linked yet'); return; }
   $('#courseTitle').textContent = title;
   $('#courseFrame').src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
-  $('#courseSummary').textContent = `Quick summary for ${title} â (replace later).`;
+  $('#courseSummary').textContent = `Quick summary for ${title} — (replace later).`;
   const sheet = $('#courseSheet');
   sheet.style.display='block'; sheet.setAttribute('aria-hidden','false');
   document.body.classList.add('no-scroll');
@@ -831,7 +830,7 @@ function openKebabMenu(menuEl, anchorBtn){
   anchorBtnEl = anchorBtn; openMenuEl = menuEl;
   if(!menuEl.querySelector('.kebab-close')){
     const x = document.createElement('button');
-    x.type='button'; x.className='kebab-close'; x.textContent='Ã';
+    x.type='button'; x.className='kebab-close'; x.textContent='×';
     x.setAttribute('aria-label','Close');
     menuEl.prepend(x);
   }
@@ -1108,5 +1107,4 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#courseSheet
 
 })();
 </script>
-</body>
 </html>
