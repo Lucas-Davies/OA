@@ -41,7 +41,7 @@ body.lock{ position:fixed; width:100% }
 }
 .title-tab{ font-weight:900; opacity:.92 }
 
-/* Avatar pill */
+/* Avatar pill (unchanged) */
 .avatarTab{
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
   padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
@@ -51,7 +51,7 @@ body.lock{ position:fixed; width:100% }
 .avatarTab .name{ font-size:15px; font-weight:900 }
 .avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
 
-/* Avatar drawer */
+/* Avatar drawer (unchanged) */
 #avatarSheet{
   position:fixed; inset:0; z-index:80; display:none;
   background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
@@ -66,15 +66,16 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Sections: each divider gets its own hero row */
+/* Sections */
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal hero rows (carousels) */
+/* Grid default (overridable per-divider size) */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:clamp(180px, 28vw, 280px); /* default (m) */
+  /* default "m" below; per-divider overrides via data-size */
+  grid-auto-columns:clamp(180px, 28vw, 280px);
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
@@ -82,12 +83,12 @@ body.lock{ position:fixed; width:100% }
 }
 .section .grid::-webkit-scrollbar{ display:none }
 
-/* Grid size modifiers (controlled by divider kebab) */
-.section .grid.grid-xs{ grid-auto-columns:clamp(140px, 22vw, 220px) }
-.section .grid.grid-s { grid-auto-columns:clamp(170px, 26vw, 260px) }
-.section .grid.grid-m { grid-auto-columns:clamp(180px, 28vw, 280px) } /* default */
-.section .grid.grid-l { grid-auto-columns:clamp(220px, 34vw, 340px) }
-.section .grid.grid-xl{ grid-auto-columns:clamp(260px, 40vw, 400px) }
+/* Per-divider size overrides */
+.section[data-size="xs"] .grid{ grid-auto-columns:clamp(140px,22vw,220px) }
+.section[data-size="s"]  .grid{ grid-auto-columns:clamp(170px,26vw,260px) }
+.section[data-size="m"]  .grid{ grid-auto-columns:clamp(180px,28vw,280px) } /* default */
+.section[data-size="l"]  .grid{ grid-auto-columns:clamp(220px,34vw,340px) }
+.section[data-size="xl"] .grid{ grid-auto-columns:clamp(260px,40vw,420px) }
 
 /* Hero cards */
 .hero{
@@ -101,25 +102,29 @@ body.lock{ position:fixed; width:100% }
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* Kebab (used by heroes AND dividers) */
+/* Kebab (heroes) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
-.kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
-.kebab-menu{
+.kebab,.div-kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
+.kebab-menu,.div-kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:180px; z-index:20; padding:6px;
+  display:none; flex-direction:column; min-width:220px; z-index:20; padding:8px;
 }
-.kebab-menu button{
-  background:none; border:none; color:#fff; padding:8px 12px; text-align:left; font-weight:700; cursor:pointer; border-radius:8px;
+.kebab-menu button,.div-kebab-menu button{
+  background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
 }
-.kebab-menu button:hover{ background:#2a2f3a }
-.kebab-menu .title{
-  font-weight:900; opacity:.9; padding:6px 10px 4px; pointer-events:none;
+.kebab-menu button:hover,.div-kebab-menu button:hover{ background:#2a2f3a }
+.div-kebab-menu .group-heading{
+  color:#fff; font-weight:900; opacity:.95; padding:8px 12px 6px; cursor:default;
 }
-.kebab-menu hr{
-  border:0; border-top:1px solid rgba(255,255,255,.14); margin:6px 4px;
+.div-kebab-menu .item{
+  display:flex; align-items:center; gap:8px; padding-left:22px; /* indent */
 }
-.kebab-menu button.selected{ color:var(--blue) }
-.kebab-menu button.danger{ color:var(--red) }
+.div-kebab-menu .item .dot{
+  width:8px; height:8px; border-radius:50%; background:transparent; border:1px solid rgba(255,255,255,.4);
+}
+.div-kebab-menu .item.active .dot{ background:var(--green); border-color:var(--green) }
+.div-kebab-menu .danger{ color:#ff453a; font-weight:900; margin-top:6px }
+.div-kebab-wrap{ position:relative; }
 
 /* Hero reorder arrows (Admin + Dev only) */
 .hero-arrows{
@@ -150,7 +155,7 @@ body.lock{ position:fixed; width:100% }
 .btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
 .btn.grey{ background:#3a3a3a; color:#fff; border-color:var(--stroke) }
 
-/* CTA + audience */
+/* CTA + audience (heroes only) */
 .cta-left{ position:absolute; left:16px; bottom:16px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:2 }
 .aud-line{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
 .aud-chip{
@@ -166,47 +171,13 @@ body.lock{ position:fixed; width:100% }
 /* Divider (Heading) */
 .divider{
   position:relative; border:1px dashed var(--stroke); border-radius:14px; background:#0b0d12;
-  padding:14px 16px 56px; min-height:58px; margin:18px 0;
+  padding:14px 16px 12px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
 .divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
-.divider .aud-line{ position:absolute; left:16px; bottom:14px }
 
-/* Put the divider pencil beside ▲ ▼; remove lives in kebab */
-.divider .dctrls .cfg-pin{
-  position:static; width:auto; height:34px; padding:0 12px; border-radius:999px;
-}
-
-/* Divider kebab (admin+dev only) */
-.divider .dctrls .kebab{ width:32px; height:32px }
-
-/* Compact headings in normal mode */
-:not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
-:not(.config-on) .divider .aud-line{ display:none }
-:not(.config-on) .divider .htext{ padding:0; margin:0 }
-
-/* Footer Dock (Developer only) */
-#archiveDock{
-  position:fixed; left:0; right:0; bottom:0; z-index:75; background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
-  transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain
-}
-#archiveDock .bar{
-  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; font-weight:900;
-  overflow-x:auto; white-space:nowrap
-}
-#archiveDock .bar::-webkit-scrollbar{ display:none }
-#archiveDock .title{ display:inline-flex; align-items:center; gap:8px }
-#archiveDock .content{ background:#160b0b; max-height:calc(60vh - 48px); overflow:auto }
-#archiveDock .list{ padding:8px 12px 16px; display:flex; flex-direction:column; gap:8px }
-#archiveDock .row{
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding:10px 12px; border:1px solid rgba(255,255,255,.28); background:#0d0d10; border-radius:10px
-}
-#archiveDock .row .num{ font-weight:900 }
-#archiveDock.collapsed{ max-height:48px }
-#archiveDock.open{ max-height:80vh }
-
+/* Keep ▲ ▼ buttons visible in dev; remove-into-kebab so no remove chip here */
 .footer-chip{
   display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 12px; border-radius:999px;
   border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:800
@@ -234,10 +205,6 @@ body.lock{ position:fixed; width:100% }
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
 
-/* In normal view hide audience line unless director-on-dev */
-.normal-hide{ display:none }
-.config-on .normal-hide{ display:flex }
-
 /* Edit dialog */
 #editDialog{
   position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
@@ -253,9 +220,7 @@ body.lock{ position:fixed; width:100% }
   flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
 }
 .palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
-.swatch{
-  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
-}
+.swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer; }
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
 #fontControls{ display:flex; align-items:center; gap:8px }
 .fontBtn{
@@ -285,7 +250,6 @@ body.lock{ position:fixed; width:100% }
 </header>
 
 <main class="wrap">
-  <!-- JS will build .section blocks here -->
   <div id="pageGrid"></div>
 </main>
 
@@ -614,8 +578,7 @@ function heroCard(id){
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
-      <div class="title">Hero</div>
-      <button data-menu="rename">Rename / Style</button>
+      <button data-menu="rename">Rename</button>
       <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
       <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
       <button data-menu="photo">Photo</button>
@@ -668,37 +631,50 @@ function dividerEl(obj){
   const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
   const fontSize = Number(obj.fontSize || 22);
   const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
+  const id = obj.id;
   const size = obj.size || 'm';
+  const aud = obj.aud || {bronze:true,silver:true,gold:true};
 
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  const el=document.createElement('div'); 
+  el.className='divider'; 
+  el.dataset.type='divider'; 
+  el.dataset.divId=id;
+
+  const kebab = editable ? `
+    <div class="div-kebab-wrap">
+      <button class="div-kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+      <div class="div-kebab-menu" data-kebab-for="${esc(id)}">
+        <div class="group-heading">Customize</div>
+        <button class="item" data-div-menu="rename" data-div-id="${esc(id)}"><span class="dot" aria-hidden="true"></span>Rename</button>
+
+        <div class="group-heading" style="margin-top:4px">Size</div>
+        ${['xs','s','m','l','xl'].map(opt=>{
+          const active = (opt===size)?'active':'';
+          const label = ({xs:'Extra Small',s:'Small',m:'Medium',l:'Large',xl:'Extra Large'})[opt];
+          return `<button class="item ${active}" data-div-size="${opt}" data-div-id="${esc(id)}"><span class="dot" aria-hidden="true"></span>${label}</button>`;
+        }).join('')}
+
+        <div class="group-heading" style="margin-top:4px">Audience</div>
+        ${[
+          {key:'bronze',label:'Beginner'},
+          {key:'silver',label:'Intermediate'},
+          {key:'gold',label:'Advanced'}
+        ].map(o=>{
+          const active = aud[o.key]?'active':'';
+          return `<button class="item ${active}" data-div-aud="${o.key}" data-div-id="${esc(id)}"><span class="dot" aria-hidden="true"></span>${o.label}</button>`;
+        }).join('')}
+
+        <button class="danger" data-div-act="remove" data-div-id="${esc(id)}">Remove</button>
+      </div>
+    </div>` : '';
+
   el.innerHTML=`
     <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
     ${editable?`
       <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
-        <button class="footer-chip cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
-        <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-        <div class="kebab-menu">
-          <div class="title">Size</div>
-          <button data-div-size="xs" class="${size==='xs'?'selected':''}">Extra Small</button>
-          <button data-div-size="s"  class="${size==='s' ?'selected':''}">Small</button>
-          <button data-div-size="m"  class="${size==='m' ?'selected':''}">Medium</button>
-          <button data-div-size="l"  class="${size==='l' ?'selected':''}">Large</button>
-          <button data-div-size="xl" class="${size==='xl'?'selected':''}">Extra Large</button>
-          <div class="title">Audience</div>
-          <button data-div-aud="bronze" class="${obj.aud?.bronze?'selected':''}">Beginner</button>
-          <button data-div-aud="silver" class="${obj.aud?.silver?'selected':''}">Intermediate</button>
-          <button data-div-aud="gold"   class="${obj.aud?.gold  ?'selected':''}">Advanced</button>
-          <hr>
-          <button class="danger" data-div-remove="${esc(obj.id)}">Remove</button>
-        </div>
-      </div>`:''}
-    ${editable?`
-      <div class="aud-line">
-        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
-        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
-        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
+        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(id)}" type="button">▼</button>
+        ${kebab}
       </div>`:''}
   `;
   return el;
@@ -723,23 +699,26 @@ function paintPage(){
     }
     const sec = document.createElement('section');
     sec.className = 'section';
-    if(divObj) sec.appendChild(dividerEl(divObj));
+    if(divObj){
+      // apply divider-controlled size to this section
+      sec.dataset.size = (divObj.size || 'm');
+      sec.appendChild(dividerEl(divObj));
+    }
     const row = document.createElement('div');
     row.className = 'grid';
-    /* Apply size from divider (xs/s/m/l/xl), default m */
-    const sizeClass = 'grid-' + ((divObj && divObj.size) ? divObj.size : 'm');
-    row.classList.add(sizeClass);
     sec.appendChild(row);
     root.appendChild(sec);
     return {sec, row};
   }
 
   let currentRow = null;
+  let currentSection = null;
 
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
       const started = startSection(it);
       currentRow = started ? started.row : null;
+      currentSection = started ? started.sec : null;
       continue;
     }
     if(it.type === 'hero'){
@@ -747,14 +726,17 @@ function paintPage(){
       const f = s.heroFlags[id];
       if(!f || f.place!=='page') continue;
 
+      // only show to learners who match; staff sees all
       if(!staff){
         if(f.state!=='live') continue;
-        if(!f.aud[role]) continue;
+        const r = role;
+        if(!(f.aud && f.aud[r])) continue;
       }
 
       if(!currentRow){
         const started = startSection(null);
         currentRow = started ? started.row : null;
+        currentSection = started ? started.sec : null;
         if(!currentRow) continue;
       }
 
@@ -763,7 +745,7 @@ function paintPage(){
     }
   }
 
-  // Clean any empty nameless section
+  // Clean empty nameless sections
   $$('#pageGrid .section').forEach(sec=>{
     const row = sec.querySelector('.grid');
     const hasHeroes = row && row.children.length>0;
@@ -853,10 +835,10 @@ $('#addHeadingBtn').addEventListener('click',()=>{
 });
 
 /* =========================
-   Delegated clicks (page)
+   Delegated clicks
 ========================= */
 document.addEventListener('click',(e)=>{
-  /* Enter */
+  /* Enter hero */
   const enter = e.target.closest('[data-act="enter"]');
   if(enter){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
@@ -865,34 +847,101 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider pencil (Admin + Dev) */
-  const pinDiv = e.target.closest('[data-div-pencil]');
-  if(pinDiv){
+  /* Divider kebab open/close */
+  const divK = e.target.closest('.div-kebab');
+  if(divK){
+    const wrap = divK.parentElement;
+    const menu = wrap.querySelector('.div-kebab-menu');
+    const open = menu.style.display==='flex';
+    $$('.div-kebab-menu').forEach(m=>m.style.display='none');
+    menu.style.display = open ? 'none' : 'flex';
+    return;
+  }
+  if(!e.target.closest('.div-kebab-menu')) $$('.div-kebab-menu').forEach(m=>m.style.display='none');
+
+  /* Divider kebab actions */
+  const renameBtn = e.target.closest('[data-div-menu="rename"]');
+  if(renameBtn){
     if(!(isAdmin() && devModeOn())) return;
-    const id=pinDiv.getAttribute('data-div-pencil');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    const id=renameBtn.dataset.divId;
+    const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
     const obj = s.pageOrder[idx]||{};
+    // invoke existing rename/style dialog (no confirm per spec)
     openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
     return;
   }
 
-  /* Any kebab open/close */
+  const sizeBtn = e.target.closest('[data-div-size]');
+  if(sizeBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=sizeBtn.dataset.divId, val=sizeBtn.dataset.divSize;
+    if(!confirm(`Change hero size for this section to ${val.toUpperCase()}?`)) return;
+    const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx>=0){ s.pageOrder[idx].size = val; saveSettings(s); paintPage(); }
+    return;
+  }
+
+  const audBtnDiv = e.target.closest('[data-div-aud]');
+  if(audBtnDiv){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=audBtnDiv.dataset.divId, key=audBtnDiv.dataset.divAud;
+    const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    const obj=s.pageOrder[idx];
+    const next = !(obj.aud && obj.aud[key]);
+    if(!confirm(`${next?'Allow':'Disallow'} ${key==='bronze'?'Beginner':key==='silver'?'Intermediate':'Advanced'} for this section?`)) return;
+    obj.aud = {bronze:true,silver:true,gold:true, ...(obj.aud||{}), [key]:next};
+    saveSettings(s); paintPage();
+    return;
+  }
+
+  /* Divider tools: up/down/remove */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = e.target.dataset.divId;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+
+    if(divAct==='up' || divAct==='down'){
+      const dir = (divAct==='up') ? -1 : 1;
+      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
+      if (to !== idx) {
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj);
+        saveSettings(s); paintPage();
+      }
+      return;
+    }
+    if(divAct==='remove'){
+      if(!confirm('Remove this heading?')) return;
+      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      return;
+    }
+  }
+
+  /* Kebab open/close (heroes) */
   const keb = e.target.closest('.kebab');
   if(keb){
     const menu=keb.nextElementSibling;
-    const open = menu && menu.style.display==='flex';
+    const open = menu.style.display==='flex';
     $$('.kebab-menu').forEach(m=>m.style.display='none');
-    if(menu){ menu.style.display = open ? 'none' : 'flex'; }
+    menu.style.display = open ? 'none' : 'flex';
     return;
   }
   if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
 
-  /* Hero kebab actions (Admin + Dev) */
-  const menuBtn = e.target.closest('.hero .kebab-menu button');
+  /* Kebab actions (Admin + Dev) */
+  const menuBtn = e.target.closest('.kebab-menu button');
   if(menuBtn){
-    if(!(isAdmin() && devModeOn())) return;
     const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
+    if(!(isAdmin() && devModeOn())) return;
+
     const act = menuBtn.dataset.menu;
     if(act==='rename'){
       const st = styleFor(id);
@@ -908,9 +957,9 @@ document.addEventListener('click',(e)=>{
       }
       saveSettings(s); paintPage(); paintArchive();
     }else if(act==='toggle'){
-      if(!confirm(`Change status for ${labelFor(id)}?`)) return;
       const order=['live','off','dev'];
       const ni=(order.indexOf(f.state)+1)%order.length;
+      if(!confirm(`Set ${labelFor(id)} to ${order[ni].toUpperCase()}?`)) return;
       s.heroFlags[id]={...f, state:order[ni]};
       saveSettings(s); paintPage(); paintArchive();
     }else if(act==='photo'){
@@ -919,45 +968,6 @@ document.addEventListener('click',(e)=>{
       saveSettings(s); paintPage();
     }
     return;
-  }
-
-  /* Divider kebab actions (Admin + Dev) */
-  const dMenuBtn = e.target.closest('.divider .kebab-menu button');
-  if(dMenuBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const wrap = dMenuBtn.closest('.divider');
-    const divId = wrap?.dataset?.divId;
-    if(!divId) return;
-    const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===divId);
-    if(idx<0) return;
-    const obj=s.pageOrder[idx];
-
-    if(dMenuBtn.dataset.divSize){
-      const next = dMenuBtn.dataset.divSize; // xs/s/m/l/xl
-      if(obj.size!==next){
-        if(!confirm(`Change card size for "${obj.title||'Heading'}" to ${{
-          xs:'Extra Small', s:'Small', m:'Medium', l:'Large', xl:'Extra Large'
-        }[next]}?`)) return;
-        obj.size = next;
-        s.pageOrder[idx]=obj; saveSettings(s); paintPage();
-      }
-      return;
-    }
-    if(dMenuBtn.dataset.divAud){
-      const key = dMenuBtn.dataset.divAud; // bronze/silver/gold
-      const aud = obj.aud || (obj.aud={bronze:true,silver:true,gold:true});
-      const nextVal = !aud[key];
-      if(!confirm(`${nextVal?'Allow':'Disallow'} ${key==='bronze'?'Beginner':key==='silver'?'Intermediate':'Advanced'} for "${obj.title||'Heading'}"?`)) return;
-      aud[key]=nextVal; obj.aud=aud; s.pageOrder[idx]=obj; saveSettings(s); paintPage();
-      return;
-    }
-    if(dMenuBtn.dataset.divRemove){
-      if(confirm('Remove this heading?')){
-        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
-      }
-      return;
-    }
   }
 
   /* Audience hero chips (Admin+Dev only) */
@@ -971,7 +981,7 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
-  /* Reorder heroes/dividers */
+  /* Reorder heroes */
   const sortBtn = e.target.closest('.cfg-arrow');
   if(sortBtn){
     if(!(isAdmin() && devModeOn())) return;
@@ -989,26 +999,6 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Divider tools from non-kebab buttons (arrows only now) */
-  const divAct = e.target.dataset.divAct;
-  if(divAct){
-    if(!(isAdmin() && devModeOn())) return;
-    const id = e.target.dataset.divId;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    if(divAct==='up' || divAct==='down'){
-      const dir = (divAct==='up') ? -1 : 1;
-      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-      if (to !== idx) {
-        const obj = s.pageOrder.splice(idx,1)[0];
-        s.pageOrder.splice(to,0,obj);
-        saveSettings(s); paintPage();
-      }
-      return;
-    }
-  }
-
   /* Archive list actions */
   const actToggle = e.target.closest('#archiveList [data-act="toggle"]');
   const actMove = e.target.closest('#archiveList [data-act="move"]');
@@ -1019,8 +1009,10 @@ document.addEventListener('click',(e)=>{
     if(actToggle){
       const order=['live','off','dev'];
       const ni=(order.indexOf(f.state)+1)%order.length;
+      if(!confirm(`Set ${labelFor(id)} to ${order[ni].toUpperCase()}?`)) return;
       s.heroFlags[id]={...f, state:order[ni]};
     }else if(actMove){
+      if(!confirm(`Move ${labelFor(id)} to Page?`)) return;
       s.heroFlags[id]={...f, place:'page'};
       if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
     }
