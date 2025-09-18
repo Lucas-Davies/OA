@@ -15,9 +15,6 @@
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --hero-pad:16px;
-
-  /* NEW: overlay z for kebab menus only */
-  --z-kebab: 12000;
 }
 
 /* Resets / base */
@@ -108,10 +105,27 @@ body.lock{ position:fixed; width:100% }
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 
-/* Default (in-card) menu — still used for layout reference but we portal it */
+/* Kebab menu — now fixed & centred */
 .kebab-menu{
-  position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:210px; z-index:200; padding:6px;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  display:none;                 /* JS toggles to flex */
+  flex-direction:column;
+  min-width:260px;
+  max-width:92vw;
+  max-height:80vh;              /* safe on small screens */
+  overflow:auto;
+
+  background:#1b1f2a;
+  border:1px solid var(--stroke);
+  border-radius:10px;
+  padding:12px;
+  box-shadow:0 20px 40px rgba(0,0,0,.55),
+             0 0 0 1px rgba(255,255,255,.06) inset;
+  z-index:10000 !important;
 }
 .kebab-menu button{
   background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
@@ -267,39 +281,21 @@ body.lock{ position:fixed; width:100% }
   width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
 }
 
-/* --- Layering & kebab fixes (unchanged layout, new overlay adds on top) --- */
+/* --- Layering & kebab fixes --- */
 .section { position: relative; z-index: 0; }
-.divider { position: relative; z-index: 50; }
+.divider { position: relative; z-index: 50; }   /* heading row above heroes */
 .hero { position: relative; z-index: 1; }
 .hero .hero-arrows { z-index: 3; }
 .hero .ctrls .kebab { z-index: 4; }
+
+/* Heading kebab + menu — very high, sits above everything */
 .divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
 .divider .ctrls .kebab { z-index: 9001; }
-.kebab-menu{
-  z-index: 10000 !important;
-  box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
 
-/* NEW: global overlay for kebab menus only */
-#kebabOverlay[hidden]{ display:none !important; }
-#kebabOverlay{
-  position:fixed; inset:0; z-index:var(--z-kebab);
-  pointer-events:none;                         /* only menu itself receives events */
-}
-#kebabOverlay .backdrop{
-  content:""; position:absolute; inset:0;
-  pointer-events:auto;                          /* catch outside clicks */
-  background:transparent;                        /* no dimming, just an invisible click-catcher */
-}
-#kebabOverlay .floating{
-  position:fixed; z-index:calc(var(--z-kebab) + 1);
-  display:flex; flex-direction:column;
-  min-width:210px; max-width:min(92vw, 360px);
-}
-#kebabOverlay .floating.kebab-menu{
-  /* reuse your kebab menu visuals */
-  background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px; padding:6px;
-}
+/* Ensure menus are clickable */
+.hero .hero-arrows,
+.hero .ctrls { pointer-events: auto; }
+.kebab-menu{ pointer-events: auto; }
 
 /* Optional: keep natural scrolling locked when a menu is open on iOS */
 body.menu-lock{ overflow:hidden; }
