@@ -1,3 +1,5 @@
+Centred kebab
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -105,7 +107,7 @@ body.lock{ position:fixed; width:100% }
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 
-/* Kebab menu — fixed & centred */
+/* Kebab menu — now fixed & centred */
 .kebab-menu{
   position: fixed !important;
   top: 50% !important;
@@ -174,6 +176,16 @@ body.lock{ position:fixed; width:100% }
 
 /* CTA + audience */
 .cta-left{ position:absolute; left:16px; bottom:16px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:2 }
+.aud-line{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+.aud-chip{
+  height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
+  background:#141416; color:#fff; font-weight:800; font-size:12px; opacity:.9
+}
+.aud-chip.on{ opacity:1; filter:brightness(1.22) }
+.aud-chip.on::after{ content:" ✓"; font-weight:900 }
+.aud-chip.bronze{ box-shadow:inset 0 0 0 2px #b87333 }
+.aud-chip.silver{ box-shadow:inset 0 0 0 2px #c0c7d1 }
+.aud-chip.gold{   box-shadow:inset 0 0 0 2px #ffd700 }
 
 /* Divider (Heading) */
 .divider{
@@ -222,7 +234,7 @@ body.lock{ position:fixed; width:100% }
 /* Hero art layer */
 .hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:16px }
 .hero .art img{
-  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) scale(1);
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
   width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
   filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
@@ -290,7 +302,6 @@ body.lock{ position:fixed; width:100% }
 /* Optional: keep natural scrolling locked when a menu is open on iOS */
 body.menu-lock{ overflow:hidden; }
 </style>
-
 </head>
 
 <body ontouchstart="">
@@ -618,14 +629,14 @@ function heroCard(id){
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
   const devOn = devModeOn();
-  const canAdminDev = isAdmin() && devOn;
-  const dot = '<span class="dot" aria-hidden="true"></span>';
 
   const showStatusPill = (!devOn) && canSeeStatusPill();
   const statusPill = showStatusPill ? 
     `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
       ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
      </span>` : '';
+
+  const canAdminDev = isAdmin() && devOn;
 
   const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
@@ -641,19 +652,10 @@ function heroCard(id){
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
-      <div class="group">
-        <div class="title">Customise</div>
-        <button data-menu="rename" class="opt" type="button">Rename</button>
-        <button data-menu="move"   class="opt" type="button">${f.place==='page'?'Archive':'Move to Page'}</button>
-        <button data-menu="toggle" class="opt" type="button">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
-        <button data-menu="photo"  class="opt" type="button">Photo</button>
-      </div>
-      <div class="group">
-        <div class="title">Audience</div>
-        <button class="opt" data-menu="aud" data-aud="bronze" type="button">${f.aud.bronze?dot:''}Beginner</button>
-        <button class="opt" data-menu="aud" data-aud="silver" type="button">${f.aud.silver?dot:''}Intermediate</button>
-        <button class="opt" data-menu="aud" data-aud="gold"   type="button">${f.aud.gold  ?dot:''}Advanced</button>
-      </div>
+      <button data-menu="rename">Rename</button>
+      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
+      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
+      <button data-menu="photo">Photo</button>
     </div>` : '';
 
   el.innerHTML = `
@@ -675,6 +677,12 @@ function heroCard(id){
       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
         ${completed?'Complete':(inprogress?'In Progress':'Start')}
       </button>
+      ${canAdminDev ? `
+        <div class="aud-line">
+          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
+          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
+          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
+        </div>` : ``}
     </div>
   `;
 
@@ -691,7 +699,7 @@ function heroCard(id){
   return el;
 }
 
-/* Divider (Heading) builder */
+/* Divider (Heading) */
 function dividerEl(obj){
   const editable   = isAdmin() && devModeOn();
   const color      = obj.color || '';
@@ -782,7 +790,6 @@ function paintPage(){
     const row = document.createElement('div');
     row.className = 'grid';
 
-    // apply size from divider if present
     const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
     row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
 
@@ -804,7 +811,7 @@ function paintPage(){
       const f = s.heroFlags[id];
       if(!f || f.place!=='page') continue;
 
-      if(!staff){
+      if(!seesAll()){
         if(f.state!=='live') continue;
         if(!f.aud[role]) continue;
       }
@@ -874,6 +881,78 @@ function openSubSheet(title,url){
 }
 
 /* =========================
+   NEW: Kebab overlay manager (port the existing .kebab-menu into #kebabOverlay)
+========================= */
+const kebabOverlay = $('#kebabOverlay');
+const kebabBackdrop = $('#kebabBackdrop');
+let openMenuEl = null;
+let originalParent = null;
+
+function openKebabMenu(menuEl, anchorBtn){
+  // Close any currently open
+  closeKebabMenu();
+
+  // Save origin so we can put it back later
+  originalParent = menuEl.parentElement;
+  openMenuEl = menuEl;
+
+  // Make it floating & visible inside overlay
+  menuEl.classList.add('floating');
+  menuEl.style.display = 'flex';
+  kebabOverlay.appendChild(menuEl);
+
+  // Position near the anchor, clamped to viewport
+  const r = anchorBtn.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  // Guess size before paint
+  const mw = Math.min(360, Math.max(210, vw*0.6));
+  const mh = 260;
+  const pad = 8;
+
+  let left = Math.min(vw - pad - mw, Math.max(pad, r.right - mw + 32));
+  let top  = Math.min(vh - pad - mh, Math.max(pad, r.bottom + 8));
+
+  // Switch to fixed positioning & place
+  menuEl.style.position = 'fixed';
+  menuEl.style.left = left + 'px';
+  menuEl.style.top  = top + 'px';
+  menuEl.style.zIndex = (parseInt(getComputedStyle(kebabOverlay).zIndex)||12000) + 1;
+
+  // Enable overlay click-catcher
+  kebabOverlay.hidden = false;
+  kebabOverlay.setAttribute('aria-hidden','false');
+  document.body.classList.add('menu-lock');
+
+  // Close on Esc
+  document.addEventListener('keydown', onKbdClose);
+}
+
+function closeKebabMenu(){
+  if(!openMenuEl) return;
+  // Hide and return to origin
+  openMenuEl.style.display = 'none';
+  openMenuEl.classList.remove('floating');
+  openMenuEl.style.left = '';
+  openMenuEl.style.top = '';
+  openMenuEl.style.position = '';
+  if(originalParent) originalParent.appendChild(openMenuEl);
+
+  openMenuEl = null;
+  originalParent = null;
+
+  kebabOverlay.hidden = true;
+  kebabOverlay.setAttribute('aria-hidden','true');
+  document.body.classList.remove('menu-lock');
+
+  document.removeEventListener('keydown', onKbdClose);
+}
+
+function onKbdClose(e){ if(e.key === 'Escape') closeKebabMenu(); }
+kebabBackdrop.addEventListener('click', closeKebabMenu, {passive:true});
+window.addEventListener('resize', ()=>{ if(openMenuEl){ /* reposition on resize */ closeKebabMenu(); }}, {passive:true});
+window.addEventListener('scroll', ()=>{ if(openMenuEl){ closeKebabMenu(); }}, {passive:true});
+
+/* =========================
    Boot
 ========================= */
 applyArchiveVisibility(); 
@@ -885,26 +964,32 @@ updateFooterModeControls();
 /* =========================
    Footer & global handlers
 ========================= */
+$('#archiveToggle').addEventListener('click',()=>{
+  const isOpen=dock.classList.contains('open');
+  dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen);
+  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
+  if(!isOpen) lockBody(); else unlockBody();
+});
 
-/* Close menus when tapping/clicking outside (runs before other handlers) */
-document.addEventListener('pointerdown',(e)=>{
-  const clickedMenu  = e.target.closest('.kebab-menu');
-  const clickedKebab = e.target.closest('.kebab');
-  if(!clickedMenu && !clickedKebab){
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-  }
-}, {passive:true});
+$('#devToggle').addEventListener('click', ()=>{
+  if(!isAdmin()) return;
+  document.body.classList.toggle('config-on');
+  updateFooterModeControls(); paintPage(); paintArchive();
+});
 
+function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
+$('#addHeadingBtn').addEventListener('click',()=>{
+  if(!(isAdmin() && devModeOn())) return;
+  const title=prompt('Heading title','Section'); if(title==null) return;
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, rowSize:'m'});
+  saveSettings(s); paintPage();
+});
+
+/* =========================
+   Delegated clicks (page)
+========================= */
 document.addEventListener('click',(e)=>{
-  /* Close on outside click as well (for non-pointer browsers) */
-  {
-    const clickedMenu  = e.target.closest('.kebab-menu');
-    const clickedKebab = e.target.closest('.kebab');
-    if(!clickedMenu && !clickedKebab){
-      $$('.kebab-menu').forEach(m=>m.style.display='none');
-    }
-  }
-
   /* Enter */
   const enter = e.target.closest('[data-act="enter"]');
   if(enter){
@@ -914,25 +999,36 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider kebab toggle */
+  /* Divider kebab toggle — now uses overlay portal */
   const divKebab = e.target.closest('.div-kebab');
   if(divKebab){
     const menu=divKebab.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
+    if(menu){
+      if(menu === openMenuEl){ closeKebabMenu(); }
+      else{
+        // hide any inline menus
+        $$('.kebab-menu').forEach(m=>{ if(m!==menu) m.style.display='none'; });
+        openKebabMenu(menu, divKebab);
+      }
+    }
     return;
   }
 
-  /* Hero kebab toggle */
+  /* Hero kebab toggle — now uses overlay portal */
   const keb = e.target.closest('.kebab:not(.div-kebab)');
   if(keb){
     const menu=keb.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
+    if(menu){
+      if(menu === openMenuEl){ closeKebabMenu(); }
+      else{
+        $$('.kebab-menu').forEach(m=>{ if(m!==menu) m.style.display='none'; });
+        openKebabMenu(menu, keb);
+      }
+    }
     return;
   }
+
+  // Clicking anywhere that isn't a menu keeps behavior: if click outside the floating menu, the overlay backdrop catches it.
 
   /* Divider kebab actions */
   const dmb = e.target.closest('.div-menu button');
@@ -946,6 +1042,7 @@ document.addEventListener('click',(e)=>{
 
     const kind = dmb.dataset.divm;
     if(kind==='rename'){
+      closeKebabMenu();
       openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
       return;
     }
@@ -954,6 +1051,7 @@ document.addEventListener('click',(e)=>{
       if(!confirm(`Apply ${size.toUpperCase()} size to heroes under "${obj.title||'Heading'}"?`)) return;
       obj.rowSize=size;
       saveSettings(s); paintPage();
+      closeKebabMenu();
       return;
     }
     if(kind==='aud'){
@@ -962,16 +1060,18 @@ document.addEventListener('click',(e)=>{
       if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
       obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
       saveSettings(s); paintPage();
+      closeKebabMenu();
       return;
     }
     if(kind==='remove'){
       if(!confirm('Remove this heading?')) return;
       s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      closeKebabMenu();
       return;
     }
   }
 
-  /* Divider tools (arrow + inline chips for audience kept for dev view) */
+  /* Divider tools (arrow + inline chips) */
   const divAct = e.target.dataset.divAct;
   if(divAct){
     if(!(isAdmin() && devModeOn())) return;
@@ -1010,12 +1110,14 @@ document.addEventListener('click',(e)=>{
   /* Hero kebab actions (Admin + Dev) */
   const menuBtn = e.target.closest('.kebab-menu button:not(.div-menu button)');
   if(menuBtn && !menuBtn.closest('.div-menu')){
-    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
+    const host = openMenuEl ? originalParent?.closest('.hero') : e.target.closest('.hero');
+    const id = host?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
     if(!(isAdmin() && devModeOn())) return;
 
     const act = menuBtn.dataset.menu;
     if(act==='rename'){
+      closeKebabMenu();
       const st = styleFor(id);
       openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
     }else if(act==='move'){
@@ -1027,24 +1129,29 @@ document.addEventListener('click',(e)=>{
       }else{
         s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
       }
-      saveSettings(s); paintPage(); paintArchive();
+      saveSettings(s); paintPage(); paintArchive(); closeKebabMenu();
     }else if(act==='toggle'){
       const order=['live','off','dev'];
       const ni=(order.indexOf(f.state)+1)%order.length;
       s.heroFlags[id]={...f, state:order[ni]};
-      saveSettings(s); paintPage(); paintArchive();
+      saveSettings(s); paintPage(); paintArchive(); closeKebabMenu();
     }else if(act==='photo'){
       const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
       s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-      saveSettings(s); paintPage();
-    }else if(act==='aud'){
-      const key = menuBtn.dataset.aud;
-      const nextVal = !f.aud[key];
-      if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
-      s.heroFlags[id] = {...f, aud:{...f.aud, [key]:nextVal}};
-      saveSettings(s); paintPage(); paintArchive();
+      saveSettings(s); paintPage(); closeKebabMenu();
     }
     return;
+  }
+
+  /* Audience hero chips (Admin+Dev only) */
+  const audBtn=e.target.closest('[data-aud]');
+  if(audBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
   /* Reorder heroes */
@@ -1086,6 +1193,6 @@ document.addEventListener('click',(e)=>{
 
 })();
 </script>
-
 </body>
 </html>
+
