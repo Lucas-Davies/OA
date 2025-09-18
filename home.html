@@ -106,7 +106,7 @@ body.lock{ position:fixed; width:100% }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 .kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:210px; z-index:20; padding:6px;
+  display:none; flex-direction:column; min-width:210px; z-index:200; padding:6px;
 }
 .kebab-menu button{
   background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
@@ -653,63 +653,71 @@ function heroCard(id){
   return el;
 }
 
-/* Divider (Heading) builder with kebab */
+/* Divider (Heading) builder with kebab — matches updated kebab CSS */
 function dividerEl(obj){
-  const editable = isAdmin() && devModeOn();
-  const color = obj.color || '';
+  const editable   = isAdmin() && devModeOn();
+  const color      = obj.color || '';
   const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-  const fontSize = Number(obj.fontSize || 22);
-  const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
+  const fontSize   = Number(obj.fontSize || 22);
+  const inline     = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
 
-  const size = (obj.rowSize||'m');
-  const dot = '<span class="dot" aria-hidden="true"></span>';
+  const size = (obj.rowSize || 'm'); // xs, s, m, l, xl
+  const dot  = '<span class="dot" aria-hidden="true"></span>';
 
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`
-    <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
+  const el = document.createElement('div');
+  el.className = 'divider';
+  el.dataset.type = 'divider';
+  el.dataset.divId = obj.id;
 
-    ${editable?`
+  el.innerHTML = `
+    <span class="htext" ${inline}>${esc(obj.title || 'Heading')}</span>
+
+    ${editable ? `
       <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
+        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button>
       </div>
+
       <div class="ctrls">
-        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-        <div class="kebab-menu div-menu">
+        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">⋮</button>
+        <div class="kebab-menu div-menu" role="menu">
           <div class="group">
             <div class="title">Customise</div>
-            <button class="opt" data-divm="rename" data-div-id="${esc(obj.id)}">Rename</button>
+            <button class="opt" data-divm="rename" data-div-id="${esc(obj.id)}" type="button">Rename</button>
           </div>
 
           <div class="group">
             <div class="title">Size</div>
-            <button class="opt" data-divm="size" data-size="xs" data-div-id="${esc(obj.id)}">${size==='xs'?dot:''}Extra Small</button>
-            <button class="opt" data-divm="size" data-size="s"  data-div-id="${esc(obj.id)}">${size==='s'?dot:''}Small</button>
-            <button class="opt" data-divm="size" data-size="m"  data-div-id="${esc(obj.id)}">${size==='m'?dot:''}Medium</button>
-            <button class="opt" data-divm="size" data-size="l"  data-div-id="${esc(obj.id)}">${size==='l'?dot:''}Large</button>
-            <button class="opt" data-divm="size" data-size="xl" data-div-id="${esc(obj.id)}">${size==='xl'?dot:''}Extra Large</button>
+            <button class="opt" data-divm="size" data-size="xs" data-div-id="${esc(obj.id)}" type="button">${size==='xs'?dot:''}Extra Small</button>
+            <button class="opt" data-divm="size" data-size="s"  data-div-id="${esc(obj.id)}" type="button">${size==='s'?dot:''}Small</button>
+            <button class="opt" data-divm="size" data-size="m"  data-div-id="${esc(obj.id)}" type="button">${size==='m'?dot:''}Medium</button>
+            <button class="opt" data-divm="size" data-size="l"  data-div-id="${esc(obj.id)}" type="button">${size==='l'?dot:''}Large</button>
+            <button class="opt" data-divm="size" data-size="xl" data-div-id="${esc(obj.id)}" type="button">${size==='xl'?dot:''}Extra Large</button>
           </div>
 
           <div class="group">
             <div class="title">Audience</div>
-            <button class="opt" data-divm="aud" data-aud="bronze" data-div-id="${esc(obj.id)}">${obj.aud?.bronze?dot:''}Beginner</button>
-            <button class="opt" data-divm="aud" data-aud="silver" data-div-id="${esc(obj.id)}">${obj.aud?.silver?dot:''}Intermediate</button>
-            <button class="opt" data-divm="aud" data-aud="gold"   data-div-id="${esc(obj.id)}">${obj.aud?.gold?dot:''}Advanced</button>
+            <button class="opt" data-divm="aud" data-aud="bronze" data-div-id="${esc(obj.id)}" type="button">${obj.aud?.bronze?dot:''}Beginner</button>
+            <button class="opt" data-divm="aud" data-aud="silver" data-div-id="${esc(obj.id)}" type="button">${obj.aud?.silver?dot:''}Intermediate</button>
+            <button class="opt" data-divm="aud" data-aud="gold"   data-div-id="${esc(obj.id)}" type="button">${obj.aud?.gold?dot:''}Advanced</button>
           </div>
 
           <div class="group">
-            <button class="danger" data-divm="remove" data-div-id="${esc(obj.id)}">Remove</button>
+            <button class="danger" data-divm="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
           </div>
         </div>
-      </div>`:''}
+      </div>
+    ` : ''}
 
-    ${editable?`
+    ${editable ? `
       <div class="aud-line normal-hide">
         <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
         <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
         <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
-      </div>`:''}
+      </div>
+    ` : ''}
   `;
+
   return el;
 }
 
