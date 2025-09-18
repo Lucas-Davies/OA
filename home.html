@@ -6,1083 +6,647 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
-<!-- Google fonts for the rename dialog -->
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+<!-- Google fonts for rename dialog (optional) -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Raleway:wght@700;900&display=swap" rel="stylesheet">
 
 <style>
+/* ===== Design tokens ===== */
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --hero-pad:16px;
+  --gold:#ffd700; --silver:#c0c7d1;
+
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px;
+  --hero-pad:16px;
+  --btn-h:44px; --btn-bottom:14px; --chip-h:36px;
+
+  /* Overlays */
+  --z-overlay:12000;    /* topmost layer */
+  --z-nav:200;
 }
 
-/* Resets / base */
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{
-  height:100%; margin:0; background:var(--bg); color:var(--ink);
+/* ===== Reset / base ===== */
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent }
+html,body{ height:100% }
+html{ background:var(--bg) }
+body{
+  margin:0; color:var(--ink);
+  background:var(--bg);
   font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior-y:contain; overflow-x:hidden; user-select:none; -webkit-user-select:none;
 }
 a{ color:inherit; text-decoration:none }
-button{ user-select:none; -webkit-user-select:none; cursor:pointer }
-body.lock{ position:fixed; width:100% }
+button{ font:inherit; color:inherit; cursor:pointer; background:none; border:0 }
+img{ max-width:100%; display:block }
 
-/* Background */
-.bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat }
+.no-scroll{ overflow:hidden } /* applied when overlay is open */
+[hidden]{ display:none !important }
 
-/* Top bar */
+/* ===== Top nav ===== */
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h);
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:8px 12px; z-index:50;
-  background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
-  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; z-index:var(--z-nav);
+  background:linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,0));
+  backdrop-filter: blur(6px);
 }
-.title-tab{ font-weight:900; opacity:.92 }
-
-/* Avatar pill */
-.avatarTab{
-  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
-  padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
-  font-weight:900; line-height:1.1; text-align:left; border:1px solid var(--stroke);
-  background:#222; color:#eef3ff;
+.nav .left, .nav .right{ display:flex; align-items:center; gap:8px }
+.nav .title{ font:700 18px/1 Raleway,system-ui; letter-spacing:.3px }
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:40px; width:40px; border-radius:12px;
+  border:1px solid var(--stroke); background:rgba(255,255,255,.04);
 }
-.avatarTab .name{ font-size:15px; font-weight:900 }
-.avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
-
-/* Avatar drawer */
-#avatarSheet{
-  position:fixed; inset:0; z-index:80; display:none;
-  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
+.primary{
+  padding:0 14px; height:40px; border-radius:12px;
+  border:1px solid var(--stroke); background:rgba(255,255,255,.06);
 }
-#avatarSheet.open{ display:flex }
-#avatarCard{
-  margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
+
+/* ===== Page wrap ===== */
+.wrap{ position:relative; z-index:1; padding:calc(var(--nav-h) + 24px) 20px 80px; max-width:var(--maxw); margin:0 auto }
+
+/* ===== Section + row (hero carousel) ===== */
+.section{ margin-top:18px }
+.section-title{
+  display:flex; align-items:center; gap:10px;
+  margin:10px 2px; font:800 18px/1.2 Raleway,system-ui; letter-spacing:.2px
 }
-#avatarCard h3{ margin:0 0 12px; font-weight:900 }
-#avatarClose{ float:right; }
-
-/* Layout */
-.wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
-
-/* Sections: each divider gets its own hero row */
-.section{ margin:32px 0 }
-.section .divider{ margin-bottom:10px }
-
-/* Horizontal hero rows (carousels) */
-.section .grid{
-  display:grid;
-  grid-auto-flow:column;
-  grid-auto-columns:clamp(180px, 28vw, 280px); /* default M */
-  gap:var(--gap);
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  padding-bottom:10px;
+.section-title .aud{ font:700 11px/1 Oswald,system-ui; padding:7px 9px; border-radius:999px; border:1px solid var(--stroke); background:rgba(255,255,255,.04) }
+.row{
+  display:grid; grid-auto-flow:column; grid-auto-columns: clamp(160px, 30vw, 240px);
+  gap:12px; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; padding-bottom:6px;
 }
-.section .grid::-webkit-scrollbar{ display:none }
+.row::-webkit-scrollbar{ height:8px }
+.row::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:20px }
 
-/* Row sizing (applied per-heading) */
-.grid.size-xs{ grid-auto-columns:clamp(140px,22vw,200px) }
-.grid.size-s { grid-auto-columns:clamp(160px,25vw,240px) }
-.grid.size-m { grid-auto-columns:clamp(180px,28vw,280px) }
-.grid.size-l { grid-auto-columns:clamp(210px,32vw,320px) }
-.grid.size-xl{ grid-auto-columns:clamp(240px,36vw,380px) }
-
-/* Hero cards */
 .hero{
-  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-  border-radius:16px; padding:var(--hero-pad); aspect-ratio:1/1; scroll-snap-align:start;
+  position:relative; border-radius:16px; overflow:hidden; min-height:160px;
+  border:1px solid var(--stroke); background:rgba(255,255,255,.04);
+  display:flex; flex-direction:column; justify-content:flex-end;
+  scroll-snap-align:start;
 }
-.hero.devstate{ border:2px solid var(--blue) }
-
-/* Hero label */
-.hero .label{
-  font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
+.hero .meta{ padding:14px }
+.hero .title{ font-weight:800; letter-spacing:.2px }
+.hero .sub{ color:var(--ink-dim); font-size:13px; margin-top:4px }
+.hero .controls{
+  position:absolute; top:10px; right:10px; display:flex; gap:6px;
 }
-
-/* Kebab (shared) */
-.ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
-.kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
-.kebab-menu{
-  position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:210px; z-index:200; padding:6px;
+.kebab-btn, .chip-btn{
+  height:34px; min-width:34px; border-radius:10px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.35); display:inline-flex; align-items:center; justify-content:center; padding:0 10px;
 }
-.kebab-menu button{
-  background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
-}
-.kebab-menu button:hover{ background:#2a2f3a }
-.kebab-menu .group{ padding:4px 6px 8px 6px }
-.kebab-menu .title{ color:#fff; font-weight:900; padding:6px 8px 2px }
-.kebab-menu .opt{ display:flex; align-items:center; gap:8px; padding-left:18px }
-.kebab-menu .dot{
-  width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block;
-}
-.kebab-menu .danger{ color:#ff453a; font-weight:900; }
-
-/* Heading controls (arrows pinned on divider) */
-.divider .dctrls{ position:absolute; top:10px; right:54px; display:none; gap:6px; align-items:center }
-.config-on .divider .dctrls{ display:flex }
-
-/* Hero reorder arrows (Admin + Dev only) */
-.hero-arrows{
-  display:none;
-  position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  z-index:6; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-}
-.config-on .hero .hero-arrows{ display:flex }
-.hero-arrows .cfg-arrow{
-  width:32px; height:32px; border-radius:8px; border:1px solid var(--stroke);
-  background:#161922; color:#fff; font-weight:900; font-size:14px; line-height:1;
+.badge{
+  position:absolute; left:10px; top:10px; padding:6px 10px; border-radius:10px;
+  border:1px solid var(--stroke); background:rgba(0,0,0,.35); font-size:12px;
 }
 
-/* Status pill (normal mode) */
-.status-pill{
-  position:absolute; top:12px; right:12px; height:28px; padding:0 12px; border-radius:999px;
-  display:inline-flex; align-items:center; font-weight:900; z-index:4; border:1px solid rgba(255,255,255,.18)
+/* ===== Footer / archive strip ===== */
+.footer{
+  position:fixed; left:0; right:0; bottom:0;
+  display:flex; align-items:center; justify-content:center;
+  gap:10px; padding:10px; z-index:var(--z-nav);
+  background:linear-gradient(0deg, rgba(0,0,0,.7), rgba(0,0,0,0));
+  backdrop-filter: blur(6px);
 }
-.status-live{ background:#1c6b1c; color:#fff }
-.status-off{ background:#5a0d12; color:#fff }
-.status-dev{ background:var(--blue); color:#000; border-color:transparent }
-
-/* Buttons */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; min-width:120px; height:40px; padding:0 14px;
-  border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#ink
-}
-.btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
-.btn.grey{ background:#3a3a3a; color:#fff; border-color:var(--stroke) }
-
-/* CTA + audience */
-.cta-left{ position:absolute; left:16px; bottom:16px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:2 }
-.aud-line{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-.aud-chip{
-  height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
-  background:#141416; color:#fff; font-weight:800; font-size:12px; opacity:.9
-}
-.aud-chip.on{ opacity:1; filter:brightness(1.22) }
-.aud-chip.on::after{ content:" ✓"; font-weight:900 }
-.aud-chip.bronze{ box-shadow:inset 0 0 0 2px #b87333 }
-.aud-chip.silver{ box-shadow:inset 0 0 0 2px #c0c7d1 }
-.aud-chip.gold{   box-shadow:inset 0 0 0 2px #ffd700 }
-
-/* Divider (Heading) */
-.divider{
-  position:relative; border:1px dashed var(--stroke); border-radius:14px; background:#0b0d12;
-  padding:14px 16px 56px; min-height:58px; margin:18px 0;
-}
-.divider .htext{ font-weight:900; opacity:.92 }
-.divider .aud-line{ position:absolute; left:16px; bottom:14px }
-
-/* Compact headings in normal mode */
-:not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
-:not(.config-on) .divider .aud-line{ display:none }
-:not(.config-on) .divider .htext{ padding:0; margin:0 }
-
-/* Footer Dock (Developer only) */
-#archiveDock{
-  position:fixed; left:0; right:0; bottom:0; z-index:75; background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
-  transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain
-}
-#archiveDock .bar{
-  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; font-weight:900;
-  overflow-x:auto; white-space:nowrap
-}
-#archiveDock .bar::-webkit-scrollbar{ display:none }
-#archiveDock .title{ display:inline-flex; align-items:center; gap:8px }
-#archiveDock .content{ background:#160b0b; max-height:calc(60vh - 48px); overflow:auto }
-#archiveDock .list{ padding:8px 12px 16px; display:flex; flex-direction:column; gap:8px }
-#archiveDock .row{
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding:10px 12px; border:1px solid rgba(255,255,255,.28); background:#0d0d10; border-radius:10px
-}
-#archiveDock .row .num{ font-weight:900 }
-#archiveDock.collapsed{ max-height:48px }
-#archiveDock.open{ max-height:80vh }
-
-.footer-chip{
-  display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 12px; border-radius:999px;
-  border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:800
-}
-.footer-label{ opacity:.9; margin-left:10px; font-size:12px }
-
-/* Completed/In-Progress flags */
-.hero.completed{ border:2px solid #888 }
-.hero.inprogress{ border:2px solid var(--green) }
-
-/* Hero art layer */
-.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:16px }
-.hero .art img{
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
-  width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
-  filter:saturate(1.02) contrast(1.02) brightness(0.95);
-}
-.hero::after{
-  content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
-  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
-  z-index:1;
+.footer .chip{
+  height:36px; border-radius:999px; display:inline-flex; align-items:center; gap:8px; padding:0 12px;
+  border:1px solid var(--stroke); background:rgba(255,255,255,.06);
 }
 
-/* Hide editor-only bits when not in dev */
-.hide-when-normal{ display:none }
-.config-on .hide-when-normal{ display:flex }
+/* ===== Chips + dev indicators ===== */
+.dev-border{ outline:2px solid #0af; outline-offset:-2px }       /* DEV only (visible when dev mode) */
+.progress-border{ box-shadow:inset 0 0 0 2px var(--green) }      /* In-progress green border */
 
-/* In normal view hide audience line unless director-on-dev */
-.normal-hide{ display:none }
-.config-on .normal-hide{ display:flex }
+/* ===== Overlay system: single topmost layer ===== */
+.overlay-root{
+  position:fixed; inset:0; z-index:var(--z-overlay);
+  /* Do NOT transform this element or its ancestors */
+  pointer-events:none;               /* disabled until active */
+}
+.overlay-root.active{ pointer-events:auto }
 
-/* Edit dialog */
-#editDialog{
-  position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
-  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
-}
-#editDialog.open{ display:flex }
-#editPanel{
-  width:min(560px, 92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
-}
-#editPanel h3{ margin:0 0 10px; font-weight:900 }
-#editPanel .row{ display:flex; gap:10px; align-items:center; margin:10px 0; flex-wrap:wrap }
-#editPanel input[type="text"]{
-  flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
-}
-.palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
-.swatch{
-  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
-}
-.actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
-#fontControls{ display:flex; align-items:center; gap:8px }
-.fontBtn{
-  width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke);
-  background:#12141a; color:#fff; font-weight:900; font-size:16px;
-}
-#fontFamily{
-  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700
-}
-.preview{
-  width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
-}
-/* --- Layering & kebab fixes --- */
-
-/* Make sure sections/headings create a higher layer than hero controls */
-.section { position: relative; z-index: 0; }
-.divider { position: relative; z-index: 50; }   /* heading row above heroes */
-
-/* Hero control layer kept low so menus can always sit above */
-.hero { position: relative; z-index: 1; }
-.hero .hero-arrows { z-index: 3; }
-.hero .ctrls .kebab { z-index: 4; }
-
-/* Heading kebab + menu — very high, sits above everything */
-.divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
-.divider .ctrls .kebab { z-index: 9001; }
-
-.kebab-menu{
-  /* keeps your existing visual styles, just ensure it wins the stack */
-  z-index: 10000 !important;
-  box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+/* Backdrop that blocks interaction behind */
+.overlay-backdrop{
+  position:absolute; inset:0; background:rgba(0,0,0,.45);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
 
-/* Optional: prevent anything inside heroes from overlaying menus via pointer hacks */
-.hero .hero-arrows,
-.hero .ctrls { pointer-events: auto; }        /* normal */
-.kebab-menu{ pointer-events: auto; }          /* menu still clickable */
+/* Any floating window/dialog/menu is portaled here and absolutely/fixed positioned */
+.ui-window{
+  position:fixed; max-width:min(92vw, 520px); min-width:280px;
+  border-radius:16px; border:1px solid var(--stroke); background:rgba(12,14,18,.98);
+  box-shadow: 0 22px 60px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.08) inset;
+  overflow:hidden; z-index:calc(var(--z-overlay) + 1);
+  contain: layout paint; isolation:isolate; /* self-contained stacking */
+}
+.ui-window .win-head{ padding:14px 16px; font-weight:800; border-bottom:1px solid rgba(255,255,255,.12) }
+.ui-window .win-body{ padding:12px 16px }
+.ui-window .win-actions{ display:flex; justify-content:flex-end; gap:10px; padding:12px 16px; border-top:1px solid rgba(255,255,255,.12) }
+.ui-item{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px }
+.ui-item:active{ background:rgba(255,255,255,.06) }
 
+/* Kebab menu look (narrow) */
+.ui-menu{ min-width:240px; max-width: min(92vw, 360px) }
+
+/* Drawer variant (templates/archive) */
+.ui-drawer{
+  position:fixed; left:0; right:0; bottom:0; max-width:none; min-width:0; border-radius:16px 16px 0 0;
+}
+
+/* Defensive: ensure normal page pieces never beat overlay */
+.header, .nav, .chip, .hero, .settings-bar, .footer, .section-title { z-index:auto }
+
+/* Simple icons */
+.i{ font-weight:900; font-family:system-ui, -apple-system, "SF Pro"; }
+.i.kebab::before{ content:"⋯" }
+.i.close::before{ content:"✕" }
+.i.play::before{ content:"►" }
+.i.more::before{ content:"▾" }
+.i.cog::before{ content:"⚙" }
+.i.folder::before{ content:"🗂" }
+.i.templates::before{ content:"📑" }
+.i.star::before{ content:"★" }
+.i.share::before{ content:"⇪" }
+.i.hide::before{ content:"🚫" }
+.i.role::before{ content:"🎚" }
+.i.view::before{ content:"👁" }
+.i.admin::before{ content:"🛡" }
+
+/* Role chips */
+.role-chip{
+  height:34px; border-radius:999px; border:1px solid var(--stroke);
+  display:inline-flex; align-items:center; gap:8px; padding:0 12px; background:rgba(255,255,255,.06); font-size:13px;
+}
+
+/* Accessibility helpers */
+.visually-hidden{ position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap }
 </style>
 </head>
+<body>
 
-<body ontouchstart="">
-<div class="bg" aria-hidden="true"></div>
-
-<header class="nav" role="navigation" aria-label="Primary">
-  <div class="nav-left"><span class="title-tab">Courses</span></div>
-  <div class="nav-right">
-    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
-      <span class="name" id="avatarName">User</span>
-      <span class="lvl" id="avatarLvl">Admin</span>
+<!-- ===== Top Nav ===== -->
+<nav class="nav" aria-label="Top navigation">
+  <div class="left">
+    <button class="primary" id="btnMenu" aria-haspopup="menu" aria-controls="mainMenu">
+      <span class="i more" aria-hidden="true"></span>&nbsp; Menu
+    </button>
+    <div class="title">Fine Arts Online Academy</div>
+  </div>
+  <div class="right">
+    <button class="icon-btn" id="btnRole" aria-haspopup="menu" title="Change level/view">
+      <span class="i role" aria-hidden="true"></span>
+      <span class="visually-hidden">Change level</span>
+    </button>
+    <button class="icon-btn" id="btnSettings" aria-haspopup="dialog" title="Settings">
+      <span class="i cog" aria-hidden="true"></span>
+      <span class="visually-hidden">Settings</span>
     </button>
   </div>
-</header>
+</nav>
 
-<main class="wrap">
-  <!-- JS will build .section blocks here -->
-  <div id="pageGrid"></div>
+<!-- ===== Content ===== -->
+<main class="wrap" id="main">
+  <section class="section">
+    <div class="section-title">
+      <div>Continue learning</div>
+      <div class="aud">All levels</div>
+    </div>
+    <div class="row" id="rowContinue">
+      <!-- Sample hero cards -->
+      <article class="hero progress-border" data-id="c1">
+        <div class="badge">Course 1</div>
+        <div class="controls">
+          <button class="kebab-btn" aria-label="More options" data-kebab-for="c1"><span class="i kebab"></span></button>
+        </div>
+        <div class="meta">
+          <div class="title">Gesture Essentials</div>
+          <div class="sub">12/30 complete</div>
+        </div>
+      </article>
+
+      <article class="hero" data-id="c2">
+        <div class="badge">Course 2</div>
+        <div class="controls">
+          <button class="kebab-btn" aria-label="More options" data-kebab-for="c2"><span class="i kebab"></span></button>
+        </div>
+        <div class="meta">
+          <div class="title">Charcoal Portraits</div>
+          <div class="sub">Start now</div>
+        </div>
+      </article>
+
+      <article class="hero" data-id="c3">
+        <div class="badge">Course 3</div>
+        <div class="controls">
+          <button class="kebab-btn" aria-label="More options" data-kebab-for="c3"><span class="i kebab"></span></button>
+        </div>
+        <div class="meta">
+          <div class="title">Ink & Movement</div>
+          <div class="sub">New</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">
+      <div>Recommended for you</div>
+      <div class="aud">Beginner • Intermediate</div>
+    </div>
+    <div class="row" id="rowRecs">
+      <article class="hero" data-id="r1">
+        <div class="badge">Beginner</div>
+        <div class="controls"><button class="kebab-btn" aria-label="More options" data-kebab-for="r1"><span class="i kebab"></span></button></div>
+        <div class="meta"><div class="title">Edges & Shapes</div><div class="sub">Quick study</div></div>
+      </article>
+      <article class="hero" data-id="r2">
+        <div class="badge">Intermediate</div>
+        <div class="controls"><button class="kebab-btn" aria-label="More options" data-kebab-for="r2"><span class="i kebab"></span></button></div>
+        <div class="meta"><div class="title">Dynamic Lines</div><div class="sub">Try next</div></div>
+      </article>
+      <article class="hero" data-id="r3">
+        <div class="badge">Advanced</div>
+        <div class="controls"><button class="kebab-btn" aria-label="More options" data-kebab-for="r3"><span class="i kebab"></span></button></div>
+        <div class="meta"><div class="title">Mixed Media Flow</div><div class="sub">Workshop</div></div>
+      </article>
+    </div>
+  </section>
 </main>
 
-<!-- Avatar Drawer -->
-<div id="avatarSheet" aria-hidden="true">
-  <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
-    <button id="avatarClose" class="footer-chip" type="button">Close</button>
-    <h3 id="avatarTitle">Profile</h3>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div><strong>Name:</strong> <span id="drawerName">User</span></div>
-      <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
-      <div class="hide-when-normal" style="gap:8px;display:flex">
-        <button id="drawerToggleDev" class="footer-chip" type="button">Toggle Developer</button>
-      </div>
-    </div>
+<!-- ===== Footer chips (Archive label clickable + Templates drawer) ===== -->
+<footer class="footer" aria-label="Footer">
+  <button class="chip" id="btnArchive"><span class="i folder"></span> Archive</button>
+  <button class="chip" id="btnTemplates"><span class="i templates"></span> Templates</button>
+  <span class="chip" id="chipDevToggle" data-dev="off" title="Developer tools (toggle)">DEV</span>
+</footer>
+
+<!-- ===== Overlay Root (THE ONLY place windows live) ===== -->
+<div id="overlay" class="overlay-root" hidden aria-hidden="true">
+  <div class="overlay-backdrop" id="overlayBackdrop"></div>
+  <!-- Portaled windows land here -->
+</div>
+
+<!-- ===== TEMPLATES: Windows/Dialogs/Menus (will be portaled) ===== -->
+
+<!-- Main menu -->
+<div id="mainMenu" class="ui-window ui-menu" data-window data-role="menu" hidden>
+  <div class="win-head">Menu</div>
+  <div class="win-body">
+    <div class="ui-item"><span class="i play"></span> Continue</div>
+    <div class="ui-item"><span class="i star"></span> Favourites</div>
+  </div>
+  <div class="win-actions">
+    <button class="primary" data-close>Close</button>
   </div>
 </div>
 
-<!-- Edit Dialog -->
-<div id="editDialog" aria-modal="true" role="dialog">
-  <div id="editPanel" role="document">
-    <h3 id="editTitle">Edit</h3>
-
-    <div class="row">
-      <input id="editText" type="text" placeholder="Title">
-    </div>
-
-    <div class="row">
-      <div style="font-weight:800">Colour:</div>
-      <div class="palette" id="editPalette"></div>
-    </div>
-
-    <div class="row" id="fontControls">
-      <div style="font-weight:800">Font:</div>
-      <select id="fontFamily">
-        <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
-        <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
-        <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
-        <option value="'Comic Neue','Comic Sans MS',cursive">Comic Neue</option>
-        <option value="'Pacifico',cursive">Pacifico</option>
-        <option value="'Bangers',cursive">Bangers</option>
-        <option value="'Lobster',cursive">Lobster</option>
-        <option value="'Oswald',Arial,sans-serif">Oswald</option>
-        <option value="'Raleway',Arial,sans-serif">Raleway</option>
-      </select>
-      <button class="fontBtn" id="fontDown" type="button" aria-label="Decrease font size">A–</button>
-      <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
-      <span id="fontSizeLabel" style="opacity:.9;min-width:48px;text-align:right"></span>
-    </div>
-
-    <div class="row">
-      <div class="preview" id="editPreview">Preview</div>
-    </div>
-
-    <div class="actions">
-      <button class="footer-chip" id="editCancel">Cancel</button>
-      <button class="footer-chip" id="editSave">Save</button>
-    </div>
+<!-- Role/View menu (Beginner..Admin) -->
+<div id="roleMenu" class="ui-window ui-menu" data-window data-role="menu" hidden>
+  <div class="win-head">Level & View</div>
+  <div class="win-body" id="roleList">
+    <!-- populated by JS -->
+  </div>
+  <div class="win-actions">
+    <button class="primary" data-close>Done</button>
   </div>
 </div>
 
-<!-- Footer Dock (Developer only) -->
-<div id="archiveDock" class="collapsed" aria-hidden="true">
-  <div class="bar">
-    <div class="title">
-      <span id="archiveTitle">Developer Mode</span>
-      <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
-      <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
-    </div>
-
-    <div class="title" style="gap:12px">
-      <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
-    </div>
+<!-- Settings dialog -->
+<div id="settingsDialog" class="ui-window" data-window role="dialog" aria-modal="true" hidden>
+  <div class="win-head">Settings</div>
+  <div class="win-body">
+    <label style="display:block; margin-bottom:8px">
+      <span>Reduced motion</span>
+      <input type="checkbox" id="reducedMotion">
+    </label>
+    <label style="display:block; margin-bottom:8px">
+      <span>High contrast chips</span>
+      <input type="checkbox" id="highContrast">
+    </label>
   </div>
-
-  <div class="content">
-    <div class="list" id="archiveList"></div>
+  <div class="win-actions">
+    <button data-close>Close</button>
   </div>
+</div>
+
+<!-- Templates drawer -->
+<div id="templatesDrawer" class="ui-window ui-drawer" data-window hidden>
+  <div class="win-head">Templates</div>
+  <div class="win-body">
+    <p>Starter templates coming soon: course card, challenge, weekly drops.</p>
+  </div>
+  <div class="win-actions">
+    <button data-close>Close</button>
+  </div>
+</div>
+
+<!-- Archive (opens a simple dialog for now) -->
+<div id="archiveDialog" class="ui-window" data-window role="dialog" aria-modal="true" hidden>
+  <div class="win-head">Archive</div>
+  <div class="win-body">
+    <p>Previously featured content lives here offline.</p>
+  </div>
+  <div class="win-actions">
+    <button data-close>Close</button>
+  </div>
+</div>
+
+<!-- Kebab menu template (reused for each card) -->
+<div id="kebabMenuTpl" class="ui-window ui-menu" data-window hidden>
+  <div class="win-head">Card options</div>
+  <div class="win-body">
+    <div class="ui-item" data-act="continue"><span class="i play"></span> Continue</div>
+    <div class="ui-item" data-act="fav"><span class="i star"></span> Add to Favourites</div>
+    <div class="ui-item" data-act="share"><span class="i share"></span> Share</div>
+    <div class="ui-item" data-act="hide"><span class="i hide"></span> Hide</div>
+  </div>
+  <div class="win-actions"><button data-close>Close</button></div>
 </div>
 
 <script>
-(()=>{'use strict';
+/* ================================
+   FAOA Window Manager (no bleed)
+   ================================ */
+(() => {
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 
-/* =========================
-   Utils / storage
-========================= */
-const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
-const store={
-  get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } },
-  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
-};
-const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=5;
+  const overlay = $("#overlay");
+  const backdrop = $("#overlayBackdrop");
+  const main = $("#main") || document.body;
 
-/* Escape */
-const esc=s=>String(s??'')
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  let openStack = [];           // track windows for focus restore
+  let lastFocus = null;
 
-/* =========================
-   Roles
-========================= */
-const ROLE_MAP = { beginner:'bronze', intermediate:'silver', advanced:'gold' };
-const ROLE_LABEL = {
-  bronze:'Beginner', silver:'Intermediate', gold:'Advanced',
-  support:'Support', director:'Director', admin:'Admin'
-};
-function normalizeRole(r){ r=String(r||'').toLowerCase(); return ROLE_MAP[r] || r; }
-function baseRole(){
-  const p = store.get(K.profile, { skill:'admin', displayName:'User' });
-  return normalizeRole(p.skill || 'admin');
-}
-function getRole(){ return baseRole(); }
-function isAdmin(){ return getRole()==='admin'; }
-function isDirector(){ return getRole()==='director'; }
-function isSupport(){ return getRole()==='support'; }
-function devModeOn(){ return document.body.classList.contains('config-on'); }
-function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
-function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
+  // ---- Portal any [data-window] into overlay on init
+  const windows = $$("[data-window]");
+  windows.forEach(w => overlay.appendChild(w));
 
-/* =========================
-   Settings + seed
-========================= */
-function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
-function defaults(){
-  const heroFlags={}, pageOrder=[];
-  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}};
-  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}};
-  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}};
-  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
-  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
-  pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
-}
-function sanitize(cfg){
-  let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
-  c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
-  c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
-  for(let i=1;i<=50;i++){
-    const id=`co-${i}`;
-    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
-  }
-  c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
-  Object.keys(c.heroFlags).forEach(id=>{
-    if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){
-      c.pageOrder.push({type:'hero', id});
-    }
-  });
-  return c;
-}
-function loadSettings(){
-  const ver = Number(store.get(K.schemaVer, 0))||0;
-  const raw = store.get(K.settings, null);
-  const s = sanitize(raw);
-  if(ver!==SCHEMA_VERSION){ store.set(K.settings, s); store.set(K.schemaVer, SCHEMA_VERSION); }
-  return s;
-}
-let S = loadSettings();
-function getSettings(){ return S; }
-function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
-
-/* =========================
-   Avatar
-========================= */
-function paintAvatar(){
-  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
-  $('#avatarName').textContent = p.displayName || 'User';
-  const role=getRole();
-  $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
-  $('#drawerName').textContent = p.displayName || 'User';
-  $('#drawerRole').textContent = ROLE_LABEL[role] || role;
-}
-paintAvatar();
-
-/* Drawer wiring */
-(function wireAvatarDrawer(){
-  const avatarBtn = $('#avatarTab');
-  const sheet = $('#avatarSheet');
-  const closeBtn = $('#avatarClose');
-  const toggleDev = $('#drawerToggleDev');
-
-  function openDrawer(){
-    sheet.classList.add('open');
-    sheet.setAttribute('aria-hidden','false');
-    avatarBtn.setAttribute('aria-expanded','true');
-    lockBody();
-  }
-  function closeDrawer(){
-    sheet.classList.remove('open');
-    sheet.setAttribute('aria-hidden','true');
-    avatarBtn.setAttribute('aria-expanded','false');
-    unlockBody();
-  }
-  avatarBtn?.addEventListener('click', openDrawer, {passive:true});
-  closeBtn?.addEventListener('click', closeDrawer, {passive:true});
-  sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
-  toggleDev?.addEventListener('click', ()=>{
-    if(!isAdmin()) return;
-    document.body.classList.toggle('config-on');
-    updateFooterModeControls(); paintPage(); paintArchive();
-  }, {passive:true});
-})();
-
-/* =========================
-   Label helpers
-========================= */
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
-function styleFor(id){
-  const st=(getSettings().heroStyle||{})[id]||{};
-  return {
-    color: st.labelColor || '',
-    font:  st.labelFont  || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif",
-    size:  Number(st.labelSize||18)
+  // ---- Global open/close API
+  window.UI = {
+    open(win, opts={}){ openWindow(win, opts); },
+    close(win){ closeWindow(win); },
+    closeAll(){ while(openStack.length) closeWindow(openStack[openStack.length-1]); }
   };
-}
 
-/* =========================
-   Edit dialog (text+color+font)
-========================= */
-const paletteColors = [
-  '#eef3ff','#cfd3e1','#ffffff','#000000','#808080',
-  '#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333',
-  '#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'
-];
+  function ensureOverlayActive(){
+    if (overlay.hidden){
+      overlay.hidden = false;
+      overlay.classList.add("active");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("no-scroll");
+      setInert(true);
+      // Interactions that should close when clicking outside
+      backdrop.addEventListener("click", onBackdrop, { once:false });
+      document.addEventListener("keydown", onKey, { once:false });
+      lastFocus = document.activeElement;
+    }
+  }
+  function maybeDeactivateOverlay(){
+    if (!openStack.length){
+      overlay.classList.remove("active");
+      overlay.hidden = true;
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("no-scroll");
+      backdrop.removeEventListener("click", onBackdrop);
+      document.removeEventListener("keydown", onKey);
+      setInert(false);
+      if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+      lastFocus = null;
+    }
+  }
 
-let editCtx=null;
-let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  // Position a window (menu near trigger; dialog centered; drawer at bottom)
+  function place(win, opts){
+    const kindDrawer = win.classList.contains("ui-drawer");
+    const menu = win.classList.contains("ui-menu");
+    const pad = 10;
 
-function applyPreview(){
-  const pv = $('#editPreview');
-  pv.style.color = liveColor||'';
-  pv.style.fontFamily = liveFamily;
-  pv.style.fontSize = liveFont+'px';
-  pv.textContent = $('#editText').value || 'Preview';
-  $('#fontSizeLabel').textContent = liveFont+'px';
-}
+    if (kindDrawer){
+      win.style.left = "0"; win.style.right = "0";
+      win.style.bottom = "0"; win.style.top = "auto";
+      return;
+    }
 
-function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif"){
-  editCtx = ctx;
-  $('#editTitle').textContent = (ctx.type==='hero'?'Edit Hero':'Edit Heading');
-  $('#editText').value = currentText||'';
+    if (menu && opts.anchorRect){
+      const r = opts.anchorRect;
+      const vpW = window.innerWidth, vpH = window.innerHeight;
+      const approxW = Math.min(360, Math.max(240, vpW*0.6));
+      const approxH = 240;
+      let x = Math.min(vpW - pad - approxW, Math.max(pad, r.right - 4));
+      let y = Math.min(vpH - pad - approxH, Math.max(pad, r.bottom + 8));
+      win.style.left = x + "px";
+      win.style.top  = y + "px";
+    } else {
+      // centered dialog
+      const vpW = window.innerWidth, vpH = window.innerHeight;
+      win.style.left = Math.max(pad, (vpW - win.offsetWidth)/2) + "px";
+      win.style.top  = Math.max(pad, (vpH - win.offsetHeight)/2) + "px";
+    }
+  }
 
-  const pal = $('#editPalette'); pal.innerHTML='';
-  paletteColors.forEach(col=>{
-    const b=document.createElement('button');
-    b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
-    b.addEventListener('click',()=>{ liveColor=col; applyPreview(); }, {passive:true});
-    pal.appendChild(b);
+  function trapFocus(win){
+    // Very small focus trap: cycle within win
+    const focusables = $$("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])", win)
+      .filter(el => !el.hasAttribute("disabled"));
+    if (focusables.length) focusables[0].focus();
+    function onKeyTrap(e){
+      if (e.key !== "Tab") return;
+      const first = focusables[0], last = focusables[focusables.length-1];
+      if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+    win._trap = onKeyTrap;
+    win.addEventListener("keydown", onKeyTrap);
+  }
+
+  function untrapFocus(win){
+    if (win._trap) win.removeEventListener("keydown", win._trap);
+    delete win._trap;
+  }
+
+  function openWindow(winOrId, opts={}){
+    const win = typeof winOrId === "string" ? $("#"+winOrId) : winOrId;
+    if (!win) return;
+    ensureOverlayActive();
+    win.hidden = false;
+    win.style.display = "block";
+    // initial offscreen to measure
+    win.style.left = "-9999px"; win.style.top = "-9999px";
+    // after paint, place precisely
+    requestAnimationFrame(() => place(win, opts));
+    trapFocus(win);
+    openStack.push(win);
+    // close buttons
+    $$("[data-close]", win).forEach(btn => btn.addEventListener("click", () => closeWindow(win), { once:true }));
+  }
+
+  function closeWindow(win){
+    if (!win || win.hidden) return;
+    untrapFocus(win);
+    win.hidden = true;
+    win.style.display = "none";
+    openStack = openStack.filter(w => w !== win);
+    maybeDeactivateOverlay();
+  }
+
+  function onBackdrop(e){
+    // Close top-most window only
+    const top = openStack[openStack.length-1];
+    if (top) closeWindow(top);
+  }
+  function onKey(e){
+    if (e.key === "Escape"){
+      const top = openStack[openStack.length-1];
+      if (top) closeWindow(top);
+    }
+  }
+
+  // Make background inert (fallback)
+  function setInert(isInert){
+    if ('inert' in HTMLElement.prototype){
+      [...document.body.children].forEach(el => { if (el !== overlay) el.inert = isInert; });
+    } else {
+      if (isInert){ main.setAttribute("aria-hidden","true"); }
+      else { main.removeAttribute("aria-hidden"); }
+    }
+  }
+
+  /* ===== Wire buttons/menus ===== */
+  $("#btnMenu")?.addEventListener("click", (e)=>{
+    const rect = e.currentTarget.getBoundingClientRect();
+    UI.open("mainMenu", { anchorRect: rect });
   });
 
-  liveFont = Math.max(10, Math.min(64, Number(currentSize||18)));
-  liveColor = currentColor || '';
-  liveFamily = currentFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-  $('#fontFamily').value = liveFamily;
+  $("#btnSettings")?.addEventListener("click", ()=> UI.open("settingsDialog"));
 
-  $('#fontFamily').onchange = ()=>{ liveFamily = $('#fontFamily').value; applyPreview(); };
-  $('#fontUp').onclick   = ()=>{ liveFont = Math.min(64, liveFont+1); applyPreview(); };
-  $('#fontDown').onclick = ()=>{ liveFont = Math.max(10, liveFont-1); applyPreview(); };
+  // Templates + Archive drawers/dialogs
+  $("#btnTemplates")?.addEventListener("click", ()=> UI.open("templatesDrawer"));
+  $("#btnArchive")?.addEventListener("click", ()=> UI.open("archiveDialog"));
 
-  applyPreview();
-  $('#editDialog').classList.add('open');
-}
-function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; }
-$('#editCancel').addEventListener('click', closeEditDialog);
-$('#editDialog').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeEditDialog(); }, {passive:true});
-$('#editSave').addEventListener('click', ()=>{
-  if(!editCtx) return;
-  const s=getSettings();
-  const text = $('#editText').value.trim();
-
-  if(editCtx.type==='hero'){
-    if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
-    s.heroStyle = s.heroStyle || {};
-    s.heroStyle[editCtx.id] = {
-      ...(s.heroStyle[editCtx.id]||{}),
-      labelColor: liveColor,
-      labelSize:  liveFont,
-      labelFont:  liveFamily
-    };
-  }else{
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
-    if(idx>=0){
-      s.pageOrder[idx].title = text || 'Heading';
-      s.pageOrder[idx].color = liveColor || '';
-      s.pageOrder[idx].fontSize = liveFont;
-      s.pageOrder[idx].fontFamily = liveFamily;
-    }
-  }
-  saveSettings(s);
-  paintPage(); paintArchive();
-  closeEditDialog();
-});
-
-/* =========================
-   DOM builders
-========================= */
-function heroCard(id){
-  const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
-
-  const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
-  const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
-  const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
-  const devOn = devModeOn();
-
-  const showStatusPill = (!devOn) && canSeeStatusPill();
-  const statusPill = showStatusPill ? 
-    `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
-      ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
-     </span>` : '';
-
-  const canAdminDev = isAdmin() && devOn;
-
-  const st = styleFor(id);
-  const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
-
-  const el=document.createElement('article'); 
-  el.className='hero'; 
-  el.dataset.heroId=id; 
-  el.dataset.place=f.place;
-  if(f.state==='dev') el.classList.add('devstate');
-
-  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
-
-  const kebabHTML = canAdminDev ? `
-    <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-    <div class="kebab-menu">
-      <button data-menu="rename">Rename</button>
-      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
-      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
-      <button data-menu="photo">Photo</button>
-    </div>` : '';
-
-  el.innerHTML = `
-    ${artLayer}
-    ${statusPill}
-    ${canAdminDev ? `
-      <div class="hero-arrows">
-        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
-        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
-      </div>` : ``}
-
-    <span class="label"${labelInline}>${esc(labelFor(id))}</span>
-
-    <div class="ctrls">
-      ${kebabHTML}
-    </div>
-
-    <div class="cta-left">
-      <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
-        ${completed?'Complete':(inprogress?'In Progress':'Start')}
-      </button>
-      ${canAdminDev ? `
-        <div class="aud-line">
-          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
-          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
-          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
-        </div>` : ``}
-    </div>
-  `;
-
-  if(completed) el.classList.add('completed');
-  else if(inprogress) el.classList.add('inprogress');
-
-  if(art && art.crop){
-    const img = el.querySelector('.art img');
-    if(img){
-      const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
-      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
-    }
-  }
-  return el;
-}
-
-/* Divider (Heading) builder with kebab — matches updated kebab CSS */
-function dividerEl(obj){
-  const editable   = isAdmin() && devModeOn();
-  const color      = obj.color || '';
-  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-  const fontSize   = Number(obj.fontSize || 22);
-  const inline     = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
-
-  const size = (obj.rowSize || 'm'); // xs, s, m, l, xl
-  const dot  = '<span class="dot" aria-hidden="true"></span>';
-
-  const el = document.createElement('div');
-  el.className = 'divider';
-  el.dataset.type = 'divider';
-  el.dataset.divId = obj.id;
-
-  el.innerHTML = `
-    <span class="htext" ${inline}>${esc(obj.title || 'Heading')}</span>
-
-    ${editable ? `
-      <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button>
-      </div>
-
-      <div class="ctrls">
-        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">⋮</button>
-        <div class="kebab-menu div-menu" role="menu">
-          <div class="group">
-            <div class="title">Customise</div>
-            <button class="opt" data-divm="rename" data-div-id="${esc(obj.id)}" type="button">Rename</button>
-          </div>
-
-          <div class="group">
-            <div class="title">Size</div>
-            <button class="opt" data-divm="size" data-size="xs" data-div-id="${esc(obj.id)}" type="button">${size==='xs'?dot:''}Extra Small</button>
-            <button class="opt" data-divm="size" data-size="s"  data-div-id="${esc(obj.id)}" type="button">${size==='s'?dot:''}Small</button>
-            <button class="opt" data-divm="size" data-size="m"  data-div-id="${esc(obj.id)}" type="button">${size==='m'?dot:''}Medium</button>
-            <button class="opt" data-divm="size" data-size="l"  data-div-id="${esc(obj.id)}" type="button">${size==='l'?dot:''}Large</button>
-            <button class="opt" data-divm="size" data-size="xl" data-div-id="${esc(obj.id)}" type="button">${size==='xl'?dot:''}Extra Large</button>
-          </div>
-
-          <div class="group">
-            <div class="title">Audience</div>
-            <button class="opt" data-divm="aud" data-aud="bronze" data-div-id="${esc(obj.id)}" type="button">${obj.aud?.bronze?dot:''}Beginner</button>
-            <button class="opt" data-divm="aud" data-aud="silver" data-div-id="${esc(obj.id)}" type="button">${obj.aud?.silver?dot:''}Intermediate</button>
-            <button class="opt" data-divm="aud" data-aud="gold"   data-div-id="${esc(obj.id)}" type="button">${obj.aud?.gold?dot:''}Advanced</button>
-          </div>
-
-          <div class="group">
-            <button class="danger" data-divm="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
-          </div>
-        </div>
-      </div>
-    ` : ''}
-
-    ${editable ? `
-      <div class="aud-line normal-hide">
-        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
-        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
-        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
-      </div>
-    ` : ''}
-  `;
-
-  return el;
-}
-
-/* =========================
-   Paint page + archive
-========================= */
-function paintPage(){
-  const root = $('#pageGrid');
-  if(!root) return;
-  root.innerHTML = '';
-
-  const s = getSettings();
-  const role = getRole();
-  const staff = seesAll();
-
-  function startSection(divObj){
-    if(divObj && !staff){
-      const aud = divObj.aud || {bronze:true,silver:true,gold:true};
-      if(!aud[role]) return null;
-    }
-    const sec = document.createElement('section');
-    sec.className = 'section';
-    if(divObj) sec.appendChild(dividerEl(divObj));
-    const row = document.createElement('div');
-    row.className = 'grid';
-
-    // apply size from divider if present
-    const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
-    row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
-
-    sec.appendChild(row);
-    root.appendChild(sec);
-    return {sec, row};
-  }
-
-  let currentRow = null;
-
-  for(const it of s.pageOrder){
-    if(it.type === 'divider'){
-      const started = startSection(it);
-      currentRow = started ? started.row : null;
-      continue;
-    }
-    if(it.type === 'hero'){
-      const id = it.id;
-      const f = s.heroFlags[id];
-      if(!f || f.place!=='page') continue;
-
-      if(!staff){
-        if(f.state!=='live') continue;
-        if(!f.aud[role]) continue;
-      }
-
-      if(!currentRow){
-        const started = startSection(null);
-        currentRow = started ? started.row : null;
-        if(!currentRow) continue;
-      }
-
-      const card = heroCard(id);
-      if(card) currentRow.appendChild(card);
-    }
-  }
-
-  // Clean empty nameless sections
-  $$('#pageGrid .section').forEach(sec=>{
-    const row = sec.querySelector('.grid');
-    const hasHeroes = row && row.children.length>0;
-    const hasDivider = !!sec.querySelector('.divider');
-    if(!hasHeroes && !hasDivider){ sec.remove(); }
+  // Kebab per card: reuse the kebab template
+  const kebabTpl = $("#kebabMenuTpl");
+  document.addEventListener("click", (e)=>{
+    const btn = e.target.closest("[data-kebab-for]");
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    UI.open(kebabTpl, { anchorRect: rect });
   });
-}
 
-const dock=$('#archiveDock'), archiveList=$('#archiveList');
-function applyArchiveVisibility(){
-  if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
-  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
-}
-function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
-function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
-
-function paintArchive(){
-  const s=getSettings(); const flags=s.heroFlags;
-  archiveList.innerHTML='';
-  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
-    .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
-  items.forEach(([id,f])=>{
-    const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
-    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML = `<span class="num">${esc(labelFor(id))}</span>
-    ${(isAdmin() && devModeOn())?`<div style="display:flex;gap:8px;align-items:center">
-      <button class="footer-chip" data-act="move" type="button">Move to Page</button>
-      <button class="footer-chip" data-act="toggle" type="button">${esc(statusLabel)}</button>
-    </div>`:`<div></div>`}`;
-    archiveList.appendChild(row);
+  kebabTpl.addEventListener("click", (e)=>{
+    const item = e.target.closest("[data-act]");
+    if (!item) return;
+    const act = item.getAttribute("data-act");
+    console.log("kebab action:", act);
+    UI.close(kebabTpl);
   });
-}
 
-/* =========================
-   Lock helpers
-========================= */
-let savedScrollY=0;
-function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
-function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
+  /* ===== Role / View logic ===== */
+  const ROLES = ["beginner","intermediate","advanced","support","director","admin"];
+  const store = {
+    get(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch{ return d } },
+    set(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
+  };
+  const K = { profile:"faoa_profile", viewAs:"faoa_view_as", dev:"faoa_dev" };
 
-/* =========================
-   Subsheet
-========================= */
-const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
-function openSubSheet(title,url){
-  if(!url){ alert('401 — Not linked yet'); return; }
-  if(sheetTitle) sheetTitle.textContent=title;
-  if(subFrame) subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
-  if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); }
-  lockBody();
-}
-
-/* =========================
-   Boot
-========================= */
-applyArchiveVisibility(); 
-applyArchiveSkin();
-paintArchive();
-paintPage();
-updateFooterModeControls();
-
-/* =========================
-   Footer & global handlers
-========================= */
-$('#archiveToggle').addEventListener('click',()=>{
-  const isOpen=dock.classList.contains('open');
-  dock.classList.toggle('open', !isOpen);
-  dock.classList.toggle('collapsed', isOpen);
-  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
-  if(!isOpen) lockBody(); else unlockBody();
-});
-
-$('#devToggle').addEventListener('click', ()=>{
-  if(!isAdmin()) return;
-  document.body.classList.toggle('config-on');
-  updateFooterModeControls(); paintPage(); paintArchive();
-});
-
-function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
-$('#addHeadingBtn').addEventListener('click',()=>{
-  if(!(isAdmin() && devModeOn())) return;
-  const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, rowSize:'m'});
-  saveSettings(s); paintPage();
-});
-
-/* =========================
-   Delegated clicks (page)
-========================= */
-document.addEventListener('click',(e)=>{
-  /* Enter */
-  const enter = e.target.closest('[data-act="enter"]');
-  if(enter){
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
-    const n=Number(((id||'').match(/\d+/)||[])[0]||0);
-    const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
-    openSubSheet(labelFor(id), url); return;
+  function baseRole(){
+    const p = store.get(K.profile, { skill:"beginner", displayName:"User" });
+    return (p.skill || "beginner").toLowerCase();
+  }
+  function viewOverride(){ return (store.get(K.viewAs, "") || "").toLowerCase(); }
+  function getRole(){
+    const override = viewOverride();
+    // If dev toggle is ON, allow view-as; else use base
+    const devOn = store.get(K.dev, false);
+    if (devOn && override) return override;
+    return baseRole();
   }
 
-  /* Divider kebab toggle */
-  const divKebab = e.target.closest('.div-kebab');
-  if(divKebab){
-    const menu=divKebab.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
-    return;
+  // Populate role menu
+  const roleList = $("#roleList");
+  function renderRoleMenu(){
+    roleList.innerHTML = "";
+    ROLES.forEach(r=>{
+      const btn = document.createElement("button");
+      btn.className = "ui-item";
+      btn.type = "button";
+      btn.dataset.role = r;
+      let label = r.charAt(0).toUpperCase() + r.slice(1);
+      btn.innerHTML = `<span class="i view"></span> ${label}`;
+      btn.addEventListener("click", ()=>{
+        // Admin gate: require code 7931
+        if (r === "admin"){
+          gateAdmin().then(ok=>{
+            if (ok){ store.set(K.viewAs, r); UI.close("roleMenu"); refreshRoleChip(); }
+          });
+        } else {
+          store.set(K.viewAs, r);
+          UI.close("roleMenu"); refreshRoleChip();
+        }
+      });
+      roleList.appendChild(btn);
+    });
+  }
+  async function gateAdmin(){
+    // Simple passcode prompt window (uses existing overlay)
+    const ask = document.createElement("div");
+    ask.className = "ui-window";
+    ask.setAttribute("data-window","");
+    ask.innerHTML = `
+      <div class="win-head">Admin code</div>
+      <div class="win-body">
+        <p>Enter the admin code to switch to Admin. Wrong code will revert to Bronze.</p>
+        <input id="adminCode" type="password" placeholder="4-digit code" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--stroke); background:#0b0e13; color:var(--ink)">
+      </div>
+      <div class="win-actions">
+        <button data-close>Skip</button>
+        <button id="adminSubmit" class="primary">Enter</button>
+      </div>`;
+    overlay.appendChild(ask);
+    return new Promise(resolve=>{
+      UI.open(ask);
+      ask.querySelector("#adminSubmit").addEventListener("click", ()=>{
+        const val = (ask.querySelector("#adminCode").value || "").trim();
+        const ok = (val === "7931");
+        if (!ok){ store.set(K.viewAs,"beginner"); }
+        UI.close(ask);
+        ask.remove();
+        resolve(ok);
+      }, { once:true });
+      ask.querySelector("[data-close]").addEventListener("click", ()=>{
+        store.set(K.viewAs,"beginner"); UI.close(ask); ask.remove(); resolve(false);
+      }, { once:true });
+    });
   }
 
-  /* Hero kebab toggle */
-  const keb = e.target.closest('.kebab:not(.div-kebab)');
-  if(keb){
-    const menu=keb.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
-    return;
-  }
-  if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
-
-  /* Divider kebab actions */
-  const dmb = e.target.closest('.div-menu button');
-  if(dmb){
-    if(!(isAdmin() && devModeOn())) return;
-    const s=getSettings();
-    const id=dmb.getAttribute('data-div-id');
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    const obj=s.pageOrder[idx];
-
-    const kind = dmb.dataset.divm;
-    if(kind==='rename'){
-      openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
-      return;
-    }
-    if(kind==='size'){
-      const size=dmb.dataset.size||'m';
-      if(!confirm(`Apply ${size.toUpperCase()} size to heroes under "${obj.title||'Heading'}"?`)) return;
-      obj.rowSize=size;
-      saveSettings(s); paintPage();
-      return;
-    }
-    if(kind==='aud'){
-      const key=dmb.dataset.aud;
-      const next=!obj.aud?.[key];
-      if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
-      obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
-      saveSettings(s); paintPage();
-      return;
-    }
-    if(kind==='remove'){
-      if(!confirm('Remove this heading?')) return;
-      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
-      return;
-    }
+  function refreshRoleChip(){
+    const role = getRole();
+    const chip = $("#btnRole");
+    chip.title = "Level: " + role;
   }
 
-  /* Divider tools (arrow + inline chips for audience kept for dev view) */
-  const divAct = e.target.dataset.divAct;
-  if(divAct){
-    if(!(isAdmin() && devModeOn())) return;
-    const id = e.target.dataset.divId;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    if(divAct==='up' || divAct==='down'){
-      const dir = (divAct==='up') ? -1 : 1;
-      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-      if (to !== idx) {
-        const obj = s.pageOrder.splice(idx,1)[0];
-        s.pageOrder.splice(to,0,obj);
-        saveSettings(s); paintPage();
-      }
-      return;
-    }
+  // DEV toggle in footer
+  const devChip = $("#chipDevToggle");
+  function syncDevChip(){
+    const on = !!store.get(K.dev, false);
+    devChip.dataset.dev = on ? "on" : "off";
+    devChip.textContent = on ? "DEV ON" : "DEV";
+    document.body.classList.toggle("dev-on", on);
   }
+  devChip.addEventListener("click", ()=>{
+    const on = !!store.get(K.dev, false);
+    store.set(K.dev, !on); syncDevChip();
+  });
 
-  /* Audience chips (divider inline) */
-  const divAud = e.target.closest('[data-div-aud]');
-  if(divAud){
-    if(!(isAdmin() && devModeOn())) return;
-    const key = divAud.getAttribute('data-div-aud');
-    const id  = divAud.getAttribute('data-div-id');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    const obj=s.pageOrder[idx];
-    const next=!obj.aud?.[key];
-    if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
-    obj.aud={...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
-    saveSettings(s); paintPage();
-    return;
-  }
+  $("#btnRole").addEventListener("click", (e)=>{
+    renderRoleMenu();
+    const rect = e.currentTarget.getBoundingClientRect();
+    UI.open("roleMenu", { anchorRect: rect });
+  });
 
-  /* Hero kebab actions (Admin + Dev) */
-  const menuBtn = e.target.closest('.kebab-menu button:not(.div-menu button)');
-  if(menuBtn && !menuBtn.closest('.div-menu')){
-    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    if(!(isAdmin() && devModeOn())) return;
-
-    const act = menuBtn.dataset.menu;
-    if(act==='rename'){
-      const st = styleFor(id);
-      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
-    }else if(act==='move'){
-      const dest = (f.place==='page') ? 'archive' : 'page';
-      if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
-      s.heroFlags[id]={...f, place:dest};
-      if(dest==='page'){
-        if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
-      }else{
-        s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
-      }
-      saveSettings(s); paintPage(); paintArchive();
-    }else if(act==='toggle'){
-      const order=['live','off','dev'];
-      const ni=(order.indexOf(f.state)+1)%order.length;
-      s.heroFlags[id]={...f, state:order[ni]};
-      saveSettings(s); paintPage(); paintArchive();
-    }else if(act==='photo'){
-      const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
-      s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-      saveSettings(s); paintPage();
-    }
-    return;
-  }
-
-  /* Audience hero chips (Admin+Dev only) */
-  const audBtn=e.target.closest('[data-aud]');
-  if(audBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
-    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
-  }
-
-  /* Reorder heroes */
-  const sortBtn = e.target.closest('.cfg-arrow');
-  if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
-    if(!(isAdmin() && devModeOn())) return;
-    const key = sortBtn.dataset.key;
-    const s=getSettings();
-    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-    const from = keys.indexOf(key); if(from<0) return;
-    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
-    const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
-    if(to!==from){
-      const objFrom = s.pageOrder.splice(from,1)[0];
-      s.pageOrder.splice(to,0,objFrom);
-      saveSettings(s); paintPage();
-    }
-    return;
-  }
-
-  /* Archive list actions */
-  const actToggle = e.target.closest('#archiveList [data-act="toggle"]');
-  const actMove = e.target.closest('#archiveList [data-act="move"]');
-  if(actToggle || actMove){
-    if(!(isAdmin() && devModeOn())) return;
-    const row = e.target.closest('.row'); const id=row.dataset.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    if(actToggle){
-      const order=['live','off','dev'];
-      const ni=(order.indexOf(f.state)+1)%order.length;
-      s.heroFlags[id]={...f, state:order[ni]};
-    }else if(actMove){
-      s.heroFlags[id]={...f, place:'page'};
-      if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
-    }
-    saveSettings(s); paintPage(); paintArchive();
-  }
-}, {passive:false});
+  // Init
+  syncDevChip();
+  refreshRoleChip();
 
 })();
 </script>
