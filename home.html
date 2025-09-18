@@ -626,13 +626,12 @@ function heroCard(id){
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
-  const devOn = devModeOn();
 
-	const devOn = devModeOn();
-	// No status pill for anyone (regular learners see nothing)
-	const statusPill = '';
-
+  const devOn = devModeOn();                 // ← declare once
   const canAdminDev = isAdmin() && devOn;
+
+  // No status pill for anyone
+  const statusPill = '';
 
   const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
@@ -641,14 +640,13 @@ function heroCard(id){
   el.className='hero'; 
   el.dataset.heroId=id; 
   el.dataset.place=f.place;
-  
+
   // Staff (admin/director/support) get a coloured border instead of a pill
-if (seesAll()) {
-  if      (f.state==='live') el.classList.add('state-live');
-  else if (f.state==='dev')  el.classList.add('state-dev');
-  else                       el.classList.add('state-off');
-}
-  if(f.state==='dev') el.classList.add('devstate');
+  if (seesAll()) {
+    if      (f.state==='live') el.classList.add('state-live');
+    else if (f.state==='dev')  el.classList.add('state-dev');
+    else                       el.classList.add('state-off');
+  }
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
 
