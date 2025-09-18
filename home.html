@@ -70,18 +70,24 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal hero rows (carousels)  — now variable via CSS vars per-row */
+/* Horizontal hero rows (carousels) */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  /* Defaults (Medium) — can be overridden per section via inline --min/--vw/--max */
-  grid-auto-columns: clamp(var(--min,180px), var(--vw,28vw), var(--max,280px));
+  grid-auto-columns:clamp(180px, 28vw, 280px); /* default (m) */
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   padding-bottom:10px;
 }
 .section .grid::-webkit-scrollbar{ display:none }
+
+/* Grid size modifiers (controlled by divider kebab) */
+.section .grid.grid-xs{ grid-auto-columns:clamp(140px, 22vw, 220px) }
+.section .grid.grid-s { grid-auto-columns:clamp(170px, 26vw, 260px) }
+.section .grid.grid-m { grid-auto-columns:clamp(180px, 28vw, 280px) } /* default */
+.section .grid.grid-l { grid-auto-columns:clamp(220px, 34vw, 340px) }
+.section .grid.grid-xl{ grid-auto-columns:clamp(260px, 40vw, 400px) }
 
 /* Hero cards */
 .hero{
@@ -95,17 +101,25 @@ body.lock{ position:fixed; width:100% }
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* Kebab (admin+dev on heroes) */
+/* Kebab (used by heroes AND dividers) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 .kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:170px; z-index:20; padding:6px;
+  display:none; flex-direction:column; min-width:180px; z-index:20; padding:6px;
 }
 .kebab-menu button{
-  background:none; border:none; color:#fff; padding:8px 10px; text-align:left; font-weight:700; cursor:pointer; border-radius:8px;
+  background:none; border:none; color:#fff; padding:8px 12px; text-align:left; font-weight:700; cursor:pointer; border-radius:8px;
 }
 .kebab-menu button:hover{ background:#2a2f3a }
+.kebab-menu .title{
+  font-weight:900; opacity:.9; padding:6px 10px 4px; pointer-events:none;
+}
+.kebab-menu hr{
+  border:0; border-top:1px solid rgba(255,255,255,.14); margin:6px 4px;
+}
+.kebab-menu button.selected{ color:var(--blue) }
+.kebab-menu button.danger{ color:var(--red) }
 
 /* Hero reorder arrows (Admin + Dev only) */
 .hero-arrows{
@@ -157,10 +171,19 @@ body.lock{ position:fixed; width:100% }
 .divider .htext{ font-weight:900; opacity:.92 }
 .divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
-.divider .aud-line{ display:none } /* de-clutter: audience moves into kebab */
+.divider .aud-line{ position:absolute; left:16px; bottom:14px }
+
+/* Put the divider pencil beside ▲ ▼; remove lives in kebab */
+.divider .dctrls .cfg-pin{
+  position:static; width:auto; height:34px; padding:0 12px; border-radius:999px;
+}
+
+/* Divider kebab (admin+dev only) */
+.divider .dctrls .kebab{ width:32px; height:32px }
 
 /* Compact headings in normal mode */
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
+:not(.config-on) .divider .aud-line{ display:none }
 :not(.config-on) .divider .htext{ padding:0; margin:0 }
 
 /* Footer Dock (Developer only) */
@@ -230,7 +253,9 @@ body.lock{ position:fixed; width:100% }
   flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
 }
 .palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
-.swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer; }
+.swatch{
+  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
+}
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
 #fontControls{ display:flex; align-items:center; gap:8px }
 .fontBtn{
@@ -557,44 +582,7 @@ $('#editSave').addEventListener('click', ()=>{
 });
 
 /* =========================
-   Divider builder (with kebab)
-========================= */
-function dividerEl(obj){
-  const editable = isAdmin() && devModeOn();
-  const color = obj.color || '';
-  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-  const fontSize = Number(obj.fontSize || 22);
-  const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
-  const size = obj.headingSize || 'm';
-
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`
-    <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
-    ${editable?`
-      <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
-        <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
-
-        <div style="position:relative">
-          <button class="kebab d-kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-          <div class="kebab-menu d-menu">
-            <button data-div-menu="edit" data-div-id="${esc(obj.id)}">Rename / Style</button>
-            <button data-div-size="s" data-div-id="${esc(obj.id)}">${size==='s'?'✓ ':''}Size: Small</button>
-            <button data-div-size="m" data-div-id="${esc(obj.id)}">${size==='m'?'✓ ':''}Size: Medium</button>
-            <button data-div-size="l" data-div-id="${esc(obj.id)}">${size==='l'?'✓ ':''}Size: Large</button>
-            <button data-div-aud-toggle="bronze" data-div-id="${esc(obj.id)}">${obj.aud?.bronze!==false?'✓ ':'✗ '}Audience: Beginner</button>
-            <button data-div-aud-toggle="silver" data-div-id="${esc(obj.id)}">${obj.aud?.silver!==false?'✓ ':'✗ '}Audience: Intermediate</button>
-            <button data-div-aud-toggle="gold"   data-div-id="${esc(obj.id)}">${obj.aud?.gold  !==false?'✓ ':'✗ '}Audience: Advanced</button>
-          </div>
-        </div>
-      </div>`:''}
-  `;
-  return el;
-}
-
-/* =========================
-   Hero cards
+   DOM builders
 ========================= */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
@@ -626,7 +614,8 @@ function heroCard(id){
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
-      <button data-menu="rename">Rename</button>
+      <div class="title">Hero</div>
+      <button data-menu="rename">Rename / Style</button>
       <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
       <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
       <button data-menu="photo">Photo</button>
@@ -673,15 +662,51 @@ function heroCard(id){
   return el;
 }
 
+function dividerEl(obj){
+  const editable = isAdmin() && devModeOn();
+  const color = obj.color || '';
+  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  const fontSize = Number(obj.fontSize || 22);
+  const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
+  const size = obj.size || 'm';
+
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  el.innerHTML=`
+    <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
+    ${editable?`
+      <div class="dctrls">
+        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
+        <button class="footer-chip cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
+        <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+        <div class="kebab-menu">
+          <div class="title">Size</div>
+          <button data-div-size="xs" class="${size==='xs'?'selected':''}">Extra Small</button>
+          <button data-div-size="s"  class="${size==='s' ?'selected':''}">Small</button>
+          <button data-div-size="m"  class="${size==='m' ?'selected':''}">Medium</button>
+          <button data-div-size="l"  class="${size==='l' ?'selected':''}">Large</button>
+          <button data-div-size="xl" class="${size==='xl'?'selected':''}">Extra Large</button>
+          <div class="title">Audience</div>
+          <button data-div-aud="bronze" class="${obj.aud?.bronze?'selected':''}">Beginner</button>
+          <button data-div-aud="silver" class="${obj.aud?.silver?'selected':''}">Intermediate</button>
+          <button data-div-aud="gold"   class="${obj.aud?.gold  ?'selected':''}">Advanced</button>
+          <hr>
+          <button class="danger" data-div-remove="${esc(obj.id)}">Remove</button>
+        </div>
+      </div>`:''}
+    ${editable?`
+      <div class="aud-line">
+        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
+        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
+        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
+      </div>`:''}
+  `;
+  return el;
+}
+
 /* =========================
    Paint page + archive
 ========================= */
-function sizePreset(sz){
-  if(sz==='s') return {min:'160px', vw:'24vw', max:'240px'};
-  if(sz==='l') return {min:'220px', vw:'34vw', max:'340px'};
-  return {min:'180px', vw:'28vw', max:'280px'}; // m default
-}
-
 function paintPage(){
   const root = $('#pageGrid');
   if(!root) return;
@@ -701,27 +726,20 @@ function paintPage(){
     if(divObj) sec.appendChild(dividerEl(divObj));
     const row = document.createElement('div');
     row.className = 'grid';
-
-    // apply size from heading (defaults to m)
-    const sz = divObj?.headingSize || 'm';
-    const p = sizePreset(sz);
-    row.style.setProperty('--min', p.min);
-    row.style.setProperty('--vw',  p.vw);
-    row.style.setProperty('--max', p.max);
-
+    /* Apply size from divider (xs/s/m/l/xl), default m */
+    const sizeClass = 'grid-' + ((divObj && divObj.size) ? divObj.size : 'm');
+    row.classList.add(sizeClass);
     sec.appendChild(row);
     root.appendChild(sec);
     return {sec, row};
   }
 
   let currentRow = null;
-  let currentHeading = null;
 
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
       const started = startSection(it);
       currentRow = started ? started.row : null;
-      currentHeading = started ? it : null;
       continue;
     }
     if(it.type === 'hero'){
@@ -737,7 +755,6 @@ function paintPage(){
       if(!currentRow){
         const started = startSection(null);
         currentRow = started ? started.row : null;
-        currentHeading = null;
         if(!currentRow) continue;
       }
 
@@ -831,7 +848,7 @@ function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, headingSize:'m'});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, size:'m'});
   saveSettings(s); paintPage();
 });
 
@@ -848,55 +865,131 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider kebab open/close */
-  const dk = e.target.closest('.d-kebab');
-  if(dk){
-    const menu = dk.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
+  /* Divider pencil (Admin + Dev) */
+  const pinDiv = e.target.closest('[data-div-pencil]');
+  if(pinDiv){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=pinDiv.getAttribute('data-div-pencil');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    const obj = s.pageOrder[idx]||{};
+    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
     return;
   }
-  /* Generic kebab open/close for heroes */
-  const keb = e.target.closest('.kebab:not(.d-kebab)');
+
+  /* Any kebab open/close */
+  const keb = e.target.closest('.kebab');
   if(keb){
     const menu=keb.nextElementSibling;
-    const open = menu.style.display==='flex';
+    const open = menu && menu.style.display==='flex';
     $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
+    if(menu){ menu.style.display = open ? 'none' : 'flex'; }
     return;
   }
   if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
 
-  /* Divider kebab actions */
-  const divMenuBtn = e.target.closest('.d-menu button');
-  if(divMenuBtn){
+  /* Hero kebab actions (Admin + Dev) */
+  const menuBtn = e.target.closest('.hero .kebab-menu button');
+  if(menuBtn){
     if(!(isAdmin() && devModeOn())) return;
-    const s=getSettings();
-    const id = divMenuBtn.dataset.divId;
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
+    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    const act = menuBtn.dataset.menu;
+    if(act==='rename'){
+      const st = styleFor(id);
+      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
+    }else if(act==='move'){
+      const dest = (f.place==='page') ? 'archive' : 'page';
+      if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
+      s.heroFlags[id]={...f, place:dest};
+      if(dest==='page'){
+        if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
+      }else{
+        s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
+      }
+      saveSettings(s); paintPage(); paintArchive();
+    }else if(act==='toggle'){
+      if(!confirm(`Change status for ${labelFor(id)}?`)) return;
+      const order=['live','off','dev'];
+      const ni=(order.indexOf(f.state)+1)%order.length;
+      s.heroFlags[id]={...f, state:order[ni]};
+      saveSettings(s); paintPage(); paintArchive();
+    }else if(act==='photo'){
+      const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
+      s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
+      saveSettings(s); paintPage();
+    }
+    return;
+  }
 
-    if(divMenuBtn.dataset.divMenu==='edit'){
-      const obj = s.pageOrder[idx]||{};
-      openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
+  /* Divider kebab actions (Admin + Dev) */
+  const dMenuBtn = e.target.closest('.divider .kebab-menu button');
+  if(dMenuBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const wrap = dMenuBtn.closest('.divider');
+    const divId = wrap?.dataset?.divId;
+    if(!divId) return;
+    const s=getSettings();
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===divId);
+    if(idx<0) return;
+    const obj=s.pageOrder[idx];
+
+    if(dMenuBtn.dataset.divSize){
+      const next = dMenuBtn.dataset.divSize; // xs/s/m/l/xl
+      if(obj.size!==next){
+        if(!confirm(`Change card size for "${obj.title||'Heading'}" to ${{
+          xs:'Extra Small', s:'Small', m:'Medium', l:'Large', xl:'Extra Large'
+        }[next]}?`)) return;
+        obj.size = next;
+        s.pageOrder[idx]=obj; saveSettings(s); paintPage();
+      }
       return;
     }
-    if(divMenuBtn.dataset.divSize){
-      s.pageOrder[idx].headingSize = divMenuBtn.dataset.divSize; // 's' | 'm' | 'l'
-      saveSettings(s); paintPage(); return;
+    if(dMenuBtn.dataset.divAud){
+      const key = dMenuBtn.dataset.divAud; // bronze/silver/gold
+      const aud = obj.aud || (obj.aud={bronze:true,silver:true,gold:true});
+      const nextVal = !aud[key];
+      if(!confirm(`${nextVal?'Allow':'Disallow'} ${key==='bronze'?'Beginner':key==='silver'?'Intermediate':'Advanced'} for "${obj.title||'Heading'}"?`)) return;
+      aud[key]=nextVal; obj.aud=aud; s.pageOrder[idx]=obj; saveSettings(s); paintPage();
+      return;
     }
-    if(divMenuBtn.dataset.divAudToggle){
-      const key = divMenuBtn.dataset.divAudToggle;
-      const obj = s.pageOrder[idx];
-      obj.aud = obj.aud || {bronze:true,silver:true,gold:true};
-      obj.aud[key] = !obj.aud[key];
-      saveSettings(s); paintPage();
+    if(dMenuBtn.dataset.divRemove){
+      if(confirm('Remove this heading?')){
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      }
       return;
     }
   }
 
-  /* Divider chips (▲ ▼ Remove) */
+  /* Audience hero chips (Admin+Dev only) */
+  const audBtn=e.target.closest('[data-aud]');
+  if(audBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
+    const s=getSettings(); const f=s.heroFlags[id];
+    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
+    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
+    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
+  }
+
+  /* Reorder heroes/dividers */
+  const sortBtn = e.target.closest('.cfg-arrow');
+  if(sortBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const key = sortBtn.dataset.key; // hero:co-1 or div:div_xxx
+    const s=getSettings();
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf(key); if(from<0) return;
+    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
+    const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
+    if(to!==from){
+      const objFrom = s.pageOrder.splice(from,1)[0];
+      s.pageOrder.splice(to,0,objFrom);
+      saveSettings(s); paintPage();
+    }
+    return;
+  }
+
+  /* Divider tools from non-kebab buttons (arrows only now) */
   const divAct = e.target.dataset.divAct;
   if(divAct){
     if(!(isAdmin() && devModeOn())) return;
@@ -914,75 +1007,6 @@ document.addEventListener('click',(e)=>{
       }
       return;
     }
-    if(divAct==='remove'){
-      if(confirm('Remove this heading?')){
-        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
-      }
-      return;
-    }
-  }
-
-  /* Hero kebab actions (Admin + Dev) */
-  const menuBtn = e.target.closest('.kebab-menu button:not(.d-menu button)');
-  if(menuBtn){
-    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    if(!(isAdmin() && devModeOn())) return;
-
-    const act = menuBtn.dataset.menu;
-    if(act==='rename'){
-      const st = styleFor(id);
-      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
-    }else if(act==='move'){
-      const dest = (f.place==='page') ? 'archive' : 'page';
-      if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
-      s.heroFlags[id]={...f, place:dest};
-      if(dest==='page'){
-        if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
-      }else{
-        s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
-      }
-      saveSettings(s); paintPage(); paintArchive();
-    }else if(act==='toggle'){
-      const order=['live','off','dev'];
-      const ni=(order.indexOf(f.state)+1)%order.length;
-      s.heroFlags[id]={...f, state:order[ni]};
-      saveSettings(s); paintPage(); paintArchive();
-    }else if(act==='photo'){
-      const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
-      s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-      saveSettings(s); paintPage();
-    }
-    return;
-  }
-
-  /* Audience hero chips (Admin+Dev only) */
-  const audBtn=e.target.closest('[data-aud]');
-  if(audBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
-    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
-  }
-
-  /* Reorder heroes */
-  const sortBtn = e.target.closest('.cfg-arrow');
-  if(sortBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const key = sortBtn.dataset.key; // hero:co-1
-    const s=getSettings();
-    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-    const from = keys.indexOf(key); if(from<0) return;
-    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
-    const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
-    if(to!==from){
-      const objFrom = s.pageOrder.splice(from,1)[0];
-      s.pageOrder.splice(to,0,objFrom);
-      saveSettings(s); paintPage();
-    }
-    return;
   }
 
   /* Archive list actions */
