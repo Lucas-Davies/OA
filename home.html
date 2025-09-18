@@ -6,7 +6,6 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
-<!-- Google fonts for the rename dialog -->
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -41,7 +40,7 @@ body.lock{ position:fixed; width:100% }
 }
 .title-tab{ font-weight:900; opacity:.92 }
 
-/* Avatar pill (unchanged) */
+/* Avatar pill */
 .avatarTab{
   display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
   padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
@@ -51,7 +50,7 @@ body.lock{ position:fixed; width:100% }
 .avatarTab .name{ font-size:15px; font-weight:900 }
 .avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
 
-/* Avatar drawer (unchanged) */
+/* Avatar drawer */
 #avatarSheet{
   position:fixed; inset:0; z-index:80; display:none;
   background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
@@ -70,25 +69,22 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
-/* Grid default (overridable per-divider size) */
+/* Horizontal hero rows (carousels) */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  /* default "m" below; per-divider overrides via data-size */
-  grid-auto-columns:clamp(180px, 28vw, 280px);
+  grid-auto-columns:var(--col-size, clamp(180px, 28vw, 280px));
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   padding-bottom:10px;
 }
+.section .grid.xs { --col-size: clamp(160px, 22vw, 220px); }
+.section .grid.s  { --col-size: clamp(180px, 26vw, 260px); }
+.section .grid.m  { --col-size: clamp(200px, 30vw, 300px); }
+.section .grid.l  { --col-size: clamp(240px, 35vw, 360px); }
+.section .grid.xl { --col-size: clamp(280px, 40vw, 420px); }
 .section .grid::-webkit-scrollbar{ display:none }
-
-/* Per-divider size overrides */
-.section[data-size="xs"] .grid{ grid-auto-columns:clamp(140px,22vw,220px) }
-.section[data-size="s"]  .grid{ grid-auto-columns:clamp(170px,26vw,260px) }
-.section[data-size="m"]  .grid{ grid-auto-columns:clamp(180px,28vw,280px) } /* default */
-.section[data-size="l"]  .grid{ grid-auto-columns:clamp(220px,34vw,340px) }
-.section[data-size="xl"] .grid{ grid-auto-columns:clamp(260px,40vw,420px) }
 
 /* Hero cards */
 .hero{
@@ -102,29 +98,19 @@ body.lock{ position:fixed; width:100% }
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* Kebab (heroes) */
+/* Kebab (admin+dev on heroes & headings) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
-.kebab,.div-kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
-.kebab-menu,.div-kebab-menu{
+.kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
+.kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:220px; z-index:20; padding:8px;
+  display:none; flex-direction:column; min-width:220px; z-index:200; padding:8px;
 }
-.kebab-menu button,.div-kebab-menu button{
-  background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
-}
-.kebab-menu button:hover,.div-kebab-menu button:hover{ background:#2a2f3a }
-.div-kebab-menu .group-heading{
-  color:#fff; font-weight:900; opacity:.95; padding:8px 12px 6px; cursor:default;
-}
-.div-kebab-menu .item{
-  display:flex; align-items:center; gap:8px; padding-left:22px; /* indent */
-}
-.div-kebab-menu .item .dot{
-  width:8px; height:8px; border-radius:50%; background:transparent; border:1px solid rgba(255,255,255,.4);
-}
-.div-kebab-menu .item.active .dot{ background:var(--green); border-color:var(--green) }
-.div-kebab-menu .danger{ color:#ff453a; font-weight:900; margin-top:6px }
-.div-kebab-wrap{ position:relative; }
+.kebab-menu .title{ font-weight:900; color:#fff; margin:6px 8px 4px }
+.kebab-menu .opt{ background:none; border:none; text-align:left; padding:6px 12px; border-radius:8px; font-weight:800; color:#0A84FF }
+.kebab-menu .opt .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:transparent; margin-right:8px }
+.kebab-menu .opt.active .dot{ background:#32d74b }
+.kebab-menu .opt.danger{ color:#ff453a }
+.kebab-menu .opt:hover{ background:#2a2f3a }
 
 /* Hero reorder arrows (Admin + Dev only) */
 .hero-arrows{
@@ -155,7 +141,7 @@ body.lock{ position:fixed; width:100% }
 .btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
 .btn.grey{ background:#3a3a3a; color:#fff; border-color:var(--stroke) }
 
-/* CTA + audience (heroes only) */
+/* CTA + audience */
 .cta-left{ position:absolute; left:16px; bottom:16px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:2 }
 .aud-line{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
 .aud-chip{
@@ -171,13 +157,48 @@ body.lock{ position:fixed; width:100% }
 /* Divider (Heading) */
 .divider{
   position:relative; border:1px dashed var(--stroke); border-radius:14px; background:#0b0d12;
-  padding:14px 16px 12px; min-height:58px; margin:18px 0;
+  padding:14px 16px 56px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
-.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center }
+.divider .dctrls{ position:absolute; top:10px; right:56px; display:none; gap:6px; align-items:center } /* leave space for kebab */
 .config-on .divider .dctrls{ display:flex }
+.divider .aud-line{ position:absolute; left:16px; bottom:14px }
 
-/* Keep ▲ ▼ buttons visible in dev; remove-into-kebab so no remove chip here */
+/* Divider kebab (size/audience/rename/remove) */
+.divider .kebab{ position:absolute; top:10px; right:10px }
+.config-on .divider .kebab{ display:inline-flex }
+:not(.config-on) .divider .kebab{ display:none }
+
+/* Put the divider pencil beside ▲ ▼ Remove */
+.divider .dctrls .cfg-pin{ position:static; width:auto; height:34px; padding:0 12px; border-radius:999px; }
+
+/* Compact headings in normal mode */
+:not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
+:not(.config-on) .divider .aud-line{ display:none }
+:not(.config-on) .divider .htext{ padding:0; margin:0 }
+
+/* Footer Dock (Developer only) */
+#archiveDock{
+  position:fixed; left:0; right:0; bottom:0; z-index:75;
+  background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
+  transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain;
+}
+#archiveDock .bar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; font-weight:900;
+  overflow-x:auto; white-space:nowrap;
+}
+#archiveDock .bar::-webkit-scrollbar{ display:none }
+#archiveDock .title{ display:inline-flex; align-items:center; gap:8px }
+#archiveDock .content{ background:#160b0b; max-height:calc(60vh - 48px); overflow:auto }
+#archiveDock .list{ padding:8px 12px 16px; display:flex; flex-direction:column; gap:8px }
+#archiveDock .row{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 12px; border:1px solid rgba(255,255,255,.28); background:#0d0d10; border-radius:10px
+}
+#archiveDock .row .num{ font-weight:900 }
+#archiveDock.collapsed{ max-height:48px }
+#archiveDock.open{ max-height:80vh }
+
 .footer-chip{
   display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 12px; border-radius:999px;
   border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:800
@@ -205,6 +226,10 @@ body.lock{ position:fixed; width:100% }
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
 
+/* In normal view hide audience line unless director-on-dev */
+.normal-hide{ display:none }
+.config-on .normal-hide{ display:flex }
+
 /* Edit dialog */
 #editDialog{
   position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
@@ -223,16 +248,9 @@ body.lock{ position:fixed; width:100% }
 .swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer; }
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
 #fontControls{ display:flex; align-items:center; gap:8px }
-.fontBtn{
-  width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke);
-  background:#12141a; color:#fff; font-weight:900; font-size:16px;
-}
-#fontFamily{
-  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700
-}
-.preview{
-  width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
-}
+.fontBtn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#12141a; color:#fff; font-weight:900; font-size:16px; }
+#fontFamily{ background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700 }
+.preview{ width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900 }
 </style>
 </head>
 
@@ -272,16 +290,11 @@ body.lock{ position:fixed; width:100% }
 <div id="editDialog" aria-modal="true" role="dialog">
   <div id="editPanel" role="document">
     <h3 id="editTitle">Edit</h3>
-
-    <div class="row">
-      <input id="editText" type="text" placeholder="Title">
-    </div>
-
+    <div class="row"><input id="editText" type="text" placeholder="Title"></div>
     <div class="row">
       <div style="font-weight:800">Colour:</div>
       <div class="palette" id="editPalette"></div>
     </div>
-
     <div class="row" id="fontControls">
       <div style="font-weight:800">Font:</div>
       <select id="fontFamily">
@@ -299,11 +312,7 @@ body.lock{ position:fixed; width:100% }
       <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
       <span id="fontSizeLabel" style="opacity:.9;min-width:48px;text-align:right"></span>
     </div>
-
-    <div class="row">
-      <div class="preview" id="editPreview">Preview</div>
-    </div>
-
+    <div class="row"><div class="preview" id="editPreview">Preview</div></div>
     <div class="actions">
       <button class="footer-chip" id="editCancel">Cancel</button>
       <button class="footer-chip" id="editSave">Save</button>
@@ -311,7 +320,7 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 
-<!-- Footer Dock (Developer only) -->
+<!-- Footer Dock -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
     <div class="title">
@@ -319,15 +328,11 @@ body.lock{ position:fixed; width:100% }
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
-
     <div class="title" style="gap:12px">
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
-
-  <div class="content">
-    <div class="list" id="archiveList"></div>
-  </div>
+  <div class="content"><div class="list" id="archiveList"></div></div>
 </div>
 
 <script>
@@ -343,7 +348,7 @@ const store={
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=4;
+const SCHEMA_VERSION=5;
 
 /* Escape */
 const esc=s=>String(s??'')
@@ -359,16 +364,12 @@ const ROLE_LABEL = {
   support:'Support', director:'Director', admin:'Admin'
 };
 function normalizeRole(r){ r=String(r||'').toLowerCase(); return ROLE_MAP[r] || r; }
-function baseRole(){
-  const p = store.get(K.profile, { skill:'admin', displayName:'User' });
-  return normalizeRole(p.skill || 'admin');
-}
+function baseRole(){ const p = store.get(K.profile, { skill:'admin', displayName:'User' }); return normalizeRole(p.skill || 'admin'); }
 function getRole(){ return baseRole(); }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function isSupport(){ return getRole()==='support'; }
 function devModeOn(){ return document.body.classList.contains('config-on'); }
-function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
 function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 
@@ -384,12 +385,13 @@ function defaults(){
   heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
   for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
   pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
+  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true, dividerSize:{} };
 }
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
+  c.dividerSize=c.dividerSize||{};
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
@@ -433,18 +435,8 @@ paintAvatar();
   const closeBtn = $('#avatarClose');
   const toggleDev = $('#drawerToggleDev');
 
-  function openDrawer(){
-    sheet.classList.add('open');
-    sheet.setAttribute('aria-hidden','false');
-    avatarBtn.setAttribute('aria-expanded','true');
-    lockBody();
-  }
-  function closeDrawer(){
-    sheet.classList.remove('open');
-    sheet.setAttribute('aria-hidden','true');
-    avatarBtn.setAttribute('aria-expanded','false');
-    unlockBody();
-  }
+  function openDrawer(){ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); lockBody(); }
+  function closeDrawer(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); unlockBody(); }
   avatarBtn?.addEventListener('click', openDrawer, {passive:true});
   closeBtn?.addEventListener('click', closeDrawer, {passive:true});
   sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
@@ -471,11 +463,7 @@ function styleFor(id){
 /* =========================
    Edit dialog (text+color+font)
 ========================= */
-const paletteColors = [
-  '#eef3ff','#cfd3e1','#ffffff','#000000','#808080',
-  '#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333',
-  '#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'
-];
+const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
 
 let editCtx=null;
 let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
@@ -525,12 +513,7 @@ $('#editSave').addEventListener('click', ()=>{
   if(editCtx.type==='hero'){
     if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
     s.heroStyle = s.heroStyle || {};
-    s.heroStyle[editCtx.id] = {
-      ...(s.heroStyle[editCtx.id]||{}),
-      labelColor: liveColor,
-      labelSize:  liveFont,
-      labelFont:  liveFamily
-    };
+    s.heroStyle[editCtx.id] = { ...(s.heroStyle[editCtx.id]||{}), labelColor: liveColor, labelSize:  liveFont, labelFont:  liveFamily };
   }else{
     const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
     if(idx>=0){
@@ -578,10 +561,11 @@ function heroCard(id){
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
-      <button data-menu="rename">Rename</button>
-      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
-      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
-      <button data-menu="photo">Photo</button>
+      <div class="title">Customise</div>
+      <button class="opt" data-menu="rename">Rename</button>
+      <button class="opt" data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
+      <button class="opt" data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
+      <button class="opt" data-menu="photo">Photo</button>
     </div>` : '';
 
   el.innerHTML = `
@@ -595,9 +579,7 @@ function heroCard(id){
 
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
 
-    <div class="ctrls">
-      ${kebabHTML}
-    </div>
+    <div class="ctrls">${kebabHTML}</div>
 
     <div class="cta-left">
       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
@@ -631,50 +613,35 @@ function dividerEl(obj){
   const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
   const fontSize = Number(obj.fontSize || 22);
   const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
-  const id = obj.id;
-  const size = obj.size || 'm';
+
+  const sizeKey = obj.size || 'm';
+  const s = getSettings();
   const aud = obj.aud || {bronze:true,silver:true,gold:true};
 
-  const el=document.createElement('div'); 
-  el.className='divider'; 
-  el.dataset.type='divider'; 
-  el.dataset.divId=id;
-
-  const kebab = editable ? `
-    <div class="div-kebab-wrap">
-      <button class="div-kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-      <div class="div-kebab-menu" data-kebab-for="${esc(id)}">
-        <div class="group-heading">Customize</div>
-        <button class="item" data-div-menu="rename" data-div-id="${esc(id)}"><span class="dot" aria-hidden="true"></span>Rename</button>
-
-        <div class="group-heading" style="margin-top:4px">Size</div>
-        ${['xs','s','m','l','xl'].map(opt=>{
-          const active = (opt===size)?'active':'';
-          const label = ({xs:'Extra Small',s:'Small',m:'Medium',l:'Large',xl:'Extra Large'})[opt];
-          return `<button class="item ${active}" data-div-size="${opt}" data-div-id="${esc(id)}"><span class="dot" aria-hidden="true"></span>${label}</button>`;
-        }).join('')}
-
-        <div class="group-heading" style="margin-top:4px">Audience</div>
-        ${[
-          {key:'bronze',label:'Beginner'},
-          {key:'silver',label:'Intermediate'},
-          {key:'gold',label:'Advanced'}
-        ].map(o=>{
-          const active = aud[o.key]?'active':'';
-          return `<button class="item ${active}" data-div-aud="${o.key}" data-div-id="${esc(id)}"><span class="dot" aria-hidden="true"></span>${o.label}</button>`;
-        }).join('')}
-
-        <button class="danger" data-div-act="remove" data-div-id="${esc(id)}">Remove</button>
-      </div>
-    </div>` : '';
-
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`
     <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
     ${editable?`
       <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(id)}" type="button">▼</button>
-        ${kebab}
+        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
+      </div>
+      <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+      <div class="kebab-menu">
+        <div class="title">Customise</div>
+        <button class="opt" data-div-rename="${esc(obj.id)}">Rename / Style</button>
+        <div class="title">Size</div>
+        ${['xs','s','m','l','xl'].map(k=>{
+          const active=(sizeKey===k);
+          return `<button class="opt ${active?'active':''}" data-div-size="${k}" data-div-id="${esc(obj.id)}"><span class="dot"></span>${({'xs':'Extra Small','s':'Small','m':'Medium','l':'Large','xl':'Extra Large'})[k]}</button>`;
+        }).join('')}
+        <div class="title">Audience</div>
+        ${['bronze','silver','gold'].map(k=>{
+          const active=!!aud[k];
+          const label={bronze:'Beginner',silver:'Intermediate',gold:'Advanced'}[k];
+          return `<button class="opt ${active?'active':''}" data-div-aud="${k}" data-div-id="${esc(obj.id)}"><span class="dot"></span>${label}</button>`;
+        }).join('')}
+        <button class="opt danger" data-div-act="remove" data-div-id="${esc(obj.id)}">Remove</button>
       </div>`:''}
   `;
   return el;
@@ -699,26 +666,20 @@ function paintPage(){
     }
     const sec = document.createElement('section');
     sec.className = 'section';
-    if(divObj){
-      // apply divider-controlled size to this section
-      sec.dataset.size = (divObj.size || 'm');
-      sec.appendChild(dividerEl(divObj));
-    }
+    if(divObj) sec.appendChild(dividerEl(divObj));
     const row = document.createElement('div');
-    row.className = 'grid';
+    row.className = 'grid ' + (divObj?.size || ''); // apply xs/s/m/l/xl
     sec.appendChild(row);
     root.appendChild(sec);
     return {sec, row};
   }
 
   let currentRow = null;
-  let currentSection = null;
 
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
       const started = startSection(it);
       currentRow = started ? started.row : null;
-      currentSection = started ? started.sec : null;
       continue;
     }
     if(it.type === 'hero'){
@@ -726,17 +687,14 @@ function paintPage(){
       const f = s.heroFlags[id];
       if(!f || f.place!=='page') continue;
 
-      // only show to learners who match; staff sees all
       if(!staff){
         if(f.state!=='live') continue;
-        const r = role;
-        if(!(f.aud && f.aud[r])) continue;
+        if(!f.aud[role]) continue;
       }
 
       if(!currentRow){
         const started = startSection(null);
         currentRow = started ? started.row : null;
-        currentSection = started ? started.sec : null;
         if(!currentRow) continue;
       }
 
@@ -745,7 +703,7 @@ function paintPage(){
     }
   }
 
-  // Clean empty nameless sections
+  // Clean any empty nameless section
   $$('#pageGrid .section').forEach(sec=>{
     const row = sec.querySelector('.grid');
     const hasHeroes = row && row.children.length>0;
@@ -826,19 +784,21 @@ $('#devToggle').addEventListener('click', ()=>{
   updateFooterModeControls(); paintPage(); paintArchive();
 });
 
+/* Add heading */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, size:'m'});
+  const s=getSettings();
+  s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, size:'m'});
   saveSettings(s); paintPage();
 });
 
 /* =========================
-   Delegated clicks
+   Delegated clicks (page)
 ========================= */
 document.addEventListener('click',(e)=>{
-  /* Enter hero */
+  /* Enter */
   const enter = e.target.closest('[data-act="enter"]');
   if(enter){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
@@ -848,84 +808,64 @@ document.addEventListener('click',(e)=>{
   }
 
   /* Divider kebab open/close */
-  const divK = e.target.closest('.div-kebab');
-  if(divK){
-    const wrap = divK.parentElement;
-    const menu = wrap.querySelector('.div-kebab-menu');
+  const hKebab = e.target.closest('.divider .kebab');
+  if(hKebab){
+    const menu=hKebab.nextElementSibling;
     const open = menu.style.display==='flex';
-    $$('.div-kebab-menu').forEach(m=>m.style.display='none');
+    $$('.kebab-menu').forEach(m=>m.style.display='none');
     menu.style.display = open ? 'none' : 'flex';
     return;
   }
-  if(!e.target.closest('.div-kebab-menu')) $$('.div-kebab-menu').forEach(m=>m.style.display='none');
 
-  /* Divider kebab actions */
-  const renameBtn = e.target.closest('[data-div-menu="rename"]');
+  /* Divider: rename/style */
+  const renameBtn = e.target.closest('[data-div-rename]');
   if(renameBtn){
     if(!(isAdmin() && devModeOn())) return;
-    const id=renameBtn.dataset.divId;
-    const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    const id=renameBtn.getAttribute('data-div-rename');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
     const obj = s.pageOrder[idx]||{};
-    // invoke existing rename/style dialog (no confirm per spec)
     openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
     return;
   }
 
-  const sizeBtn = e.target.closest('[data-div-size]');
-  if(sizeBtn){
+  /* Divider: size select */
+  const divSize = e.target.closest('[data-div-size]');
+  if(divSize){
     if(!(isAdmin() && devModeOn())) return;
-    const id=sizeBtn.dataset.divId, val=sizeBtn.dataset.divSize;
-    if(!confirm(`Change hero size for this section to ${val.toUpperCase()}?`)) return;
+    const size=divSize.getAttribute('data-div-size'); const id=divSize.getAttribute('data-div-id');
+    if(!confirm(`Change row size to ${({'xs':'Extra Small','s':'Small','m':'Medium','l':'Large','xl':'Extra Large'})[size]}?`)) return;
     const s=getSettings();
     const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx>=0){ s.pageOrder[idx].size = val; saveSettings(s); paintPage(); }
+    if(idx>=0){ s.pageOrder[idx].size=size; saveSettings(s); paintPage(); }
     return;
   }
 
-  const audBtnDiv = e.target.closest('[data-div-aud]');
-  if(audBtnDiv){
+  /* Divider audience toggle */
+  const divAud = e.target.closest('[data-div-aud]');
+  if(divAud){
     if(!(isAdmin() && devModeOn())) return;
-    const id=audBtnDiv.dataset.divId, key=audBtnDiv.dataset.divAud;
-    const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    const key=divAud.getAttribute('data-div-aud'); const id=divAud.getAttribute('data-div-id');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
     if(idx<0) return;
-    const obj=s.pageOrder[idx];
-    const next = !(obj.aud && obj.aud[key]);
-    if(!confirm(`${next?'Allow':'Disallow'} ${key==='bronze'?'Beginner':key==='silver'?'Intermediate':'Advanced'} for this section?`)) return;
-    obj.aud = {bronze:true,silver:true,gold:true, ...(obj.aud||{}), [key]:next};
-    saveSettings(s); paintPage();
+    const obj=s.pageOrder[idx]; const next=!((obj.aud||{})[key]);
+    if(!confirm(`${next?'Allow':'Disallow'} ${key==='bronze'?'Beginner':key==='silver'?'Intermediate':'Advanced'} to see this section?`)) return;
+    obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
+    saveSettings(s); paintPage(); return;
+  }
+
+  /* Divider arrow move (keep) */
+  const pinDiv = e.target.closest('[data-div-pencil]'); // legacy pin support
+  if(pinDiv){
+    if(!(isAdmin() && devModeOn())) return;
+    const id=pinDiv.getAttribute('data-div-pencil');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    const obj = s.pageOrder[idx]||{};
+    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
     return;
   }
 
-  /* Divider tools: up/down/remove */
-  const divAct = e.target.dataset.divAct;
-  if(divAct){
-    if(!(isAdmin() && devModeOn())) return;
-    const id = e.target.dataset.divId;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-
-    if(divAct==='up' || divAct==='down'){
-      const dir = (divAct==='up') ? -1 : 1;
-      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-      if (to !== idx) {
-        const obj = s.pageOrder.splice(idx,1)[0];
-        s.pageOrder.splice(to,0,obj);
-        saveSettings(s); paintPage();
-      }
-      return;
-    }
-    if(divAct==='remove'){
-      if(!confirm('Remove this heading?')) return;
-      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
-      return;
-    }
-  }
-
-  /* Kebab open/close (heroes) */
-  const keb = e.target.closest('.kebab');
+  /* Kebab open/close for hero */
+  const keb = e.target.closest('.hero .kebab');
   if(keb){
     const menu=keb.nextElementSibling;
     const open = menu.style.display==='flex';
@@ -936,7 +876,7 @@ document.addEventListener('click',(e)=>{
   if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
 
   /* Kebab actions (Admin + Dev) */
-  const menuBtn = e.target.closest('.kebab-menu button');
+  const menuBtn = e.target.closest('.hero .kebab-menu .opt');
   if(menuBtn){
     const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
@@ -959,7 +899,6 @@ document.addEventListener('click',(e)=>{
     }else if(act==='toggle'){
       const order=['live','off','dev'];
       const ni=(order.indexOf(f.state)+1)%order.length;
-      if(!confirm(`Set ${labelFor(id)} to ${order[ni].toUpperCase()}?`)) return;
       s.heroFlags[id]={...f, state:order[ni]};
       saveSettings(s); paintPage(); paintArchive();
     }else if(act==='photo'){
@@ -981,7 +920,7 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
-  /* Reorder heroes */
+  /* Reorder heroes/dividers */
   const sortBtn = e.target.closest('.cfg-arrow');
   if(sortBtn){
     if(!(isAdmin() && devModeOn())) return;
@@ -999,6 +938,18 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
+  /* Divider tools: remove via kebab */
+  const divAct = e.target.dataset.divAct;
+  if(divAct==='remove'){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = e.target.dataset.divId;
+    if(!confirm('Remove this heading?')) return;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx>=0){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); }
+    return;
+  }
+
   /* Archive list actions */
   const actToggle = e.target.closest('#archiveList [data-act="toggle"]');
   const actMove = e.target.closest('#archiveList [data-act="move"]');
@@ -1009,10 +960,8 @@ document.addEventListener('click',(e)=>{
     if(actToggle){
       const order=['live','off','dev'];
       const ni=(order.indexOf(f.state)+1)%order.length;
-      if(!confirm(`Set ${labelFor(id)} to ${order[ni].toUpperCase()}?`)) return;
       s.heroFlags[id]={...f, state:order[ni]};
     }else if(actMove){
-      if(!confirm(`Move ${labelFor(id)} to Page?`)) return;
       s.heroFlags[id]={...f, place:'page'};
       if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
     }
