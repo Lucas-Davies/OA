@@ -6,6 +6,9 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
+<!-- Optional Google Fonts (safe fallbacks included if blocked) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=Playfair+Display:wght@700&family=Oswald:wght@500&family=Anton&family=Lobster&family=Pacifico&family=Bangers&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -55,7 +58,7 @@ body.lock{ position:fixed; width:100% }
 }
 #avatarSheet.open{ display:flex }
 #avatarCard{
-  margin:auto; width:min(520px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:16px;
+  margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
 }
 #avatarCard h3{ margin:0 0 12px; font-weight:900 }
 #avatarClose{ float:right; }
@@ -67,7 +70,7 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal hero rows (carousels) scoped to sections */
+/* Row carousels */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
@@ -91,15 +94,13 @@ body.lock{ position:fixed; width:100% }
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* Config pencil (re-used) */
+/* Pencil (used only inside divider controls now) */
 .cfg-pin{
-  position:absolute; top:10px; left:12px; z-index:5;
   width:28px; height:28px; border-radius:8px;
   border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; line-height:1;
 }
-.hero.has-pencil .label{ left:46px }
 
-/* Kebab (admin+dev on heroes) */
+/* Kebab on heroes (admin+dev) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 .kebab-menu{
@@ -111,14 +112,14 @@ body.lock{ position:fixed; width:100% }
 }
 .kebab-menu button:hover{ background:#2a2f3a }
 
-/* Hero tools stack (Admin + Dev): arrows + pencil on the right side */
-.hero-tools{
+/* Hero reorder arrows (Admin + Dev only) */
+.hero-arrows{
   display:none;
   position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  z-index:6; display:flex; flex-direction:column; align-items:center; gap:8px;
+  z-index:6; flex-direction:column; align-items:center; justify-content:center; gap:10px;
 }
-.config-on .hero .hero-tools{ display:flex }
-.cfg-arrow, .cfg-pencil-mini{
+.config-on .hero .hero-arrows{ display:flex }
+.hero-arrows .cfg-arrow{
   width:32px; height:32px; border-radius:8px; border:1px solid var(--stroke);
   background:#161922; color:#fff; font-weight:900; font-size:14px; line-height:1;
 }
@@ -159,10 +160,15 @@ body.lock{ position:fixed; width:100% }
   padding:14px 16px 56px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
-.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px }
+.divider .dctrls{
+  position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center;
+}
 .config-on .divider .dctrls{ display:flex }
+/* only style the old left pencil if it exists as a direct child (we've removed it) */
+.divider > .cfg-pin{ position:absolute; top:10px; left:12px }
+
+/* Divider audience row */
 .divider .aud-line{ position:absolute; left:16px; bottom:14px }
-.divider .cfg-pin{ position:absolute; top:10px; left:12px }
 
 /* Compact headings in normal mode */
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
@@ -213,11 +219,9 @@ body.lock{ position:fixed; width:100% }
   z-index:1;
 }
 
-/* Hide editor-only bits when not in dev */
+/* Visibility helpers */
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
-
-/* In normal view hide audience line unless director-on-dev */
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
 
@@ -240,13 +244,14 @@ body.lock{ position:fixed; width:100% }
   width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
 }
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
-#fontControls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap }
+#fontControls{ display:flex; align-items:center; gap:8px }
 .fontBtn{
   width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke);
   background:#12141a; color:#fff; font-weight:900; font-size:16px;
 }
 #fontFamily{
-  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700; min-width:220px;
+  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700;
+  max-width:280px;
 }
 .preview{
   width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
@@ -268,7 +273,6 @@ body.lock{ position:fixed; width:100% }
 </header>
 
 <main class="wrap">
-  <!-- JS will build .section blocks here -->
   <div id="pageGrid"></div>
 </main>
 
@@ -277,31 +281,11 @@ body.lock{ position:fixed; width:100% }
   <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
     <button id="avatarClose" class="footer-chip" type="button">Close</button>
     <h3 id="avatarTitle">Profile</h3>
-
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <label style="display:flex;gap:8px;align-items:center">
-        <span style="width:88px;opacity:.9">Name</span>
-        <input id="drawerNameInput" type="text" placeholder="Your name" style="flex:1;background:#12141a;border:1px solid var(--stroke);color:#fff;height:36px;border-radius:10px;padding:0 10px;font-weight:700">
-      </label>
-
-      <label style="display:flex;gap:8px;align-items:center">
-        <span style="width:88px;opacity:.9">Role</span>
-        <select id="drawerRoleSelect" style="flex:1;background:#12141a;color:#fff;border:1px solid var(--stroke);height:36px;border-radius:10px;padding:0 10px;font-weight:700">
-          <option value="admin">Admin</option>
-          <option value="director">Director</option>
-          <option value="support">Support</option>
-          <option value="bronze">Beginner</option>
-          <option value="silver">Intermediate</option>
-          <option value="gold">Advanced</option>
-        </select>
-      </label>
-
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div><strong>Name:</strong> <span id="drawerName">User</span></div>
+      <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
       <div class="hide-when-normal" style="gap:8px;display:flex">
         <button id="drawerToggleDev" class="footer-chip" type="button">Toggle Developer</button>
-      </div>
-
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button id="drawerApply" class="footer-chip" type="button">Apply</button>
       </div>
     </div>
   </div>
@@ -324,20 +308,18 @@ body.lock{ position:fixed; width:100% }
     <div class="row" id="fontControls">
       <div style="font-weight:800">Font:</div>
       <select id="fontFamily">
+        <!-- sensible defaults + fun display faces -->
         <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
+        <option value="Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">Inter</option>
         <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
+        <option value="Playfair Display,Georgia,'Times New Roman',serif">Playfair Display</option>
+        <option value="Oswald,Arial Narrow,Arial,sans-serif">Oswald</option>
+        <option value="Anton,Impact,Haettenschweiler,Arial Narrow Bold,sans-serif">Anton</option>
+        <option value="Lobster,'Brush Script MT',cursive">Lobster</option>
+        <option value="Pacifico,'Brush Script MT',cursive">Pacifico</option>
+        <option value="Bangers,Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif">Bangers</option>
+        <option value="Baloo 2,Arial Rounded MT Bold,Arial,sans-serif">Baloo 2</option>
         <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
-        <option value="'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">Inter (if installed)</option>
-        <option value="'Roboto',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif">Roboto (if installed)</option>
-        <option value="'Futura','Trebuchet MS',Arial,sans-serif">Futura / Trebuchet</option>
-        <option value="'Gill Sans','Gill Sans MT',Calibri,'Trebuchet MS',sans-serif">Gill Sans</option>
-        <option value="'Playfair Display',Georgia,'Times New Roman',serif">Playfair (if installed)</option>
-        <option value="'Didot','Bodoni MT',Didot,serif">Didot / Bodoni</option>
-        <option value="'Impact','Haettenschweiler','Arial Narrow Bold',sans-serif">Impact</option>
-        <option value="'Copperplate','Copperplate Gothic Light',fantasy">Copperplate</option>
-        <option value="'Bangers','Impact','Arial Black',sans-serif">Bangers (if installed)</option>
-        <option value="'Lobster','Brush Script MT',cursive">Lobster (if installed)</option>
-        <option value="'Comic Neue','Comic Sans MS',cursive">Comic / Handwriting</option>
       </select>
       <button class="fontBtn" id="fontDown" type="button" aria-label="Decrease font size">A–</button>
       <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
@@ -363,12 +345,10 @@ body.lock{ position:fixed; width:100% }
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
-
     <div class="title" style="gap:12px">
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
-
   <div class="content">
     <div class="list" id="archiveList"></div>
   </div>
@@ -458,19 +438,15 @@ function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
 /* =========================
-   Avatar (view as)
+   Avatar
 ========================= */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
-  const role=normalizeRole(p.skill||'admin');
+  const role=getRole();
   $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
-
-  // prime drawer fields
-  const nameInput = $('#drawerNameInput');
-  const roleSelect = $('#drawerRoleSelect');
-  if(nameInput) nameInput.value = p.displayName || 'User';
-  if(roleSelect) roleSelect.value = role;
+  $('#drawerName').textContent = p.displayName || 'User';
+  $('#drawerRole').textContent = ROLE_LABEL[role] || role;
 }
 paintAvatar();
 
@@ -480,7 +456,6 @@ paintAvatar();
   const sheet = $('#avatarSheet');
   const closeBtn = $('#avatarClose');
   const toggleDev = $('#drawerToggleDev');
-  const applyBtn = $('#drawerApply');
 
   function openDrawer(){
     sheet.classList.add('open');
@@ -497,21 +472,10 @@ paintAvatar();
   avatarBtn?.addEventListener('click', openDrawer, {passive:true});
   closeBtn?.addEventListener('click', closeDrawer, {passive:true});
   sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
-
   toggleDev?.addEventListener('click', ()=>{
     if(!isAdmin()) return;
     document.body.classList.toggle('config-on');
     updateFooterModeControls(); paintPage(); paintArchive();
-  }, {passive:true});
-
-  applyBtn?.addEventListener('click', ()=>{
-    const name = $('#drawerNameInput').value.trim() || 'User';
-    const sel  = $('#drawerRoleSelect').value;
-    const skill = normalizeRole(sel);
-    const p = store.get(K.profile, {displayName:'User',skill:'admin'});
-    store.set(K.profile, {...p, displayName:name, skill});
-    paintAvatar();
-    paintPage(); paintArchive();
   }, {passive:true});
 })();
 
@@ -537,7 +501,7 @@ const paletteColors = [
   '#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'
 ];
 
-let editCtx=null; // { type:'hero'|'divider', id }
+let editCtx=null;
 let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
 
 function applyPreview(){
@@ -554,6 +518,7 @@ function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentF
   $('#editTitle').textContent = (ctx.type==='hero'?'Edit Hero':'Edit Heading');
   $('#editText').value = currentText||'';
 
+  // palette
   const pal = $('#editPalette'); pal.innerHTML='';
   paletteColors.forEach(col=>{
     const b=document.createElement('button');
@@ -571,7 +536,6 @@ function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentF
   $('#fontFamily').onchange = ()=>{ liveFamily = $('#fontFamily').value; applyPreview(); };
   $('#fontUp').onclick   = ()=>{ liveFont = Math.min(64, liveFont+1); applyPreview(); };
   $('#fontDown').onclick = ()=>{ liveFont = Math.max(10, liveFont-1); applyPreview(); };
-  $('#editText').oninput = applyPreview;
 
   applyPreview();
   $('#editDialog').classList.add('open');
@@ -627,10 +591,7 @@ function heroCard(id){
   const canAdminDev = isAdmin() && devOn;
   const canDirOnDev = canDirectorDevEdit(f);
 
-  // Pencils per spec:
-  // - Admin + Dev: show hero pencil but move it into tools stack (right side) next to arrows
-  // - Director (normal mode) on DEV hero: show classic top-left pencil
-  const showTopLeftPencil = (!canAdminDev) && canDirOnDev;
+  /* HERO PENCIL REMOVED (rename via kebab only) */
   const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
 
@@ -651,19 +612,14 @@ function heroCard(id){
       <button data-menu="photo">Photo</button>
     </div>` : '';
 
-  // Tools stack for Admin+Dev: arrows + pencil
-  const toolsHTML = canAdminDev ? `
-    <div class="hero-tools">
-      <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
-      <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
-      <button class="cfg-pencil-mini" data-cfg-rename="${esc(id)}" type="button" title="Rename / Colour">✎</button>
-    </div>` : '';
-
   el.innerHTML = `
     ${artLayer}
     ${statusPill}
-    ${showTopLeftPencil ? `<button class="cfg-pin" title="Rename / Colour" data-cfg-rename="${esc(id)}" type="button">✎</button>` : ``}
-    ${toolsHTML}
+    ${canAdminDev ? `
+      <div class="hero-arrows">
+        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
+        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
+      </div>` : ``}
 
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
 
@@ -687,7 +643,6 @@ function heroCard(id){
     </div>
   `;
 
-  if(showTopLeftPencil) el.classList.add('has-pencil');
   if(completed) el.classList.add('completed');
   else if(inprogress) el.classList.add('inprogress');
 
@@ -710,13 +665,13 @@ function dividerEl(obj){
 
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`
-    ${editable?`<button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>`:''}
     <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
     ${editable?`
       <div class="dctrls">
         <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
         <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
         <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
+        <button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
       </div>`:''}
     ${editable?`
       <div class="aud-line">
@@ -789,9 +744,7 @@ function paintPage(){
     const row = sec.querySelector('.grid');
     const hasHeroes = row && row.children.length>0;
     const hasDivider = !!sec.querySelector('.divider');
-    if(!hasHeroes && !hasDivider){
-      sec.remove();
-    }
+    if(!hasHeroes && !hasDivider) sec.remove();
   });
 }
 
@@ -828,7 +781,7 @@ function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scr
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
 
 /* =========================
-   Subsheet (optional shell-safe)
+   Subsheet
 ========================= */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
@@ -874,7 +827,7 @@ $('#addHeadingBtn').addEventListener('click',()=>{
 });
 
 /* =========================
-   Delegated clicks (page)
+   Delegated clicks
 ========================= */
 document.addEventListener('click',(e)=>{
   /* Enter */
@@ -884,20 +837,6 @@ document.addEventListener('click',(e)=>{
     const n=Number(((id||'').match(/\d+/)||[])[0]||0);
     const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
     openSubSheet(labelFor(id), url); return;
-  }
-
-  /* Any hero pencil (Admin+Dev tools stack OR Director on DEV) */
-  const pinHero = e.target.closest('[data-cfg-rename]');
-  if(pinHero){
-    const host = e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    const allowed =
-      (isAdmin() && devModeOn()) ||                      // admin + dev (tools stack)
-      (canDirectorDevEdit(f) && !devModeOn());           // director on dev, normal mode
-    if(!allowed) return;
-    const st = styleFor(id);
-    openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
-    return;
   }
 
   /* Divider pencil (Admin + Dev) */
@@ -954,17 +893,6 @@ document.addEventListener('click',(e)=>{
       saveSettings(s); paintPage();
     }
     return;
-  }
-
-  /* Director photo chip (DEV hero) */
-  const photoBtn=e.target.closest('[data-act="pickart"]');
-  if(photoBtn){
-    const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
-    const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
-    s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-    saveSettings(s); paintPage(); return;
   }
 
   /* Audience hero chips */
