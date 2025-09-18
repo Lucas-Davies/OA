@@ -64,12 +64,17 @@ body.lock{ position:fixed; width:100% }
 #avatarCard h3{ margin:0 0 12px; font-weight:900 }
 #avatarClose{ float:right; }
 
-/* Layout */
-.wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
-
-/* Sections */
-.section{ margin:32px 0 }
-.section .divider{ margin-bottom:10px }
+/* Sections: each divider gets its own hero row */
+.section{ 
+  margin:32px 0;
+  position:relative;   /* ensure section itself has its own layer */
+  z-index:0;
+}
+.section .divider{ 
+  margin-bottom:10px; 
+  position:relative; 
+  z-index:50;
+}
 
 /* Horizontal hero rows (carousels) */
 .section .grid{
@@ -78,8 +83,11 @@ body.lock{ position:fixed; width:100% }
   grid-auto-columns:clamp(180px, 28vw, 280px); /* default M */
   gap:var(--gap);
   overflow-x:auto;
+  overflow-y:visible;   /* NEW: don’t clip vertical overflow */
   scroll-snap-type:x mandatory;
   padding-bottom:10px;
+  position:relative;    /* NEW: allow z-index */
+  z-index:5;            /* NEW: keep rows above section bg */
 }
 .section .grid::-webkit-scrollbar{ display:none }
 
