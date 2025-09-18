@@ -630,11 +630,9 @@ function heroCard(id){
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
   const devOn = devModeOn();
 
-  const showStatusPill = (!devOn) && canSeeStatusPill();
-  const statusPill = showStatusPill ? 
-    `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
-      ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
-     </span>` : '';
+	const devOn = devModeOn();
+	// No status pill for anyone (regular learners see nothing)
+	const statusPill = '';
 
   const canAdminDev = isAdmin() && devOn;
 
@@ -645,6 +643,13 @@ function heroCard(id){
   el.className='hero'; 
   el.dataset.heroId=id; 
   el.dataset.place=f.place;
+  
+  // Staff (admin/director/support) get a coloured border instead of a pill
+if (seesAll()) {
+  if      (f.state==='live') el.classList.add('state-live');
+  else if (f.state==='dev')  el.classList.add('state-dev');
+  else                       el.classList.add('state-off');
+}
   if(f.state==='dev') el.classList.add('devstate');
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
