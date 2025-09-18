@@ -48,6 +48,18 @@ body.lock{ position:fixed; width:100% }
 .avatarTab .name{ font-size:15px; font-weight:900 }
 .avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
 
+/* Avatar drawer */
+#avatarSheet{
+  position:fixed; inset:0; z-index:80; display:none;
+  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
+}
+#avatarSheet.open{ display:flex }
+#avatarCard{
+  margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
+}
+#avatarCard h3{ margin:0 0 12px; font-weight:900 }
+#avatarClose{ float:right; }
+
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
@@ -216,25 +228,36 @@ body.lock{ position:fixed; width:100% }
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
 
-/* Rename/Color dialog */
+/* Edit dialog */
 #editDialog{
   position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
   background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
 }
 #editDialog.open{ display:flex }
 #editPanel{
-  width:min(520px, 92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
+  width:min(560px, 92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
 }
 #editPanel h3{ margin:0 0 10px; font-weight:900 }
-#editPanel .row{ display:flex; gap:10px; align-items:center; margin:10px 0 }
+#editPanel .row{ display:flex; gap:10px; align-items:center; margin:10px 0; flex-wrap:wrap }
 #editPanel input[type="text"]{
-  flex:1; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
+  flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
 }
 .palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
 .swatch{
   width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
 }
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
+#fontControls{ display:flex; align-items:center; gap:8px }
+.fontBtn{
+  width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke);
+  background:#12141a; color:#fff; font-weight:900; font-size:16px;
+}
+#fontFamily{
+  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700
+}
+.preview{
+  width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
+}
 </style>
 </head>
 
@@ -256,15 +279,52 @@ body.lock{ position:fixed; width:100% }
   <div id="pageGrid"></div>
 </main>
 
+<!-- Avatar Drawer -->
+<div id="avatarSheet" aria-hidden="true">
+  <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
+    <button id="avatarClose" class="footer-chip" type="button">Close</button>
+    <h3 id="avatarTitle">Profile</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div><strong>Name:</strong> <span id="drawerName">User</span></div>
+      <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
+      <div class="hide-when-normal" style="gap:8px;display:flex">
+        <button id="drawerToggleDev" class="footer-chip" type="button">Toggle Developer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Edit Dialog -->
 <div id="editDialog" aria-modal="true" role="dialog">
   <div id="editPanel" role="document">
     <h3 id="editTitle">Edit</h3>
-    <div class="row"><input id="editText" type="text" placeholder="Title"></div>
+
+    <div class="row">
+      <input id="editText" type="text" placeholder="Title">
+    </div>
+
     <div class="row">
       <div style="font-weight:800">Colour:</div>
       <div class="palette" id="editPalette"></div>
     </div>
+
+    <div class="row" id="fontControls">
+      <div style="font-weight:800">Font:</div>
+      <select id="fontFamily">
+        <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
+        <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
+        <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
+        <option value="'Comic Neue','Comic Sans MS',cursive">Handwriting</option>
+      </select>
+      <button class="fontBtn" id="fontDown" type="button" aria-label="Decrease font size">A–</button>
+      <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
+      <span id="fontSizeLabel" style="opacity:.9;min-width:48px;text-align:right"></span>
+    </div>
+
+    <div class="row">
+      <div class="preview" id="editPreview">Preview</div>
+    </div>
+
     <div class="actions">
       <button class="footer-chip" id="editCancel">Cancel</button>
       <button class="footer-chip" id="editSave">Save</button>
@@ -304,7 +364,7 @@ const store={
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=3;
+const SCHEMA_VERSION=4;
 
 /* Escape */
 const esc=s=>String(s??'')
@@ -334,23 +394,22 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r=
 function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 
 /* =========================
-   View
-========================= */
-function applyView(){ /* squares + carousel handled by CSS */ }
-
-/* =========================
    Settings + seed
 ========================= */
 function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  // Seed three heroes and one DEV hero to demo director edit
   heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}};
   heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}};
   heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}};
   heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
   for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
-  pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
+  pageOrder.push(
+    {type:'hero',id:'co-1'},
+    {type:'hero',id:'co-2'},
+    {type:'hero',id:'co-3'},
+    {type:'hero',id:'co-4'}
+  );
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
@@ -361,9 +420,7 @@ function sanitize(cfg){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
-  // Keep pageOrder entries for heroes present on page
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
-  // Ensure heroes on page exist in pageOrder
   Object.keys(c.heroFlags).forEach(id=>{
     if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){
       c.pageOrder.push({type:'hero', id});
@@ -383,24 +440,62 @@ function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
 /* =========================
-   Avatar (minimal)
+   Avatar
 ========================= */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
   const role=getRole();
   $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
+  $('#drawerName').textContent = p.displayName || 'User';
+  $('#drawerRole').textContent = ROLE_LABEL[role] || role;
 }
 paintAvatar();
+
+/* Drawer wiring */
+(function wireAvatarDrawer(){
+  const avatarBtn = $('#avatarTab');
+  const sheet = $('#avatarSheet');
+  const closeBtn = $('#avatarClose');
+  const toggleDev = $('#drawerToggleDev');
+
+  function openDrawer(){
+    sheet.classList.add('open');
+    sheet.setAttribute('aria-hidden','false');
+    avatarBtn.setAttribute('aria-expanded','true');
+    lockBody();
+  }
+  function closeDrawer(){
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden','true');
+    avatarBtn.setAttribute('aria-expanded','false');
+    unlockBody();
+  }
+  avatarBtn?.addEventListener('click', openDrawer, {passive:true});
+  closeBtn?.addEventListener('click', closeDrawer, {passive:true});
+  sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
+  toggleDev?.addEventListener('click', ()=>{
+    if(!isAdmin()) return;
+    document.body.classList.toggle('config-on');
+    updateFooterModeControls(); paintPage(); paintArchive();
+  }, {passive:true});
+})();
 
 /* =========================
    Label helpers
 ========================= */
 function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
-function labelColorFor(id){ const s=getSettings(); return (s.heroStyle && s.heroStyle[id] && s.heroStyle[id].labelColor)||''; }
+function styleFor(id){
+  const st=(getSettings().heroStyle||{})[id]||{};
+  return {
+    color: st.labelColor || '',
+    font:  st.labelFont  || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif",
+    size:  Number(st.labelSize||18)
+  };
+}
 
 /* =========================
-   Rename + colour dialog
+   Edit dialog (text+color+font)
 ========================= */
 const paletteColors = [
   '#eef3ff','#cfd3e1','#ffffff','#000000','#808080',
@@ -409,38 +504,68 @@ const paletteColors = [
 ];
 
 let editCtx=null; // { type:'hero'|'divider', id }
-function openEditDialog(ctx, currentText, currentColor){
+let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+
+function applyPreview(){
+  const pv = $('#editPreview');
+  pv.style.color = liveColor||'';
+  pv.style.fontFamily = liveFamily;
+  pv.style.fontSize = liveFont+'px';
+  pv.textContent = $('#editText').value || 'Preview';
+  $('#fontSizeLabel').textContent = liveFont+'px';
+}
+
+function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif"){
   editCtx = ctx;
   $('#editTitle').textContent = (ctx.type==='hero'?'Edit Hero':'Edit Heading');
   $('#editText').value = currentText||'';
+
+  // palette
   const pal = $('#editPalette'); pal.innerHTML='';
   paletteColors.forEach(col=>{
     const b=document.createElement('button');
     b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
-    if(col===currentColor) b.style.outline='2px solid #fff';
-    b.addEventListener('click',()=>{ $$('.swatch').forEach(s=>s.style.outline='none'); b.style.outline='2px solid #fff'; pal.dataset.selected=col; }, {passive:true});
+    b.addEventListener('click',()=>{ liveColor=col; applyPreview(); }, {passive:true});
     pal.appendChild(b);
   });
-  pal.dataset.selected = currentColor || '';
+
+  // font controls
+  liveFont = Math.max(10, Math.min(64, Number(currentSize||18)));
+  liveColor = currentColor || '';
+  liveFamily = currentFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  $('#fontFamily').value = liveFamily;
+
+  $('#fontFamily').onchange = ()=>{ liveFamily = $('#fontFamily').value; applyPreview(); };
+  $('#fontUp').onclick   = ()=>{ liveFont = Math.min(64, liveFont+1); applyPreview(); };
+  $('#fontDown').onclick = ()=>{ liveFont = Math.max(10, liveFont-1); applyPreview(); };
+
+  applyPreview();
   $('#editDialog').classList.add('open');
 }
-function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; $('#editPalette').dataset.selected=''; }
+function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; }
 $('#editCancel').addEventListener('click', closeEditDialog);
 $('#editDialog').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeEditDialog(); }, {passive:true});
 $('#editSave').addEventListener('click', ()=>{
   if(!editCtx) return;
   const s=getSettings();
   const text = $('#editText').value.trim();
-  const col = $('#editPalette').dataset.selected || '';
+
   if(editCtx.type==='hero'){
     if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
     s.heroStyle = s.heroStyle || {};
-    s.heroStyle[editCtx.id] = {...(s.heroStyle[editCtx.id]||{}), labelColor: col };
-  }else{
+    s.heroStyle[editCtx.id] = {
+      ...(s.heroStyle[editCtx.id]||{}),
+      labelColor: liveColor,
+      labelSize:  liveFont,
+      labelFont:  liveFamily
+    };
+  }else{ // divider
     const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
     if(idx>=0){
       s.pageOrder[idx].title = text || 'Heading';
-      s.pageOrder[idx].color = col || '';
+      s.pageOrder[idx].color = liveColor || '';
+      s.pageOrder[idx].fontSize = liveFont;
+      s.pageOrder[idx].fontFamily = liveFamily;
     }
   }
   saveSettings(s);
@@ -468,8 +593,14 @@ function heroCard(id){
   const canAdminDev = isAdmin() && devOn;
   const canDirOnDev = canDirectorDevEdit(f);
 
-  const showPencil = canAdminDev || canDirOnDev;
-  const labelStyle = labelColorFor(id) ? ` style="color:${esc(labelColorFor(id))}"` : '';
+  /* === pencils per spec ===
+     - Admin+Dev: NO hero pencil (rename lives in kebab)
+     - Director on DEV hero: pencil shown
+  */
+  const showPencil = (!canAdminDev) && canDirOnDev;
+
+  const st = styleFor(id);
+  const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
 
   const el=document.createElement('article'); 
   el.className='hero'; 
@@ -498,7 +629,7 @@ function heroCard(id){
         <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
       </div>` : ``}
 
-    <span class="label"${labelStyle}>${esc(labelFor(id))}</span>
+    <span class="label"${labelInline}>${esc(labelFor(id))}</span>
 
     <div class="ctrls">
       ${kebabHTML}
@@ -536,11 +667,15 @@ function heroCard(id){
 
 function dividerEl(obj){
   const editable = isAdmin() && devModeOn();
-  const colorStyle = obj.color ? `style="color:${esc(obj.color)}"` : '';
+  const color = obj.color || '';
+  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  const fontSize = Number(obj.fontSize || 22);
+  const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
+
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`
     ${editable?`<button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>`:''}
-    <span class="htext" ${colorStyle}>${esc(obj.title||'Heading')}</span>
+    <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
     ${editable?`
       <div class="dctrls">
         <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
@@ -569,30 +704,23 @@ function paintPage(){
   const role = getRole();
   const staff = seesAll();
 
-  // helper to start a new section with optional divider
   function startSection(divObj){
     if(divObj && !staff){
       const aud = divObj.aud || {bronze:true,silver:true,gold:true};
-      if(!aud[role]) return null; // non-staff not allowed to see this section
+      if(!aud[role]) return null;
     }
     const sec = document.createElement('section');
     sec.className = 'section';
-
-    if(divObj){
-      sec.appendChild(dividerEl(divObj));
-    }
-
+    if(divObj) sec.appendChild(dividerEl(divObj));
     const row = document.createElement('div');
     row.className = 'grid';
     sec.appendChild(row);
-
     root.appendChild(sec);
     return {sec, row};
   }
 
   let currentRow = null;
 
-  // Stream through in order; a divider starts a new section, heroes go into the current row
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
       const started = startSection(it);
@@ -610,7 +738,6 @@ function paintPage(){
       }
 
       if(!currentRow){
-        // no prior divider — create a nameless section for initial heroes
         const started = startSection(null);
         currentRow = started ? started.row : null;
         if(!currentRow) continue;
@@ -621,7 +748,7 @@ function paintPage(){
     }
   }
 
-  // Remove any empty nameless section (safety)
+  // Clean any empty nameless section
   $$('#pageGrid .section').forEach(sec=>{
     const row = sec.querySelector('.grid');
     const hasHeroes = row && row.children.length>0;
@@ -706,7 +833,7 @@ function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22});
   saveSettings(s); paintPage();
 });
 
@@ -723,25 +850,26 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Pencil: hero */
+  /* Pencil: hero (Director on DEV) */
   const pinHero = e.target.closest('[data-cfg-rename]');
   if(pinHero){
     const id=pinHero.getAttribute('data-cfg-rename');
     const s=getSettings(); const f=s.heroFlags[id];
-    const allow = (isAdmin() && devModeOn()) || (canDirectorDevEdit(f));
+    const allow = canDirectorDevEdit(f) && !devModeOn(); // director in normal mode on DEV hero
     if(!allow) return;
-    openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, labelColorFor(id));
+    const st = styleFor(id);
+    openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
     return;
   }
 
-  /* Pencil: divider */
+  /* Pencil: divider (Admin + Dev) */
   const pinDiv = e.target.closest('[data-div-pencil]');
   if(pinDiv){
     if(!(isAdmin() && devModeOn())) return;
     const id=pinDiv.getAttribute('data-div-pencil');
     const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
     const obj = s.pageOrder[idx]||{};
-    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'');
+    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
     return;
   }
 
@@ -756,7 +884,7 @@ document.addEventListener('click',(e)=>{
   }
   if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
 
-  /* Kebab actions */
+  /* Kebab actions (Admin + Dev) */
   const menuBtn = e.target.closest('.kebab-menu button');
   if(menuBtn){
     const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
@@ -765,7 +893,8 @@ document.addEventListener('click',(e)=>{
 
     const act = menuBtn.dataset.menu;
     if(act==='rename'){
-      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, labelColorFor(id));
+      const st = styleFor(id);
+      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
     }else if(act==='move'){
       const dest = (f.place==='page') ? 'archive' : 'page';
       if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
@@ -874,6 +1003,7 @@ document.addEventListener('click',(e)=>{
   }
 }, {passive:false});
 
-})();</script>
+})();
+</script>
 </body>
 </html>
