@@ -96,6 +96,16 @@ body.lock{ position:fixed; width:100% }
 }
 .hero.devstate{ border:2px solid var(--blue) }
 
+/* Hero shapes (size still controlled by row sizing) */
+.hero.shape-square{ aspect-ratio:1 / 1; border-radius:16px; }
+.hero.shape-hr    { aspect-ratio:16 / 9; border-radius:16px; }
+.hero.shape-vr    { aspect-ratio:3 / 4;  border-radius:16px; }
+.hero.shape-circle{ aspect-ratio:1 / 1;  border-radius:50%;  }
+
+/* Make the art + overlay match the outer shape */
+.hero.shape-circle .art,
+.hero.shape-circle::after { border-radius:50%; }
+
 /* Hero label */
 .hero .label{
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
@@ -104,9 +114,28 @@ body.lock{ position:fixed; width:100% }
 /* Kebab (shared) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
+
+/* Kebab menu — now fixed & centred */
 .kebab-menu{
-  position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:210px; z-index:200; padding:6px;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  display:none;                 /* JS toggles to flex */
+  flex-direction:column;
+  min-width:260px;
+  max-width:92vw;
+  max-height:80vh;              /* safe on small screens */
+  overflow:auto;
+
+  background:#1b1f2a;
+  border:1px solid var(--stroke);
+  border-radius:10px;
+  padding:12px;
+  box-shadow:0 20px 40px rgba(0,0,0,.55),
+             0 0 0 1px rgba(255,255,255,.06) inset;
+  z-index:10000 !important;
 }
 .kebab-menu button{
   background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
@@ -136,14 +165,10 @@ body.lock{ position:fixed; width:100% }
   background:#161922; color:#fff; font-weight:900; font-size:14px; line-height:1;
 }
 
-/* Status pill (normal mode) */
-.status-pill{
-  position:absolute; top:12px; right:12px; height:28px; padding:0 12px; border-radius:999px;
-  display:inline-flex; align-items:center; font-weight:900; z-index:4; border:1px solid rgba(255,255,255,.18)
-}
-.status-live{ background:#1c6b1c; color:#fff }
-.status-off{ background:#5a0d12; color:#fff }
-.status-dev{ background:var(--blue); color:#000; border-color:transparent }
+/* Staff-only state borders (replace old pill styles) */
+.hero.state-live { border:2px solid var(--green); }
+.hero.state-dev  { border:2px solid var(--blue); }
+.hero.state-off  { border:2px solid var(--red); }
 
 /* Buttons */
 .btn{
@@ -261,13 +286,10 @@ body.lock{ position:fixed; width:100% }
 .preview{
   width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
 }
-/* --- Layering & kebab fixes --- */
 
-/* Make sure sections/headings create a higher layer than hero controls */
+/* --- Layering & kebab fixes --- */
 .section { position: relative; z-index: 0; }
 .divider { position: relative; z-index: 50; }   /* heading row above heroes */
-
-/* Hero control layer kept low so menus can always sit above */
 .hero { position: relative; z-index: 1; }
 .hero .hero-arrows { z-index: 3; }
 .hero .ctrls .kebab { z-index: 4; }
@@ -276,18 +298,13 @@ body.lock{ position:fixed; width:100% }
 .divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
 .divider .ctrls .kebab { z-index: 9001; }
 
-.kebab-menu{
-  /* keeps your existing visual styles, just ensure it wins the stack */
-  z-index: 10000 !important;
-  box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
-
-/* Optional: prevent anything inside heroes from overlaying menus via pointer hacks */
+/* Ensure menus are clickable */
 .hero .hero-arrows,
-.hero .ctrls { pointer-events: auto; }        /* normal */
-.kebab-menu{ pointer-events: auto; }          /* menu still clickable */
-}
+.hero .ctrls { pointer-events: auto; }
+.kebab-menu{ pointer-events: auto; }
 
+/* Optional: keep natural scrolling locked when a menu is open on iOS */
+body.menu-lock{ overflow:hidden; }
 </style>
 </head>
 
@@ -384,16 +401,13 @@ body.lock{ position:fixed; width:100% }
   <div class="content">
     <div class="list" id="archiveList"></div>
   </div>
-  
-  <!-- NEW: dedicated overlay root ONLY for kebab menus -->
-	<div id="kebabOverlay" hidden aria-hidden="true">
-  	<div class="backdrop" id="kebabBackdrop"></div>
-  <!-- We will portal the existing .kebab-menu elements here and position them -->
-	</div>	
-  
 </div>
-</head>
-<body>
+
+<!-- NEW: dedicated overlay root ONLY for kebab menus -->
+<div id="kebabOverlay" hidden aria-hidden="true">
+  <div class="backdrop" id="kebabBackdrop"></div>
+  <!-- We will portal the existing .kebab-menu elements here and position them -->
+</div>
 
 <script>
 (()=>{'use strict';
@@ -442,11 +456,11 @@ function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}};
-  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}};
-  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}};
-  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
-  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
+  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
+  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}, shape:'square'};
+  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}, shape:'square'};
+  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}, shape:'square'};
+  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}, shape:'square'};
   pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
@@ -456,7 +470,8 @@ function sanitize(cfg){
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
-    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'};
+    else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square';
   }
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
   Object.keys(c.heroFlags).forEach(id=>{
@@ -618,15 +633,15 @@ function heroCard(id){
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
+
   const devOn = devModeOn();
-
-  const showStatusPill = (!devOn) && canSeeStatusPill();
-  const statusPill = showStatusPill ? 
-    `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
-      ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
-     </span>` : '';
-
   const canAdminDev = isAdmin() && devOn;
+
+  // No status pill for anyone
+  const statusPill = '';
+
+  // shape: square | hr | vr | circle
+  const shape = f.shape || 'square';
 
   const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
@@ -635,17 +650,36 @@ function heroCard(id){
   el.className='hero'; 
   el.dataset.heroId=id; 
   el.dataset.place=f.place;
-  if(f.state==='dev') el.classList.add('devstate');
+  el.classList.add(`shape-${shape}`);
+
+  // Staff (admin/director/support) get a coloured border instead of a pill
+  if (seesAll()) {
+    if      (f.state==='live') el.classList.add('state-live');
+    else if (f.state==='dev')  el.classList.add('state-dev');
+    else                       el.classList.add('state-off');
+  }
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
 
+  // Build kebab with Orientation group
+  const dot = '<span class="dot" aria-hidden="true"></span>';
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">â®</button>
     <div class="kebab-menu">
-      <button data-menu="rename">Rename</button>
-      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
-      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
-      <button data-menu="photo">Photo</button>
+      <div class="group">
+        <div class="title">Orientation</div>
+        <button class="opt" data-menu="shape" data-shape="square" type="button">${shape==='square'?dot:''}Square</button>
+        <button class="opt" data-menu="shape" data-shape="hr"     type="button">${shape==='hr'?dot:''}Horizontal rectangle</button>
+        <button class="opt" data-menu="shape" data-shape="vr"     type="button">${shape==='vr'?dot:''}Vertical rectangle</button>
+        <button class="opt" data-menu="shape" data-shape="circle" type="button">${shape==='circle'?dot:''}Circle</button>
+      </div>
+      <div class="group">
+        <div class="title">Item</div>
+        <button data-menu="rename" type="button">Rename</button>
+        <button data-menu="move"   type="button">${f.place==='page'?'Archive':'Move to Page'}</button>
+        <button data-menu="toggle" type="button">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
+        <button data-menu="photo"  type="button">Photo</button>
+      </div>
     </div>` : '';
 
   el.innerHTML = `
@@ -689,7 +723,7 @@ function heroCard(id){
   return el;
 }
 
-/* Divider (Heading) builder with kebab â matches updated kebab CSS */
+/* Divider (Heading) */
 function dividerEl(obj){
   const editable   = isAdmin() && devModeOn();
   const color      = obj.color || '';
@@ -780,7 +814,6 @@ function paintPage(){
     const row = document.createElement('div');
     row.className = 'grid';
 
-    // apply size from divider if present
     const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
     row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
 
@@ -802,7 +835,7 @@ function paintPage(){
       const f = s.heroFlags[id];
       if(!f || f.place!=='page') continue;
 
-      if(!staff){
+      if(!seesAll()){
         if(f.state!=='live') continue;
         if(!f.aud[role]) continue;
       }
@@ -872,6 +905,78 @@ function openSubSheet(title,url){
 }
 
 /* =========================
+   NEW: Kebab overlay manager (port the existing .kebab-menu into #kebabOverlay)
+========================= */
+const kebabOverlay = $('#kebabOverlay');
+const kebabBackdrop = $('#kebabBackdrop');
+let openMenuEl = null;
+let originalParent = null;
+
+function openKebabMenu(menuEl, anchorBtn){
+  // Close any currently open
+  closeKebabMenu();
+
+  // Save origin so we can put it back later
+  originalParent = menuEl.parentElement;
+  openMenuEl = menuEl;
+
+  // Make it floating & visible inside overlay
+  menuEl.classList.add('floating');
+  menuEl.style.display = 'flex';
+  kebabOverlay.appendChild(menuEl);
+
+  // Position near the anchor, clamped to viewport
+  const r = anchorBtn.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  // Guess size before paint
+  const mw = Math.min(360, Math.max(210, vw*0.6));
+  const mh = 260;
+  const pad = 8;
+
+  let left = Math.min(vw - pad - mw, Math.max(pad, r.right - mw + 32));
+  let top  = Math.min(vh - pad - mh, Math.max(pad, r.bottom + 8));
+
+  // Switch to fixed positioning & place
+  menuEl.style.position = 'fixed';
+  menuEl.style.left = left + 'px';
+  menuEl.style.top  = top + 'px';
+  menuEl.style.zIndex = (parseInt(getComputedStyle(kebabOverlay).zIndex)||12000) + 1;
+
+  // Enable overlay click-catcher
+  kebabOverlay.hidden = false;
+  kebabOverlay.setAttribute('aria-hidden','false');
+  document.body.classList.add('menu-lock');
+
+  // Close on Esc
+  document.addEventListener('keydown', onKbdClose);
+}
+
+function closeKebabMenu(){
+  if(!openMenuEl) return;
+  // Hide and return to origin
+  openMenuEl.style.display = 'none';
+  openMenuEl.classList.remove('floating');
+  openMenuEl.style.left = '';
+  openMenuEl.style.top = '';
+  openMenuEl.style.position = '';
+  if(originalParent) originalParent.appendChild(openMenuEl);
+
+  openMenuEl = null;
+  originalParent = null;
+
+  kebabOverlay.hidden = true;
+  kebabOverlay.setAttribute('aria-hidden','true');
+  document.body.classList.remove('menu-lock');
+
+  document.removeEventListener('keydown', onKbdClose);
+}
+
+function onKbdClose(e){ if(e.key === 'Escape') closeKebabMenu(); }
+kebabBackdrop.addEventListener('click', closeKebabMenu, {passive:true});
+window.addEventListener('resize', ()=>{ if(openMenuEl){ /* reposition on resize */ closeKebabMenu(); }}, {passive:true});
+window.addEventListener('scroll', ()=>{ if(openMenuEl){ closeKebabMenu(); }}, {passive:true});
+
+/* =========================
    Boot
 ========================= */
 applyArchiveVisibility(); 
@@ -918,26 +1023,36 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider kebab toggle */
+  /* Divider kebab toggle â now uses overlay portal */
   const divKebab = e.target.closest('.div-kebab');
   if(divKebab){
     const menu=divKebab.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
+    if(menu){
+      if(menu === openMenuEl){ closeKebabMenu(); }
+      else{
+        // hide any inline menus
+        $$('.kebab-menu').forEach(m=>{ if(m!==menu) m.style.display='none'; });
+        openKebabMenu(menu, divKebab);
+      }
+    }
     return;
   }
 
-  /* Hero kebab toggle */
+  /* Hero kebab toggle â now uses overlay portal */
   const keb = e.target.closest('.kebab:not(.div-kebab)');
   if(keb){
     const menu=keb.nextElementSibling;
-    const open = menu.style.display==='flex';
-    $$('.kebab-menu').forEach(m=>m.style.display='none');
-    menu.style.display = open ? 'none' : 'flex';
+    if(menu){
+      if(menu === openMenuEl){ closeKebabMenu(); }
+      else{
+        $$('.kebab-menu').forEach(m=>{ if(m!==menu) m.style.display='none'; });
+        openKebabMenu(menu, keb);
+      }
+    }
     return;
   }
-  if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
+
+  // Clicking anywhere that isn't a menu keeps behavior: if click outside the floating menu, the overlay backdrop catches it.
 
   /* Divider kebab actions */
   const dmb = e.target.closest('.div-menu button');
@@ -951,6 +1066,7 @@ document.addEventListener('click',(e)=>{
 
     const kind = dmb.dataset.divm;
     if(kind==='rename'){
+      closeKebabMenu();
       openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
       return;
     }
@@ -959,6 +1075,7 @@ document.addEventListener('click',(e)=>{
       if(!confirm(`Apply ${size.toUpperCase()} size to heroes under "${obj.title||'Heading'}"?`)) return;
       obj.rowSize=size;
       saveSettings(s); paintPage();
+      closeKebabMenu();
       return;
     }
     if(kind==='aud'){
@@ -967,16 +1084,18 @@ document.addEventListener('click',(e)=>{
       if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
       obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
       saveSettings(s); paintPage();
+      closeKebabMenu();
       return;
     }
     if(kind==='remove'){
       if(!confirm('Remove this heading?')) return;
       s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      closeKebabMenu();
       return;
     }
   }
 
-  /* Divider tools (arrow + inline chips for audience kept for dev view) */
+  /* Divider tools (arrow + inline chips) */
   const divAct = e.target.dataset.divAct;
   if(divAct){
     if(!(isAdmin() && devModeOn())) return;
@@ -1015,12 +1134,20 @@ document.addEventListener('click',(e)=>{
   /* Hero kebab actions (Admin + Dev) */
   const menuBtn = e.target.closest('.kebab-menu button:not(.div-menu button)');
   if(menuBtn && !menuBtn.closest('.div-menu')){
-    const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
+    const host = openMenuEl ? originalParent?.closest('.hero') : e.target.closest('.hero');
+    const id = host?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
     if(!(isAdmin() && devModeOn())) return;
 
     const act = menuBtn.dataset.menu;
-    if(act==='rename'){
+    if(act==='shape'){
+      const shape = menuBtn.dataset.shape;
+      const allowed = ['square','hr','vr','circle'];
+      if(!allowed.includes(shape)) return;
+      s.heroFlags[id] = {...f, shape};
+      saveSettings(s); paintPage(); closeKebabMenu();
+    }else if(act==='rename'){
+      closeKebabMenu();
       const st = styleFor(id);
       openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
     }else if(act==='move'){
@@ -1032,16 +1159,16 @@ document.addEventListener('click',(e)=>{
       }else{
         s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id));
       }
-      saveSettings(s); paintPage(); paintArchive();
+      saveSettings(s); paintPage(); paintArchive(); closeKebabMenu();
     }else if(act==='toggle'){
       const order=['live','off','dev'];
       const ni=(order.indexOf(f.state)+1)%order.length;
       s.heroFlags[id]={...f, state:order[ni]};
-      saveSettings(s); paintPage(); paintArchive();
+      saveSettings(s); paintPage(); paintArchive(); closeKebabMenu();
     }else if(act==='photo'){
       const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
       s.heroAssets[id]={...(s.heroAssets[id]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-      saveSettings(s); paintPage();
+      saveSettings(s); paintPage(); closeKebabMenu();
     }
     return;
   }
@@ -1098,4 +1225,3 @@ document.addEventListener('click',(e)=>{
 </script>
 </body>
 </html>
-
