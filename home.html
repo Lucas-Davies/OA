@@ -96,6 +96,16 @@ body.lock{ position:fixed; width:100% }
 }
 .hero.devstate{ border:2px solid var(--blue) }
 
+/* Hero shapes (size still controlled by row sizing) */
+.hero.shape-square{ aspect-ratio:1 / 1; border-radius:16px; }
+.hero.shape-hr    { aspect-ratio:16 / 9; border-radius:16px; }
+.hero.shape-vr    { aspect-ratio:3 / 4;  border-radius:16px; }
+.hero.shape-circle{ aspect-ratio:1 / 1;  border-radius:50%;  }
+
+/* Make the art + overlay match the outer shape */
+.hero.shape-circle .art,
+.hero.shape-circle::after { border-radius:50%; }
+
 /* Hero label */
 .hero .label{
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
@@ -446,11 +456,11 @@ function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[];
-  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}};
-  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}};
-  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}};
-  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
-  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
+  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
+  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}, shape:'square'};
+  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}, shape:'square'};
+  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}, shape:'square'};
+  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}, shape:'square'};
   pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
@@ -460,7 +470,8 @@ function sanitize(cfg){
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
-    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
+    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'};
+    else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square';
   }
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
   Object.keys(c.heroFlags).forEach(id=>{
@@ -623,11 +634,14 @@ function heroCard(id){
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
 
-  const devOn = devModeOn();                 // ← declare once
+  const devOn = devModeOn();
   const canAdminDev = isAdmin() && devOn;
 
   // No status pill for anyone
   const statusPill = '';
+
+  // shape: square | hr | vr | circle
+  const shape = f.shape || 'square';
 
   const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
@@ -636,6 +650,7 @@ function heroCard(id){
   el.className='hero'; 
   el.dataset.heroId=id; 
   el.dataset.place=f.place;
+  el.classList.add(`shape-${shape}`);
 
   // Staff (admin/director/support) get a coloured border instead of a pill
   if (seesAll()) {
@@ -646,13 +661,25 @@ function heroCard(id){
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
 
+  // Build kebab with Orientation group
+  const dot = '<span class="dot" aria-hidden="true"></span>';
   const kebabHTML = canAdminDev ? `
-    <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+    <button class="kebab" aria-haspopup="true" aria-expanded="false">â®</button>
     <div class="kebab-menu">
-      <button data-menu="rename">Rename</button>
-      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
-      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
-      <button data-menu="photo">Photo</button>
+      <div class="group">
+        <div class="title">Orientation</div>
+        <button class="opt" data-menu="shape" data-shape="square" type="button">${shape==='square'?dot:''}Square</button>
+        <button class="opt" data-menu="shape" data-shape="hr"     type="button">${shape==='hr'?dot:''}Horizontal rectangle</button>
+        <button class="opt" data-menu="shape" data-shape="vr"     type="button">${shape==='vr'?dot:''}Vertical rectangle</button>
+        <button class="opt" data-menu="shape" data-shape="circle" type="button">${shape==='circle'?dot:''}Circle</button>
+      </div>
+      <div class="group">
+        <div class="title">Item</div>
+        <button data-menu="rename" type="button">Rename</button>
+        <button data-menu="move"   type="button">${f.place==='page'?'Archive':'Move to Page'}</button>
+        <button data-menu="toggle" type="button">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
+        <button data-menu="photo"  type="button">Photo</button>
+      </div>
     </div>` : '';
 
   el.innerHTML = `
@@ -660,8 +687,8 @@ function heroCard(id){
     ${statusPill}
     ${canAdminDev ? `
       <div class="hero-arrows">
-        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
-        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
+        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">â²</button>
+        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">â¼</button>
       </div>` : ``}
 
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
@@ -717,12 +744,12 @@ function dividerEl(obj){
 
     ${editable ? `
       <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button>
+        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">â²</button>
+        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">â¼</button>
       </div>
 
       <div class="ctrls">
-        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">⋮</button>
+        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">â®</button>
         <div class="kebab-menu div-menu" role="menu">
           <div class="group">
             <div class="title">Customise</div>
@@ -870,7 +897,7 @@ function unlockBody(){ document.body.classList.remove('lock'); document.body.sty
 ========================= */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
-  if(!url){ alert('401 — Not linked yet'); return; }
+  if(!url){ alert('401 â Not linked yet'); return; }
   if(sheetTitle) sheetTitle.textContent=title;
   if(subFrame) subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
   if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); }
@@ -996,7 +1023,7 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider kebab toggle — now uses overlay portal */
+  /* Divider kebab toggle â now uses overlay portal */
   const divKebab = e.target.closest('.div-kebab');
   if(divKebab){
     const menu=divKebab.nextElementSibling;
@@ -1011,7 +1038,7 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Hero kebab toggle — now uses overlay portal */
+  /* Hero kebab toggle â now uses overlay portal */
   const keb = e.target.closest('.kebab:not(.div-kebab)');
   if(keb){
     const menu=keb.nextElementSibling;
@@ -1113,7 +1140,13 @@ document.addEventListener('click',(e)=>{
     if(!(isAdmin() && devModeOn())) return;
 
     const act = menuBtn.dataset.menu;
-    if(act==='rename'){
+    if(act==='shape'){
+      const shape = menuBtn.dataset.shape;
+      const allowed = ['square','hr','vr','circle'];
+      if(!allowed.includes(shape)) return;
+      s.heroFlags[id] = {...f, shape};
+      saveSettings(s); paintPage(); closeKebabMenu();
+    }else if(act==='rename'){
       closeKebabMenu();
       const st = styleFor(id);
       openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
