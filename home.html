@@ -1,3 +1,5 @@
+Home cut before avatar removal 
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -41,10 +43,27 @@ body.lock{ position:fixed; width:100% }
 }
 .title-tab{ font-weight:900; opacity:.92 }
 
-/* Avatar iframe vessel (replaces old button/drawer in Home) */
-.avatarHost{
-  width:180px; height:48px; border:0; background:transparent; display:block;
+/* Avatar pill */
+.avatarTab{
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+  padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
+  font-weight:900; line-height:1.1; text-align:left; border:1px solid var(--stroke);
+  background:#222; color:#eef3ff;
 }
+.avatarTab .name{ font-size:15px; font-weight:900 }
+.avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
+
+/* Avatar drawer */
+#avatarSheet{
+  position:fixed; inset:0; z-index:80; display:none;
+  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
+}
+#avatarSheet.open{ display:flex }
+#avatarCard{
+  margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
+}
+#avatarCard h3{ margin:0 0 12px; font-weight:900 }
+#avatarClose{ float:right; }
 
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
@@ -242,15 +261,32 @@ body.lock{ position:fixed; width:100% }
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left"><span class="title-tab">Courses</span></div>
   <div class="nav-right">
-    <!-- Avatar iframe (centralized avatar lives at /avatar/avatar.html) -->
-    <iframe id="avatarHost" class="avatarHost" src="avatar/avatar.html#embed" title="Avatar"></iframe>
+    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
+      <span class="name" id="avatarName">User</span>
+      <span class="lvl" id="avatarLvl">Admin</span>
+    </button>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- JS builds .section blocks here -->
+  <!-- JS will build .section blocks here -->
   <div id="pageGrid"></div>
 </main>
+
+<!-- Avatar Drawer -->
+<div id="avatarSheet" aria-hidden="true">
+  <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
+    <button id="avatarClose" class="footer-chip" type="button">Close</button>
+    <h3 id="avatarTitle">Profile</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div><strong>Name:</strong> <span id="drawerName">User</span></div>
+      <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
+      <div class="hide-when-normal" style="gap:8px;display:flex">
+        <button id="drawerToggleDev" class="footer-chip" type="button">Toggle Developer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Edit Dialog -->
 <div id="editDialog" aria-modal="true" role="dialog">
@@ -352,6 +388,7 @@ function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
 function isSupport(){ return getRole()==='support'; }
 function devModeOn(){ return document.body.classList.contains('config-on'); }
+function canDirectorDevEdit(flag){ return isDirector() && flag?.state==='dev'; }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
 function canSeeStatusPill(){ return isAdmin() || isSupport() || isDirector(); }
 
@@ -395,6 +432,48 @@ function loadSettings(){
 let S = loadSettings();
 function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
+
+/* =========================
+   Avatar
+========================= */
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  $('#avatarName').textContent = p.displayName || 'User';
+  const role=getRole();
+  $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
+  $('#drawerName').textContent = p.displayName || 'User';
+  $('#drawerRole').textContent = ROLE_LABEL[role] || role;
+}
+paintAvatar();
+
+/* Drawer wiring */
+(function wireAvatarDrawer(){
+  const avatarBtn = $('#avatarTab');
+  const sheet = $('#avatarSheet');
+  const closeBtn = $('#avatarClose');
+  const toggleDev = $('#drawerToggleDev');
+
+  function openDrawer(){
+    sheet.classList.add('open');
+    sheet.setAttribute('aria-hidden','false');
+    avatarBtn.setAttribute('aria-expanded','true');
+    lockBody();
+  }
+  function closeDrawer(){
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden','true');
+    avatarBtn.setAttribute('aria-expanded','false');
+    unlockBody();
+  }
+  avatarBtn?.addEventListener('click', openDrawer, {passive:true});
+  closeBtn?.addEventListener('click', closeDrawer, {passive:true});
+  sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
+  toggleDev?.addEventListener('click', ()=>{
+    if(!isAdmin()) return;
+    document.body.classList.toggle('config-on');
+    updateFooterModeControls(); paintPage(); paintArchive();
+  }, {passive:true});
+})();
 
 /* =========================
    Label helpers
@@ -660,7 +739,7 @@ function paintPage(){
   });
 }
 
-const dock=$('#archiveDock'), archiveList=$('#archiveList']);
+const dock=$('#archiveDock'), archiveList=$('#archiveList');
 function applyArchiveVisibility(){
   if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
@@ -703,29 +782,6 @@ function openSubSheet(title,url){
   if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); }
   lockBody();
 }
-
-/* =========================
-   Avatar <-> Home messaging
-========================= */
-/* Avatar iFrame can send:
-   { type:'avatar:updateProfile', profile:{ displayName, skill } }
-   Home will persist and repaint.
-*/
-window.addEventListener('message', (e)=>{
-  const data = e?.data;
-  if(!data || typeof data !== 'object') return;
-
-  if(data.type === 'avatar:updateProfile' && data.profile){
-    const p = store.get(K.profile,{displayName:'User',skill:'admin'});
-    const next = {...p, ...data.profile};
-    store.set(K.profile, next);
-    // repaint with the new role
-    paintArchive();
-    paintPage();
-    updateFooterModeControls();
-  }
-  // (Optional) avatar can ask Home to open pages, etc., in the future
-}, {passive:true});
 
 /* =========================
    Boot
