@@ -70,23 +70,18 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal hero rows (carousels) */
+/* Horizontal hero rows (carousels)  — now variable via CSS vars per-row */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  /* default (md) kept here; size modifiers below override */
-  grid-auto-columns:clamp(180px, 28vw, 280px);
+  /* Defaults (Medium) — can be overridden per section via inline --min/--vw/--max */
+  grid-auto-columns: clamp(var(--min,180px), var(--vw,28vw), var(--max,280px));
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   padding-bottom:10px;
 }
 .section .grid::-webkit-scrollbar{ display:none }
-
-/* Size modifiers controlled by heading above */
-.section .grid.size-sm{ grid-auto-columns:clamp(150px, 22vw, 220px) }
-.section .grid.size-md{ grid-auto-columns:clamp(180px, 28vw, 280px) } /* current default */
-.section .grid.size-lg{ grid-auto-columns:clamp(220px, 36vw, 360px) }
 
 /* Hero cards */
 .hero{
@@ -105,7 +100,7 @@ body.lock{ position:fixed; width:100% }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 .kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:150px; z-index:20; padding:6px;
+  display:none; flex-direction:column; min-width:170px; z-index:20; padding:6px;
 }
 .kebab-menu button{
   background:none; border:none; color:#fff; padding:8px 10px; text-align:left; font-weight:700; cursor:pointer; border-radius:8px;
@@ -160,22 +155,12 @@ body.lock{ position:fixed; width:100% }
   padding:14px 16px 56px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
-.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center; flex-wrap:wrap }
+.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
-.divider .aud-line{ position:absolute; left:16px; bottom:14px }
-
-/* Place the divider pencil beside ▲ ▼ Remove */
-.divider .dctrls .cfg-pin{
-  position:static; width:auto; height:34px; padding:0 12px; border-radius:999px;
-}
-
-/* Size control chips (Admin + Dev on heading) */
-.size-chip{ height:34px }
-.size-chip.on{ box-shadow:inset 0 0 0 2px var(--blue) }
+.divider .aud-line{ display:none } /* de-clutter: audience moves into kebab */
 
 /* Compact headings in normal mode */
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
-:not(.config-on) .divider .aud-line{ display:none }
 :not(.config-on) .divider .htext{ padding:0; margin:0 }
 
 /* Footer Dock (Developer only) */
@@ -245,9 +230,7 @@ body.lock{ position:fixed; width:100% }
   flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
 }
 .palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
-.swatch{
-  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
-}
+.swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer; }
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
 #fontControls{ display:flex; align-items:center; gap:8px }
 .fontBtn{
@@ -418,29 +401,16 @@ function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
-
-  /* ensure all co-* heroes exist */
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
-
-  /* keep only expected item types */
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
-
-  /* ensure page heroes appear in pageOrder */
   Object.keys(c.heroFlags).forEach(id=>{
     if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){
       c.pageOrder.push({type:'hero', id});
     }
   });
-
-  /* NEW: default heroSize on dividers */
-  c.pageOrder = c.pageOrder.map(it=>{
-    if(it.type==='divider' && !it.heroSize) return {...it, heroSize:'md'};
-    return it;
-  });
-
   return c;
 }
 function loadSettings(){
@@ -587,7 +557,44 @@ $('#editSave').addEventListener('click', ()=>{
 });
 
 /* =========================
-   DOM builders
+   Divider builder (with kebab)
+========================= */
+function dividerEl(obj){
+  const editable = isAdmin() && devModeOn();
+  const color = obj.color || '';
+  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  const fontSize = Number(obj.fontSize || 22);
+  const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
+  const size = obj.headingSize || 'm';
+
+  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  el.innerHTML=`
+    <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
+    ${editable?`
+      <div class="dctrls">
+        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
+        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
+        <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
+
+        <div style="position:relative">
+          <button class="kebab d-kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+          <div class="kebab-menu d-menu">
+            <button data-div-menu="edit" data-div-id="${esc(obj.id)}">Rename / Style</button>
+            <button data-div-size="s" data-div-id="${esc(obj.id)}">${size==='s'?'✓ ':''}Size: Small</button>
+            <button data-div-size="m" data-div-id="${esc(obj.id)}">${size==='m'?'✓ ':''}Size: Medium</button>
+            <button data-div-size="l" data-div-id="${esc(obj.id)}">${size==='l'?'✓ ':''}Size: Large</button>
+            <button data-div-aud-toggle="bronze" data-div-id="${esc(obj.id)}">${obj.aud?.bronze!==false?'✓ ':'✗ '}Audience: Beginner</button>
+            <button data-div-aud-toggle="silver" data-div-id="${esc(obj.id)}">${obj.aud?.silver!==false?'✓ ':'✗ '}Audience: Intermediate</button>
+            <button data-div-aud-toggle="gold"   data-div-id="${esc(obj.id)}">${obj.aud?.gold  !==false?'✓ ':'✗ '}Audience: Advanced</button>
+          </div>
+        </div>
+      </div>`:''}
+  `;
+  return el;
+}
+
+/* =========================
+   Hero cards
 ========================= */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
@@ -666,42 +673,15 @@ function heroCard(id){
   return el;
 }
 
-function dividerEl(obj){
-  const editable = isAdmin() && devModeOn();
-  const color = obj.color || '';
-  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-  const fontSize = Number(obj.fontSize || 22);
-  const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
-
-  const size = obj.heroSize || 'md'; // 'sm' | 'md' | 'lg'
-
-  const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`
-    <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
-    ${editable?`
-      <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
-        <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
-        <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
-        <button class="footer-chip cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
-        <span class="footer-label">Hero size:</span>
-        <button class="footer-chip size-chip ${size==='sm'?'on':''}" data-div-size="sm" data-div-id="${esc(obj.id)}" type="button">S</button>
-        <button class="footer-chip size-chip ${size==='md'?'on':''}" data-div-size="md" data-div-id="${esc(obj.id)}" type="button">M</button>
-        <button class="footer-chip size-chip ${size==='lg'?'on':''}" data-div-size="lg" data-div-id="${esc(obj.id)}" type="button">L</button>
-      </div>`:''}
-    ${editable?`
-      <div class="aud-line">
-        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
-        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
-        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
-      </div>`:''}
-  `;
-  return el;
-}
-
 /* =========================
    Paint page + archive
 ========================= */
+function sizePreset(sz){
+  if(sz==='s') return {min:'160px', vw:'24vw', max:'240px'};
+  if(sz==='l') return {min:'220px', vw:'34vw', max:'340px'};
+  return {min:'180px', vw:'28vw', max:'280px'}; // m default
+}
+
 function paintPage(){
   const root = $('#pageGrid');
   if(!root) return;
@@ -719,15 +699,15 @@ function paintPage(){
     const sec = document.createElement('section');
     sec.className = 'section';
     if(divObj) sec.appendChild(dividerEl(divObj));
-
     const row = document.createElement('div');
     row.className = 'grid';
 
-    /* apply size class from divider (only when a divider exists) */
-    if(divObj){
-      const sz = (divObj.heroSize || 'md');
-      row.classList.add(`size-${sz}`);
-    }
+    // apply size from heading (defaults to m)
+    const sz = divObj?.headingSize || 'm';
+    const p = sizePreset(sz);
+    row.style.setProperty('--min', p.min);
+    row.style.setProperty('--vw',  p.vw);
+    row.style.setProperty('--max', p.max);
 
     sec.appendChild(row);
     root.appendChild(sec);
@@ -735,11 +715,13 @@ function paintPage(){
   }
 
   let currentRow = null;
+  let currentHeading = null;
 
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
       const started = startSection(it);
       currentRow = started ? started.row : null;
+      currentHeading = started ? it : null;
       continue;
     }
     if(it.type === 'hero'){
@@ -753,9 +735,9 @@ function paintPage(){
       }
 
       if(!currentRow){
-        /* No heading above -> default sizing (md, but we leave class off and rely on base) */
         const started = startSection(null);
         currentRow = started ? started.row : null;
+        currentHeading = null;
         if(!currentRow) continue;
       }
 
@@ -849,7 +831,7 @@ function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, heroSize:'md'});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, headingSize:'m'});
   saveSettings(s); paintPage();
 });
 
@@ -866,34 +848,17 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider pencil (Admin + Dev) */
-  const pinDiv = e.target.closest('[data-div-pencil]');
-  if(pinDiv){
-    if(!(isAdmin() && devModeOn())) return;
-    const id=pinDiv.getAttribute('data-div-pencil');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    const obj = s.pageOrder[idx]||{};
-    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
+  /* Divider kebab open/close */
+  const dk = e.target.closest('.d-kebab');
+  if(dk){
+    const menu = dk.nextElementSibling;
+    const open = menu.style.display==='flex';
+    $$('.kebab-menu').forEach(m=>m.style.display='none');
+    menu.style.display = open ? 'none' : 'flex';
     return;
   }
-
-  /* Divider: hero size controls (Admin + Dev) */
-  const sizeBtn = e.target.closest('[data-div-size]');
-  if(sizeBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const id = sizeBtn.getAttribute('data-div-id');
-    const nextSize = sizeBtn.getAttribute('data-div-size'); // 'sm'|'md'|'lg'
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx>=0){
-      s.pageOrder[idx].heroSize = nextSize;
-      saveSettings(s); paintPage();
-    }
-    return;
-  }
-
-  /* Kebab open/close */
-  const keb = e.target.closest('.kebab');
+  /* Generic kebab open/close for heroes */
+  const keb = e.target.closest('.kebab:not(.d-kebab)');
   if(keb){
     const menu=keb.nextElementSibling;
     const open = menu.style.display==='flex';
@@ -903,8 +868,62 @@ document.addEventListener('click',(e)=>{
   }
   if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
 
-  /* Kebab actions (Admin + Dev) */
-  const menuBtn = e.target.closest('.kebab-menu button');
+  /* Divider kebab actions */
+  const divMenuBtn = e.target.closest('.d-menu button');
+  if(divMenuBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const s=getSettings();
+    const id = divMenuBtn.dataset.divId;
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+
+    if(divMenuBtn.dataset.divMenu==='edit'){
+      const obj = s.pageOrder[idx]||{};
+      openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
+      return;
+    }
+    if(divMenuBtn.dataset.divSize){
+      s.pageOrder[idx].headingSize = divMenuBtn.dataset.divSize; // 's' | 'm' | 'l'
+      saveSettings(s); paintPage(); return;
+    }
+    if(divMenuBtn.dataset.divAudToggle){
+      const key = divMenuBtn.dataset.divAudToggle;
+      const obj = s.pageOrder[idx];
+      obj.aud = obj.aud || {bronze:true,silver:true,gold:true};
+      obj.aud[key] = !obj.aud[key];
+      saveSettings(s); paintPage();
+      return;
+    }
+  }
+
+  /* Divider chips (▲ ▼ Remove) */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = e.target.dataset.divId;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='up' || divAct==='down'){
+      const dir = (divAct==='up') ? -1 : 1;
+      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
+      if (to !== idx) {
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj);
+        saveSettings(s); paintPage();
+      }
+      return;
+    }
+    if(divAct==='remove'){
+      if(confirm('Remove this heading?')){
+        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      }
+      return;
+    }
+  }
+
+  /* Hero kebab actions (Admin + Dev) */
+  const menuBtn = e.target.closest('.kebab-menu button:not(.d-menu button)');
   if(menuBtn){
     const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
@@ -948,11 +967,11 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
-  /* Reorder heroes/dividers */
+  /* Reorder heroes */
   const sortBtn = e.target.closest('.cfg-arrow');
   if(sortBtn){
     if(!(isAdmin() && devModeOn())) return;
-    const key = sortBtn.dataset.key; // hero:co-1 or div:div_xxx
+    const key = sortBtn.dataset.key; // hero:co-1
     const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
@@ -964,32 +983,6 @@ document.addEventListener('click',(e)=>{
       saveSettings(s); paintPage();
     }
     return;
-  }
-
-  /* Divider tools */
-  const divAct = e.target.dataset.divAct;
-  if(divAct){
-    if(!(isAdmin() && devModeOn())) return;
-    const id = e.target.dataset.divId;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    if(divAct==='up' || divAct==='down'){
-      const dir = (divAct==='up') ? -1 : 1;
-      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-      if (to !== idx) {
-        const obj = s.pageOrder.splice(idx,1)[0];
-        s.pageOrder.splice(to,0,obj);
-        saveSettings(s); paintPage();
-      }
-      return;
-    }
-    if(divAct==='remove'){
-      if(confirm('Remove this heading?')){
-        s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
-      }
-      return;
-    }
   }
 
   /* Archive list actions */
