@@ -1,1 +1,185 @@
-l
+<!-- File: /avatar/avatar.html -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>Avatar Drawer</title>
+<style>
+:root{
+  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
+  --bg:#000; --panel:#0f1116; --stroke:rgba(255,255,255,.18);
+  --chip:#1b1f2a; --blue:#0A84FF; --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:transparent;color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+
+/* Full-screen drawer shell */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex}
+.card{margin:auto;width:min(980px,96vw);height:min(86vh,760px);
+  background:var(--panel);border:1px solid var(--stroke);border-radius:16px;
+  display:grid;grid-template-columns:260px 1fr;overflow:hidden}
+
+/* Left nav */
+.side{background:#0a0c10;border-right:1px solid var(--stroke);display:flex;flex-direction:column}
+.side .head{padding:16px;border-bottom:1px solid var(--stroke)}
+.side .name{font-weight:900}
+.side .role{opacity:.9;font-size:12px;margin-top:4px}
+.roleSel{margin-top:8px;width:100%;height:36px;border-radius:10px;border:1px solid var(--stroke);
+  background:#12141a;color:#fff;font-weight:700;padding:0 10px}
+
+.nav{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.nav button{
+  display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:10px;
+  border:1px solid var(--stroke);background:#12141a;color:#fff;font-weight:800;cursor:pointer
+}
+.nav button.active{background:var(--blue);color:#000;border-color:transparent}
+
+/* Right content */
+.main{display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--stroke);padding:10px 12px}
+.title{font-weight:900}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;
+  border:1px solid var(--stroke);background:#1b1f2a;color:#fff;font-weight:800;cursor:pointer}
+.close{background:#2a2f3a}
+.frameWrap{flex:1;min-height:0}
+#avFrame{border:0;width:100%;height:100%;background:#000}
+
+/* Small screens */
+@media (max-width:760px){
+  .card{width:min(96vw,720px);height:min(88vh,760px);grid-template-columns:1fr}
+  .side{border-right:none;border-bottom:1px solid var(--stroke)}
+}
+</style>
+</head>
+<body>
+
+<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <section class="card" role="document">
+
+    <!-- Left: profile + nav -->
+    <aside class="side">
+      <div class="head">
+        <div class="name" id="profName">User</div>
+        <div class="role" id="profRole">Admin</div>
+
+        <!-- Role switcher (no Dev toggle here) -->
+        <select id="roleSelect" class="roleSel" aria-label="Role">
+          <optgroup label="Learners">
+            <option value="bronze">Beginner</option>
+            <option value="silver">Intermediate</option>
+            <option value="gold">Advanced</option>
+          </optgroup>
+          <optgroup label="Staff">
+            <option value="support">Support</option>
+            <option value="director">Director</option>
+            <option value="admin">Admin</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <nav class="nav" aria-label="Profile sections">
+        <button data-page="profile.html"   class="active">Profile</button>
+        <button data-page="settings.html">Settings</button>
+        <button data-page="mydata.html">My Data</button>
+        <button data-page="statistics.html">Statistics</button>
+        <button data-page="usersearch.html">User Search</button>
+      </nav>
+    </aside>
+
+    <!-- Right: toolbar + iframe -->
+    <main class="main">
+      <div class="bar">
+        <div class="title" id="drawerTitle">Profile</div>
+        <div class="chips">
+          <button class="chip" id="refreshBtn" title="Reload">Reload</button>
+          <button class="chip close" id="closeBtn" title="Close">Close</button>
+        </div>
+      </div>
+      <div class="frameWrap">
+        <iframe id="avFrame" title="Avatar Section" src="profile.html"></iframe>
+      </div>
+    </main>
+
+  </section>
+</div>
+
+<script>
+(()=>{'use strict';
+/* ===== storage / profile ===== */
+const K={ profile:'ao_profile' };
+const ROLE_LABEL={ bronze:'Beginner', silver:'Intermediate', gold:'Advanced', support:'Support', director:'Director', admin:'Admin' };
+
+function loadProfile(){
+  try{
+    return JSON.parse(localStorage.getItem(K.profile))||{displayName:'User',skill:'admin'};
+  }catch{ return {displayName:'User',skill:'admin'} }
+}
+function saveProfile(p){ localStorage.setItem(K.profile, JSON.stringify(p||{})); }
+
+/* ===== DOM ===== */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+
+const avFrame = $('#avFrame');
+const titleEl = $('#drawerTitle');
+const nameEl  = $('#profName');
+const roleEl  = $('#profRole');
+const selRole = $('#roleSelect');
+
+/* paint header */
+function paintHeader(){
+  const p=loadProfile();
+  nameEl.textContent = p.displayName || 'User';
+  roleEl.textContent = ROLE_LABEL[p.skill] || p.skill || 'User';
+  selRole.value = (p.skill || 'admin');
+}
+paintHeader();
+
+/* nav buttons -> iframe */
+$$('.nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    $$('.nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const page = btn.dataset.page || 'profile.html';
+    titleEl.textContent = btn.textContent.trim();
+    // bust cache so changes reflect immediately
+    avFrame.src = page + (page.includes('?')?'&':'?') + 'v=' + Date.now();
+  }, {passive:true});
+});
+
+/* role change */
+selRole.addEventListener('change', ()=>{
+  const p=loadProfile();
+  p.skill = selRole.value;
+  saveProfile(p);
+  paintHeader();
+  // inform parent window (home.html etc.)
+  try{ parent.postMessage({type:'avatar:profileChanged', profile:p}, '*'); }catch{}
+}, {passive:true});
+
+/* refresh */
+$('#refreshBtn').addEventListener('click', ()=>{
+  const url = avFrame.src || 'about:blank';
+  avFrame.src = url.replace(/([?&])v=\d+(&|$)/,'$1').replace(/[?&]$/,'');
+  avFrame.src = avFrame.src + (avFrame.src.includes('?')?'&':'?') + 'v=' + Date.now();
+}, {passive:true});
+
+/* close -> notify parent */
+$('#closeBtn').addEventListener('click', ()=>{
+  try{ parent.postMessage({type:'avatar:close'}, '*'); }catch{}
+}, {passive:true});
+
+/* ESC closes */
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ try{ parent.postMessage({type:'avatar:close'}, '*'); }catch{} }});
+
+/* tell parent we’re ready */
+try{ parent.postMessage({type:'avatar:ready'}, '*'); }catch{}
+})();
+</script>
+</body>
+</html>
