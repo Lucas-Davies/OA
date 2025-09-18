@@ -51,24 +51,33 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Grid: horizontal scroll, snapping squares */
-.grid{
+/* =========================
+   Section grouping
+========================= */
+/* Each heading/divider with its own horizontal hero row */
+.section{ margin:32px 0 }
+.section .divider{ margin-bottom:10px }
+
+/* Horizontal hero rows (carousels) scoped to sections */
+.section .grid{
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns:clamp(180px, 28vw, 280px);
   gap:var(--gap);
   overflow-x:auto;
-  padding-bottom:10px;
   scroll-snap-type:x mandatory;
+  padding-bottom:10px;
 }
-.grid::-webkit-scrollbar{ display:none }
+.section .grid::-webkit-scrollbar{ display:none }
 
-/* Hero squares */
+/* =========================
+   Hero cards
+========================= */
 .hero{
   position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
   border-radius:16px; padding:var(--hero-pad); aspect-ratio:1/1; scroll-snap-align:start;
 }
-.hero.devstate{ border:2px solid var(--blue) } /* BLUE BORDER for DEV */
+.hero.devstate{ border:2px solid var(--blue) }
 
 /* Labels */
 .hero .label{
@@ -97,30 +106,14 @@ body.lock{ position:fixed; width:100% }
 
 /* Hero reorder arrows (Admin + Dev only) */
 .hero-arrows{
-  display:none;                /* hidden by default */
-  position:absolute;
-  right:8px;                   /* hug right edge */
-  top:50%;                     /* vertical center */
-  transform:translateY(-50%);  /* perfect centering */
-  z-index:6;                   /* above art/label */
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:10px;                    /* space between ▲ and ▼ */
+  display:none;
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  z-index:6; flex-direction:column; align-items:center; justify-content:center; gap:10px;
 }
-
-/* Show arrows only when body has Dev mode */
 .config-on .hero .hero-arrows{ display:flex }
-
 .hero-arrows .cfg-arrow{
-  width:32px; height:32px;     /* bigger tap target */
-  border-radius:8px;
-  border:1px solid var(--stroke);
-  background:#161922;
-  color:#fff;
-  font-weight:900;
-  font-size:14px;
-  line-height:1;
+  width:32px; height:32px; border-radius:8px; border:1px solid var(--stroke);
+  background:#161922; color:#fff; font-weight:900; font-size:14px; line-height:1;
 }
 
 /* Status pill (normal mode) */
@@ -259,7 +252,8 @@ body.lock{ position:fixed; width:100% }
 </header>
 
 <main class="wrap">
-  <section class="grid" id="pageGrid"></section>
+  <!-- JS will build .section blocks here -->
+  <div id="pageGrid"></div>
 </main>
 
 <!-- Edit Dialog -->
@@ -389,7 +383,7 @@ function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
 /* =========================
-   Avatar + drawers (minimal)
+   Avatar (minimal)
 ========================= */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
@@ -398,37 +392,7 @@ function paintAvatar(){
   $('#avatarLvl').textContent = ROLE_LABEL[role] || role;
 }
 paintAvatar();
-/* ===== avatar drawer wiring ===== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  const avatarBtn = document.querySelector('#avatarTab');
-  const avatarSheet = document.querySelector('#avatarSheet');
-  const closeBtn = document.querySelector('#avatarClose');
 
-  function openDrawer(){
-    avatarSheet.classList.add('open');
-    avatarSheet.setAttribute('aria-hidden','false');
-    avatarBtn.setAttribute('aria-expanded','true');
-    lockBody();
-  }
-  function closeDrawer(){
-    avatarSheet.classList.remove('open');
-    avatarSheet.setAttribute('aria-hidden','true');
-    avatarBtn.setAttribute('aria-expanded','false');
-    unlockBody();
-  }
-
-  if(avatarBtn && avatarSheet){
-    avatarBtn.addEventListener('click', openDrawer, {passive:true});
-  }
-  if(closeBtn){
-    closeBtn.addEventListener('click', closeDrawer, {passive:true});
-  }
-  if(avatarSheet){
-    avatarSheet.addEventListener('click', e=>{
-      if(e.target===avatarSheet) closeDrawer();
-    }, {passive:true});
-  }
-});
 /* =========================
    Label helpers
 ========================= */
@@ -454,7 +418,7 @@ function openEditDialog(ctx, currentText, currentColor){
     const b=document.createElement('button');
     b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
     if(col===currentColor) b.style.outline='2px solid #fff';
-    b.addEventListener('click',()=>{ $$('.swatch').forEach(s=>s.style.outline='none'); b.style.outline='2px solid #fff'; b.dataset.selected='1'; pal.dataset.selected=col; }, {passive:true});
+    b.addEventListener('click',()=>{ $$('.swatch').forEach(s=>s.style.outline='none'); b.style.outline='2px solid #fff'; pal.dataset.selected=col; }, {passive:true});
     pal.appendChild(b);
   });
   pal.dataset.selected = currentColor || '';
@@ -502,9 +466,8 @@ function heroCard(id){
      </span>` : '';
 
   const canAdminDev = isAdmin() && devOn;
-  const canDirOnDev = canDirectorDevEdit(f); // director in normal mode when hero is DEV
+  const canDirOnDev = canDirectorDevEdit(f);
 
-  // Pencil visibility (Admin in Dev OR Director on DEV hero)
   const showPencil = canAdminDev || canDirOnDev;
   const labelStyle = labelColorFor(id) ? ` style="color:${esc(labelColorFor(id))}"` : '';
 
@@ -516,7 +479,6 @@ function heroCard(id){
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
 
-  // Kebab for admin+dev
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
@@ -599,27 +561,82 @@ function dividerEl(obj){
    Paint page + archive
 ========================= */
 function paintPage(){
-  const grid=$('#pageGrid'); if(!grid) return;
-  grid.innerHTML='';
-  const s=getSettings(); const role=getRole();
-  s.pageOrder.forEach(it=>{
-    if(it.type==='hero'){
-      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
-      if(!seesAll()){
-        if(f.state!=='live') return;
-        if(!f.aud[role]) return;
+  const root = $('#pageGrid');
+  if(!root) return;
+  root.innerHTML = '';
+
+  const s = getSettings();
+  const role = getRole();
+  const staff = seesAll();
+
+  // helper to start a new section with optional divider
+  function startSection(divObj){
+    if(divObj && !staff){
+      const aud = divObj.aud || {bronze:true,silver:true,gold:true};
+      if(!aud[role]) return null; // non-staff not allowed to see this section
+    }
+    const sec = document.createElement('section');
+    sec.className = 'section';
+
+    if(divObj){
+      sec.appendChild(dividerEl(divObj));
+    }
+
+    const row = document.createElement('div');
+    row.className = 'grid';
+    sec.appendChild(row);
+
+    root.appendChild(sec);
+    return {sec, row};
+  }
+
+  let currentRow = null;
+
+  // Stream through in order; a divider starts a new section, heroes go into the current row
+  for(const it of s.pageOrder){
+    if(it.type === 'divider'){
+      const started = startSection(it);
+      currentRow = started ? started.row : null;
+      continue;
+    }
+    if(it.type === 'hero'){
+      const id = it.id;
+      const f = s.heroFlags[id];
+      if(!f || f.place!=='page') continue;
+
+      if(!staff){
+        if(f.state!=='live') continue;
+        if(!f.aud[role]) continue;
       }
-      const card = heroCard(id); if(card) grid.appendChild(card);
-    }else if(it.type==='divider'){
-      const aud=it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll()){ if(!aud[role]) return; }
-      grid.appendChild(dividerEl(it));
+
+      if(!currentRow){
+        // no prior divider — create a nameless section for initial heroes
+        const started = startSection(null);
+        currentRow = started ? started.row : null;
+        if(!currentRow) continue;
+      }
+
+      const card = heroCard(id);
+      if(card) currentRow.appendChild(card);
+    }
+  }
+
+  // Remove any empty nameless section (safety)
+  $$('#pageGrid .section').forEach(sec=>{
+    const row = sec.querySelector('.grid');
+    const hasHeroes = row && row.children.length>0;
+    const hasDivider = !!sec.querySelector('.divider');
+    if(!hasHeroes && !hasDivider){
+      sec.remove();
     }
   });
 }
 
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
-function applyArchiveVisibility(){ if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); } else { dock.style.display='none'; dock.setAttribute('aria-hidden','true'); } }
+function applyArchiveVisibility(){
+  if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
+  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
+}
 function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
 function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
 
@@ -648,15 +665,14 @@ function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scr
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
 
 /* =========================
-   Subsheet
+   Subsheet (optional shell-safe)
 ========================= */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
   if(!url){ alert('401 — Not linked yet'); return; }
-  sheetTitle && (sheetTitle.textContent=title);
+  if(sheetTitle) sheetTitle.textContent=title;
   if(subFrame) subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
-  subSheet && subSheet.classList.add('open');
-  subSheet?.setAttribute('aria-hidden','false');
+  if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); }
   lockBody();
 }
 
@@ -795,7 +811,7 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
-  /* Reorder heroes/dividers (arrows kept hidden but supported) */
+  /* Reorder heroes/dividers */
   const sortBtn = e.target.closest('.cfg-arrow');
   if(sortBtn){
     if(!(isAdmin() && devModeOn())) return;
