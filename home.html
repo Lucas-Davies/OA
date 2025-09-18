@@ -6,8 +6,8 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
-<!-- Optional Google Fonts (safe fallbacks included if blocked) -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=Playfair+Display:wght@700&family=Oswald:wght@500&family=Anton&family=Lobster&family=Pacifico&family=Bangers&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
+<!-- Google fonts for the rename dialog -->
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -66,11 +66,11 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Sections */
+/* Sections: each divider gets its own hero row */
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
-/* Row carousels */
+/* Horizontal hero rows (carousels) */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
@@ -89,18 +89,12 @@ body.lock{ position:fixed; width:100% }
 }
 .hero.devstate{ border:2px solid var(--blue) }
 
-/* Labels */
+/* Hero label */
 .hero .label{
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* Pencil (used only inside divider controls now) */
-.cfg-pin{
-  width:28px; height:28px; border-radius:8px;
-  border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; line-height:1;
-}
-
-/* Kebab on heroes (admin+dev) */
+/* Kebab (admin+dev on heroes) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 .kebab-menu{
@@ -160,15 +154,14 @@ body.lock{ position:fixed; width:100% }
   padding:14px 16px 56px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
-.divider .dctrls{
-  position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center;
-}
+.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
-/* only style the old left pencil if it exists as a direct child (we've removed it) */
-.divider > .cfg-pin{ position:absolute; top:10px; left:12px }
-
-/* Divider audience row */
 .divider .aud-line{ position:absolute; left:16px; bottom:14px }
+
+/* Put the divider pencil beside ▲ ▼ Remove */
+.divider .dctrls .cfg-pin{
+  position:static; width:auto; height:34px; padding:0 12px; border-radius:999px;
+}
 
 /* Compact headings in normal mode */
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
@@ -219,9 +212,11 @@ body.lock{ position:fixed; width:100% }
   z-index:1;
 }
 
-/* Visibility helpers */
+/* Hide editor-only bits when not in dev */
 .hide-when-normal{ display:none }
 .config-on .hide-when-normal{ display:flex }
+
+/* In normal view hide audience line unless director-on-dev */
 .normal-hide{ display:none }
 .config-on .normal-hide{ display:flex }
 
@@ -250,8 +245,7 @@ body.lock{ position:fixed; width:100% }
   background:#12141a; color:#fff; font-weight:900; font-size:16px;
 }
 #fontFamily{
-  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700;
-  max-width:280px;
+  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700
 }
 .preview{
   width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
@@ -273,6 +267,7 @@ body.lock{ position:fixed; width:100% }
 </header>
 
 <main class="wrap">
+  <!-- JS will build .section blocks here -->
   <div id="pageGrid"></div>
 </main>
 
@@ -308,18 +303,15 @@ body.lock{ position:fixed; width:100% }
     <div class="row" id="fontControls">
       <div style="font-weight:800">Font:</div>
       <select id="fontFamily">
-        <!-- sensible defaults + fun display faces -->
         <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
-        <option value="Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">Inter</option>
         <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
-        <option value="Playfair Display,Georgia,'Times New Roman',serif">Playfair Display</option>
-        <option value="Oswald,Arial Narrow,Arial,sans-serif">Oswald</option>
-        <option value="Anton,Impact,Haettenschweiler,Arial Narrow Bold,sans-serif">Anton</option>
-        <option value="Lobster,'Brush Script MT',cursive">Lobster</option>
-        <option value="Pacifico,'Brush Script MT',cursive">Pacifico</option>
-        <option value="Bangers,Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif">Bangers</option>
-        <option value="Baloo 2,Arial Rounded MT Bold,Arial,sans-serif">Baloo 2</option>
         <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
+        <option value="'Comic Neue','Comic Sans MS',cursive">Comic Neue</option>
+        <option value="'Pacifico',cursive">Pacifico</option>
+        <option value="'Bangers',cursive">Bangers</option>
+        <option value="'Lobster',cursive">Lobster</option>
+        <option value="'Oswald',Arial,sans-serif">Oswald</option>
+        <option value="'Raleway',Arial,sans-serif">Raleway</option>
       </select>
       <button class="fontBtn" id="fontDown" type="button" aria-label="Decrease font size">A–</button>
       <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
@@ -345,10 +337,12 @@ body.lock{ position:fixed; width:100% }
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
+
     <div class="title" style="gap:12px">
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
+
   <div class="content">
     <div class="list" id="archiveList"></div>
   </div>
@@ -367,7 +361,7 @@ const store={
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
 };
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=5;
+const SCHEMA_VERSION=4;
 
 /* Escape */
 const esc=s=>String(s??'')
@@ -518,7 +512,6 @@ function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentF
   $('#editTitle').textContent = (ctx.type==='hero'?'Edit Hero':'Edit Heading');
   $('#editText').value = currentText||'';
 
-  // palette
   const pal = $('#editPalette'); pal.innerHTML='';
   paletteColors.forEach(col=>{
     const b=document.createElement('button');
@@ -527,7 +520,6 @@ function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentF
     pal.appendChild(b);
   });
 
-  // font controls
   liveFont = Math.max(10, Math.min(64, Number(currentSize||18)));
   liveColor = currentColor || '';
   liveFamily = currentFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
@@ -557,7 +549,7 @@ $('#editSave').addEventListener('click', ()=>{
       labelSize:  liveFont,
       labelFont:  liveFamily
     };
-  }else{ // divider
+  }else{
     const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
     if(idx>=0){
       s.pageOrder[idx].title = text || 'Heading';
@@ -589,9 +581,7 @@ function heroCard(id){
      </span>` : '';
 
   const canAdminDev = isAdmin() && devOn;
-  const canDirOnDev = canDirectorDevEdit(f);
 
-  /* HERO PENCIL REMOVED (rename via kebab only) */
   const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
 
@@ -625,16 +615,13 @@ function heroCard(id){
 
     <div class="ctrls">
       ${kebabHTML}
-      ${(!canAdminDev && canDirOnDev) ? `
-        <button class="footer-chip" disabled style="height:28px">Dev</button>
-        <button class="footer-chip" data-act="pickart" style="height:28px">Photo</button>` : ``}
     </div>
 
     <div class="cta-left">
       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
         ${completed?'Complete':(inprogress?'In Progress':'Start')}
       </button>
-      ${(canAdminDev || canDirOnDev) ? `
+      ${canAdminDev ? `
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
@@ -671,7 +658,7 @@ function dividerEl(obj){
         <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
         <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
         <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
-        <button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
+        <button class="footer-chip cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
       </div>`:''}
     ${editable?`
       <div class="aud-line">
@@ -744,7 +731,9 @@ function paintPage(){
     const row = sec.querySelector('.grid');
     const hasHeroes = row && row.children.length>0;
     const hasDivider = !!sec.querySelector('.divider');
-    if(!hasHeroes && !hasDivider) sec.remove();
+    if(!hasHeroes && !hasDivider){
+      sec.remove();
+    }
   });
 }
 
@@ -827,7 +816,7 @@ $('#addHeadingBtn').addEventListener('click',()=>{
 });
 
 /* =========================
-   Delegated clicks
+   Delegated clicks (page)
 ========================= */
 document.addEventListener('click',(e)=>{
   /* Enter */
@@ -895,12 +884,12 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Audience hero chips */
+  /* Audience hero chips (Admin+Dev only) */
   const audBtn=e.target.closest('[data-aud]');
   if(audBtn){
+    if(!(isAdmin() && devModeOn())) return;
     const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
-    if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
     const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
     if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
