@@ -305,6 +305,83 @@ body.lock{ position:fixed; width:100% }
 
 /* Optional: keep natural scrolling locked when a menu is open on iOS */
 body.menu-lock{ overflow:hidden; }
+
+/* === Enhancements: fixed row height, shapes, indicators, kebab close === */
+
+/* Horizontal hero rows (carousels) */
+.section .grid{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:max-content; /* width comes from hero width */
+  gap:var(--gap);
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding-bottom:10px;
+}
+.section .grid::-webkit-scrollbar{ display:none }
+
+/* Row sizing -> fixed card height per row */
+.grid.size-xs{ --card-h:160px }
+.grid.size-s { --card-h:190px }
+.grid.size-m { --card-h:220px }
+.grid.size-l { --card-h:250px }
+.grid.size-xl{ --card-h:280px }
+
+/* Hero cards (base) */
+.hero{
+  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
+  border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
+  scroll-snap-align:start; display:block; cursor:pointer;
+}
+
+/* Shapes — same height; width varies by ratio */
+.hero.shape-square{ width:calc(var(--card-h) * 1);      border-radius:16px }
+.hero.shape-hr    { width:calc(var(--card-h) * (16/9)); border-radius:16px }
+.hero.shape-vr    { width:calc(var(--card-h) * (3/4));  border-radius:16px }
+.hero.shape-circle{ width:calc(var(--card-h) * 1);      border-radius:50%  }
+
+/* Make art & overlay match radius */
+.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
+.hero::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
+  z-index:1;
+}
+
+/* Audience indicator dots (read-only) */
+.aud-indicators{
+  position:absolute; right:10px; bottom:10px; display:flex; gap:6px; z-index:2;
+}
+.aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
+.aud-dot.on{ opacity:1 }
+.aud-dot.bronze{ background:#b87333 }
+.aud-dot.silver{ background:#c0c7d1 }
+.aud-dot.gold{   background:#ffd700 }
+
+/* Heading indicators (show near arrows) */
+.divider .aud-indicators-head{
+  position:absolute; right:10px; top:10px; transform:translateX(calc(100% + 10px));
+  display:flex; gap:6px;
+}
+
+/* Kebab close X */
+.kebab-menu{
+  position:fixed !important;
+  display:none;
+  flex-direction:column;
+  min-width:260px; max-width:92vw; max-height:80vh; overflow:auto;
+  background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px; padding:12px;
+  box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+  z-index:10000 !important;
+}
+.kebab-close{
+  position:absolute; top:6px; right:6px; width:28px; height:28px; border-radius:8px;
+  border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900;
+}
+
+/* Hide legacy CTA surface & buttons (Start/Complete/etc.) */
+.aud-line{ display:none !important; } /* remove inline audience chips on hero surface */
+.cta-left{ display:none !important; }
+.btn{ display:none !important; }
 </style>
 </head>
 
@@ -1221,6 +1298,197 @@ document.addEventListener('click',(e)=>{
   }
 }, {passive:false});
 
+})();
+</script>
+
+<!-- === Course Sheet (slide-up) === -->
+<div id="courseSheet" aria-hidden="true" style="position:fixed;inset:0;display:none;z-index:85;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)">
+  <div id="coursePanel" role="dialog" aria-modal="true"
+       style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+              width:min(1100px, 96vw); max-height:86vh; background:#0f1116; border:1px solid var(--stroke);
+              border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--stroke)">
+      <div style="font-weight:900" id="courseTitle">Course</div>
+      <button id="courseClose" class="footer-chip" type="button" aria-label="Close">Close</button>
+    </div>
+    <div style="display:flex; gap:0; flex-wrap:wrap">
+      <div style="flex:1 1 520px; min-height:300px; max-height:70vh; overflow:hidden; border-right:1px solid var(--stroke)">
+        <iframe id="courseFrame" title="Course" src="" style="width:100%; height:100%; border:0"></iframe>
+      </div>
+      <div style="flex:1 1 360px; padding:12px; max-height:70vh; overflow:auto">
+        <div id="courseSummary" style="opacity:.92"></div>
+        <div style="display:flex; gap:8px; margin-top:12px">
+          <button class="footer-chip" id="courseStart" type="button">Start</button>
+          <button class="footer-chip" id="courseMarkDone" type="button">Mark Complete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="enhancements-js">
+/* === Enhancements JS (audience indicators, kebab close, course sheet) === */
+(function(){
+  const $ = (sel,root=document)=>root.querySelector(sel);
+  const $$ = (sel,root=document)=>Array.from(root.querySelectorAll(sel));
+
+  function seesAll(){
+    try { return (typeof window.seesAll === 'function') ? window.seesAll() : (window.isAdmin?.() || window.isDirector?.() || window.isSupport?.()); }
+    catch(e){ return false; }
+  }
+  function getFlagsFor(id){
+    try { return window.getSettings?.().heroFlags?.[id]; } catch(e){ return null; }
+  }
+  function labelFor(id){ try { return window.labelFor?.(id) || id; } catch(e){ return id; } }
+
+  /* ---- Hero indicators ---- */
+  function addHeroIndicators(){
+    if(!seesAll()) return;
+    $$('.hero').forEach(h=>{
+      if(h.querySelector('.aud-indicators')) return;
+      const id = h.dataset.heroId;
+      const f = getFlagsFor(id);
+      if(!f?.aud) return;
+      const ind = document.createElement('div');
+      ind.className = 'aud-indicators';
+      ind.innerHTML = `
+        <span class="aud-dot bronze ${f.aud.bronze?'on':''}" title="Beginner"></span>
+        <span class="aud-dot silver ${f.aud.silver?'on':''}" title="Intermediate"></span>
+        <span class="aud-dot gold   ${f.aud.gold  ?'on':''}" title="Advanced"></span>`;
+      h.appendChild(ind);
+    });
+  }
+
+  /* ---- Heading indicators ---- */
+  function addHeadingIndicators(){
+    if(!seesAll()) return;
+    $$('.divider').forEach(div=>{
+      if(div.querySelector('.aud-indicators-head')) return;
+      let aud = {bronze:false, silver:false, gold:false};
+      const heroes = div.nextElementSibling?.querySelectorAll?.('.hero') || [];
+      heroes.forEach(h=>{
+        const f = getFlagsFor(h.dataset.heroId);
+        if(f?.aud){
+          aud.bronze ||= !!f.aud.bronze;
+          aud.silver ||= !!f.aud.silver;
+          aud.gold   ||= !!f.aud.gold;
+        }
+      });
+      const el = document.createElement('div');
+      el.className = 'aud-indicators-head';
+      el.innerHTML = `
+        <span class="aud-dot bronze ${aud.bronze?'on':''}" title="Beginner"></span>
+        <span class="aud-dot silver ${aud.silver?'on':''}" title="Intermediate"></span>
+        <span class="aud-dot gold   ${aud.gold  ?'on':''}" title="Advanced"></span>`;
+      div.appendChild(el);
+    });
+  }
+
+  /* ---- Kebab enhancements ---- */
+  function enhanceKebabMenus(){
+    document.addEventListener('click', (e)=>{
+      // Close button
+      const closeBtn = e.target.closest?.('.kebab-close');
+      if(closeBtn){
+        window.closeKebabMenu?.();
+        closeBtn.closest('.kebab-menu').style.display='none';
+        return;
+      }
+      // On kebab button
+      const kebabBtn = e.target.closest?.('.kebab');
+      if(!kebabBtn) return;
+      requestAnimationFrame(()=>{
+        const host = kebabBtn.closest('.hero') || kebabBtn.closest('.divider');
+        const menu = host?.querySelector('.kebab-menu'); if(!menu) return;
+        if(!menu.querySelector('.kebab-close')){
+          const x = document.createElement('button');
+          x.type='button'; x.className='kebab-close'; x.dataset.kebabClose=''; x.textContent='×';
+          x.setAttribute('aria-label','Close');
+          menu.prepend(x);
+        }
+        if(host.classList.contains('hero') && window.isAdmin?.() && window.devModeOn?.() && !menu.querySelector('[data-menu="aud"]')){
+          const id = host.dataset.heroId;
+          const f = getFlagsFor(id);
+          if(f?.aud){
+            const group = document.createElement('div');
+            group.className='group';
+            group.innerHTML = `
+              <div class="title">Audience</div>
+              <button class="opt" data-menu="aud" data-aud="bronze" type="button">${f.aud.bronze?'<span class="dot"></span>':''}Beginner</button>
+              <button class="opt" data-menu="aud" data-aud="silver" type="button">${f.aud.silver?'<span class="dot"></span>':''}Intermediate</button>
+              <button class="opt" data-menu="aud" data-aud="gold"   type="button">${f.aud.gold  ?'<span class="dot"></span>':''}Advanced</button>`;
+            menu.appendChild(group);
+          }
+        }
+      });
+    });
+
+    // Audience toggles
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest?.('.kebab-menu button.opt[data-menu="aud"]');
+      if(!btn) return;
+      const hero = btn.closest('.hero');
+      const id = hero?.dataset.heroId;
+      const s = window.getSettings?.(); const f = s?.heroFlags?.[id];
+      if(!(window.isAdmin?.() && window.devModeOn?.())) return;
+      const key = btn.dataset.aud;
+      const nextVal = !f.aud[key];
+      if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
+      s.heroFlags[id] = {...f, aud:{...f.aud, [key]:nextVal}};
+      window.saveSettings?.(s); window.paintPage?.(); window.closeKebabMenu?.();
+    });
+  }
+
+  /* ---- Course Sheet ---- */
+  function wireCourseSheet(){
+    document.addEventListener('click', (e)=>{
+      const hero = e.target.closest?.('.hero');
+      if(!hero || e.target.closest('.kebab, .kebab-menu, .cfg-arrow')) return;
+      const id = hero.dataset.heroId;
+      const n = Number(((id||'').match(/\d+/)||[])[0]||0);
+      const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
+      document.getElementById('courseTitle').textContent = labelFor(id);
+      document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
+      document.getElementById('courseSummary').textContent = `Quick summary for ${labelFor(id)} — (replace later).`;
+      const sheet = document.getElementById('courseSheet');
+      sheet.style.display='block'; sheet.setAttribute('aria-hidden','false');
+      document.body.classList.add('no-scroll');
+    });
+    document.getElementById('courseClose')?.addEventListener('click', ()=>{ 
+      const sheet=document.getElementById('courseSheet'); sheet.style.display='none'; sheet.setAttribute('aria-hidden','true');
+      document.getElementById('courseFrame').src=''; document.body.classList.remove('no-scroll');
+    });
+    document.getElementById('courseSheet')?.addEventListener('click', e=>{ if(e.target.id==='courseSheet') document.getElementById('courseClose')?.click(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && document.getElementById('courseSheet')?.style.display==='block') document.getElementById('courseClose')?.click(); });
+  }
+
+  /* ---- Hook paintPage ---- */
+  (function hookPaint(){
+    const orig = window.paintPage;
+    if(typeof orig==='function'){
+      window.paintPage = function(){
+        const ret = orig.apply(this, arguments);
+        addHeroIndicators(); addHeadingIndicators();
+        return ret;
+      };
+    } else {
+      document.addEventListener('DOMContentLoaded', ()=>{ addHeroIndicators(); addHeadingIndicators(); });
+    }
+  })();
+
+  /* ---- Init ---- */
+  document.addEventListener('DOMContentLoaded', ()=>{
+    enhanceKebabMenus();
+    wireCourseSheet();
+    addHeroIndicators();
+    addHeadingIndicators();
+  });
+
+  // Expose for page init if needed
+  window.enhanceKebabMenus = enhanceKebabMenus;
+  window.wireCourseSheet = wireCourseSheet;
+  window.addHeroIndicators = addHeroIndicators;
+  window.addHeadingIndicators = addHeadingIndicators;
 })();
 </script>
 </body>
