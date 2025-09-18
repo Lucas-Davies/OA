@@ -66,15 +66,15 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Sections: each divider gets its own hero row */
-.section{ margin:32px 0 }
+/* Sections (each divider gets its own row) */
+.section{ margin:32px 0; position:relative; z-index:0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal hero rows (carousels) */
+/* Horizontal hero rows */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:clamp(180px, 28vw, 280px); /* default M */
+  grid-auto-columns:max-content;
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
@@ -82,119 +82,82 @@ body.lock{ position:fixed; width:100% }
 }
 .section .grid::-webkit-scrollbar{ display:none }
 
-/* Row sizing (applied per-heading) */
-.grid.size-xs{ grid-auto-columns:clamp(140px,22vw,200px) }
-.grid.size-s { grid-auto-columns:clamp(160px,25vw,240px) }
-.grid.size-m { grid-auto-columns:clamp(180px,28vw,280px) }
-.grid.size-l { grid-auto-columns:clamp(210px,32vw,320px) }
-.grid.size-xl{ grid-auto-columns:clamp(240px,36vw,380px) }
+/* Row sizing -> fixed card height per row */
+.grid.size-xs{ --card-h:160px }
+.grid.size-s { --card-h:190px }
+.grid.size-m { --card-h:220px }
+.grid.size-l { --card-h:250px }
+.grid.size-xl{ --card-h:280px }
 
-/* Hero cards */
+/* Hero cards (base) */
 .hero{
   position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-  border-radius:16px; padding:var(--hero-pad); aspect-ratio:1/1; scroll-snap-align:start;
-}
-.hero.devstate{ border:2px solid var(--blue) }
-
-/* Hero shapes (size still controlled by row sizing) */
-.hero.shape-square{ aspect-ratio:1 / 1; border-radius:16px; }
-.hero.shape-hr    { aspect-ratio:16 / 9; border-radius:16px; }
-.hero.shape-vr    { aspect-ratio:3 / 4;  border-radius:16px; }
-.hero.shape-circle{ aspect-ratio:1 / 1;  border-radius:50%;  }
-
-/* Make the art + overlay match the outer shape */
-.hero.shape-circle .art,
-.hero.shape-circle::after { border-radius:50%; }
-
-/* Hero label */
-.hero .label{
-  font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
+  border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
+  width:auto; scroll-snap-align:start; display:block; cursor:pointer;
 }
 
-/* Kebab (shared) */
-.ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
-.kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
+/* Shapes via aspect-ratio so widths align cleanly */
+.hero.shape-square{ aspect-ratio:1/1; }
+.hero.shape-hr    { aspect-ratio:16/9; }
+.hero.shape-vr    { aspect-ratio:3/4;  }
+.hero.shape-circle{ aspect-ratio:1/1; border-radius:50%; }
 
-/* Kebab menu — now fixed & centred */
-.kebab-menu{
-  position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-
-  display:none;                 /* JS toggles to flex */
-  flex-direction:column;
-  min-width:260px;
-  max-width:92vw;
-  max-height:80vh;              /* safe on small screens */
-  overflow:auto;
-
-  background:#1b1f2a;
-  border:1px solid var(--stroke);
-  border-radius:10px;
-  padding:12px;
-  box-shadow:0 20px 40px rgba(0,0,0,.55),
-             0 0 0 1px rgba(255,255,255,.06) inset;
-  z-index:10000 !important;
-}
-.kebab-menu button{
-  background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
-}
-.kebab-menu button:hover{ background:#2a2f3a }
-.kebab-menu .group{ padding:4px 6px 8px 6px }
-.kebab-menu .title{ color:#fff; font-weight:900; padding:6px 8px 2px }
-.kebab-menu .opt{ display:flex; align-items:center; gap:8px; padding-left:18px }
-.kebab-menu .dot{
-  width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block;
-}
-.kebab-menu .danger{ color:#ff453a; font-weight:900; }
-
-/* Heading controls (arrows pinned on divider) */
-.divider .dctrls{ position:absolute; top:10px; right:54px; display:none; gap:6px; align-items:center }
-.config-on .divider .dctrls{ display:flex }
-
-/* Hero reorder arrows (Admin + Dev only) */
-.hero-arrows{
-  display:none;
-  position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  z-index:6; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-}
-.config-on .hero .hero-arrows{ display:flex }
-.hero-arrows .cfg-arrow{
-  width:32px; height:32px; border-radius:8px; border:1px solid var(--stroke);
-  background:#161922; color:#fff; font-weight:900; font-size:14px; line-height:1;
-}
-
-/* Staff-only state borders (replace old pill styles) */
+/* Staff-only coloured borders */
 .hero.state-live { border:2px solid var(--green); }
 .hero.state-dev  { border:2px solid var(--blue); }
 .hero.state-off  { border:2px solid var(--red); }
 
-/* Buttons */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; min-width:120px; height:40px; padding:0 14px;
-  border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#ink
+/* Label */
+.hero .label{
+  font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
-.btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
-.btn.grey{ background:#3a3a3a; color:#fff; border-color:var(--stroke) }
 
-/* CTA + audience */
-.cta-left{ position:absolute; left:16px; bottom:16px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:2 }
-.aud-line{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-.aud-chip{
-  height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
-  background:#141416; color:#fff; font-weight:800; font-size:12px; opacity:.9
+/* Hero controls anchored inside hero */
+.hero .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
+.kebab{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:8px; border:1px solid var(--stroke);
+  background:#12151c; color:#e7eaf0; cursor:pointer; font-weight:900;
 }
-.aud-chip.on{ opacity:1; filter:brightness(1.22) }
-.aud-chip.on::after{ content:" ✓"; font-weight:900 }
-.aud-chip.bronze{ box-shadow:inset 0 0 0 2px #b87333 }
-.aud-chip.silver{ box-shadow:inset 0 0 0 2px #c0c7d1 }
-.aud-chip.gold{   box-shadow:inset 0 0 0 2px #ffd700 }
+
+/* Hero reorder arrows (Admin + Dev only) */
+.hero-arrows{
+  display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  z-index:6; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+}
+.config-on .hero .hero-arrows{ display:flex }
+.cfg-arrow{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:8px; border:1px solid var(--stroke);
+  background:#12151c; color:#e7eaf0; cursor:pointer;
+}
+
+/* Kebab menu (floating, overlayed) */
+.kebab-menu{
+  position:fixed !important; display:none; flex-direction:column;
+  min-width:260px; max-width:92vw; max-height:80vh; overflow:auto;
+  background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px; padding:12px;
+  box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
+  z-index:10000 !important; pointer-events:auto;
+}
+.kebab-menu .group{ padding:4px 6px 8px 6px }
+.kebab-menu .title{ color:#fff; font-weight:900; padding:6px 8px 2px }
+.kebab-menu .opt{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+  padding:8px 10px; border-radius:8px; border:1px solid transparent;
+  background:#0f1219; color:#e7eaf0; cursor:pointer; font-weight:800;
+}
+.kebab-menu .opt:hover{ border-color:#2a3344; background:#141a25 }
+.kebab-menu .dot{ width:8px; height:8px; border-radius:999px; background:#8fb3ff; display:inline-block }
+.kebab-close{
+  position:absolute; top:6px; right:6px; width:28px; height:28px; border-radius:8px;
+  border:1px solid var(--stroke); background:#121212; color:#fff; font-weight:900; cursor:pointer;
+}
 
 /* Divider (Heading) */
 .divider{
   position:relative; border:1px dashed var(--stroke); border-radius:14px; background:#0b0d12;
-  padding:14px 16px 56px; min-height:58px; margin:18px 0;
+  padding:14px 16px 56px; min-height:58px; margin:18px 0; z-index:1;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
 .divider .aud-line{ position:absolute; left:16px; bottom:14px }
@@ -203,6 +166,25 @@ body.lock{ position:fixed; width:100% }
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
 :not(.config-on) .divider .aud-line{ display:none }
 :not(.config-on) .divider .htext{ padding:0; margin:0 }
+
+/* Divider controls pinned inside divider top-right */
+.divider .dctrls{ position:absolute; top:10px; right:54px; display:none; gap:6px; align-items:center; z-index:6 }
+.config-on .divider .dctrls{ display:flex }
+.divider .ctrls{ position:absolute; top:10px; right:10px; z-index:9000 }
+
+/* Audience indicator dots */
+.aud-indicators{
+  position:absolute; right:10px; bottom:10px; display:flex; gap:6px; z-index:2;
+}
+.aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
+.aud-dot.on{ opacity:1 }
+.aud-dot.bronze{ background:#b87333 }
+.aud-dot.silver{ background:#c0c7d1 }
+.aud-dot.gold{   background:#ffd700 }
+.divider .aud-indicators-head{
+  position:absolute; right:10px; top:10px; transform:translateX(calc(100% + 10px));
+  display:flex; gap:6px;
+}
 
 /* Footer Dock (Developer only) */
 #archiveDock{
@@ -226,204 +208,43 @@ body.lock{ position:fixed; width:100% }
 #archiveDock.open{ max-height:80vh }
 
 .footer-chip{
-  display:inline-flex; align-items:center; gap:8px; height:34px; padding:0 12px; border-radius:999px;
-  border:1px solid var(--stroke); background:#1b1f2a; color:#fff; font-weight:800
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 10px; border-radius:10px; border:1px solid var(--stroke);
+  background:#141821; color:#e7eaf0; cursor:pointer; user-select:none; font:600 13px/1.2 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
 }
-.footer-label{ opacity:.9; margin-left:10px; font-size:12px }
+.footer-chip:hover{ background:#182032; }
+.footer-chip.danger{ border-color:#5a1f23; background:#2a1012; color:#ffb4b8 }
 
-/* Completed/In-Progress flags */
-.hero.completed{ border:2px solid #888 }
-.hero.inprogress{ border:2px solid var(--green) }
+/* Hide legacy CTA surface & buttons */
+.aud-line{ display:none !important; }
+.cta-left{ display:none !important; }
+.btn{ display:none !important; }
 
 /* Hero art layer */
-.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:16px }
+.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
 .hero .art img{
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
   width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
   filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
 .hero::after{
-  content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
   z-index:1;
 }
 
-/* Hide editor-only bits when not in dev */
-.hide-when-normal{ display:none }
-.config-on .hide-when-normal{ display:flex }
+/* Overlay root for kebabs */
+#kebabOverlay{ position:fixed; inset:0; z-index:12000; pointer-events:none; }
+#kebabOverlay[hidden]{ display:none }
+#kebabBackdrop{ position:absolute; inset:0; background:transparent; pointer-events:auto }
 
-/* In normal view hide audience line unless director-on-dev */
-.normal-hide{ display:none }
-.config-on .normal-hide{ display:flex }
-
-/* Edit dialog */
-#editDialog{
-  position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
-  background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)
+/* Course Sheet (unchanged visuals) */
+#courseSheet{ position:fixed; inset:0; display:none; z-index:85; background:rgba(0,0,0,.55); backdrop-filter:blur(6px) }
+#coursePanel{
+  position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+  width:min(1100px, 96vw); max-height:86vh; background:#0f1116; border:1px solid var(--stroke);
+  border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column;
 }
-#editDialog.open{ display:flex }
-#editPanel{
-  width:min(560px, 92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;
-}
-#editPanel h3{ margin:0 0 10px; font-weight:900 }
-#editPanel .row{ display:flex; gap:10px; align-items:center; margin:10px 0; flex-wrap:wrap }
-#editPanel input[type="text"]{
-  flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
-}
-.palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
-.swatch{
-  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
-}
-.actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
-#fontControls{ display:flex; align-items:center; gap:8px }
-.fontBtn{
-  width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke);
-  background:#12141a; color:#fff; font-weight:900; font-size:16px;
-}
-#fontFamily{
-  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700
-}
-.preview{
-  width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
-}
-
-/* --- Layering & kebab fixes --- */
-.section { position: relative; z-index: 0; }
-.divider { position: relative; z-index: 50; }   /* heading row above heroes */
-.hero { position: relative; z-index: 1; }
-.hero .hero-arrows { z-index: 3; }
-.hero .ctrls .kebab { z-index: 4; }
-
-/* Heading kebab + menu — very high, sits above everything */
-.divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
-.divider .ctrls .kebab { z-index: 9001; }
-
-/* Ensure menus are clickable */
-.hero .hero-arrows,
-.hero .ctrls { pointer-events: auto; }
-.kebab-menu{ pointer-events: auto; }
-
-/* Optional: keep natural scrolling locked when a menu is open on iOS */
-body.menu-lock{ overflow:hidden; }
-
-/* === Button styling fix-ups (ensures consistent visuals) === */
-button, .footer-chip, .kebab, .opt, .cfg-arrow {
-  font: 600 13px/1.2 system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  letter-spacing:.2px;
-}
-.footer-chip{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:7px 10px; border-radius:10px; border:1px solid var(--stroke, #2a2f3a);
-  background:#141821; color:#e7eaf0; cursor:pointer; user-select:none;
-}
-.footer-chip:hover{ background:#182032; }
-.footer-chip.danger{ border-color:#5a1f23; background:#2a1012; color:#ffb4b8 }
-
-/* Kebab trigger button */
-.kebab{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:28px; height:28px; border-radius:8px; border:1px solid var(--stroke, #2a2f3a);
-  background:#12151c; color:#e7eaf0; cursor:pointer;
-}
-
-/* Kebab menu options */
-.kebab-menu .group{ margin:8px 0; }
-.kebab-menu .title{ font-weight:800; font-size:12px; opacity:.8; margin:4px 6px 6px }
-.kebab-menu .opt{
-  display:flex; align-items:center; gap:8px; width:100%;
-  text-align:left; padding:8px 10px; border-radius:8px;
-  border:1px solid transparent; background:#0f1219; color:#e7eaf0; cursor:pointer;
-}
-.kebab-menu .opt:hover{ border-color:#2a3344; background:#141a25 }
-.kebab-menu .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#8fb3ff; }
-
-/* Config arrows on heroes/dividers */
-.cfg-arrow{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:26px; height:26px; border-radius:8px; border:1px solid var(--stroke,#2a2f3a);
-  background:#12151c; color:#e7eaf0; cursor:pointer;
-}
-.cfg-arrow + .cfg-arrow{ margin-left:6px }
-
-/* Divider controls wrapper so arrows don't overlap text */
-.divider{ position:relative; }
-.divider .dctrls{ display:flex; gap:6px; position:absolute; right:8px; top:0; transform:translateY(-120%); }
-/* === Enhancements: fixed row height, shapes, indicators, kebab close === */
-
-/* Horizontal hero rows (carousels) */
-.section .grid{
-  display:grid;
-  grid-auto-flow:column;
-  grid-auto-columns:max-content; /* width comes from hero width */
-  gap:var(--gap);
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  padding-bottom:10px;
-}
-.section .grid::-webkit-scrollbar{ display:none }
-
-/* Row sizing -> fixed card height per row */
-.grid.size-xs{ --card-h:160px }
-.grid.size-s { --card-h:190px }
-.grid.size-m { --card-h:220px }
-.grid.size-l { --card-h:250px }
-.grid.size-xl{ --card-h:280px }
-
-/* Hero cards (base) */
-.hero{
-  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke, #2a2f3a);
-  border-radius:16px; padding:var(--hero-pad, 10px); height:var(--card-h);
-  scroll-snap-align:start; display:block; cursor:pointer;
-}
-
-/* Shapes — same height; width varies by ratio */
-.hero.shape-square{ width:calc(var(--card-h) * 1);      border-radius:16px }
-.hero.shape-hr    { width:calc(var(--card-h) * (16/9)); border-radius:16px }
-.hero.shape-vr    { width:calc(var(--card-h) * (3/4));  border-radius:16px }
-.hero.shape-circle{ width:calc(var(--card-h) * 1);      border-radius:50%  }
-
-/* Make art & overlay match radius */
-.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
-.hero::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
-  z-index:1;
-}
-
-/* Audience indicator dots (read-only) */
-.aud-indicators{
-  position:absolute; right:10px; bottom:10px; display:flex; gap:6px; z-index:2;
-}
-.aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
-.aud-dot.on{ opacity:1 }
-.aud-dot.bronze{ background:#b87333 }
-.aud-dot.silver{ background:#c0c7d1 }
-.aud-dot.gold{   background:#ffd700 }
-
-/* Heading indicators (show near arrows) */
-.divider .aud-indicators-head{
-  position:absolute; right:10px; top:10px; transform:translateX(calc(100% + 10px));
-  display:flex; gap:6px;
-}
-
-/* Kebab close X */
-.kebab-menu{
-  position:fixed !important;
-  display:none;
-  flex-direction:column;
-  min-width:260px; max-width:92vw; max-height:80vh; overflow:auto;
-  background:#1b1f2a; border:1px solid var(--stroke, #2a2f3a); border-radius:10px; padding:12px;
-  box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-  z-index:10000 !important;
-}
-.kebab-close{
-  position:absolute; top:6px; right:6px; width:28px; height:28px; border-radius:8px;
-  border:1px solid var(--stroke, #2a2f3a); background:#121212; color:#fff; font-weight:900; cursor:pointer;
-}
-
-/* Hide legacy CTA surface & buttons (Start/Complete/etc.) */
-.aud-line{ display:none !important; } /* remove inline audience chips on hero surface */
-.cta-left{ display:none !important; }
-.btn{ display:none !important; }
 </style>
 </head>
 
@@ -441,7 +262,6 @@ button, .footer-chip, .kebab, .opt, .cfg-arrow {
 </header>
 
 <main class="wrap">
-  <!-- JS will build .section blocks here -->
   <div id="pageGrid"></div>
 </main>
 
@@ -464,16 +284,11 @@ button, .footer-chip, .kebab, .opt, .cfg-arrow {
 <div id="editDialog" aria-modal="true" role="dialog">
   <div id="editPanel" role="document">
     <h3 id="editTitle">Edit</h3>
-
-    <div class="row">
-      <input id="editText" type="text" placeholder="Title">
-    </div>
-
+    <div class="row"><input id="editText" type="text" placeholder="Title"></div>
     <div class="row">
       <div style="font-weight:800">Colour:</div>
       <div class="palette" id="editPalette"></div>
     </div>
-
     <div class="row" id="fontControls">
       <div style="font-weight:800">Font:</div>
       <select id="fontFamily">
@@ -491,11 +306,7 @@ button, .footer-chip, .kebab, .opt, .cfg-arrow {
       <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
       <span id="fontSizeLabel" style="opacity:.9;min-width:48px;text-align:right"></span>
     </div>
-
-    <div class="row">
-      <div class="preview" id="editPreview">Preview</div>
-    </div>
-
+    <div class="row"><div class="preview" id="editPreview">Preview</div></div>
     <div class="actions">
       <button class="footer-chip" id="editCancel">Cancel</button>
       <button class="footer-chip" id="editSave">Save</button>
@@ -511,22 +322,42 @@ button, .footer-chip, .kebab, .opt, .cfg-arrow {
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
-
     <div class="title" style="gap:12px">
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
-
   <div class="content">
     <div class="list" id="archiveList"></div>
   </div>
 </div>
 
-<!-- NEW: dedicated overlay root ONLY for kebab menus -->
+<!-- Kebab overlay root -->
 <div id="kebabOverlay" hidden aria-hidden="true">
   <div class="backdrop" id="kebabBackdrop"></div>
-  <!-- We will portal the existing .kebab-menu elements here and position them -->
 </div>
+
+<!-- Course Sheet -->
+<div id="courseSheet" aria-hidden="true">
+  <div id="coursePanel" role="dialog" aria-modal="true">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--stroke)">
+      <div style="font-weight:900" id="courseTitle">Course</div>
+      <button id="courseClose" class="footer-chip" type="button" aria-label="Close">Close</button>
+    </div>
+    <div style="display:flex; gap:0; flex-wrap:wrap">
+      <div style="flex:1 1 520px; min-height:300px; max-height:70vh; overflow:hidden; border-right:1px solid var(--stroke)">
+        <iframe id="courseFrame" title="Course" src="" style="width:100%; height:100%; border:0"></iframe>
+      </div>
+      <div style="flex:1 1 360px; padding:12px; max-height:70vh; overflow:auto">
+        <div id="courseSummary" style="opacity:.92"></div>
+        <div style="display:flex; gap:8px; margin-top:12px">
+          <button class="footer-chip" id="courseStart" type="button">Start</button>
+          <button class="footer-chip" id="courseMarkDone" type="button">Mark Complete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
 
 <script>
 (()=>{'use strict';
@@ -783,7 +614,7 @@ function heroCard(id){
   // Build kebab with Orientation group
   const dot = '<span class="dot" aria-hidden="true"></span>';
   const kebabHTML = canAdminDev ? `
-    <button class="kebab" aria-haspopup="true" aria-expanded="false">â®</button>
+    <button class="kebab" aria-haspopup="true" aria-expanded="false">Ã¢ÂÂ®</button>
     <div class="kebab-menu">
       <div class="group">
         <div class="title">Orientation</div>
@@ -806,8 +637,8 @@ function heroCard(id){
     ${statusPill}
     ${canAdminDev ? `
       <div class="hero-arrows">
-        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">â²</button>
-        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">â¼</button>
+        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">Ã¢ÂÂ²</button>
+        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">Ã¢ÂÂ¼</button>
       </div>` : ``}
 
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
@@ -863,12 +694,12 @@ function dividerEl(obj){
 
     ${editable ? `
       <div class="dctrls">
-        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">â²</button>
-        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">â¼</button>
+        <button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">Ã¢ÂÂ²</button>
+        <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">Ã¢ÂÂ¼</button>
       </div>
 
       <div class="ctrls">
-        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">â®</button>
+        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false" type="button">Ã¢ÂÂ®</button>
         <div class="kebab-menu div-menu" role="menu">
           <div class="group">
             <div class="title">Customise</div>
@@ -1016,7 +847,7 @@ function unlockBody(){ document.body.classList.remove('lock'); document.body.sty
 ========================= */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
-  if(!url){ alert('401 â Not linked yet'); return; }
+  if(!url){ alert('401 Ã¢ÂÂ Not linked yet'); return; }
   if(sheetTitle) sheetTitle.textContent=title;
   if(subFrame) subFrame.src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
   if(subSheet){ subSheet.classList.add('open'); subSheet.setAttribute('aria-hidden','false'); }
@@ -1142,7 +973,7 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider kebab toggle â now uses overlay portal */
+  /* Divider kebab toggle Ã¢ÂÂ now uses overlay portal */
   const divKebab = e.target.closest('.div-kebab');
   if(divKebab){
     const menu=divKebab.nextElementSibling;
@@ -1157,7 +988,7 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Hero kebab toggle â now uses overlay portal */
+  /* Hero kebab toggle Ã¢ÂÂ now uses overlay portal */
   const keb = e.target.closest('.kebab:not(.div-kebab)');
   if(keb){
     const menu=keb.nextElementSibling;
@@ -1341,34 +1172,11 @@ document.addEventListener('click',(e)=>{
 }, {passive:false});
 
 })();
-</script>
 
-<!-- === Course Sheet (slide-up) === -->
-<div id="courseSheet" aria-hidden="true" style="position:fixed;inset:0;display:none;z-index:85;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)">
-  <div id="coursePanel" role="dialog" aria-modal="true"
-       style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);
-              width:min(1100px, 96vw); max-height:86vh; background:#0f1116; border:1px solid var(--stroke);
-              border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--stroke)">
-      <div style="font-weight:900" id="courseTitle">Course</div>
-      <button id="courseClose" class="footer-chip" type="button" aria-label="Close">Close</button>
-    </div>
-    <div style="display:flex; gap:0; flex-wrap:wrap">
-      <div style="flex:1 1 520px; min-height:300px; max-height:70vh; overflow:hidden; border-right:1px solid var(--stroke)">
-        <iframe id="courseFrame" title="Course" src="" style="width:100%; height:100%; border:0"></iframe>
-      </div>
-      <div style="flex:1 1 360px; padding:12px; max-height:70vh; overflow:auto">
-        <div id="courseSummary" style="opacity:.92"></div>
-        <div style="display:flex; gap:8px; margin-top:12px">
-          <button class="footer-chip" id="courseStart" type="button">Start</button>
-          <button class="footer-chip" id="courseMarkDone" type="button">Mark Complete</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<script id="enhancements-js">
+/* ============================= */
+
+
 /* === Enhancements JS (audience indicators, kebab close, course sheet) === */
 (function(){
   const $ = (sel,root=document)=>root.querySelector(sel);
@@ -1444,7 +1252,7 @@ document.addEventListener('click',(e)=>{
         const menu = host?.querySelector('.kebab-menu'); if(!menu) return;
         if(!menu.querySelector('.kebab-close')){
           const x = document.createElement('button');
-          x.type='button'; x.className='kebab-close'; x.dataset.kebabClose=''; x.textContent='×';
+          x.type='button'; x.className='kebab-close'; x.dataset.kebabClose=''; x.textContent='Ã';
           x.setAttribute('aria-label','Close');
           menu.prepend(x);
         }
@@ -1491,46 +1299,8 @@ document.addEventListener('click',(e)=>{
       const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
       document.getElementById('courseTitle').textContent = labelFor(id);
       document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
-      document.getElementById('courseSummary').textContent = `Quick summary for ${labelFor(id)} — (replace later).`;
-      const sheet = document.getElementById('courseSheet');
-      sheet.style.display='block'; sheet.setAttribute('aria-hidden','false');
-      document.body.classList.add('no-scroll');
-    });
-    document.getElementById('courseClose')?.addEventListener('click', ()=>{ 
-      const sheet=document.getElementById('courseSheet'); sheet.style.display='none'; sheet.setAttribute('aria-hidden','true');
-      document.getElementById('courseFrame').src=''; document.body.classList.remove('no-scroll');
-    });
-    document.getElementById('courseSheet')?.addEventListener('click', e=>{ if(e.target.id==='courseSheet') document.getElementById('courseClose')?.click(); });
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && document.getElementById('courseSheet')?.style.display==='block') document.getElementById('courseClose')?.click(); });
-  }
-
-  /* ---- Hook paintPage ---- */
-  (function hookPaint(){
-    const orig = window.paintPage;
-    if(typeof orig==='function'){
-      window.paintPage = function(){
-        const ret = orig.apply(this, arguments);
-        addHeroIndicators(); addHeadingIndicators();
-        return ret;
-      };
-    } else {
-      document.addEventListener('DOMContentLoaded', ()=>{ addHeroIndicators(); addHeadingIndicators(); });
-    }
-  })();
-
-  /* ---- Init ---- */
-  document.addEventListener('DOMContentLoaded', ()=>{
-    enhanceKebabMenus();
-    wireCourseSheet();
-    addHeroIndicators();
-    addHeadingIndicators();
-  });
-
-  // Expose for page init if needed
-  window.enhanceKebabMenus = enhanceKebabMenus;
-  window.wireCourseSheet = wireCourseSheet;
-  window.addHeroIndicators = addHeroIndicators;
-  window.addHeadingIndicators = addHeadingIndicators;
+      document.getElementById('courseSummary').textContent = `Quick summary for ${labelFor(id)} â (replace later).`;
+      const sheet = document.getElementById('courseSheet')
 })();
 </script>
 </body>
