@@ -426,7 +426,7 @@ const SCHEMA_VERSION=5;
 
 /* Escape */
 const esc=s=>String(s??'')
-  .replace(/&/g,'&amp;').replace(/<//g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 /* =========================
@@ -508,7 +508,7 @@ paintAvatar();
 (function wireAvatarDrawer(){
   const avatarBtn = $('#avatarTab');
   const sheet = $('#avatarSheet');
-  const closeBtn = $('#avatarClose']);
+  const closeBtn = $('#avatarClose');
   const toggleDev = $('#drawerToggleDev');
 
   function openDrawer(){
