@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
-
-<!-- Google fonts for the rename dialog -->
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -137,7 +135,7 @@ body.lock{ position:fixed; width:100% }
   min-width:260px; max-width:92vw; max-height:80vh; overflow:auto;
   background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px; padding:12px;
   box-shadow:0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-  z-index:10000 !important; pointer-events:auto;
+  z-index:12010 !important; pointer-events:auto;
 }
 .kebab-menu .group{ padding:4px 6px 8px 6px }
 .kebab-menu .title{ color:#fff; font-weight:900; padding:6px 8px 2px }
@@ -233,9 +231,9 @@ body.lock{ position:fixed; width:100% }
 }
 
 /* Overlay root for kebabs */
-#kebabOverlay{ position:fixed; inset:0; z-index:12000; pointer-events:none; }
+#kebabOverlay{ position:fixed; inset:0; z-index:12000; pointer-events:auto; }
 #kebabOverlay[hidden]{ display:none }
-#kebabBackdrop{ position:absolute; inset:0; background:transparent; pointer-events:auto }
+#kebabBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); pointer-events:auto; z-index:12005; }
 
 /* Course Sheet */
 #courseSheet{ position:fixed; inset:0; display:none; z-index:85; background:rgba(0,0,0,.55); backdrop-filter:blur(6px) }
@@ -244,9 +242,24 @@ body.lock{ position:fixed; width:100% }
   width:min(1100px, 96vw); max-height:86vh; background:#0f1116; border:1px solid var(--stroke);
   border-radius:16px 16px 0 0; overflow:hidden; display:flex; flex-direction:column;
 }
+
+/* Edit Dialog (hidden by default) */
+#editDialog{
+  position:fixed; inset:0; display:none; z-index:11000;
+  background:rgba(0,0,0,.5); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  align-items:flex-start; justify-content:flex-start; padding:16px;
+}
+#editDialog.open{ display:flex; }
+#editPanel{
+  background:#0f1116; border:1px solid var(--stroke); border-radius:12px;
+  padding:12px; min-width:min(420px, 96vw); max-width:96vw;
+}
+#editPanel .row{ margin:10px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+#editPanel .swatch{ width:22px; height:22px; border-radius:50%; border:1px solid rgba(255,255,255,.2) }
+#editPanel .preview{ padding:8px 10px; border:1px dashed var(--stroke); border-radius:8px }
+#editPanel .actions{ display:flex; gap:8px; justify-content:flex-start; }
 </style>
 </head>
-
 <body ontouchstart="">
 <div class="bg" aria-hidden="true"></div>
 
@@ -357,48 +370,30 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 </body>
-
 <script>
 (()=>{'use strict';
 
-/* =========================
-   Utils / storage
-========================= */
+/* Utils */
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
-const store={
-  get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } },
-  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
-};
-const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
+const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+const K={ profile:'ao_profile', settings:'ao_settings', schemaVer:'ao_schema_version' };
 const SCHEMA_VERSION=5;
-const esc=s=>String(s??'')
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-/* =========================
-   Roles
-========================= */
-const ROLE_MAP = { beginner:'bronze', intermediate:'silver', advanced:'gold' };
-const ROLE_LABEL = {
-  bronze:'Beginner', silver:'Intermediate', gold:'Advanced',
-  support:'Support', director:'Director', admin:'Admin'
-};
-function normalizeRole(r){ r=String(r||'').toLowerCase(); return ROLE_MAP[r] || r; }
-function baseRole(){
-  const p = store.get(K.profile, { skill:'admin', displayName:'User' });
-  return normalizeRole(p.skill || 'admin');
-}
-function getRole(){ return baseRole(); }
-function isAdmin(){ return getRole()==='admin'; }
-function isDirector(){ return getRole()==='director'; }
-function isSupport(){ return getRole()==='support'; }
-function devModeOn(){ return document.body.classList.contains('config-on'); }
-function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
+/* Roles */
+const ROLE_MAP={ beginner:'bronze', intermediate:'silver', advanced:'gold' };
+const ROLE_LABEL={ bronze:'Beginner', silver:'Intermediate', gold:'Advanced', support:'Support', director:'Director', admin:'Admin' };
+const normalizeRole=r=>ROLE_MAP[String(r||'').toLowerCase()]||String(r||'').toLowerCase();
+const baseRole=()=>normalizeRole(store.get(K.profile,{skill:'admin'}).skill||'admin');
+const getRole=()=>baseRole();
+const isAdmin=()=>getRole()==='admin';
+const isDirector=()=>getRole()==='director';
+const isSupport=()=>getRole()==='support';
+const devModeOn=()=>document.body.classList.contains('config-on');
+const seesAll=()=>['admin','support','director'].includes(getRole());
 
-/* =========================
-   Settings + seed
-========================= */
+/* Settings */
 function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[];
@@ -435,12 +430,10 @@ function loadSettings(){
   return s;
 }
 let S = loadSettings();
-function getSettings(){ return S; }
-function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
+const getSettings=()=>S;
+const saveSettings=(next)=>{ S = sanitize(next||S); store.set(K.settings,S); };
 
-/* =========================
-   Avatar
-========================= */
+/* Avatar */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
   $('#avatarName').textContent = p.displayName || 'User';
@@ -451,21 +444,13 @@ function paintAvatar(){
 }
 paintAvatar();
 
-/* Drawer wiring */
 (function wireAvatarDrawer(){
   const avatarBtn = $('#avatarTab');
   const sheet = $('#avatarSheet');
   const closeBtn = $('#avatarClose');
   const toggleDev = $('#drawerToggleDev');
-
-  function openDrawer(){
-    sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false');
-    avatarBtn.setAttribute('aria-expanded','true'); lockBody();
-  }
-  function closeDrawer(){
-    sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true');
-    avatarBtn.setAttribute('aria-expanded','false'); unlockBody();
-  }
+  function openDrawer(){ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); lockBody(); }
+  function closeDrawer(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); unlockBody(); }
   avatarBtn?.addEventListener('click', openDrawer, {passive:true});
   closeBtn?.addEventListener('click', closeDrawer, {passive:true});
   sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
@@ -476,10 +461,8 @@ paintAvatar();
   }, {passive:true});
 })();
 
-/* =========================
-   Label helpers
-========================= */
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
+/* Label helpers */
+const labelFor=id=> (getSettings().heroLabels[id] || `#${numberFromId(id)}`);
 function styleFor(id){
   const st=(getSettings().heroStyle||{})[id]||{};
   return {
@@ -489,65 +472,41 @@ function styleFor(id){
   };
 }
 
-/* =========================
-   Edit dialog (text+color+font)
-========================= */
-const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
-
-let editCtx=null;
-let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-
+/* Edit dialog */
+const paletteColors=['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
+let editCtx=null, liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
 function applyPreview(){
   const pv = $('#editPreview');
-  pv.style.color = liveColor||'';
-  pv.style.fontFamily = liveFamily;
-  pv.style.fontSize = liveFont+'px';
-  pv.textContent = $('#editText').value || 'Preview';
-  $('#fontSizeLabel').textContent = liveFont+'px';
+  pv.style.color = liveColor||''; pv.style.fontFamily = liveFamily; pv.style.fontSize = liveFont+'px';
+  pv.textContent = $('#editText').value || 'Preview'; $('#fontSizeLabel').textContent = liveFont+'px';
 }
-
 function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif"){
   editCtx = ctx;
   $('#editTitle').textContent = (ctx.type==='hero'?'Edit Hero':'Edit Heading');
   $('#editText').value = currentText||'';
-
   const pal = $('#editPalette'); pal.innerHTML='';
   paletteColors.forEach(col=>{
-    const b=document.createElement('button');
-    b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
-    b.addEventListener('click',()=>{ liveColor=col; applyPreview(); }, {passive:true});
-    pal.appendChild(b);
+    const b=document.createElement('button'); b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
+    b.addEventListener('click',()=>{ liveColor=col; applyPreview(); }, {passive:true}); pal.appendChild(b);
   });
-
   liveFont = Math.max(10, Math.min(64, Number(currentSize||18)));
-  liveColor = currentColor || '';
-  liveFamily = currentFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  liveColor = currentColor || ''; liveFamily = currentFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
   $('#fontFamily').value = liveFamily;
-
   $('#fontFamily').onchange = ()=>{ liveFamily = $('#fontFamily').value; applyPreview(); };
   $('#fontUp').onclick   = ()=>{ liveFont = Math.min(64, liveFont+1); applyPreview(); };
   $('#fontDown').onclick = ()=>{ liveFont = Math.max(10, liveFont-1); applyPreview(); };
-
-  applyPreview();
-  $('#editDialog').classList.add('open');
+  applyPreview(); $('#editDialog').classList.add('open');
 }
 function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; }
 $('#editCancel').addEventListener('click', closeEditDialog);
 $('#editDialog').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeEditDialog(); }, {passive:true});
 $('#editSave').addEventListener('click', ()=>{
   if(!editCtx) return;
-  const s=getSettings();
-  const text = $('#editText').value.trim();
-
+  const s=getSettings(); const text = $('#editText').value.trim();
   if(editCtx.type==='hero'){
     if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
     s.heroStyle = s.heroStyle || {};
-    s.heroStyle[editCtx.id] = {
-      ...(s.heroStyle[editCtx.id]||{}),
-      labelColor: liveColor,
-      labelSize:  liveFont,
-      labelFont:  liveFamily
-    };
+    s.heroStyle[editCtx.id] = { ...(s.heroStyle[editCtx.id]||{}), labelColor: liveColor, labelSize:  liveFont, labelFont:  liveFamily };
   }else{
     const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
     if(idx>=0){
@@ -557,46 +516,26 @@ $('#editSave').addEventListener('click', ()=>{
       s.pageOrder[idx].fontFamily = liveFamily;
     }
   }
-  saveSettings(s);
-  paintPage(); paintArchive();
-  closeEditDialog();
+  saveSettings(s); paintPage(); paintArchive(); closeEditDialog();
 });
 
-/* =========================
-   DOM builders
-========================= */
+/* DOM builders */
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
-
   const completed = !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].complete);
   const inprogress = !completed && !!(s.heroProgress && s.heroProgress[id] && s.heroProgress[id].inprogress);
   const art = (s.heroAssets && s.heroAssets[id] && s.heroAssets[id].heroCard) ? s.heroAssets[id].heroCard : null;
-
-  const devOn = devModeOn();
-  const canAdminDev = isAdmin() && devOn;
-
-  const shape = f.shape || 'square';
-  const st = styleFor(id);
+  const devOn = devModeOn(); const canAdminDev = isAdmin() && devOn;
+  const shape = f.shape || 'square'; const st = styleFor(id);
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
-
-  const el=document.createElement('article'); 
-  el.className='hero'; 
-  el.dataset.heroId=id; 
-  el.dataset.place=f.place;
+  const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place;
   el.classList.add(`shape-${shape}`);
-
-  if (seesAll()) {
-    if      (f.state==='live') el.classList.add('state-live');
-    else if (f.state==='dev')  el.classList.add('state-dev');
-    else                       el.classList.add('state-off');
-  }
-
+  if (seesAll()) { if(f.state==='live') el.classList.add('state-live'); else if (f.state==='dev') el.classList.add('state-dev'); else el.classList.add('state-off'); }
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
-
   const dot = '<span class="dot" aria-hidden="true"></span>';
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-    <div class="kebab-menu" data-for="${esc(id)}">
+    <div class="kebab-menu" role="menu" data-for="${esc(id)}">
       <div class="group">
         <div class="title">Orientation</div>
         <button class="opt" data-menu="shape" data-shape="square" type="button">${shape==='square'?dot:''}Square</button>
@@ -611,29 +550,22 @@ function heroCard(id){
         <button class="opt" data-menu="toggle" type="button">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
         <button class="opt" data-menu="photo"  type="button">Photo</button>
       </div>
+      <div class="group">
+        <div class="title">Audience</div>
+        <button class="opt" data-menu="aud" data-aud="bronze" type="button">${f.aud.bronze?dot:''}Beginner</button>
+        <button class="opt" data-menu="aud" data-aud="silver" type="button">${f.aud.silver?dot:''}Intermediate</button>
+        <button class="opt" data-menu="aud" data-aud="gold"   type="button">${f.aud.gold  ?dot:''}Advanced</button>
+      </div>
     </div>` : '';
-
-  el.innerHTML = `
-    ${artLayer}
-    ${canAdminDev ? `
-      <div class="hero-arrows">
-        <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
-        <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
-      </div>` : ``}
+  el.innerHTML = `${artLayer}
+    ${canAdminDev ? `<div class="hero-arrows">
+      <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
+      <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
+    </div>` : ``}
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
-    <div class="ctrls">${kebabHTML}</div>
-  `;
-
-  if(completed) el.classList.add('completed');
-  else if(inprogress) el.classList.add('inprogress');
-
-  if(art && art.crop){
-    const img = el.querySelector('.art img');
-    if(img){
-      const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
-      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
-    }
-  }
+    <div class="ctrls">${kebabHTML}</div>`;
+  if(completed) el.classList.add('completed'); else if(inprogress) el.classList.add('inprogress');
+  if(art && art.crop){ const img = el.querySelector('.art img'); if(img){ const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1); img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`; }}
   return el;
 }
 
@@ -643,15 +575,8 @@ function dividerEl(obj){
   const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
   const fontSize   = Number(obj.fontSize || 22);
   const inline     = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
-
-  const size = (obj.rowSize || 'm'); // xs, s, m, l, xl
-  const dot  = '<span class="dot" aria-hidden="true"></span>';
-
-  const el = document.createElement('div');
-  el.className = 'divider';
-  el.dataset.type = 'divider';
-  el.dataset.divId = obj.id;
-
+  const size = (obj.rowSize || 'm'); const dot  = '<span class="dot" aria-hidden="true"></span>';
+  const el = document.createElement('div'); el.className = 'divider'; el.dataset.type = 'divider'; el.dataset.divId = obj.id;
   el.innerHTML = `
     <span class="htext" ${inline}>${esc(obj.title || 'Heading')}</span>
     ${editable ? `
@@ -682,95 +607,46 @@ function dividerEl(obj){
           </div>
           <div class="group"><button class="opt danger" data-divm="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button></div>
         </div>
-      </div>
-    ` : ''}`;
+      </div>` : ''}`;
   return el;
 }
 
-/* =========================
-   Paint page + archive
-========================= */
+/* Paint page + archive */
 function paintPage(){
-  const root = $('#pageGrid');
-  if(!root) return;
-  root.innerHTML = '';
-
-  const s = getSettings();
-  const role = getRole();
-  const staff = seesAll();
-
+  const root = $('#pageGrid'); if(!root) return; root.innerHTML = '';
+  const s = getSettings(); const role = getRole(); const staff = seesAll();
   function startSection(divObj){
-    if(divObj && !staff){
-      const aud = divObj.aud || {bronze:true,silver:true,gold:true};
-      if(!aud[role]) return null;
-    }
-    const sec = document.createElement('section');
-    sec.className = 'section';
-    if(divObj) sec.appendChild(dividerEl(divObj));
-    const row = document.createElement('div');
-    row.className = 'grid';
+    if(divObj && !staff){ const aud = divObj.aud || {bronze:true,silver:true,gold:true}; if(!aud[role]) return null; }
+    const sec = document.createElement('section'); sec.className = 'section'; if(divObj) sec.appendChild(dividerEl(divObj));
+    const row = document.createElement('div'); row.className = 'grid';
     const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
     row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
-    sec.appendChild(row);
-    root.appendChild(sec);
-    return {sec, row};
+    sec.appendChild(row); root.appendChild(sec); return {sec, row};
   }
-
   let currentRow = null;
-
   for(const it of s.pageOrder){
-    if(it.type === 'divider'){
-      const started = startSection(it);
-      currentRow = started ? started.row : null;
-      continue;
-    }
-    if(it.type === 'hero'){
-      const id = it.id;
-      const f = s.heroFlags[id];
-      if(!f || f.place!=='page') continue;
-
-      if(!seesAll()){
-        if(f.state!=='live') continue;
-        if(!f.aud[role]) continue;
-      }
-
-      if(!currentRow){
-        const started = startSection(null);
-        currentRow = started ? started.row : null;
-        if(!currentRow) continue;
-      }
-
-      const card = heroCard(id);
-      if(card) currentRow.appendChild(card);
+    if(it.type==='divider'){ const started = startSection(it); currentRow = started ? started.row : null; continue; }
+    if(it.type==='hero'){
+      const id = it.id; const f = s.heroFlags[id]; if(!f || f.place!=='page') continue;
+      if(!seesAll()){ if(f.state!=='live') continue; if(!f.aud[role]) continue; }
+      if(!currentRow){ const started = startSection(null); currentRow = started ? started.row : null; if(!currentRow) continue; }
+      const card = heroCard(id); if(card) currentRow.appendChild(card);
     }
   }
-
-  // Remove empty nameless sections
   $$('#pageGrid .section').forEach(sec=>{
-    const row = sec.querySelector('.grid');
-    const hasHeroes = row && row.children.length>0;
-    const hasDivider = !!sec.querySelector('.divider');
+    const row = sec.querySelector('.grid'); const hasHeroes = row && row.children.length>0; const hasDivider = !!sec.querySelector('.divider');
     if(!hasHeroes && !hasDivider){ sec.remove(); }
   });
-
-  // After painting, add indicators for staff
-  addHeroIndicators();
-  addHeadingIndicators();
+  addHeroIndicators(); addHeadingIndicators();
 }
 
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
-function applyArchiveVisibility(){
-  if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); }
-  else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
-}
+function applyArchiveVisibility(){ if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); } else { dock.style.display='none'; dock.setAttribute('aria-hidden','true'); } }
 function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
 function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
-
 function paintArchive(){
-  const s=getSettings(); const flags=s.heroFlags;
-  archiveList.innerHTML='';
-  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
-    .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
+  const s=getSettings(); const flags=s.heroFlags; archiveList.innerHTML='';
+  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive').sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
   items.forEach(([id,f])=>{
     const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
@@ -783,117 +659,57 @@ function paintArchive(){
   });
 }
 
-/* =========================
-   Lock helpers
-========================= */
+/* Lock helpers */
 let savedScrollY=0;
 function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
 
-/* =========================
-   Subsheet open
-========================= */
+/* Course sheet */
 function openSubSheet(title,url){
   if(!url){ alert('401 — Not linked yet'); return; }
-  $('#courseTitle').textContent = title;
-  $('#courseFrame').src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
+  $('#courseTitle').textContent = title; $('#courseFrame').src = url + (url.includes('?')?'&':'?') + 'v=' + Date.now();
   $('#courseSummary').textContent = `Quick summary for ${title} — (replace later).`;
-  const sheet = $('#courseSheet');
-  sheet.style.display='block'; sheet.setAttribute('aria-hidden','false');
+  const sheet = $('#courseSheet'); sheet.style.display='block'; sheet.setAttribute('aria-hidden','false');
   document.body.classList.add('no-scroll');
 }
 
-/* =========================
-   Kebab overlay manager (with reposition/flip)
-========================= */
-const kebabOverlay = $('#kebabOverlay');
-const kebabBackdrop = $('#kebabBackdrop');
-let openMenuEl = null;
-let anchorBtnEl = null;
-
-function computeMenuPosition(anchorRect, menuSize, pad=8){
-  const vw = window.innerWidth, vh = window.innerHeight;
-  let left = anchorRect.right - menuSize.w;
-  let top  = anchorRect.bottom + 8;
-  if(left < pad) left = pad;
-  if(left + menuSize.w > vw - pad) left = vw - pad - menuSize.w;
-  if(top + menuSize.h > vh - pad){
-    const flippedTop = anchorRect.top - 8 - menuSize.h;
-    if(flippedTop >= pad) top = flippedTop;
-    else top = Math.max(pad, vh - pad - menuSize.h);
+/* Kebab overlay manager (centered) */
+const kebabOverlay = $('#kebabOverlay'); const kebabBackdrop = $('#kebabBackdrop');
+let openMenuEl = null, originalParent = null;
+function openKebabMenu(menuEl, anchorBtn, opts={center:true}){
+  closeKebabMenu(); originalParent = menuEl.parentElement; openMenuEl = menuEl;
+  kebabOverlay.appendChild(menuEl); // portal
+  menuEl.style.position='fixed'; menuEl.style.display='flex'; menuEl.style.zIndex='12010';
+  kebabOverlay.hidden=false; kebabOverlay.setAttribute('aria-hidden','false');
+  if(opts.center){
+    menuEl.style.left='50%'; menuEl.style.top='50%'; menuEl.style.transform='translate(-50%,-50%)';
+  }else{
+    const r=anchorBtn.getBoundingClientRect();
+    menuEl.style.left=Math.max(8,r.right - menuEl.offsetWidth)+'px'; menuEl.style.top=(r.bottom+8)+'px';
   }
-  return {left, top};
-}
-
-function openKebabMenu(menuEl, anchorBtn){
-  closeKebabMenu();
-  anchorBtnEl = anchorBtn; openMenuEl = menuEl;
-  if(!menuEl.querySelector('.kebab-close')){
-    const x = document.createElement('button');
-    x.type='button'; x.className='kebab-close'; x.textContent='×';
-    x.setAttribute('aria-label','Close');
-    menuEl.prepend(x);
-  }
-  menuEl.style.display = 'flex';
-  kebabOverlay.hidden = false; kebabOverlay.setAttribute('aria-hidden','false');
-  document.body.classList.add('menu-lock');
-  requestAnimationFrame(()=>{
-    const r = anchorBtn.getBoundingClientRect();
-    const mw = Math.min(360, Math.max(210, window.innerWidth*0.6));
-    const mh = Math.min(520, Math.max(220, window.innerHeight*0.6));
-    const pos = computeMenuPosition(r, {w:mw, h:mh});
-    menuEl.style.left = pos.left + 'px';
-    menuEl.style.top  = pos.top  + 'px';
-  });
+  menuEl.addEventListener('click',(e)=>e.stopPropagation(),{once:true}); // keep clicks
   document.addEventListener('keydown', onKbdClose);
 }
-
 function closeKebabMenu(){
   if(!openMenuEl) return;
-  openMenuEl.style.display = 'none';
-  openMenuEl = null; anchorBtnEl = null;
-  kebabOverlay.hidden = true; kebabOverlay.setAttribute('aria-hidden','true');
-  document.body.classList.remove('menu-lock');
-  document.removeEventListener('keydown', onKbdClose);
+  openMenuEl.style.display='none'; openMenuEl.style.left=openMenuEl.style.top=openMenuEl.style.transform=''; openMenuEl.style.position='';
+  if(originalParent) originalParent.appendChild(openMenuEl);
+  kebabOverlay.hidden=true; kebabOverlay.setAttribute('aria-hidden','true');
+  openMenuEl=null; originalParent=null; document.removeEventListener('keydown', onKbdClose);
 }
-
-function onKbdClose(e){ if(e.key === 'Escape') closeKebabMenu(); }
+function onKbdClose(e){ if(e.key==='Escape') closeKebabMenu(); }
 kebabBackdrop.addEventListener('click', closeKebabMenu, {passive:true});
-window.addEventListener('resize', ()=>{
-  if(openMenuEl && anchorBtnEl){
-    const r = anchorBtnEl.getBoundingClientRect();
-    const rect = {w: openMenuEl.offsetWidth, h: openMenuEl.offsetHeight};
-    const pos = computeMenuPosition(r, rect);
-    openMenuEl.style.left = pos.left + 'px';
-    openMenuEl.style.top  = pos.top  + 'px';
-  }
-}, {passive:true});
-window.addEventListener('scroll', ()=>{
-  if(openMenuEl && anchorBtnEl){
-    const r = anchorBtnEl.getBoundingClientRect();
-    const rect = {w: openMenuEl.offsetWidth, h: openMenuEl.offsetHeight};
-    const pos = computeMenuPosition(r, rect);
-    openMenuEl.style.left = pos.left + 'px';
-    openMenuEl.style.top  = pos.top  + 'px';
-  }
-}, {passive:true});
 
-/* =========================
-   Indicators (clear + add)
-========================= */
+/* Indicators */
 function addHeroIndicators(){
   if(!seesAll()) return;
   $$('.hero').forEach(h=>{
     h.querySelectorAll('.aud-indicators').forEach(n=>n.remove());
-    const id = h.dataset.heroId;
-    const f = getSettings()?.heroFlags?.[id];
-    if(!f?.aud) return;
-    const ind = document.createElement('div');
-    ind.className = 'aud-indicators';
-    ind.innerHTML = `
-      <span class="aud-dot bronze ${f.aud.bronze?'on':''}" title="Beginner"></span>
+    const id=h.dataset.heroId; const f=getSettings()?.heroFlags?.[id]; if(!f?.aud) return;
+    const ind=document.createElement('div'); ind.className='aud-indicators';
+    ind.innerHTML=`<span class="aud-dot bronze ${f.aud.bronze?'on':''}" title="Beginner"></span>
       <span class="aud-dot silver ${f.aud.silver?'on':''}" title="Intermediate"></span>
-      <span class="aud-dot gold   ${f.aud.gold  ?'on':''}" title="Advanced"></span>`;
+      <span class="aud-dot gold ${f.aud.gold?'on':''}" title="Advanced"></span>`;
     h.appendChild(ind);
   });
 }
@@ -901,52 +717,29 @@ function addHeadingIndicators(){
   if(!seesAll()) return;
   $$('.divider').forEach(div=>{
     div.querySelectorAll('.aud-indicators-head').forEach(n=>n.remove());
-    let aud = {bronze:false, silver:false, gold:false};
-    const heroes = div.nextElementSibling?.querySelectorAll?.('.hero') || [];
-    heroes.forEach(h=>{
-      const f = getSettings()?.heroFlags?.[h.dataset.heroId];
-      if(f?.aud){
-        aud.bronze ||= !!f.aud.bronze;
-        aud.silver ||= !!f.aud.silver;
-        aud.gold   ||= !!f.aud.gold;
-      }
-    });
-    const el = document.createElement('div');
-    el.className = 'aud-indicators-head';
-    el.innerHTML = `
-      <span class="aud-dot bronze ${aud.bronze?'on':''}" title="Beginner"></span>
+    let aud={bronze:false,silver:false,gold:false};
+    const heroes=div.nextElementSibling?.querySelectorAll?.('.hero')||[];
+    heroes.forEach(h=>{ const f=getSettings()?.heroFlags?.[h.dataset.heroId]; if(f?.aud){ aud.bronze ||= !!f.aud.bronze; aud.silver ||= !!f.aud.silver; aud.gold ||= !!f.aud.gold; } });
+    const el=document.createElement('div'); el.className='aud-indicators-head';
+    el.innerHTML=`<span class="aud-dot bronze ${aud.bronze?'on':''}" title="Beginner"></span>
       <span class="aud-dot silver ${aud.silver?'on':''}" title="Intermediate"></span>
-      <span class="aud-dot gold   ${aud.gold  ?'on':''}" title="Advanced"></span>`;
+      <span class="aud-dot gold ${aud.gold?'on':''}" title="Advanced"></span>`;
     div.appendChild(el);
   });
 }
 
-/* =========================
-   Boot
-========================= */
-applyArchiveVisibility(); 
-applyArchiveSkin();
-paintArchive();
-paintPage();
-updateFooterModeControls();
+/* Boot */
+applyArchiveVisibility(); applyArchiveSkin(); paintArchive(); paintPage(); updateFooterModeControls();
 
-/* =========================
-   Footer & global handlers
-========================= */
+/* Footer & global handlers */
 $('#archiveToggle').addEventListener('click',()=>{
-  const isOpen=dock.classList.contains('open');
-  dock.classList.toggle('open', !isOpen);
-  dock.classList.toggle('collapsed', isOpen);
-  $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
+  const isOpen=dock.classList.contains('open'); dock.classList.toggle('open', !isOpen);
+  dock.classList.toggle('collapsed', isOpen); $('#archiveToggle').textContent = !isOpen ? 'Close' : 'Archived';
   if(!isOpen) lockBody(); else unlockBody();
 });
-
 $('#devToggle').addEventListener('click', ()=>{
-  if(!isAdmin()) return;
-  document.body.classList.toggle('config-on');
-  updateFooterModeControls(); paintPage(); paintArchive();
+  if(!isAdmin()) return; document.body.classList.toggle('config-on'); updateFooterModeControls(); paintPage(); paintArchive();
 });
-
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
@@ -955,124 +748,57 @@ $('#addHeadingBtn').addEventListener('click',()=>{
   saveSettings(s); paintPage();
 });
 
-/* =========================
-   Delegated clicks (page)
-========================= */
+/* Delegated clicks */
 document.addEventListener('click',(e)=>{
-  // Course entry by clicking tile (ignore when clicking controls)
-  const hero = e.target.closest('.hero');
-  if(hero && !e.target.closest('.kebab, .kebab-menu, .cfg-arrow')){
-    const id=hero.dataset.heroId; const n=Number(((id||'').match(/\d+/)||[])[0]||0);
-    const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
+  // Enter via hero tile (ignore controls)
+  const h = e.target.closest('.hero');
+  if(h && !e.target.closest('.kebab, .kebab-menu, .cfg-arrow')){
+    const id=h.dataset.heroId; const n=Number(((id||'').match(/\d+/)||[])[0]||0); const url=(n>=1&&n<=50)?`courses/${n}.html`:'';
     openSubSheet(labelFor(id), url); return;
   }
 
-  // Divider kebab toggle -> overlayed menu
+  // Divider kebab open
   const divKebab = e.target.closest('.div-kebab');
-  if(divKebab){
-    const menu=divKebab.nextElementSibling;
-    if(menu){
-      if(menu === openMenuEl){ closeKebabMenu(); }
-      else{ openKebabMenu(menu, divKebab); }
-    }
-    return;
-  }
+  if(divKebab){ const menu=divKebab.nextElementSibling; if(menu){ (menu===openMenuEl)?closeKebabMenu():openKebabMenu(menu, divKebab, {center:true}); } return; }
 
-  // Hero kebab toggle -> overlayed menu
+  // Hero kebab open
   const keb = e.target.closest('.kebab:not(.div-kebab)');
-  if(keb){
-    const menu=keb.nextElementSibling;
-    if(menu){
-      if(menu === openMenuEl){ closeKebabMenu(); }
-      else{ openKebabMenu(menu, keb); }
-    }
-    return;
-  }
+  if(keb){ const menu=keb.nextElementSibling; if(menu){ (menu===openMenuEl)?closeKebabMenu():openKebabMenu(menu, keb, {center:true}); } return; }
 
   // Divider kebab actions
   const dmb = e.target.closest('.div-menu button.opt');
   if(dmb){
     if(!(isAdmin() && devModeOn())) return;
-    const s=getSettings();
-    const id=dmb.getAttribute('data-div-id');
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    const obj=s.pageOrder[idx];
-
-    const kind = dmb.dataset.divm;
-    if(kind==='rename'){
-      closeKebabMenu();
-      openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
-      return;
-    }
-    if(kind==='size'){
-      const size=dmb.dataset.size||'m';
-      obj.rowSize=size; saveSettings(s); paintPage(); closeKebabMenu(); return;
-    }
-    if(kind==='aud'){
-      const key=dmb.dataset.aud;
-      const next=!obj.aud?.[key];
-      obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
-      saveSettings(s); paintPage(); closeKebabMenu(); return;
-    }
-    if(kind==='remove'){
-      s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); closeKebabMenu(); return;
-    }
+    const s=getSettings(); const id=dmb.getAttribute('data-div-id'); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return; const obj=s.pageOrder[idx]; const kind = dmb.dataset.divm;
+    if(kind==='rename'){ closeKebabMenu(); openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif"); return; }
+    if(kind==='size'){ obj.rowSize=dmb.dataset.size||'m'; saveSettings(s); paintPage(); closeKebabMenu(); return; }
+    if(kind==='aud'){ const key=dmb.dataset.aud; const next=!obj.aud?.[key]; obj.aud={...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next}; saveSettings(s); paintPage(); closeKebabMenu(); return; }
+    if(kind==='remove'){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); closeKebabMenu(); return; }
   }
 
   // Divider arrows
   const divAct = e.target.dataset.divAct;
   if(divAct){
     if(!(isAdmin() && devModeOn())) return;
-    const id = e.target.dataset.divId;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    const dir = (divAct==='up') ? -1 : 1;
-    const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
-    if (to !== idx) {
-      const obj = s.pageOrder.splice(idx,1)[0];
-      s.pageOrder.splice(to,0,obj);
-      saveSettings(s); paintPage();
-    }
+    const id = e.target.dataset.divId; const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return; const dir=(divAct==='up')?-1:1; const to=Math.min(Math.max(0, idx+dir), s.pageOrder.length-1);
+    if(to!==idx){ const obj=s.pageOrder.splice(idx,1)[0]; s.pageOrder.splice(to,0,obj); saveSettings(s); paintPage(); }
     return;
   }
 
   // Hero kebab menu actions
   const menuBtn = e.target.closest('.kebab-menu button.opt');
   if(menuBtn && !menuBtn.closest('.div-menu')){
-    const forId = menuBtn.closest('.kebab-menu')?.dataset?.for;
-    const s=getSettings(); const f=s.heroFlags[forId];
+    const forId = menuBtn.closest('.kebab-menu')?.dataset?.for; const s=getSettings(); const f=s.heroFlags[forId];
     if(!(isAdmin() && devModeOn())) return;
-
     const act = menuBtn.dataset.menu;
-    if(act==='shape'){
-      const shape = menuBtn.dataset.shape;
-      s.heroFlags[forId] = {...f, shape};
-      saveSettings(s); paintPage(); closeKebabMenu();
-    }else if(act==='rename'){
-      closeKebabMenu();
-      const st = styleFor(forId);
-      openEditDialog({type:'hero', id:forId}, s.heroLabels[forId] || `#${numberFromId(forId)}`, st.color, st.size, st.font);
-    }else if(act==='move'){
-      const dest = (f.place==='page') ? 'archive' : 'page';
-      s.heroFlags[forId]={...f, place:dest};
-      if(dest==='page'){
-        if(!s.pageOrder.some(it=>it.type==='hero' && it.id===forId)) s.pageOrder.push({type:'hero',id:forId});
-      }else{
-        s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===forId));
-      }
-      saveSettings(s); paintPage(); paintArchive(); closeKebabMenu();
-    }else if(act==='toggle'){
-      const order=['live','off','dev'];
-      const ni=(order.indexOf(f.state)+1)%order.length;
-      s.heroFlags[forId]={...f, state:order[ni]};
-      saveSettings(s); paintPage(); paintArchive(); closeKebabMenu();
-    }else if(act==='photo'){
-      const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return;
-      s.heroAssets[forId]={...(s.heroAssets[forId]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}};
-      saveSettings(s); paintPage(); closeKebabMenu();
-    }
+    if(act==='shape'){ s.heroFlags[forId]={...f, shape:menuBtn.dataset.shape}; saveSettings(s); paintPage(); closeKebabMenu(); }
+    else if(act==='rename'){ closeKebabMenu(); const st=styleFor(forId); openEditDialog({type:'hero', id:forId}, s.heroLabels[forId] || `#${numberFromId(forId)}`, st.color, st.size, st.font); }
+    else if(act==='move'){ const dest=(f.place==='page')?'archive':'page'; s.heroFlags[forId]={...f, place:dest}; if(dest==='page'){ if(!s.pageOrder.some(it=>it.type==='hero' && it.id===forId)) s.pageOrder.push({type:'hero',id:forId}); } else { s.pageOrder = s.pageOrder.filter(it=>!(it.type==='hero' && it.id===forId)); } saveSettings(s); paintPage(); paintArchive(); closeKebabMenu(); }
+    else if(act==='toggle'){ const order=['live','off','dev']; const ni=(order.indexOf(f.state)+1)%order.length; s.heroFlags[forId]={...f, state:order[ni]}; saveSettings(s); paintPage(); paintArchive(); closeKebabMenu(); }
+    else if(act==='photo'){ const url = prompt('Image path (under /images ...)', 'images/your-folder/your-image.jpg'); if(!url) return; s.heroAssets[forId]={...(s.heroAssets[forId]||{}), heroCard:{src:url, crop:{cx:0,cy:0,scale:1}}}; saveSettings(s); paintPage(); closeKebabMenu(); }
+    else if(act==='aud'){ const key=menuBtn.dataset.aud; s.heroFlags[forId]={...f, aud:{...f.aud, [key]:!f.aud[key]}}; saveSettings(s); paintPage(); closeKebabMenu(); }
     return;
   }
 
@@ -1081,27 +807,15 @@ document.addEventListener('click',(e)=>{
   const actMove = e.target.closest('#archiveList [data-act="move"]');
   if(actToggle || actMove){
     if(!(isAdmin() && devModeOn())) return;
-    const row = e.target.closest('.row'); const id=row.dataset.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    if(actToggle){
-      const order=['live','off','dev'];
-      const ni=(order.indexOf(f.state)+1)%order.length;
-      s.heroFlags[id]={...f, state:order[ni]};
-    }else if(actMove){
-      s.heroFlags[id]={...f, place:'page'};
-      if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
-    }
+    const row = e.target.closest('.row'); const id=row.dataset.heroId; const s=getSettings(); const f=s.heroFlags[id];
+    if(actToggle){ const order=['live','off','dev']; const ni=(order.indexOf(f.state)+1)%order.length; s.heroFlags[id]={...f, state:order[ni]}; }
+    else if(actMove){ s.heroFlags[id]={...f, place:'page'}; if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id}); }
     saveSettings(s); paintPage(); paintArchive();
   }
 }, {passive:false});
 
-/* =========================
-   Course sheet close
-========================= */
-$('#courseClose')?.addEventListener('click', ()=>{ 
-  const sheet=$('#courseSheet'); sheet.style.display='none'; sheet.setAttribute('aria-hidden','true');
-  $('#courseFrame').src=''; document.body.classList.remove('no-scroll');
-});
+/* Course sheet close */
+$('#courseClose')?.addEventListener('click', ()=>{ const sheet=$('#courseSheet'); sheet.style.display='none'; sheet.setAttribute('aria-hidden','true'); $('#courseFrame').src=''; document.body.classList.remove('no-scroll'); });
 $('#courseSheet')?.addEventListener('click', e=>{ if(e.target.id==='courseSheet') $('#courseClose')?.click(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('#courseSheet')?.style.display==='block') $('#courseClose')?.click(); });
 
