@@ -51,32 +51,22 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Section grouping: each heading with its own hero row */
-.section{ margin:32px 0 }
-.section .divider{ margin-bottom:10px }
-
-/* Hero rows are horizontal carousels */
-.section .grid{
+/* Grid: horizontal scroll, snapping squares */
+.grid{
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns:clamp(180px, 28vw, 280px);
   gap:var(--gap);
   overflow-x:auto;
-  scroll-snap-type:x mandatory;
   padding-bottom:10px;
+  scroll-snap-type:x mandatory;
 }
-.section .grid::-webkit-scrollbar{ display:none }
+.grid::-webkit-scrollbar{ display:none }
 
 /* Hero squares */
 .hero{
-  position:relative; 
-  overflow:hidden; 
-  background:#060708; 
-  border:1px solid var(--stroke);
-  border-radius:16px; 
-  padding:var(--hero-pad); 
-  aspect-ratio:1/1; 
-  scroll-snap-align:start;
+  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
+  border-radius:16px; padding:var(--hero-pad); aspect-ratio:1/1; scroll-snap-align:start;
 }
 .hero.devstate{ border:2px solid var(--blue) } /* BLUE BORDER for DEV */
 
@@ -269,7 +259,7 @@ body.lock{ position:fixed; width:100% }
 </header>
 
 <main class="wrap">
- <div id="pageGrid"></div>
+  <section class="grid" id="pageGrid"></section>
 </main>
 
 <!-- Edit Dialog -->
@@ -365,7 +355,7 @@ function defaults(){
   heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}};
   heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}};
   heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
-  for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
+  for(let i=5;i<=12;i++) heroFlags[co-${i}]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
   pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
   return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
@@ -374,7 +364,7 @@ function sanitize(cfg){
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   for(let i=1;i<=50;i++){
-    const id=`co-${i}`;
+    const id=co-${i};
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
   // Keep pageOrder entries for heroes present on page
@@ -442,7 +432,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 /* =========================
    Label helpers
 ========================= */
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || #${numberFromId(id)}; }
 function labelColorFor(id){ const s=getSettings(); return (s.heroStyle && s.heroStyle[id] && s.heroStyle[id].labelColor)||''; }
 
 /* =========================
@@ -507,16 +497,16 @@ function heroCard(id){
 
   const showStatusPill = (!devOn) && canSeeStatusPill();
   const statusPill = showStatusPill ? 
-    `<span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
+    <span class="status-pill ${f.state==='live'?'status-live':(f.state==='dev'?'status-dev':'status-off')}">
       ${f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline')}
-     </span>` : '';
+     </span> : '';
 
   const canAdminDev = isAdmin() && devOn;
   const canDirOnDev = canDirectorDevEdit(f); // director in normal mode when hero is DEV
 
   // Pencil visibility (Admin in Dev OR Director on DEV hero)
   const showPencil = canAdminDev || canDirOnDev;
-  const labelStyle = labelColorFor(id) ? ` style="color:${esc(labelColorFor(id))}"` : '';
+  const labelStyle = labelColorFor(id) ?  style="color:${esc(labelColorFor(id))}" : '';
 
   const el=document.createElement('article'); 
   el.className='hero'; 
@@ -524,47 +514,47 @@ function heroCard(id){
   el.dataset.place=f.place;
   if(f.state==='dev') el.classList.add('devstate');
 
-  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
+  const artLayer = (art && art.src) ? <div class="art"><img alt="" src="${esc(art.src)}"></div> : '';
 
   // Kebab for admin+dev
-  const kebabHTML = canAdminDev ? `
+  const kebabHTML = canAdminDev ? 
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
       <button data-menu="rename">Rename</button>
       <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
       <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
       <button data-menu="photo">Photo</button>
-    </div>` : '';
+    </div> : '';
 
-  el.innerHTML = `
+  el.innerHTML = 
     ${artLayer}
     ${statusPill}
-    ${showPencil ? `<button class="cfg-pin" title="Rename / Colour" data-cfg-rename="${esc(id)}" type="button">✎</button>` : ``}
-    ${canAdminDev ? `
+    ${showPencil ? <button class="cfg-pin" title="Rename / Colour" data-cfg-rename="${esc(id)}" type="button">✎</button> : }
+    ${canAdminDev ? 
       <div class="hero-arrows">
         <button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button>
         <button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button>
-      </div>` : ``}
+      </div> : `}
 
     <span class="label"${labelStyle}>${esc(labelFor(id))}</span>
 
     <div class="ctrls">
       ${kebabHTML}
-      ${(!canAdminDev && canDirOnDev) ? `
+      ${(!canAdminDev && canDirOnDev) ? 
         <button class="footer-chip" disabled style="height:28px">Dev</button>
-        <button class="footer-chip" data-act="pickart" style="height:28px">Photo</button>` : ``}
+        <button class="footer-chip" data-act="pickart" style="height:28px">Photo</button> : }
     </div>
 
     <div class="cta-left">
       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
         ${completed?'Complete':(inprogress?'In Progress':'Start')}
       </button>
-      ${(canAdminDev || canDirOnDev) ? `
+      ${(canAdminDev || canDirOnDev) ? 
         <div class="aud-line">
           <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
           <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
           <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
-        </div>` : ``}
+        </div> : }
     </div>
   `;
 
@@ -576,7 +566,7 @@ function heroCard(id){
     const img = el.querySelector('.art img');
     if(img){
       const cx = Number(art.crop.cx||0), cy = Number(art.crop.cy||0), sc = Number(art.crop.scale||1);
-      img.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc})`;
+      img.style.transform = translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px)) scale(${sc});
     }
   }
   return el;
@@ -584,24 +574,24 @@ function heroCard(id){
 
 function dividerEl(obj){
   const editable = isAdmin() && devModeOn();
-  const colorStyle = obj.color ? `style="color:${esc(obj.color)}"` : '';
+  const colorStyle = obj.color ? style="color:${esc(obj.color)}" : '';
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-  el.innerHTML=`
-    ${editable?`<button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>`:''}
+  el.innerHTML=
+    ${editable?<button class="cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>:''}
     <span class="htext" ${colorStyle}>${esc(obj.title||'Heading')}</span>
-    ${editable?`
+    ${editable?
       <div class="dctrls">
         <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
         <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
         <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
-      </div>`:''}
-    ${editable?`
+      </div>:''}
+    ${editable?
       <div class="aud-line">
         <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
         <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
         <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
-      </div>`:''}
-  `;
+      </div>:''}
+  ;
   return el;
 }
 
@@ -609,85 +599,52 @@ function dividerEl(obj){
    Paint page + archive
 ========================= */
 function paintPage(){
-  const root = $('#pageGrid');
-  if(!root) return;
-  root.innerHTML = '';
-
-  const s = getSettings();
-  const role = getRole();
-  const staff = seesAll();
-
-  // helper to start a new section with optional divider
-  function startSection(divObj){
-    // audience gating for non-staff on headings
-    if(divObj && !staff){
-      const aud = divObj.aud || {bronze:true,silver:true,gold:true};
-      if(!aud[role]) return null; // skip section entirely
-    }
-    const sec = document.createElement('section');
-    sec.className = 'section';
-
-    if(divObj){
-      sec.appendChild(dividerEl(divObj));
-    }
-
-    const row = document.createElement('div');
-    row.className = 'grid';       // the horizontal carousel row
-    sec.appendChild(row);
-
-    root.appendChild(sec);
-    return {sec, row};
-  }
-
-  let currentRow = null; // the .grid inside the current .section
-
-  // stream through pageOrder: each divider starts a new section,
-  // heroes get appended to the current section's row
-  for(const it of s.pageOrder){
-    if(it.type === 'divider'){
-      const started = startSection(it);
-      currentRow = started ? started.row : null;
-      continue;
-    }
-
-    if(it.type === 'hero'){
-      const id = it.id;
-      const f = s.heroFlags[id];
-      if(!f || f.place!=='page') continue;
-
-      // audience/visibility for non-staff
-      if(!staff){
-        if(f.state!=='live') continue;
-        if(!f.aud[role]) continue;
+  const grid=$('#pageGrid'); if(!grid) return;
+  grid.innerHTML='';
+  const s=getSettings(); const role=getRole();
+  s.pageOrder.forEach(it=>{
+    if(it.type==='hero'){
+      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
+      if(!seesAll()){
+        if(f.state!=='live') return;
+        if(!f.aud[role]) return;
       }
-
-      // if there was no divider before, start a nameless section
-      if(!currentRow){
-        const started = startSection(null);
-        currentRow = started ? started.row : null;
-        if(!currentRow) continue;
-      }
-
-      const card = heroCard(id);
-      if(card) currentRow.appendChild(card);
-    }
-  }
-
-  // Optional: remove empty sections (no heroes) if they got created without a divider
-  $$('#pageGrid .section').forEach(sec=>{
-    const row = sec.querySelector('.grid');
-    const hasHeroes = row && row.children.length>0;
-    const hasDivider = !!sec.querySelector('.divider');
-    if(!hasHeroes && !hasDivider){
-      sec.remove();
+      const card = heroCard(id); if(card) grid.appendChild(card);
+    }else if(it.type==='divider'){
+      const aud=it.aud || {bronze:true,silver:true,gold:true};
+      if(!seesAll()){ if(!aud[role]) return; }
+      grid.appendChild(dividerEl(it));
     }
   });
 }
+
+const dock=$('#archiveDock'), archiveList=$('#archiveList');
+function applyArchiveVisibility(){ if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); } else { dock.style.display='none'; dock.setAttribute('aria-hidden','true'); } }
+function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
+function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=Developer: ${devOn?'On':'Off'}; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
+
+function paintArchive(){
+  const s=getSettings(); const flags=s.heroFlags;
+  archiveList.innerHTML='';
+  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
+    .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
+  items.forEach(([id,f])=>{
+    const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
+    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
+    row.innerHTML = <span class="num">${esc(labelFor(id))}</span>
+    ${(isAdmin() && devModeOn())?<div style="display:flex;gap:8px;align-items:center">
+      <button class="footer-chip" data-act="move" type="button">Move to Page</button>
+      <button class="footer-chip" data-act="toggle" type="button">${esc(statusLabel)}</button>
+    </div>:<div></div>};
+    archiveList.appendChild(row);
+  });
+}
+
 /* =========================
    Lock helpers
 ========================= */
 let savedScrollY=0;
-function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=`-${savedScrollY}px`; }
+function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scrollTop||0; document.body.classList.add('lock'); document.body.style.top=-${savedScrollY}px; }
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
 
 /* =========================
@@ -744,7 +701,7 @@ document.addEventListener('click',(e)=>{
   if(enter){
     const host=e.target.closest('[data-hero-id]'); const id=host?.dataset?.heroId||'';
     const n=Number(((id||'').match(/\d+/)||[])[0]||0);
-    const url = (n>=1 && n<=50) ? `courses/${n}.html` : null;
+    const url = (n>=1 && n<=50) ? courses/${n}.html : null;
     openSubSheet(labelFor(id), url); return;
   }
 
@@ -755,7 +712,7 @@ document.addEventListener('click',(e)=>{
     const s=getSettings(); const f=s.heroFlags[id];
     const allow = (isAdmin() && devModeOn()) || (canDirectorDevEdit(f));
     if(!allow) return;
-    openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, labelColorFor(id));
+    openEditDialog({type:'hero', id}, s.heroLabels[id] || #${numberFromId(id)}, labelColorFor(id));
     return;
   }
 
@@ -790,10 +747,10 @@ document.addEventListener('click',(e)=>{
 
     const act = menuBtn.dataset.menu;
     if(act==='rename'){
-      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, labelColorFor(id));
+      openEditDialog({type:'hero', id}, s.heroLabels[id] || #${numberFromId(id)}, labelColorFor(id));
     }else if(act==='move'){
       const dest = (f.place==='page') ? 'archive' : 'page';
-      if(!confirm(`Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?`)) return;
+      if(!confirm(Move ${labelFor(id)} to ${dest==='page'?'Page':'Archive'}?)) return;
       s.heroFlags[id]={...f, place:dest};
       if(dest==='page'){
         if(!s.pageOrder.some(it=>it.type==='hero' && it.id===id)) s.pageOrder.push({type:'hero',id});
@@ -832,7 +789,7 @@ document.addEventListener('click',(e)=>{
     const s=getSettings(); const f=s.heroFlags[id];
     if(!((isAdmin() && devModeOn()) || canDirectorDevEdit(f))) return;
     const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
+    if(!confirm(${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?)) return;
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
@@ -842,7 +799,7 @@ document.addEventListener('click',(e)=>{
     if(!(isAdmin() && devModeOn())) return;
     const key = sortBtn.dataset.key; // hero:co-1 or div:div_xxx
     const s=getSettings();
-    const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const keys = s.pageOrder.map(it=> it.type==='hero' ? hero:${it.id} : div:${it.id});
     const from = keys.indexOf(key); if(from<0) return;
     const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
     const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
