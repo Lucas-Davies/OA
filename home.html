@@ -51,22 +51,32 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Grid: horizontal scroll, snapping squares */
-.grid{
+/* Section grouping: each heading with its own hero row */
+.section{ margin:32px 0 }
+.section .divider{ margin-bottom:10px }
+
+/* Hero rows are horizontal carousels */
+.section .grid{
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns:clamp(180px, 28vw, 280px);
   gap:var(--gap);
   overflow-x:auto;
-  padding-bottom:10px;
   scroll-snap-type:x mandatory;
+  padding-bottom:10px;
 }
-.grid::-webkit-scrollbar{ display:none }
+.section .grid::-webkit-scrollbar{ display:none }
 
 /* Hero squares */
 .hero{
-  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-  border-radius:16px; padding:var(--hero-pad); aspect-ratio:1/1; scroll-snap-align:start;
+  position:relative; 
+  overflow:hidden; 
+  background:#060708; 
+  border:1px solid var(--stroke);
+  border-radius:16px; 
+  padding:var(--hero-pad); 
+  aspect-ratio:1/1; 
+  scroll-snap-align:start;
 }
 .hero.devstate{ border:2px solid var(--blue) } /* BLUE BORDER for DEV */
 
@@ -599,47 +609,80 @@ function dividerEl(obj){
    Paint page + archive
 ========================= */
 function paintPage(){
-  const grid=$('#pageGrid'); if(!grid) return;
-  grid.innerHTML='';
-  const s=getSettings(); const role=getRole();
-  s.pageOrder.forEach(it=>{
-    if(it.type==='hero'){
-      const id=it.id; const f=s.heroFlags[id]; if(!f || f.place!=='page') return;
-      if(!seesAll()){
-        if(f.state!=='live') return;
-        if(!f.aud[role]) return;
+  const root = $('#pageGrid');
+  if(!root) return;
+  root.innerHTML = '';
+
+  const s = getSettings();
+  const role = getRole();
+  const staff = seesAll();
+
+  // helper to start a new section with optional divider
+  function startSection(divObj){
+    // audience gating for non-staff on headings
+    if(divObj && !staff){
+      const aud = divObj.aud || {bronze:true,silver:true,gold:true};
+      if(!aud[role]) return null; // skip section entirely
+    }
+    const sec = document.createElement('section');
+    sec.className = 'section';
+
+    if(divObj){
+      sec.appendChild(dividerEl(divObj));
+    }
+
+    const row = document.createElement('div');
+    row.className = 'grid';       // the horizontal carousel row
+    sec.appendChild(row);
+
+    root.appendChild(sec);
+    return {sec, row};
+  }
+
+  let currentRow = null; // the .grid inside the current .section
+
+  // stream through pageOrder: each divider starts a new section,
+  // heroes get appended to the current section's row
+  for(const it of s.pageOrder){
+    if(it.type === 'divider'){
+      const started = startSection(it);
+      currentRow = started ? started.row : null;
+      continue;
+    }
+
+    if(it.type === 'hero'){
+      const id = it.id;
+      const f = s.heroFlags[id];
+      if(!f || f.place!=='page') continue;
+
+      // audience/visibility for non-staff
+      if(!staff){
+        if(f.state!=='live') continue;
+        if(!f.aud[role]) continue;
       }
-      const card = heroCard(id); if(card) grid.appendChild(card);
-    }else if(it.type==='divider'){
-      const aud=it.aud || {bronze:true,silver:true,gold:true};
-      if(!seesAll()){ if(!aud[role]) return; }
-      grid.appendChild(dividerEl(it));
+
+      // if there was no divider before, start a nameless section
+      if(!currentRow){
+        const started = startSection(null);
+        currentRow = started ? started.row : null;
+        if(!currentRow) continue;
+      }
+
+      const card = heroCard(id);
+      if(card) currentRow.appendChild(card);
+    }
+  }
+
+  // Optional: remove empty sections (no heroes) if they got created without a divider
+  $$('#pageGrid .section').forEach(sec=>{
+    const row = sec.querySelector('.grid');
+    const hasHeroes = row && row.children.length>0;
+    const hasDivider = !!sec.querySelector('.divider');
+    if(!hasHeroes && !hasDivider){
+      sec.remove();
     }
   });
 }
-
-const dock=$('#archiveDock'), archiveList=$('#archiveList');
-function applyArchiveVisibility(){ if(isAdmin()){ dock.style.display='block'; dock.setAttribute('aria-hidden','false'); } else { dock.style.display='none'; dock.setAttribute('aria-hidden','true'); } }
-function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
-function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
-
-function paintArchive(){
-  const s=getSettings(); const flags=s.heroFlags;
-  archiveList.innerHTML='';
-  const items=Object.entries(flags).filter(([id,f])=>f.place==='archive')
-    .sort((a,b)=>Number(numberFromId(a[0]))-Number(numberFromId(b[0])));
-  items.forEach(([id,f])=>{
-    const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
-    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML = `<span class="num">${esc(labelFor(id))}</span>
-    ${(isAdmin() && devModeOn())?`<div style="display:flex;gap:8px;align-items:center">
-      <button class="footer-chip" data-act="move" type="button">Move to Page</button>
-      <button class="footer-chip" data-act="toggle" type="button">${esc(statusLabel)}</button>
-    </div>`:`<div></div>`}`;
-    archiveList.appendChild(row);
-  });
-}
-
 /* =========================
    Lock helpers
 ========================= */
