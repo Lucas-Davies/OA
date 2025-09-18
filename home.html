@@ -15,7 +15,7 @@
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
   --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --hero-pad:16px;
-  --z-kebab: 12000; /* overlay z for kebab menus only */
+  --z-kebab:12000; /* overlay z for kebab menus only */
 }
 
 /* Resets / base */
@@ -64,17 +64,12 @@ body.lock{ position:fixed; width:100% }
 #avatarCard h3{ margin:0 0 12px; font-weight:900 }
 #avatarClose{ float:right; }
 
+/* Layout wrapper */
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
+
 /* Sections: each divider gets its own hero row */
-.section{ 
-  margin:32px 0;
-  position:relative;   /* ensure section itself has its own layer */
-  z-index:0;
-}
-.section .divider{ 
-  margin-bottom:10px; 
-  position:relative; 
-  z-index:50;
-}
+.section{ margin:32px 0; position:relative; z-index:0 }
+.section .divider{ margin-bottom:10px; position:relative; z-index:50 }
 
 /* Horizontal hero rows (carousels) */
 .section .grid{
@@ -83,11 +78,11 @@ body.lock{ position:fixed; width:100% }
   grid-auto-columns:clamp(180px, 28vw, 280px); /* default M */
   gap:var(--gap);
   overflow-x:auto;
-  overflow-y:visible;   /* NEW: don’t clip vertical overflow */
+  overflow-y:visible;   /* don’t clip vertical overflow */
   scroll-snap-type:x mandatory;
   padding-bottom:10px;
-  position:relative;    /* NEW: allow z-index */
-  z-index:5;            /* NEW: keep rows above section bg */
+  position:relative;
+  z-index:5;
 }
 .section .grid::-webkit-scrollbar{ display:none }
 
@@ -114,7 +109,7 @@ body.lock{ position:fixed; width:100% }
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 
-/* Default (in-card) menu (ported to overlay at runtime) */
+/* Default (in-card) menu — we portal it to overlay at runtime */
 .kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
   display:none; flex-direction:column; min-width:210px; z-index:200; padding:6px;
@@ -164,18 +159,8 @@ body.lock{ position:fixed; width:100% }
 .btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
 .btn.grey{ background:#3a3a3a; color:#fff; border-color:var(--stroke) }
 
-/* CTA + audience (inline chips on card still exist) */
+/* CTA (audience chips removed from cards) */
 .cta-left{ position:absolute; left:16px; bottom:16px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; z-index:2 }
-.aud-line{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-.aud-chip{
-  height:28px; padding:0 12px; border-radius:999px; border:1px solid var(--stroke);
-  background:#141416; color:#fff; font-weight:800; font-size:12px; opacity:.9
-}
-.aud-chip.on{ opacity:1; filter:brightness(1.22) }
-.aud-chip.on::after{ content:" ✓"; font-weight:900 }
-.aud-chip.bronze{ box-shadow:inset 0 0 0 2px #b87333 }
-.aud-chip.silver{ box-shadow:inset 0 0 0 2px #c0c7d1 }
-.aud-chip.gold{   box-shadow:inset 0 0 0 2px #ffd700 }
 
 /* Divider (Heading) */
 .divider{
@@ -281,10 +266,7 @@ body.lock{ position:fixed; width:100% }
 .hero .ctrls .kebab { z-index: 4; }
 .divider .ctrls { position: absolute; top: 10px; right: 10px; z-index: 9000; }
 .divider .ctrls .kebab { z-index: 9001; }
-.kebab-menu{
-  z-index: 10000 !important;
-  box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
+.kebab-menu{ z-index: 10000 !important; box-shadow: 0 20px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06) inset; }
 
 /* Global overlay for kebab menus */
 #kebabOverlay[hidden]{ display:none !important; }
@@ -297,8 +279,7 @@ body.lock{ position:fixed; width:100% }
   position:fixed; z-index:calc(var(--z-kebab) + 1);
   display:flex; flex-direction:column;
   min-width:210px; max-width:min(92vw, 360px);
-  /* NEW: allow tall menus to scroll */
-  max-height:calc(100vh - 16px);
+  max-height:calc(100vh - 16px); /* tall menus scroll */
   overflow:auto;
 }
 #kebabOverlay .floating.kebab-menu{
@@ -324,6 +305,7 @@ body.menu-lock{ overflow:hidden; }
 </header>
 
 <main class="wrap">
+  <!-- JS builds the sections here -->
   <div id="pageGrid"></div>
 </main>
 
@@ -424,7 +406,7 @@ const store={
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
 const SCHEMA_VERSION=5;
 
-/* Escape */
+/* Escape (fixed syntax) */
 const esc=s=>String(s??'')
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -504,7 +486,7 @@ function paintAvatar(){
 }
 paintAvatar();
 
-/* Drawer wiring */
+/* Drawer wiring (fixed selector) */
 (function wireAvatarDrawer(){
   const avatarBtn = $('#avatarTab');
   const sheet = $('#avatarSheet');
@@ -653,7 +635,7 @@ function heroCard(id){
 
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
 
-  /* NEW: hero kebab menu mirrors divider structure + audience group */
+  /* Hero kebab mirrors divider structure + audience group */
   const dot = '<span class="dot" aria-hidden="true"></span>';
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
@@ -662,14 +644,12 @@ function heroCard(id){
         <div class="title">Customise</div>
         <button class="opt" data-menu="rename" type="button">Rename</button>
       </div>
-
       <div class="group">
         <div class="title">Audience</div>
         <button class="opt" data-menu="aud" data-aud="bronze" type="button">${f.aud.bronze?dot:''}Beginner</button>
         <button class="opt" data-menu="aud" data-aud="silver" type="button">${f.aud.silver?dot:''}Intermediate</button>
         <button class="opt" data-menu="aud" data-aud="gold"   type="button">${f.aud.gold  ?dot:''}Advanced</button>
       </div>
-
       <div class="group">
         <div class="title">Actions</div>
         <button class="opt" data-menu="move"   type="button">${f.place==='page'?'Archive':'Move to Page'}</button>
@@ -695,12 +675,6 @@ function heroCard(id){
       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
         ${completed?'Complete':(inprogress?'In Progress':'Start')}
       </button>
-      ${canAdminDev ? `
-        <div class="aud-line">
-          <button class="aud-chip bronze ${f.aud.bronze?'on':''}" data-aud="bronze" type="button">Beginner</button>
-          <button class="aud-chip silver ${f.aud.silver?'on':''}" data-aud="silver" type="button">Intermediate</button>
-          <button class="aud-chip gold   ${f.aud.gold  ?'on':''}" data-aud="gold"   type="button">Advanced</button>
-        </div>` : ``}
     </div>
   `;
 
@@ -772,16 +746,7 @@ function dividerEl(obj){
         </div>
       </div>
     ` : ''}
-
-    ${editable ? `
-      <div class="aud-line normal-hide">
-        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
-        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
-        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
-      </div>
-    ` : ''}
   `;
-
   return el;
 }
 
@@ -829,9 +794,9 @@ function paintPage(){
       const f = s.heroFlags[id];
       if(!f || f.place!=='page') continue;
 
-      if(!seesAll()){
+      if(!staff){
         if(f.state!=='live') continue;
-        if(!f.aud[role]) continue;
+        if(!f.aud[getRole()]) continue;
       }
 
       if(!currentRow){
@@ -887,7 +852,7 @@ function lockBody(){ savedScrollY = window.scrollY||document.documentElement.scr
 function unlockBody(){ document.body.classList.remove('lock'); document.body.style.top=''; window.scrollTo(0,savedScrollY||0); }
 
 /* =========================
-   Subsheet
+   Subsheet (safe if absent)
 ========================= */
 const subSheet=$('#subSheet'), subFrame=$('#subFrame'), sheetTitle=$('#sheetTitle');
 function openSubSheet(title,url){
@@ -899,7 +864,7 @@ function openSubSheet(title,url){
 }
 
 /* =========================
-   Kebab overlay manager (port menu into #kebabOverlay)
+   Kebab overlay manager
 ========================= */
 const kebabOverlay = $('#kebabOverlay');
 const kebabBackdrop = $('#kebabBackdrop');
@@ -924,7 +889,7 @@ function openKebabMenu(menuEl, anchorBtn){
   const vh = window.innerHeight;
   const pad = 8;
 
-  // Make sure very tall menus are scrollable
+  // Make sure tall menus scroll
   menuEl.style.maxHeight = (vh - pad*2) + 'px';
   menuEl.style.overflow = 'auto';
 
@@ -934,20 +899,19 @@ function openKebabMenu(menuEl, anchorBtn){
   const mw = rMenu.width;
   const mh = rMenu.height;
 
-  // Prefer opening below; flip above if it would overflow bottom and there's room above
+  // Prefer opening below; flip above if bottom would clip and there's room above
   const spaceBelow = vh - (rBtn.bottom + 8);
   const spaceAbove = rBtn.top - 8;
 
   let top;
-  if (spaceBelow < mh && spaceAbove > mh){       // open above if more room
-    top = rBtn.top - mh - 8;
+  if (spaceBelow < mh && spaceAbove > mh){
+    top = rBtn.top - mh - 8;   // open upward
   }else{
-    top = rBtn.bottom + 8;
+    top = rBtn.bottom + 8;     // open downward
   }
-  // Clamp fully inside viewport
   top = clamp(top, pad, vh - pad - mh);
 
-  // Right-align to button, but keep inside viewport
+  // Right-align to button, but clamp inside viewport
   let left = rBtn.right - mw;
   left = clamp(left, pad, vw - pad - mw);
 
@@ -1106,7 +1070,7 @@ document.addEventListener('click',(e)=>{
     }
   }
 
-  /* Divider tools (arrow + inline chips) */
+  /* Divider tools (arrow) */
   const divAct = e.target.dataset.divAct;
   if(divAct){
     if(!(isAdmin() && devModeOn())) return;
@@ -1126,23 +1090,7 @@ document.addEventListener('click',(e)=>{
     }
   }
 
-  /* Audience chips (divider inline) */
-  const divAud = e.target.closest('[data-div-aud]');
-  if(divAud){
-    if(!(isAdmin() && devModeOn())) return;
-    const key = divAud.getAttribute('data-div-aud');
-    const id  = divAud.getAttribute('data-div-id');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    const obj=s.pageOrder[idx];
-    const next=!obj.aud?.[key];
-    if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
-    obj.aud={...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
-    saveSettings(s); paintPage();
-    return;
-  }
-
-  /* Hero kebab actions (Admin + Dev) */
+  /* Hero kebab actions */
   const menuBtn = e.target.closest('.kebab-menu button:not(.div-menu button)');
   if(menuBtn && !menuBtn.closest('.div-menu')){
     const host = openMenuEl ? originalParent?.closest('.hero') : e.target.closest('.hero');
@@ -1182,17 +1130,6 @@ document.addEventListener('click',(e)=>{
       saveSettings(s); paintPage(); closeKebabMenu();
     }
     return;
-  }
-
-  /* Audience hero chips (inline) */
-  const audBtn=e.target.closest('[data-aud]');
-  if(audBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const hero=e.target.closest('[data-hero-id]'); const id=hero?.dataset?.heroId;
-    const s=getSettings(); const f=s.heroFlags[id];
-    const key=audBtn.getAttribute('data-aud'); const nextVal=!f.aud[key];
-    if(!confirm(`${nextVal?'Allow':'Disallow'} ${key} for ${labelFor(id)}?`)) return;
-    s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
   /* Reorder heroes */
