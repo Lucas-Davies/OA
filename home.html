@@ -1,5 +1,3 @@
-Home cut before avatar removal 
-
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -76,6 +74,7 @@ body.lock{ position:fixed; width:100% }
 .section .grid{
   display:grid;
   grid-auto-flow:column;
+  /* default (md) kept here; size modifiers below override */
   grid-auto-columns:clamp(180px, 28vw, 280px);
   gap:var(--gap);
   overflow-x:auto;
@@ -83,6 +82,11 @@ body.lock{ position:fixed; width:100% }
   padding-bottom:10px;
 }
 .section .grid::-webkit-scrollbar{ display:none }
+
+/* Size modifiers controlled by heading above */
+.section .grid.size-sm{ grid-auto-columns:clamp(150px, 22vw, 220px) }
+.section .grid.size-md{ grid-auto-columns:clamp(180px, 28vw, 280px) } /* current default */
+.section .grid.size-lg{ grid-auto-columns:clamp(220px, 36vw, 360px) }
 
 /* Hero cards */
 .hero{
@@ -156,14 +160,18 @@ body.lock{ position:fixed; width:100% }
   padding:14px 16px 56px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
-.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center }
+.divider .dctrls{ position:absolute; top:10px; right:10px; display:none; gap:6px; align-items:center; flex-wrap:wrap }
 .config-on .divider .dctrls{ display:flex }
 .divider .aud-line{ position:absolute; left:16px; bottom:14px }
 
-/* Put the divider pencil beside ▲ ▼ Remove */
+/* Place the divider pencil beside ▲ ▼ Remove */
 .divider .dctrls .cfg-pin{
   position:static; width:auto; height:34px; padding:0 12px; border-radius:999px;
 }
+
+/* Size control chips (Admin + Dev on heading) */
+.size-chip{ height:34px }
+.size-chip.on{ box-shadow:inset 0 0 0 2px var(--blue) }
 
 /* Compact headings in normal mode */
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
@@ -410,16 +418,29 @@ function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
+
+  /* ensure all co-* heroes exist */
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
   }
+
+  /* keep only expected item types */
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
+
+  /* ensure page heroes appear in pageOrder */
   Object.keys(c.heroFlags).forEach(id=>{
     if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){
       c.pageOrder.push({type:'hero', id});
     }
   });
+
+  /* NEW: default heroSize on dividers */
+  c.pageOrder = c.pageOrder.map(it=>{
+    if(it.type==='divider' && !it.heroSize) return {...it, heroSize:'md'};
+    return it;
+  });
+
   return c;
 }
 function loadSettings(){
@@ -652,6 +673,8 @@ function dividerEl(obj){
   const fontSize = Number(obj.fontSize || 22);
   const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
 
+  const size = obj.heroSize || 'md'; // 'sm' | 'md' | 'lg'
+
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`
     <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
@@ -661,6 +684,10 @@ function dividerEl(obj){
         <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
         <button class="footer-chip" data-div-act="remove" data-div-id="${esc(obj.id)}" type="button">Remove</button>
         <button class="footer-chip cfg-pin" title="Rename / Colour" data-div-pencil="${esc(obj.id)}" type="button">✎</button>
+        <span class="footer-label">Hero size:</span>
+        <button class="footer-chip size-chip ${size==='sm'?'on':''}" data-div-size="sm" data-div-id="${esc(obj.id)}" type="button">S</button>
+        <button class="footer-chip size-chip ${size==='md'?'on':''}" data-div-size="md" data-div-id="${esc(obj.id)}" type="button">M</button>
+        <button class="footer-chip size-chip ${size==='lg'?'on':''}" data-div-size="lg" data-div-id="${esc(obj.id)}" type="button">L</button>
       </div>`:''}
     ${editable?`
       <div class="aud-line">
@@ -692,8 +719,16 @@ function paintPage(){
     const sec = document.createElement('section');
     sec.className = 'section';
     if(divObj) sec.appendChild(dividerEl(divObj));
+
     const row = document.createElement('div');
     row.className = 'grid';
+
+    /* apply size class from divider (only when a divider exists) */
+    if(divObj){
+      const sz = (divObj.heroSize || 'md');
+      row.classList.add(`size-${sz}`);
+    }
+
     sec.appendChild(row);
     root.appendChild(sec);
     return {sec, row};
@@ -718,6 +753,7 @@ function paintPage(){
       }
 
       if(!currentRow){
+        /* No heading above -> default sizing (md, but we leave class off and rely on base) */
         const started = startSection(null);
         currentRow = started ? started.row : null;
         if(!currentRow) continue;
@@ -813,7 +849,7 @@ function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, heroSize:'md'});
   saveSettings(s); paintPage();
 });
 
@@ -838,6 +874,21 @@ document.addEventListener('click',(e)=>{
     const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
     const obj = s.pageOrder[idx]||{};
     openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
+    return;
+  }
+
+  /* Divider: hero size controls (Admin + Dev) */
+  const sizeBtn = e.target.closest('[data-div-size]');
+  if(sizeBtn){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = sizeBtn.getAttribute('data-div-id');
+    const nextSize = sizeBtn.getAttribute('data-div-size'); // 'sm'|'md'|'lg'
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx>=0){
+      s.pageOrder[idx].heroSize = nextSize;
+      saveSettings(s); paintPage();
+    }
     return;
   }
 
