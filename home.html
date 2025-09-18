@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA</title>
 
+<!-- Google fonts for the rename dialog -->
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
 <style>
@@ -65,7 +66,7 @@ body.lock{ position:fixed; width:100% }
 /* Layout */
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
 
-/* Sections */
+/* Sections: each divider gets its own hero row */
 .section{ margin:32px 0 }
 .section .divider{ margin-bottom:10px }
 
@@ -73,18 +74,20 @@ body.lock{ position:fixed; width:100% }
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:var(--col-size, clamp(180px, 28vw, 280px));
+  grid-auto-columns:clamp(180px, 28vw, 280px); /* default M */
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   padding-bottom:10px;
 }
-.section .grid.xs { --col-size: clamp(160px, 22vw, 220px); }
-.section .grid.s  { --col-size: clamp(180px, 26vw, 260px); }
-.section .grid.m  { --col-size: clamp(200px, 30vw, 300px); }
-.section .grid.l  { --col-size: clamp(240px, 35vw, 360px); }
-.section .grid.xl { --col-size: clamp(280px, 40vw, 420px); }
 .section .grid::-webkit-scrollbar{ display:none }
+
+/* Row sizing (applied per-heading) */
+.grid.size-xs{ grid-auto-columns:clamp(140px,22vw,200px) }
+.grid.size-s { grid-auto-columns:clamp(160px,25vw,240px) }
+.grid.size-m { grid-auto-columns:clamp(180px,28vw,280px) }
+.grid.size-l { grid-auto-columns:clamp(210px,32vw,320px) }
+.grid.size-xl{ grid-auto-columns:clamp(240px,36vw,380px) }
 
 /* Hero cards */
 .hero{
@@ -98,19 +101,28 @@ body.lock{ position:fixed; width:100% }
   font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
 }
 
-/* Kebab (admin+dev on heroes & headings) */
+/* Kebab (shared) */
 .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
 .kebab{ background:#121212; border:1px solid var(--stroke); border-radius:8px; width:28px; height:28px; font-weight:900; color:#fff }
 .kebab-menu{
   position:absolute; top:40px; right:0; background:#1b1f2a; border:1px solid var(--stroke); border-radius:10px;
-  display:none; flex-direction:column; min-width:220px; z-index:200; padding:8px;
+  display:none; flex-direction:column; min-width:210px; z-index:20; padding:6px;
 }
-.kebab-menu .title{ font-weight:900; color:#fff; margin:6px 8px 4px }
-.kebab-menu .opt{ background:none; border:none; text-align:left; padding:6px 12px; border-radius:8px; font-weight:800; color:#0A84FF }
-.kebab-menu .opt .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:transparent; margin-right:8px }
-.kebab-menu .opt.active .dot{ background:#32d74b }
-.kebab-menu .opt.danger{ color:#ff453a }
-.kebab-menu .opt:hover{ background:#2a2f3a }
+.kebab-menu button{
+  background:none; border:none; color:#0A84FF; padding:8px 12px; text-align:left; font-weight:800; cursor:pointer; border-radius:8px;
+}
+.kebab-menu button:hover{ background:#2a2f3a }
+.kebab-menu .group{ padding:4px 6px 8px 6px }
+.kebab-menu .title{ color:#fff; font-weight:900; padding:6px 8px 2px }
+.kebab-menu .opt{ display:flex; align-items:center; gap:8px; padding-left:18px }
+.kebab-menu .dot{
+  width:8px; height:8px; border-radius:999px; background:var(--green); display:inline-block;
+}
+.kebab-menu .danger{ color:#ff453a; font-weight:900; }
+
+/* Heading controls (arrows pinned on divider) */
+.divider .dctrls{ position:absolute; top:10px; right:54px; display:none; gap:6px; align-items:center }
+.config-on .divider .dctrls{ display:flex }
 
 /* Hero reorder arrows (Admin + Dev only) */
 .hero-arrows{
@@ -136,7 +148,7 @@ body.lock{ position:fixed; width:100% }
 /* Buttons */
 .btn{
   display:inline-flex; align-items:center; justify-content:center; min-width:120px; height:40px; padding:0 14px;
-  border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:var(--ink)
+  border-radius:12px; border:1px solid var(--stroke); font-weight:900; background:#0f1116; color:#ink
 }
 .btn.blue{ background:var(--blue); border-color:transparent; color:#000 }
 .btn.grey{ background:#3a3a3a; color:#fff; border-color:var(--stroke) }
@@ -160,17 +172,7 @@ body.lock{ position:fixed; width:100% }
   padding:14px 16px 56px; min-height:58px; margin:18px 0;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
-.divider .dctrls{ position:absolute; top:10px; right:56px; display:none; gap:6px; align-items:center } /* leave space for kebab */
-.config-on .divider .dctrls{ display:flex }
 .divider .aud-line{ position:absolute; left:16px; bottom:14px }
-
-/* Divider kebab (size/audience/rename/remove) */
-.divider .kebab{ position:absolute; top:10px; right:10px }
-.config-on .divider .kebab{ display:inline-flex }
-:not(.config-on) .divider .kebab{ display:none }
-
-/* Put the divider pencil beside ▲ ▼ Remove */
-.divider .dctrls .cfg-pin{ position:static; width:auto; height:34px; padding:0 12px; border-radius:999px; }
 
 /* Compact headings in normal mode */
 :not(.config-on) .divider{ border:none; background:transparent; min-height:0; padding:0 2px 6px; margin:28px 2px 8px; display:flex; align-items:flex-end }
@@ -179,13 +181,12 @@ body.lock{ position:fixed; width:100% }
 
 /* Footer Dock (Developer only) */
 #archiveDock{
-  position:fixed; left:0; right:0; bottom:0; z-index:75;
-  background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
-  transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain;
+  position:fixed; left:0; right:0; bottom:0; z-index:75; background:var(--red); color:#fff; border-top:1px solid rgba(255,255,255,.25);
+  transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain
 }
 #archiveDock .bar{
   display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; font-weight:900;
-  overflow-x:auto; white-space:nowrap;
+  overflow-x:auto; white-space:nowrap
 }
 #archiveDock .bar::-webkit-scrollbar{ display:none }
 #archiveDock .title{ display:inline-flex; align-items:center; gap:8px }
@@ -245,12 +246,21 @@ body.lock{ position:fixed; width:100% }
   flex:1; min-width:200px; background:#12141a; border:1px solid var(--stroke); color:#fff; height:36px; border-radius:10px; padding:0 10px; font-weight:700
 }
 .palette{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
-.swatch{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer; }
+.swatch{
+  width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.2); cursor:pointer;
+}
 .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
 #fontControls{ display:flex; align-items:center; gap:8px }
-.fontBtn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke); background:#12141a; color:#fff; font-weight:900; font-size:16px; }
-#fontFamily{ background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700 }
-.preview{ width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900 }
+.fontBtn{
+  width:36px; height:36px; border-radius:10px; border:1px solid var(--stroke);
+  background:#12141a; color:#fff; font-weight:900; font-size:16px;
+}
+#fontFamily{
+  background:#12141a; color:#fff; border:1px solid var(--stroke); height:36px; border-radius:10px; padding:0 10px; font-weight:700
+}
+.preview{
+  width:100%; border:1px dashed var(--stroke); border-radius:10px; padding:10px; margin-top:4px; background:#0b0d12; font-weight:900
+}
 </style>
 </head>
 
@@ -268,6 +278,7 @@ body.lock{ position:fixed; width:100% }
 </header>
 
 <main class="wrap">
+  <!-- JS will build .section blocks here -->
   <div id="pageGrid"></div>
 </main>
 
@@ -290,11 +301,16 @@ body.lock{ position:fixed; width:100% }
 <div id="editDialog" aria-modal="true" role="dialog">
   <div id="editPanel" role="document">
     <h3 id="editTitle">Edit</h3>
-    <div class="row"><input id="editText" type="text" placeholder="Title"></div>
+
+    <div class="row">
+      <input id="editText" type="text" placeholder="Title">
+    </div>
+
     <div class="row">
       <div style="font-weight:800">Colour:</div>
       <div class="palette" id="editPalette"></div>
     </div>
+
     <div class="row" id="fontControls">
       <div style="font-weight:800">Font:</div>
       <select id="fontFamily">
@@ -312,7 +328,11 @@ body.lock{ position:fixed; width:100% }
       <button class="fontBtn" id="fontUp"   type="button" aria-label="Increase font size">A+</button>
       <span id="fontSizeLabel" style="opacity:.9;min-width:48px;text-align:right"></span>
     </div>
-    <div class="row"><div class="preview" id="editPreview">Preview</div></div>
+
+    <div class="row">
+      <div class="preview" id="editPreview">Preview</div>
+    </div>
+
     <div class="actions">
       <button class="footer-chip" id="editCancel">Cancel</button>
       <button class="footer-chip" id="editSave">Save</button>
@@ -320,7 +340,7 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 
-<!-- Footer Dock -->
+<!-- Footer Dock (Developer only) -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
     <div class="title">
@@ -328,11 +348,15 @@ body.lock{ position:fixed; width:100% }
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
     </div>
+
     <div class="title" style="gap:12px">
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
     </div>
   </div>
-  <div class="content"><div class="list" id="archiveList"></div></div>
+
+  <div class="content">
+    <div class="list" id="archiveList"></div>
+  </div>
 </div>
 
 <script>
@@ -364,7 +388,10 @@ const ROLE_LABEL = {
   support:'Support', director:'Director', admin:'Admin'
 };
 function normalizeRole(r){ r=String(r||'').toLowerCase(); return ROLE_MAP[r] || r; }
-function baseRole(){ const p = store.get(K.profile, { skill:'admin', displayName:'User' }); return normalizeRole(p.skill || 'admin'); }
+function baseRole(){
+  const p = store.get(K.profile, { skill:'admin', displayName:'User' });
+  return normalizeRole(p.skill || 'admin');
+}
 function getRole(){ return baseRole(); }
 function isAdmin(){ return getRole()==='admin'; }
 function isDirector(){ return getRole()==='director'; }
@@ -385,13 +412,12 @@ function defaults(){
   heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}};
   for(let i=5;i<=12;i++) heroFlags[`co-${i}`]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}};
   pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true, dividerSize:{} };
+  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, pageOrder, _seeded:true };
 }
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
-  c.dividerSize=c.dividerSize||{};
   for(let i=1;i<=50;i++){
     const id=`co-${i}`;
     if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}};
@@ -435,8 +461,18 @@ paintAvatar();
   const closeBtn = $('#avatarClose');
   const toggleDev = $('#drawerToggleDev');
 
-  function openDrawer(){ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); lockBody(); }
-  function closeDrawer(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); unlockBody(); }
+  function openDrawer(){
+    sheet.classList.add('open');
+    sheet.setAttribute('aria-hidden','false');
+    avatarBtn.setAttribute('aria-expanded','true');
+    lockBody();
+  }
+  function closeDrawer(){
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden','true');
+    avatarBtn.setAttribute('aria-expanded','false');
+    unlockBody();
+  }
   avatarBtn?.addEventListener('click', openDrawer, {passive:true});
   closeBtn?.addEventListener('click', closeDrawer, {passive:true});
   sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
@@ -463,7 +499,11 @@ function styleFor(id){
 /* =========================
    Edit dialog (text+color+font)
 ========================= */
-const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
+const paletteColors = [
+  '#eef3ff','#cfd3e1','#ffffff','#000000','#808080',
+  '#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333',
+  '#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'
+];
 
 let editCtx=null;
 let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
@@ -513,7 +553,12 @@ $('#editSave').addEventListener('click', ()=>{
   if(editCtx.type==='hero'){
     if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
     s.heroStyle = s.heroStyle || {};
-    s.heroStyle[editCtx.id] = { ...(s.heroStyle[editCtx.id]||{}), labelColor: liveColor, labelSize:  liveFont, labelFont:  liveFamily };
+    s.heroStyle[editCtx.id] = {
+      ...(s.heroStyle[editCtx.id]||{}),
+      labelColor: liveColor,
+      labelSize:  liveFont,
+      labelFont:  liveFamily
+    };
   }else{
     const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
     if(idx>=0){
@@ -561,11 +606,10 @@ function heroCard(id){
   const kebabHTML = canAdminDev ? `
     <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
     <div class="kebab-menu">
-      <div class="title">Customise</div>
-      <button class="opt" data-menu="rename">Rename</button>
-      <button class="opt" data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
-      <button class="opt" data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
-      <button class="opt" data-menu="photo">Photo</button>
+      <button data-menu="rename">Rename</button>
+      <button data-menu="move">${f.place==='page'?'Archive':'Move to Page'}</button>
+      <button data-menu="toggle">${f.state==='live'?'Set Offline':(f.state==='off'?'Set Dev':'Set Live')}</button>
+      <button data-menu="photo">Photo</button>
     </div>` : '';
 
   el.innerHTML = `
@@ -579,7 +623,9 @@ function heroCard(id){
 
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
 
-    <div class="ctrls">${kebabHTML}</div>
+    <div class="ctrls">
+      ${kebabHTML}
+    </div>
 
     <div class="cta-left">
       <button class="btn ${completed?'grey':'blue'}" data-act="enter" type="button">
@@ -607,6 +653,7 @@ function heroCard(id){
   return el;
 }
 
+/* Divider (Heading) builder with kebab */
 function dividerEl(obj){
   const editable = isAdmin() && devModeOn();
   const color = obj.color || '';
@@ -614,34 +661,53 @@ function dividerEl(obj){
   const fontSize = Number(obj.fontSize || 22);
   const inline = `style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px"`;
 
-  const sizeKey = obj.size || 'm';
-  const s = getSettings();
-  const aud = obj.aud || {bronze:true,silver:true,gold:true};
+  const size = (obj.rowSize||'m');
+  const dot = '<span class="dot" aria-hidden="true"></span>';
 
   const el=document.createElement('div'); el.className='divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
   el.innerHTML=`
     <span class="htext" ${inline}>${esc(obj.title||'Heading')}</span>
+
     ${editable?`
       <div class="dctrls">
         <button class="footer-chip" data-div-act="up"     data-div-id="${esc(obj.id)}" type="button">▲</button>
         <button class="footer-chip" data-div-act="down"   data-div-id="${esc(obj.id)}" type="button">▼</button>
       </div>
-      <button class="kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
-      <div class="kebab-menu">
-        <div class="title">Customise</div>
-        <button class="opt" data-div-rename="${esc(obj.id)}">Rename / Style</button>
-        <div class="title">Size</div>
-        ${['xs','s','m','l','xl'].map(k=>{
-          const active=(sizeKey===k);
-          return `<button class="opt ${active?'active':''}" data-div-size="${k}" data-div-id="${esc(obj.id)}"><span class="dot"></span>${({'xs':'Extra Small','s':'Small','m':'Medium','l':'Large','xl':'Extra Large'})[k]}</button>`;
-        }).join('')}
-        <div class="title">Audience</div>
-        ${['bronze','silver','gold'].map(k=>{
-          const active=!!aud[k];
-          const label={bronze:'Beginner',silver:'Intermediate',gold:'Advanced'}[k];
-          return `<button class="opt ${active?'active':''}" data-div-aud="${k}" data-div-id="${esc(obj.id)}"><span class="dot"></span>${label}</button>`;
-        }).join('')}
-        <button class="opt danger" data-div-act="remove" data-div-id="${esc(obj.id)}">Remove</button>
+      <div class="ctrls">
+        <button class="kebab div-kebab" aria-haspopup="true" aria-expanded="false">⋮</button>
+        <div class="kebab-menu div-menu">
+          <div class="group">
+            <div class="title">Customise</div>
+            <button class="opt" data-divm="rename" data-div-id="${esc(obj.id)}">Rename</button>
+          </div>
+
+          <div class="group">
+            <div class="title">Size</div>
+            <button class="opt" data-divm="size" data-size="xs" data-div-id="${esc(obj.id)}">${size==='xs'?dot:''}Extra Small</button>
+            <button class="opt" data-divm="size" data-size="s"  data-div-id="${esc(obj.id)}">${size==='s'?dot:''}Small</button>
+            <button class="opt" data-divm="size" data-size="m"  data-div-id="${esc(obj.id)}">${size==='m'?dot:''}Medium</button>
+            <button class="opt" data-divm="size" data-size="l"  data-div-id="${esc(obj.id)}">${size==='l'?dot:''}Large</button>
+            <button class="opt" data-divm="size" data-size="xl" data-div-id="${esc(obj.id)}">${size==='xl'?dot:''}Extra Large</button>
+          </div>
+
+          <div class="group">
+            <div class="title">Audience</div>
+            <button class="opt" data-divm="aud" data-aud="bronze" data-div-id="${esc(obj.id)}">${obj.aud?.bronze?dot:''}Beginner</button>
+            <button class="opt" data-divm="aud" data-aud="silver" data-div-id="${esc(obj.id)}">${obj.aud?.silver?dot:''}Intermediate</button>
+            <button class="opt" data-divm="aud" data-aud="gold"   data-div-id="${esc(obj.id)}">${obj.aud?.gold?dot:''}Advanced</button>
+          </div>
+
+          <div class="group">
+            <button class="danger" data-divm="remove" data-div-id="${esc(obj.id)}">Remove</button>
+          </div>
+        </div>
+      </div>`:''}
+
+    ${editable?`
+      <div class="aud-line normal-hide">
+        <button class="aud-chip bronze ${obj.aud?.bronze?'on':''}" data-div-aud="bronze" data-div-id="${esc(obj.id)}" type="button">Beginner</button>
+        <button class="aud-chip silver ${obj.aud?.silver?'on':''}" data-div-aud="silver" data-div-id="${esc(obj.id)}" type="button">Intermediate</button>
+        <button class="aud-chip gold   ${obj.aud?.gold  ?'on':''}" data-div-aud="gold"   data-div-id="${esc(obj.id)}" type="button">Advanced</button>
       </div>`:''}
   `;
   return el;
@@ -668,7 +734,12 @@ function paintPage(){
     sec.className = 'section';
     if(divObj) sec.appendChild(dividerEl(divObj));
     const row = document.createElement('div');
-    row.className = 'grid ' + (divObj?.size || ''); // apply xs/s/m/l/xl
+    row.className = 'grid';
+
+    // apply size from divider if present
+    const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
+    row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
+
     sec.appendChild(row);
     root.appendChild(sec);
     return {sec, row};
@@ -703,14 +774,12 @@ function paintPage(){
     }
   }
 
-  // Clean any empty nameless section
+  // Clean empty nameless sections
   $$('#pageGrid .section').forEach(sec=>{
     const row = sec.querySelector('.grid');
     const hasHeroes = row && row.children.length>0;
     const hasDivider = !!sec.querySelector('.divider');
-    if(!hasHeroes && !hasDivider){
-      sec.remove();
-    }
+    if(!hasHeroes && !hasDivider){ sec.remove(); }
   });
 }
 
@@ -784,13 +853,11 @@ $('#devToggle').addEventListener('click', ()=>{
   updateFooterModeControls(); paintPage(); paintArchive();
 });
 
-/* Add heading */
 function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   const title=prompt('Heading title','Section'); if(title==null) return;
-  const s=getSettings();
-  s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, size:'m'});
+  const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:title.trim()||'Section', aud:{bronze:true,silver:true,gold:true}, fontSize:22, rowSize:'m'});
   saveSettings(s); paintPage();
 });
 
@@ -807,65 +874,18 @@ document.addEventListener('click',(e)=>{
     openSubSheet(labelFor(id), url); return;
   }
 
-  /* Divider kebab open/close */
-  const hKebab = e.target.closest('.divider .kebab');
-  if(hKebab){
-    const menu=hKebab.nextElementSibling;
+  /* Divider kebab toggle */
+  const divKebab = e.target.closest('.div-kebab');
+  if(divKebab){
+    const menu=divKebab.nextElementSibling;
     const open = menu.style.display==='flex';
     $$('.kebab-menu').forEach(m=>m.style.display='none');
     menu.style.display = open ? 'none' : 'flex';
     return;
   }
 
-  /* Divider: rename/style */
-  const renameBtn = e.target.closest('[data-div-rename]');
-  if(renameBtn){
-    if(!(isAdmin() && devModeOn())) return;
-    const id=renameBtn.getAttribute('data-div-rename');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    const obj = s.pageOrder[idx]||{};
-    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
-    return;
-  }
-
-  /* Divider: size select */
-  const divSize = e.target.closest('[data-div-size]');
-  if(divSize){
-    if(!(isAdmin() && devModeOn())) return;
-    const size=divSize.getAttribute('data-div-size'); const id=divSize.getAttribute('data-div-id');
-    if(!confirm(`Change row size to ${({'xs':'Extra Small','s':'Small','m':'Medium','l':'Large','xl':'Extra Large'})[size]}?`)) return;
-    const s=getSettings();
-    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx>=0){ s.pageOrder[idx].size=size; saveSettings(s); paintPage(); }
-    return;
-  }
-
-  /* Divider audience toggle */
-  const divAud = e.target.closest('[data-div-aud]');
-  if(divAud){
-    if(!(isAdmin() && devModeOn())) return;
-    const key=divAud.getAttribute('data-div-aud'); const id=divAud.getAttribute('data-div-id');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx<0) return;
-    const obj=s.pageOrder[idx]; const next=!((obj.aud||{})[key]);
-    if(!confirm(`${next?'Allow':'Disallow'} ${key==='bronze'?'Beginner':key==='silver'?'Intermediate':'Advanced'} to see this section?`)) return;
-    obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
-    saveSettings(s); paintPage(); return;
-  }
-
-  /* Divider arrow move (keep) */
-  const pinDiv = e.target.closest('[data-div-pencil]'); // legacy pin support
-  if(pinDiv){
-    if(!(isAdmin() && devModeOn())) return;
-    const id=pinDiv.getAttribute('data-div-pencil');
-    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    const obj = s.pageOrder[idx]||{};
-    openEditDialog({type:'divider', id}, obj.title || 'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
-    return;
-  }
-
-  /* Kebab open/close for hero */
-  const keb = e.target.closest('.hero .kebab');
+  /* Hero kebab toggle */
+  const keb = e.target.closest('.kebab:not(.div-kebab)');
   if(keb){
     const menu=keb.nextElementSibling;
     const open = menu.style.display==='flex';
@@ -875,9 +895,82 @@ document.addEventListener('click',(e)=>{
   }
   if(!e.target.closest('.kebab-menu')) $$('.kebab-menu').forEach(m=>m.style.display='none');
 
-  /* Kebab actions (Admin + Dev) */
-  const menuBtn = e.target.closest('.hero .kebab-menu .opt');
-  if(menuBtn){
+  /* Divider kebab actions */
+  const dmb = e.target.closest('.div-menu button');
+  if(dmb){
+    if(!(isAdmin() && devModeOn())) return;
+    const s=getSettings();
+    const id=dmb.getAttribute('data-div-id');
+    const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    const obj=s.pageOrder[idx];
+
+    const kind = dmb.dataset.divm;
+    if(kind==='rename'){
+      openEditDialog({type:'divider', id}, obj.title||'Heading', obj.color||'', Number(obj.fontSize||22), obj.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif");
+      return;
+    }
+    if(kind==='size'){
+      const size=dmb.dataset.size||'m';
+      if(!confirm(`Apply ${size.toUpperCase()} size to heroes under "${obj.title||'Heading'}"?`)) return;
+      obj.rowSize=size;
+      saveSettings(s); paintPage();
+      return;
+    }
+    if(kind==='aud'){
+      const key=dmb.dataset.aud;
+      const next=!obj.aud?.[key];
+      if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
+      obj.aud = {...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
+      saveSettings(s); paintPage();
+      return;
+    }
+    if(kind==='remove'){
+      if(!confirm('Remove this heading?')) return;
+      s.pageOrder.splice(idx,1); saveSettings(s); paintPage();
+      return;
+    }
+  }
+
+  /* Divider tools (arrow + inline chips for audience kept for dev view) */
+  const divAct = e.target.dataset.divAct;
+  if(divAct){
+    if(!(isAdmin() && devModeOn())) return;
+    const id = e.target.dataset.divId;
+    const s = getSettings();
+    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    if(divAct==='up' || divAct==='down'){
+      const dir = (divAct==='up') ? -1 : 1;
+      const to  = Math.min(Math.max(0, idx + dir), s.pageOrder.length - 1);
+      if (to !== idx) {
+        const obj = s.pageOrder.splice(idx,1)[0];
+        s.pageOrder.splice(to,0,obj);
+        saveSettings(s); paintPage();
+      }
+      return;
+    }
+  }
+
+  /* Audience chips (divider inline) */
+  const divAud = e.target.closest('[data-div-aud]');
+  if(divAud){
+    if(!(isAdmin() && devModeOn())) return;
+    const key = divAud.getAttribute('data-div-aud');
+    const id  = divAud.getAttribute('data-div-id');
+    const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
+    if(idx<0) return;
+    const obj=s.pageOrder[idx];
+    const next=!obj.aud?.[key];
+    if(!confirm(`${next?'Allow':'Disallow'} ${key} for "${obj.title||'Heading'}"?`)) return;
+    obj.aud={...(obj.aud||{bronze:true,silver:true,gold:true}), [key]:next};
+    saveSettings(s); paintPage();
+    return;
+  }
+
+  /* Hero kebab actions (Admin + Dev) */
+  const menuBtn = e.target.closest('.kebab-menu button:not(.div-menu button)');
+  if(menuBtn && !menuBtn.closest('.div-menu')){
     const host = e.target.closest('.hero'); const id=host?.dataset?.heroId;
     const s=getSettings(); const f=s.heroFlags[id];
     if(!(isAdmin() && devModeOn())) return;
@@ -920,11 +1013,11 @@ document.addEventListener('click',(e)=>{
     s.heroFlags[id]={...f, aud:{...f.aud, [key]:nextVal}}; saveSettings(s); paintPage(); return;
   }
 
-  /* Reorder heroes/dividers */
+  /* Reorder heroes */
   const sortBtn = e.target.closest('.cfg-arrow');
-  if(sortBtn){
+  if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
     if(!(isAdmin() && devModeOn())) return;
-    const key = sortBtn.dataset.key; // hero:co-1 or div:div_xxx
+    const key = sortBtn.dataset.key;
     const s=getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf(key); if(from<0) return;
@@ -935,18 +1028,6 @@ document.addEventListener('click',(e)=>{
       s.pageOrder.splice(to,0,objFrom);
       saveSettings(s); paintPage();
     }
-    return;
-  }
-
-  /* Divider tools: remove via kebab */
-  const divAct = e.target.dataset.divAct;
-  if(divAct==='remove'){
-    if(!(isAdmin() && devModeOn())) return;
-    const id = e.target.dataset.divId;
-    if(!confirm('Remove this heading?')) return;
-    const s = getSettings();
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===id);
-    if(idx>=0){ s.pageOrder.splice(idx,1); saveSettings(s); paintPage(); }
     return;
   }
 
