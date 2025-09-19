@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Home — FAOA (CF6a drop‑in bugfix)</title>
+<title>Home — FAOA (CF6a full 01b)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
@@ -61,10 +61,15 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0; position:relative; z-index:0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal rows */
+/* Horizontal rows (GRID FIX: clamped widths) */
 .section .grid{
-  display:grid; grid-auto-flow:column; grid-auto-columns:max-content;
-  gap:var(--gap); overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px;
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns: clamp(160px, 32vw, 240px);
+  gap:var(--gap);
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding-bottom:10px;
 }
 .section .grid::-webkit-scrollbar{ display:none }
 .grid.size-xs{ --card-h:160px } .grid.size-s{ --card-h:190px } .grid.size-m{ --card-h:220px } .grid.size-l{ --card-h:250px } .grid.size-xl{ --card-h:280px }
@@ -108,13 +113,26 @@ body.lock{ position:fixed; width:100% }
   background:#12151c; color:#e7eaf0; cursor:pointer;
 }
 
-/* Divider (Heading) — FIX: no dotted border */
+/* Hero art layer */
+.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
+.hero .art img{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
+  width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
+  filter:saturate(1.02) contrast(1.02) brightness(0.95);
+}
+.hero::after{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
+  z-index:1;
+}
+
+/* Divider (Heading) — Bug 1: no dotted border; compact line */
 .divider{
   position:relative;
-  border:none;                 /* removed dashed */
+  border:none;
   border-radius:14px;
-  background:transparent;      /* transparent background */
-  padding:0 2px 6px;           /* compact line */
+  background:transparent;
+  padding:0 2px 6px;
   min-height:0;
   margin:28px 2px 8px;
   display:flex; align-items:flex-end;
@@ -130,7 +148,9 @@ body.lock{ position:fixed; width:100% }
 .divider .dctrls{ display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
 .divider .ctrls{ display:flex; align-items:center }
-.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center }
+.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center } /* Bug 2: placed inline to the right */
+
+/* Audience dots */
 .aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
 .aud-dot.on{ opacity:1 }
 .aud-dot.bronze{ background:#b87333 }
@@ -206,7 +226,7 @@ body.lock{ position:fixed; width:100% }
   .section .grid{ margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); padding-left:16px; padding-right:16px; }
 }
 
-/* === Course Sheet: center modal (Bug 3) === */
+/* Course Sheet — Bug 3: centered */
 #courseSheet{ position:fixed; inset:0; display:none; z-index:11000; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:center; justify-content:center }
 #courseSheet.open{ display:flex }
 #coursePanel{
@@ -410,9 +430,9 @@ paintAvatar();
 
 (function wireAvatarDrawer(){
   const avatarBtn = $('#avatarTab');
-  const sheet = $('#avatarSheet'];
-  const closeBtn = $('#avatarClose'];
-  const toggleDev = $('#drawerToggleDev'];
+  const sheet = $('#avatarSheet');
+  const closeBtn = $('#avatarClose');
+  const toggleDev = $('#drawerToggleDev');
 
   function openDrawer(){ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
   function closeDrawer(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
@@ -557,8 +577,7 @@ function heroCard(id){
   const st = styleFor(id);
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place; el.classList.add(`shape-${shape}`);
   if (seesAll()) { if(f.state==='live') el.classList.add('state-live'); else if (f.state==='dev') el.classList.add('state-dev'); else el.classList.add('state-off'); }
-  const artLayer = (art && art.src) ? `<div class="art" style="position:absolute;inset:0;z-index:0;opacity:.92;pointer-events:none;overflow:hidden;border-radius:inherit">
-      <img alt="" src="${esc(art.src)}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:110%;min-width:110%;user-select:none;pointer-events:none;filter:saturate(1.02) contrast(1.02) brightness(0.95)"></div>` : '';
+  const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
   el.innerHTML = `${artLayer}
     ${canAdminDev ? `<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button></div>` : ``}
@@ -611,7 +630,7 @@ function addHeadingIndicators(){
     slot.innerHTML = '';
     const heroes=[...(div.nextElementSibling?.querySelectorAll?.('.hero')||[])];
     const agg={bronze:false,silver:false,gold:false};
-    heroes.forEach(h=>{ const f=getSettings()?.heroFlags?.[h.dataset.heroId]; if(f?.aud){ agg.bronze ||= !!f.aud.bronze; agg.silver ||= !!f.aud.silver; agg.gold ||= !!f.aud.gold; } });
+    heroes.forEach(h=>{ const f=getSettings()?.heroFlags?.[h.dataset.heroId]; if(f?.aud){ agg.bronze ||= !!f.aud.bronze; agg.silver ||= !!f.aud.silver; agg.gold   ||= !!f.aud.gold; } });
     const order=[['gold','Advanced'],['silver','Intermediate'],['bronze','Beginner']];
     const active = order.filter(([k])=>agg[k]); if(!active.length) return;
     slot.innerHTML = active.map(([k,t])=>`<span class="aud-dot ${k} on" title="${t}"></span>`).join('');
