@@ -448,9 +448,28 @@ paintAvatar();
 })();
 
 /* =========================
-   Label helpers
+   Label helpers (patched)
 ========================= */
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
+function numberFromId(id){
+  const m = String(id || '').match(/(\d+)/);
+  return m ? m[1] : '';
+}
+
+function labelFor(id){
+  const s = getSettings();
+  const custom = s.heroLabels?.[id];
+  if (custom && custom.trim()) return custom;
+
+  // Try digits from id
+  const n = numberFromId(id);
+  if (n) return `#${n}`;
+
+  // Fallback: position in pageOrder
+  const heroes = s.pageOrder.filter(it => it.type === 'hero');
+  const pos = heroes.findIndex(it => it.id === id);
+  return pos >= 0 ? `#${pos + 1}` : '#?';
+}
+
 function styleFor(id){
   const st=(getSettings().heroStyle||{})[id]||{};
   return {
