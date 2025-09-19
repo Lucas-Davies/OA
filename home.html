@@ -1,4 +1,3 @@
-\
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -416,7 +415,7 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r=
    Settings + seed + sanitize
 ========================= */
 function numberFromId(id){
-  const m = String(id || '').match(/(\\d+)/);
+  const m = String(id || '').match(/(\d+)/);
   return m ? m[1] : '';
 }
 function defaults(){
@@ -700,7 +699,9 @@ function modalSelect({title='Select', options=[], value=null, label='Option'}={}
   mTitle.textContent = title;
   const opts = options.map(o=>`<option value="${esc(o.value)}"${o.value===value?' selected':''}>${esc(o.label)}</option>`).join('');
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-  <select id="modalSel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">${opts}</select>`;
+  <select id="modalSel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c0}">
+    ${opts}
+  </select>`;
   mFoot.innerHTML = '';
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
   const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalSel').value; modalClose(); onOK?.(v); };
@@ -1088,14 +1089,8 @@ function openHeroKebab(id){
       if(typeof cur==='string') seed = cur;
       else if(cur && cur.r && cur.r.start) seed = cur.r.start;
       modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:seed}, (val)=>{
-        const next = val ? {r:null, _date:val} : null;
         const hs = s.heroSchedule[id]||{};
-        if(val){
-          // store as simple string for one-off
-          hs[kind]=val;
-        }else{
-          hs[kind]=null;
-        }
+        hs[kind]= val ? val : null;            /* store one-off as string or clear */
         s.heroSchedule[id]=hs; saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='recur'){
@@ -1106,7 +1101,6 @@ function openHeroKebab(id){
         {label:'Monthly', value:'MONTHLY'},
         {label:'Yearly', value:'YEARLY'}
       ]}, (freq)=>{
-        // ask for start date
         modalDate({title:'Recurrence start date', label:'Start date', value:(s.heroSchedule[id]?.[kind]?.r?.start || '')}, (start)=>{
           const hs = s.heroSchedule[id]||{};
           hs[kind] = { r:{freq, interval:1, start:start||new Date().toISOString().slice(0,10)} };
@@ -1221,7 +1215,7 @@ document.addEventListener('click',(e)=>{
   const hero = e.target.closest?.('.hero');
   if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
   const id = hero.dataset.heroId;
-  const n = Number(((id||'').match(/\\d+/)||[])[0]||0);
+  const n = Number(((id||'').match(/\d+/)||[])[0]||0);
   const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
   document.getElementById('courseTitle').textContent = labelFor(id);
   document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
