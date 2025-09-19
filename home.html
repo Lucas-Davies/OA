@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Home — FAOA (CF6a full 01b)</title>
+<title>Home — FAOA (CF6a full 01c)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
@@ -61,11 +61,12 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0; position:relative; z-index:0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal rows (GRID FIX: clamped widths) */
+/* Horizontal rows (GRID FIX: use max-content auto-columns so cards never overlap) */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns: clamp(160px, 32vw, 240px);
+  grid-auto-columns:max-content;  /* <-- key fix (01c) */
+  align-items:start;
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
@@ -126,7 +127,7 @@ body.lock{ position:fixed; width:100% }
   z-index:1;
 }
 
-/* Divider (Heading) — Bug 1: no dotted border; compact line */
+/* Divider (Heading) */
 .divider{
   position:relative;
   border:none;
@@ -140,7 +141,7 @@ body.lock{ position:fixed; width:100% }
 }
 .divider .htext{ font-weight:900; opacity:.92 }
 
-/* Divider tools row (arrows, kebab, indicators together) */
+/* Divider tools row */
 .divider .tools{
   position:absolute; top:0; right:0;
   display:flex; align-items:center; gap:8px; z-index:9000;
@@ -148,7 +149,7 @@ body.lock{ position:fixed; width:100% }
 .divider .dctrls{ display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
 .divider .ctrls{ display:flex; align-items:center }
-.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center } /* Bug 2: placed inline to the right */
+.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center }
 
 /* Audience dots */
 .aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
@@ -226,7 +227,7 @@ body.lock{ position:fixed; width:100% }
   .section .grid{ margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); padding-left:16px; padding-right:16px; }
 }
 
-/* Course Sheet — Bug 3: centered */
+/* Course Sheet — centered */
 #courseSheet{ position:fixed; inset:0; display:none; z-index:11000; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:center; justify-content:center }
 #courseSheet.open{ display:flex }
 #coursePanel{
@@ -383,7 +384,7 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r=
 /* =========================
    Settings + seed
 ========================= */
-function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
+function numberFromId(id){ const m=String(id||'').match(/\\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[], heroSchedule={}, heroShortcuts={};
   heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
@@ -550,7 +551,7 @@ function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', 
 function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
   mTitle.textContent = title;
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
+    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
   mFoot.innerHTML = '';
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
   const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); };
@@ -559,7 +560,7 @@ function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
 function modalDate({title='Select date', label='Date', value=''}={}, onOK){
   mTitle.textContent = title;
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
+    <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
   mFoot.innerHTML = '';
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
   const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); };
@@ -1045,7 +1046,7 @@ document.addEventListener('click',(e)=>{
   const hero = e.target.closest?.('.hero');
   if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
   const id = hero.dataset.heroId;
-  const n = Number(((id||'').match(/\d+/)||[])[0]||0);
+  const n = Number(((id||'').match(/\\d+/)||[])[0]||0);
   const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
   document.getElementById('courseTitle').textContent = labelFor(id);
   document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
