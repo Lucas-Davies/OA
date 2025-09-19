@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Home — FAOA (CF6a full 01e)</title>
+<title>Home — FAOA (CF6a full 01f)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
@@ -61,9 +61,8 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0; position:relative; z-index:0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal rows (GRID - safe auto column width) */
+/* Horizontal rows */
 .section .grid{
-  position:relative;
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns: clamp(180px, 32vw, 260px);
@@ -73,28 +72,13 @@ body.lock{ position:fixed; width:100% }
   padding-bottom:10px;
 }
 .section .grid::-webkit-scrollbar{ display:none }
-.grid.size-xs{ --card-h:160px } .grid.size-s{ --card-h:190px } .grid.size-m{ --card-h:220px } .grid.size-l{ --card-h:250px } .grid.size-xl{ --card-h:280px }
 
-/* Per-section row nav (phones) */
-.rowNav{ display:none; }
-@media (max-width: 768px){
-  .rowNav{
-    display:block;
-    pointer-events:none;
-    position:absolute; inset:0; z-index:5;
-  }
-  .rowNav .btn{
-    pointer-events:auto;
-    position:absolute; top:40%;
-    width:36px; height:36px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--stroke); background:rgba(0,0,0,.6); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-    font-weight:900;
-  }
-  .rowNav .btn.left{ left:4px }
-  .rowNav .btn.right{ right:4px }
-  .rowNav[hidden]{ display:none }
-}
+/* size presets still adjust column width if you want later */
+.grid.size-xs{ grid-auto-columns: clamp(150px, 28vw, 200px); }
+.grid.size-s { grid-auto-columns: clamp(170px, 30vw, 230px); }
+.grid.size-m { grid-auto-columns: clamp(180px, 32vw, 260px); }
+.grid.size-l { grid-auto-columns: clamp(200px, 36vw, 300px); }
+.grid.size-xl{ grid-auto-columns: clamp(230px, 40vw, 360px); }
 
 /* Cards + wrapper (date below hero) */
 .heroWrap{ display:flex; flex-direction:column; gap:6px; }
@@ -106,8 +90,9 @@ body.lock{ position:fixed; width:100% }
 /* Hero card itself */
 .hero{
   position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-  border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
-  width:auto; scroll-snap-align:start; display:block; cursor:pointer;
+  border-radius:16px; padding:var(--hero-pad);
+  width:auto; height:auto;       /* <-- stop vertical stretching */
+  scroll-snap-align:start; display:block; cursor:pointer;
 }
 .hero.shape-square{ aspect-ratio:1/1 }
 .hero.shape-hr{ aspect-ratio:16/9 }
@@ -146,7 +131,7 @@ body.lock{ position:fixed; width:100% }
 .hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
 .hero .art img{
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
-  width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
+  width:110%; height:auto; min-height:110%;   /* keep cover feel without vertical skew */
   filter:saturate(1.02) contrast(1.02) brightness(0.95);
 }
 .hero::after{
@@ -155,25 +140,20 @@ body.lock{ position:fixed; width:100% }
   z-index:1;
 }
 
-/* Divider (Heading) — compact line */
+/* Divider (Heading) */
 .divider{
-  position:relative;
-  border:none;
-  border-radius:14px;
-  background:transparent;
-  padding:0 2px 6px;
-  min-height:0;
-  margin:28px 2px 8px;
-  display:flex; align-items:flex-end;
-  z-index:1;
+  display:flex; align-items:center; gap:10px;
+  border:none; border-radius:14px; background:transparent;
+  padding:0 2px 6px; margin:28px 2px 8px;
 }
-.divider .htext{ font-weight:900; opacity:.92 }
+.divider .htext{ font-weight:900; opacity:.92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 
-/* Divider tools row */
+/* Divider tools line sits inline on the right and can scroll on phones */
 .divider .tools{
-  position:absolute; top:0; right:0;
-  display:flex; align-items:center; gap:8px; z-index:9000;
+  margin-left:auto; display:flex; align-items:center; gap:8px; max-width:65%;
+  overflow-x:auto; padding:2px 0;
 }
+.divider .tools::-webkit-scrollbar{ display:none }
 .divider .dctrls{ display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
 .divider .ctrls{ display:flex; align-items:center }
@@ -418,7 +398,7 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r=
 /* =========================
    Settings + seed
 ========================= */
-function numberFromId(id){ const m=String(id||'').match(/\\d+/); return m?m[0]:'?'; }
+function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[], heroSchedule={}, heroShortcuts={};
   heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
@@ -435,7 +415,7 @@ function sanitize(cfg){
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{};
   for(let i=1;i<=50;i++){ const id='co-'+i; if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'}; else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square'; }
-  c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
+  c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider') && (it.id||it.type==='divider'));
   Object.keys(c.heroFlags).forEach(id=>{ if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){ c.pageOrder.push({type:'hero', id}); } });
   return c;
 }
@@ -451,9 +431,8 @@ function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
 /* =========================
-   Helpers: labels, styles, dates
+   Label helpers
 ========================= */
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function styleFor(id){
   const st=(getSettings().heroStyle||{})[id]||{};
   return {
@@ -462,6 +441,16 @@ function styleFor(id){
     size:  Number(st.labelSize||18)
   };
 }
+function displayLabel(id, fallbackNum){
+  const s=getSettings();
+  if (s.heroLabels[id]) return s.heroLabels[id];
+  const n = numberFromId(id);
+  return `#${n==='?' ? fallbackNum : n}`;
+}
+
+/* =========================
+   Schedule helpers
+========================= */
 function nextScheduleForHero(id){
   const s=getSettings(); const f=s.heroFlags[id]||{}; const sch=s.heroSchedule[id]||{};
   const today=new Date(); today.setHours(0,0,0,0);
@@ -475,13 +464,9 @@ function nextScheduleForHero(id){
   if(exp) items.push({k:'expiry',  d:exp, color:'red',   label:'Expiry'});
   if(dev) items.push({k:'dev',     d:dev, color:'blue',  label:'Dev'});
 
-  // If currently online with an expiry — prefer expiry
   if(f.state==='live' && exp){ return {color:'red', text:`Expiry ${fmtDate(exp)}`}; }
-
-  // Otherwise choose the closest upcoming date (>= today)
   const upcoming = items.filter(x=>!isNaN(x.d) && x.d>=today).sort((a,b)=>a.d-b.d)[0];
-  if(upcoming){ return {color:upcoming.color, text:`${upcoming.label} ${fmtDate(upcoming.d)}`}; }
-  return null;
+  return upcoming? {color:upcoming.color, text:`${upcoming.label} ${fmtDate(upcoming.d)}`} : null;
 }
 function nextScheduleForDivider(divObj){
   const sch=divObj.schedule||{};
@@ -531,14 +516,13 @@ paintAvatar();
 /* =========================
    DOM builders
 ========================= */
-function heroCard(id){
+function heroCard(id, fallbackNum){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
   const art = s.heroAssets?.[id]?.heroCard || null;
   const devOn = devModeOn(); const canAdminDev = isAdmin() && devOn;
   const shape = f.shape || 'square';
   const st = styleFor(id);
 
-  // Wrapper to hold card + date line
   const wrap=document.createElement('div'); wrap.className='heroWrap';
 
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place; el.classList.add(`shape-${shape}`);
@@ -547,12 +531,11 @@ function heroCard(id){
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
   el.innerHTML = `${artLayer}
     ${canAdminDev ? `<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button></div>` : ``}
-    <span class="label"${labelInline}>${esc(labelFor(id))}</span>
+    <span class="label"${labelInline}>${esc(displayLabel(id, fallbackNum))}</span>
     <div class="ctrls">${canAdminDev?`<button class="kebab" data-hero-kebab="${esc(id)}" aria-haspopup="dialog" aria-expanded="false">⋮</button>`:''}</div>`;
 
   wrap.appendChild(el);
 
-  // Date line (staff only)
   if(seesAll()){
     const next=nextScheduleForHero(id);
     if(next){
@@ -574,14 +557,14 @@ function dividerEl(obj){
   el.dataset.type = 'divider';
   el.dataset.divId = obj.id;
 
-  const dateChip = (seesAll() ? (function(){ const nx=nextScheduleForDivider(obj); return nx? `<span class="aud-badge" style="margin-right:6px"><span class="aud-dot ${nx.color==='green'?'gold': nx.color}"></span>${esc(nx.text)}</span>` : '' })() : '');
+  const dateChip = (seesAll() ? (function(){ const nx=nextScheduleForDivider(obj); return nx? `<span class="aud-badge" style="margin-right:6px"><span class="aud-dot ${nx.color}"></span>${esc(nx.text)}</span>` : '' })() : '');
 
   el.innerHTML = `
     <span class="htext" style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px">${esc(obj.title || 'Heading')}</span>
     <div class="tools">
       ${dateChip}
-      ${editable ? `<div class="dctrls"><button class="footer-chip" data-div-act="left"  data-div-id="${esc(obj.id)}" type="button">◀</button>
-      <button class="footer-chip" data-div-act="right" data-div-id="${esc(obj.id)}" type="button">▶</button></div>`:''}
+      ${editable ? `<div class="dctrls"><button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
+      <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button></div>`:''}
       ${editable ? `<div class="ctrls"><button class="kebab" data-div-kebab="${esc(obj.id)}" type="button">⋮</button></div>`:''}
       <div class="aud-indicators-head" aria-hidden="${seesAll()?'false':'true'}"></div>
     </div>`;
@@ -639,18 +622,9 @@ function startSection(divObj, idx){
   row.className = 'grid';
   const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
   row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
-  row.dataset.rowId = 'row_'+idx;
-
-  // Row nav (phones)
-  const nav = document.createElement('div');
-  nav.className='rowNav'; nav.setAttribute('hidden','');
-  nav.innerHTML = `<button class="btn left"  data-row-nav="left"  data-for="${row.dataset.rowId}" aria-label="Scroll left">◀</button>
-                   <button class="btn right" data-row-nav="right" data-for="${row.dataset.rowId}" aria-label="Scroll right">▶</button>`;
-  row.appendChild(nav);
-
   sec.appendChild(row);
   $('#pageGrid').appendChild(sec);
-  return {sec, row, nav};
+  return {sec, row};
 }
 
 function paintPage(){
@@ -659,7 +633,7 @@ function paintPage(){
   root.innerHTML = '';
   const s = getSettings();
 
-  let currentRow = null, rowIndex=0;
+  let currentRow = null, rowIndex=0, heroCounter=0;
 
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
@@ -684,7 +658,8 @@ function paintPage(){
         if(!currentRow) continue;
       }
 
-      const card = heroCard(id);
+      heroCounter++;
+      const card = heroCard(id, heroCounter);
       if(card) currentRow.appendChild(card);
     }
   }
@@ -692,23 +667,12 @@ function paintPage(){
   // Clean empty nameless sections
   $$('#pageGrid .section').forEach(sec=>{
     const row = sec.querySelector('.grid');
-    const hasHeroes = row && row.children.length>1; // >1 because rowNav is inside grid
+    const hasHeroes = row && row.querySelector('.hero'); // at least one
     const hasDivider = !!sec.querySelector('.divider');
     if(!hasHeroes && !hasDivider){ sec.remove(); }
   });
 
   addHeroIndicators(); addHeadingIndicators();
-  updateRowNavs();
-}
-
-function updateRowNavs(){
-  // Show phone nav only when overflow exists
-  $$('.section .grid').forEach(row=>{
-    const nav=row.querySelector('.rowNav');
-    if(!nav) return;
-    const overflow = row.scrollWidth > row.clientWidth + 10;
-    if(overflow) nav.removeAttribute('hidden'); else nav.setAttribute('hidden','');
-  });
 }
 
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
@@ -727,7 +691,7 @@ function paintArchive(){
   items.forEach(([id,f])=>{
     const statusLabel = (f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline'));
     const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id; row.dataset.place='archive';
-    row.innerHTML = `<span class="num">${esc(labelFor(id))}</span>
+    row.innerHTML = `<span class="num">${esc(displayLabel(id, numberFromId(id)))}</span>
     ${(isAdmin() && devModeOn())?`<div style="display:flex;gap:8px;align-items:center">
       <button class="footer-chip" data-act="move" type="button">Move to Page</button>
       <button class="footer-chip" data-act="toggle" type="button">${esc(statusLabel)}</button>
@@ -744,7 +708,6 @@ applyArchiveSkin();
 paintArchive();
 paintPage();
 updateFooterModeControls();
-window.addEventListener('resize', ()=>updateRowNavs());
 
 /* =========================
    Footer & global handlers
@@ -775,19 +738,6 @@ $('#addHeadingBtn').addEventListener('click',()=>{
    Delegated clicks (page)
 ========================= */
 document.addEventListener('click',(e)=>{
-  /* Phone row nav */
-  const navBtn = e.target.closest('[data-row-nav]');
-  if(navBtn){
-    const dir = navBtn.getAttribute('data-row-nav');
-    const forId = navBtn.getAttribute('data-for');
-    const row = document.querySelector(`.grid[data-row-id="${forId}"]`);
-    if(row){
-      const one = row.querySelector('.hero')?.getBoundingClientRect()?.width || 240;
-      row.scrollBy({left: dir==='left' ? -one-12 : one+12, behavior:'smooth'});
-    }
-    return;
-  }
-
   /* Arrow reorder (heroes) */
   const sortBtn = e.target.closest('.cfg-arrow');
   if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
@@ -807,7 +757,7 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Arrow reorder (dividers) via .dctrls buttons — horizontal hint only */
+  /* Arrow reorder (dividers) via .dctrls buttons — vertical again */
   const divSort = e.target.closest('[data-div-act]');
   if(divSort){
     if(!(isAdmin() && devModeOn())) return;
@@ -816,7 +766,7 @@ document.addEventListener('click',(e)=>{
     const s = getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf('div:'+id); if(from<0) return;
-    const dir = (act==='left' ? -1 : 1);
+    const dir = (act==='up' ? -1 : 1);
     const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
     if(to!==from){
       const obj = s.pageOrder.splice(from,1)[0];
@@ -870,7 +820,7 @@ document.addEventListener('click',(e)=>{
 function openHeroKebab(id){
   const s=getSettings(); const f=s.heroFlags[id]; const sch=s.heroSchedule[id]||{};
   const art = s.heroAssets?.[id]?.heroCard?.src || '';
-  mTitle.textContent = labelFor(id);
+  mTitle.textContent = displayLabel(id, numberFromId(id));
   const badge=(kind,val)=> val?`<span class="badge ${kind}">${fmtDate(val)}</span>`:'';
 
   mBody.innerHTML = `
@@ -917,10 +867,6 @@ function openHeroKebab(id){
       <div class="modalOpt" data-hact="rename"><div>Rename Course</div></div>
       <div class="modalOpt" data-hact="cover"><div>Add Cover Art</div><div class="optRight" style="opacity:.8">${art? 'Set' : 'None'}</div></div>
       <div class="modalOpt" data-hact="archive"><div>Archive Course</div></div>
-      <div class="modalOpt"><div>Create Customisable Shortcut</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
-      <div class="modalOpt"><div>Remove Shortcut</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
-      <div class="modalOpt"><div>Create Request</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
-      <div class="modalOpt"><div>Audit Course</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
     </div>
   </div>`;
 
@@ -935,23 +881,28 @@ function openHeroKebab(id){
       s.heroFlags[id]={...f, shape}; saveSettings(s); paintPage(); openHeroKebab(id);
     }else if(act==='aud'){
       const key = opt.getAttribute('data-aud'); const next=!f.aud[key];
-      modalConfirm({title:'Change audience', body:`${next?'Enable':'Disable'} <b>${key}</b> for <b>${labelFor(id)}</b>?`}, ()=>{
+      modalConfirm({title:'Change audience', body:`${next?'Enable':'Disable'} <b>${key}</b> for <b>${displayLabel(id, numberFromId(id))}</b>?`}, ()=>{
         s.heroFlags[id]={...f, aud:{...f.aud, [key]:next}}; saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='state'){
       const state = opt.getAttribute('data-state');
-      modalConfirm({title:'Change state', body:`Set <b>${labelFor(id)}</b> to <b>${state}</b>?`}, ()=>{
+      modalConfirm({title:'Change state', body:`Set <b>${displayLabel(id, numberFromId(id))}</b> to <b>${state}</b>?`}, ()=>{
         s.heroFlags[id]={...f, state}; saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='date'){
       const kind = opt.getAttribute('data-kind');
-      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(s.heroSchedule[id]?.[kind]||'')}, (val)=>{
-        s.heroSchedule[id]={...(s.heroSchedule[id]||{}), [kind]:val||null}; saveSettings(s); paintPage(); openHeroKebab(id);
+      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(s.heroSchedule[id]?.[kind]||'')}, (val, cleared)=>{
+        if(cleared){ 
+          const cur={...(s.heroSchedule[id]||{})}; delete cur[kind]; s.heroSchedule[id]=cur;
+        }else{
+          s.heroSchedule[id]={...(s.heroSchedule[id]||{}), [kind]:val||null};
+        }
+        saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='rename'){
       modalClose();
       const st=styleFor(id);
-      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
+      openEditDialog({type:'hero', id}, displayLabel(id, numberFromId(id)), st.color, st.size, st.font);
     }else if(act==='cover'){
       modalPrompt({title:'Add Cover Art', label:'Image path (e.g. images/folder/img.jpg)', value: art || ''}, (url)=>{
         const cur = s.heroAssets[id] || {};
@@ -959,7 +910,7 @@ function openHeroKebab(id){
         saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='archive'){
-      modalConfirm({title:'Archive Course', body:`Move <b>${labelFor(id)}</b> to Archive?`}, ()=>{
+      modalConfirm({title:'Archive Course', body:`Move <b>${displayLabel(id, numberFromId(id))}</b> to Archive?`}, ()=>{
         s.heroFlags[id]={...f, place:'archive'}; s.pageOrder=s.pageOrder.filter(it=>!(it.type==='hero' && it.id===id)); saveSettings(s); paintPage(); paintArchive(); modalClose();
       });
     }
@@ -1047,8 +998,10 @@ function openDividerKebab(divId){
       });
     }else if(act==='date'){
       const kind=opt.getAttribute('data-kind');
-      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(sch?.[kind]||'')}, (val)=>{
-        s.pageOrder[idx].schedule = {...(s.pageOrder[idx].schedule||{}), [kind]:val||null};
+      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(sch?.[kind]||'')}, (val, cleared)=>{
+        const cur = {...(s.pageOrder[idx].schedule||{})};
+        if(cleared){ delete cur[kind]; } else { cur[kind]=val||null; }
+        s.pageOrder[idx].schedule = cur;
         saveSettings(s); paintPage(); openDividerKebab(divId);
       });
     }else if(act==='remove'){
@@ -1066,11 +1019,11 @@ document.addEventListener('click',(e)=>{
   const hero = e.target.closest?.('.hero');
   if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
   const id = hero.dataset.heroId;
-  const n = Number(((id||'').match(/\\d+/)||[])[0]||0);
+  const n = Number(((id||'').match(/\d+/)||[])[0]||0);
   const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
-  document.getElementById('courseTitle').textContent = labelFor(id);
+  document.getElementById('courseTitle').textContent = displayLabel(id, n||1);
   document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
-  document.getElementById('courseSummary').textContent = `Quick summary for ${labelFor(id)} — (placeholder).`;
+  document.getElementById('courseSummary').textContent = `Quick summary for ${displayLabel(id, n||1)} — (placeholder).`;
   const sheet = document.getElementById('courseSheet');
   sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false');
 });
@@ -1080,7 +1033,9 @@ document.getElementById('courseX').addEventListener('click',()=>{
   sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true');
 });
 
-/* Modal helpers (no native prompts/confirms) */
+/* =========================
+   Universal Modal helpers
+========================= */
 const modalRoot = $('#modalRoot');
 const mTitle = $('#modalTitle');
 const mBody  = $('#modalBody');
@@ -1110,9 +1065,10 @@ function modalDate({title='Select date', label='Date', value=''}={}, onOK){
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
     <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
   mFoot.innerHTML = '';
+  const clear = document.createElement('button'); clear.className='modalBtn'; clear.textContent='Clear'; clear.onclick=()=>{ modalClose(); onOK?.('', true); };
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
-  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); };
-  mFoot.append(cancel, ok); modalRoot.hidden = false;
+  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v,false); };
+  mFoot.append(clear, cancel, ok); modalRoot.hidden = false;
 }
 
 })();</script>
