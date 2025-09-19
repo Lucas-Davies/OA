@@ -1,4 +1,4 @@
-V2 - Picker
+V3 - Picker
 
 <!DOCTYPE html>
 <html lang="en-AU">
@@ -8,115 +8,72 @@ V2 - Picker
 <meta name="color-scheme" content="dark" />
 <title>Media Picker — FAOA</title>
 <style>
-/* ===== FAOA-ish design tokens (aligned to your Home.html look) ===== */
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
   --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
   --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --amber:#ff9f0a;
-  --chip:#1b1f2a;
-  --gap:12px; --r:14px; --maxw:1240px; --nav-h:64px;
-  --btn-h:40px; --chip-h:32px;
-  --shadow:0 8px 28px rgba(0,0,0,.45);
+  --chip:#1b1f2a; --shadow:0 10px 30px rgba(0,0,0,.5);
+  --r:14px; --gap:12px; --maxw:1240px; --nav-h:64px; --btn-h:40px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{
   margin:0; background:var(--bg); color:var(--ink);
-  font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial;
 }
 .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 16px 24px }
 
-/* ===== Top bar ===== */
+/* ==== Top bar (matches Home feel) ==== */
 .nav{
-  position:sticky; top:0; z-index:10;
-  backdrop-filter:saturate(180%) blur(12px);
-  background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.35) 60%, transparent);
+  position:sticky; top:0; z-index:1000;
+  background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
   border-bottom:1px solid var(--stroke);
 }
-.nav-inner{
-  display:flex; align-items:center; gap:10px; padding:10px 4px; min-height:var(--nav-h);
-}
+.nav-inner{ display:flex; align-items:center; gap:10px; padding:10px 4px; min-height:var(--nav-h); }
 .title{ font-weight:900; letter-spacing:.3px; margin-right:auto; padding:0 8px; }
-
-/* Filters row */
-.filters{ display:flex; align-items:center; gap:8px; padding:8px 4px 12px }
-.btn, .chip, .seg input+label{
-  height:var(--btn-h); border-radius:12px; border:1px solid var(--stroke);
-  background:transparent; color:var(--ink); display:inline-flex; align-items:center; gap:8px;
-  padding:0 12px; cursor:pointer; user-select:none;
-}
-.btn.primary{ background:var(--blue); color:#fff; border-color:transparent }
-.btn[disabled]{ opacity:.6; cursor:not-allowed }
-.chip{ height:var(--chip-h); opacity:.9; }
-.icon{ font-style:normal; font-weight:700; width:1.1em; text-align:center }
 
 .search{
   display:flex; align-items:center; gap:8px; padding:0 10px;
   border:1px solid var(--stroke); border-radius:12px; height:var(--btn-h);
   background:rgba(255,255,255,.03); min-width:220px; flex:1 1 320px;
 }
-.search input{
-  background:transparent; border:0; outline:0; color:var(--ink);
-  width:100%; font-size:14px;
+.search input{ background:transparent; border:0; outline:0; color:var(--ink); width:100%; font-size:14px; }
+.btn{
+  height:var(--btn-h); border-radius:12px; border:1px solid var(--stroke);
+  background:#141821; color:#e7eaf0; display:inline-flex; align-items:center; gap:8px;
+  padding:0 12px; cursor:pointer; user-select:none; font-weight:800;
 }
-.select{ position:relative; }
-.select select{
-  appearance:none; background:transparent; color:var(--ink);
-  border:1px solid var(--stroke); border-radius:12px; height:var(--btn-h); padding:0 36px 0 12px;
-}
-.select:after{ content:"▾"; position:absolute; right:10px; top:0; height:var(--btn-h); display:grid; place-items:center; color:var(--ink-dim) }
+.btn.primary{ background:var(--blue); color:#fff; border-color:transparent }
+.btn[disabled]{ opacity:.6; cursor:not-allowed }
 
-.seg{ display:flex; gap:6px }
-.seg input{ position:absolute; opacity:0; pointer-events:none }
-.seg input+label{
-  height:var(--chip-h); font-size:13px; background:var(--chip);
-}
-.seg input:checked+label{ background:var(--blue); border-color:transparent; color:#fff }
-
-/* ===== Grid ===== */
-.grid{
-  display:grid; gap:10px; margin-top:12px;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
+/* ==== Grid (uniform cropped like iOS Photos) ==== */
+.grid{ display:grid; gap:8px; margin:12px 0 16px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 .card{
-  position:relative; border:1px solid var(--stroke); border-radius:14px; overflow:hidden; background:var(--panel);
+  position:relative; border-radius:12px; overflow:hidden; background:#0b0d10; border:1px solid var(--stroke);
+  cursor:pointer;
 }
-.thumb{ position:relative; width:100%; padding-top:70%; overflow:hidden; background:rgba(255,255,255,.03) }
-.thumb img, .thumb video, .thumb iframe{
-  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000;
-}
-.badge{
-  position:absolute; top:8px; left:8px; height:26px; padding:0 8px; border-radius:999px;
-  display:inline-flex; align-items:center; gap:6px; font-size:12px;
-  color:#fff; background:rgba(0,0,0,.5); backdrop-filter:blur(8px);
-}
-.type{ text-transform:uppercase; font-weight:700; letter-spacing:.3px; font-size:11px; opacity:.9 }
-.dim{ font-size:11px; opacity:.9 }
-.actions{
-  position:absolute; right:6px; bottom:6px; display:flex; gap:6px;
-}
-.icon-btn{
-  border:none; background:rgba(0,0,0,.6); color:#fff; width:36px; height:36px; border-radius:10px;
-  display:inline-grid; place-items:center; cursor:pointer;
-}
-.icon-btn:hover{ background:rgba(0,0,0,.75) }
-.meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px }
-.meta .name{ font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70% }
-.meta .dim{ color:var(--ink-dim) }
+.thumb{ width:100%; aspect-ratio:1/1; background:#000; }
+.thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* ===== Footer bar ===== */
+/* No overlays on thumbs — clean gallery */
+.meta{ display:none }
+
+/* Selection outline (double-click / long-press) */
+.card.sel{ outline:3px solid var(--blue); outline-offset:-3px; }
+
+/* ==== Footer ==== */
 .footer{
-  position:sticky; bottom:0; z-index:10; margin-top:14px;
+  position:sticky; bottom:0; z-index:1000;
   background:linear-gradient(0deg, rgba(0,0,0,.72), rgba(0,0,0,.35) 60%, transparent);
   border-top:1px solid var(--stroke);
 }
-.footer-inner{
-  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 4px;
-}
+.footer-inner{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 4px; }
 .count{ color:var(--ink-dim); font-size:14px }
 
-/* ===== Modal (quick preview) ===== */
-.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50 }
+/* ==== Preview Sheet ==== */
+.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500 }
 .modal.open{ display:flex }
 .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.6) }
 .sheet{
@@ -125,52 +82,30 @@ body{
 }
 .bar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-bottom:1px solid var(--stroke) }
 .view{ position:relative; background:#000; display:grid; place-items:center; overflow:auto }
-.view img, .view video{ max-width:100%; max-height:100% }
-.controls{ display:flex; gap:8px; align-items:center; padding:10px 12px; border-top:1px solid var(--stroke) }
-.hidden{ display:none !important }
-.kbd{ font:12px ui-monospace,SFMono-Regular,Consolas,monospace; background:rgba(127,127,127,.2); padding:0 6px; border-radius:6px }
+.view img{ max-width:100%; max-height:100%; }
+.controls{ display:flex; gap:8px; align-items:center; justify-content:space-between; padding:10px 12px; border-top:1px solid var(--stroke) }
+.controls .left{ display:flex; gap:8px; align-items:center }
+.controls .right{ display:flex; gap:8px; align-items:center }
+
+/* ==== Toast ==== */
+.toast{
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+  background:#0c1610; color:#79ffa0; border:1px solid #1e3a22; border-radius:12px;
+  padding:10px 14px; font-weight:800; z-index:2000; box-shadow:var(--shadow);
+  display:none;
+}
+.toast.show{ display:block }
 </style>
 </head>
 <body>
   <div class="nav">
     <div class="wrap nav-inner">
       <div class="title">Media Picker</div>
-
-      <div class="seg" role="tablist" aria-label="Media type filter">
-        <input type="radio" name="kind" id="k-all" value="all" checked>
-        <label for="k-all">All</label>
-        <input type="radio" name="kind" id="k-img" value="image">
-        <label for="k-img">Images</label>
-        <input type="radio" name="kind" id="k-vid" value="video">
-        <label for="k-vid">Videos</label>
-        <input type="radio" name="kind" id="k-aud" value="audio">
-        <label for="k-aud">Audio</label>
-        <input type="radio" name="kind" id="k-doc" value="doc">
-        <label for="k-doc">Docs</label>
-      </div>
-
       <div class="search" role="search">
-        <i class="icon">🔎</i>
-        <input id="q" type="search" placeholder="Search name/type…" autocomplete="off" />
+        <span style="opacity:.85">🔎</span>
+        <input id="q" type="search" placeholder="Search name…" autocomplete="off" />
       </div>
-
-      <div class="select" title="Sort">
-        <select id="sort">
-          <option value="name-asc">Name (A → Z)</option>
-          <option value="name-desc">Name (Z → A)</option>
-          <option value="date-desc" selected>Newest</option>
-          <option value="date-asc">Oldest</option>
-          <option value="size-desc">Largest</option>
-          <option value="size-asc">Smallest</option>
-        </select>
-      </div>
-
-      <button id="clearSel" class="btn" disabled><i class="icon">✕</i>Clear</button>
-      <button id="useBtn" class="btn primary" disabled><i class="icon">✅</i>Use Selected</button>
-    </div>
-
-    <div class="wrap filters">
-      <span class="chip" id="hint">Feed items via manifest param, window.__MEDIA__, or postMessage init.</span>
+      <button id="applyBtn" class="btn primary" disabled>Apply Image</button>
     </div>
   </div>
 
@@ -182,328 +117,218 @@ body{
     <div class="wrap footer-inner">
       <div class="count" id="count">0 items • 0 selected</div>
       <div style="display:flex; gap:8px">
-        <button id="cancelBtn" class="btn"><i class="icon">⬅︎</i>Cancel</button>
-        <button id="confirmBtn" class="btn primary" disabled><i class="icon">✅</i>Use Selected</button>
+        <button id="cancelBtn" class="btn">Cancel</button>
+        <button id="applyBtn2" class="btn primary" disabled>Apply Image</button>
       </div>
     </div>
   </div>
 
-  <!-- Quick preview -->
+  <!-- Preview -->
   <div id="modal" class="modal" role="dialog" aria-modal="true" aria-label="Preview">
     <div class="backdrop" data-close></div>
     <div class="sheet">
       <div class="bar">
-        <div id="pvName" style="font-weight:700">Preview</div>
-        <div style="display:flex; gap:8px">
-          <button class="btn" id="openNew"><i class="icon">↗︎</i>Open</button>
-          <button class="btn" data-close><i class="icon">✕</i>Close</button>
-        </div>
+        <button class="btn" id="prevBtn">◀︎ Previous</button>
+        <div id="pvName" style="font-weight:900">Preview</div>
+        <button class="btn" id="nextBtn">Next ▶︎</button>
       </div>
-      <div class="view" id="pvView"></div>
+      <div class="view"><img id="pvImg" alt=""></div>
       <div class="controls">
-        <span class="kbd">Space</span><span>to play/pause videos •</span>
-        <span class="kbd">Esc</span><span>to close</span>
+        <div class="left">
+          <button class="btn" id="selectFromPreview">Select</button>
+          <a class="btn" id="openNew" target="_blank" rel="noreferrer noopener">Open</a>
+        </div>
+        <div class="right">
+          <button class="btn primary" id="applyFromPreview">Apply Image</button>
+          <button class="btn" data-close>Close</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <div class="toast" id="toast">Applied ✓</div>
+
 <script>
 (function(){
-  /** @typedef {{url:string,name:string,type:string,size?:number,mtime?:number,poster?:string}} MediaItem */
-  const els = {
-    grid: document.getElementById('grid'),
-    count: document.getElementById('count'),
-    q: document.getElementById('q'),
-    sort: document.getElementById('sort'),
-    useBtn: document.getElementById('useBtn'),
-    confirmBtn: document.getElementById('confirmBtn'),
-    clearSel: document.getElementById('clearSel'),
-    cancelBtn: document.getElementById('cancelBtn'),
-    hint: document.getElementById('hint'),
-    modal: document.getElementById('modal'),
-    pvName: document.getElementById('pvName'),
-    pvView: document.getElementById('pvView'),
-    openNew: document.getElementById('openNew'),
-  };
-  const filters = [...document.querySelectorAll('input[name="kind"]')];
+  /** ===== Config & Parent Communication ===== */
+  const params = new URL(location.href).searchParams;
+  let openerOrigin = params.get('origin') || '*';
+  const DEFAULT_BASE = '/OA/images/'; // <-- current repo location
 
-  /** @type {MediaItem[]} */
-  let items = [];
-  let view = [];       // filtered + sorted view
+  /** @typedef {{url:string,name?:string,type?:string,size?:number,mtime?:number}} MediaItem */
+  let items = [];      // full list
+  let view = [];       // filtered list
   const selected = new Set(); // urls
-  let openerOrigin = '*'; // origin to postMessage back to (parent sets this optionally)
+  let currentIndex = -1;
 
-  // ========= Helpers =========
-  const fmtBytes = n=>{
-    if(!n && n!==0) return '';
-    if(n<1024) return n+' B';
-    if(n<1024*1024) return (n/1024).toFixed(1)+' KB';
-    return (n/1024/1024).toFixed(1)+' MB';
+  // Elements
+  const els = {
+    grid: g('grid'), q: g('q'), count: g('count'),
+    applyBtn: g('applyBtn'), applyBtn2: g('applyBtn2'),
+    cancelBtn: g('cancelBtn'),
+    modal: g('modal'), pvImg: g('pvImg'), pvName: g('pvName'),
+    prevBtn: g('prevBtn'), nextBtn: g('nextBtn'),
+    selectFromPreview: g('selectFromPreview'),
+    applyFromPreview: g('applyFromPreview'),
+    openNew: g('openNew'),
+    toast: g('toast')
   };
-  function kindOf(type){
-    if(!type) return 'doc';
-    if(type.startsWith('image/')) return 'image';
-    if(type.startsWith('video/')) return 'video';
-    if(type.startsWith('audio/')) return 'audio';
-    // treat pdf/zip/others as docs
-    return 'doc';
-  }
-  function bySort(a,b,mode){
-    switch(mode){
-      case 'name-asc':  return a.name.localeCompare(b.name);
-      case 'name-desc': return b.name.localeCompare(a.name);
-      case 'size-asc':  return (a.size||0)-(b.size||0);
-      case 'size-desc': return (b.size||0)-(a.size||0);
-      case 'date-asc':  return (a.mtime||0)-(b.mtime||0);
-      case 'date-desc': default: return (b.mtime||0)-(a.mtime||0);
-    }
-  }
 
-  // ========= Rendering =========
+  function g(id){ return document.getElementById(id); }
+  const fmt = n=>`${n} item${n!==1?'s':''}`;
+
+  /** ===== Rendering ===== */
   function render(){
     const q = els.q.value.trim().toLowerCase();
-    const k = (filters.find(f=>f.checked)?.value)||'all';
-    const s = els.sort.value;
-
-    view = items
-      .filter(it=>{
-        const okKind = (k==='all') || kindOf(it.type)===k;
-        const text = (it.name+' '+it.type).toLowerCase();
-        const okText = !q || text.includes(q);
-        return okKind && okText;
-      })
-      .sort((a,b)=>bySort(a,b,s));
-
+    view = items.filter(it=>!q || (it.name||'').toLowerCase().includes(q));
     els.grid.innerHTML = '';
     const frag = document.createDocumentFragment();
     for(const it of view){
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.url = it.url;
-
+      card.dataset.name = it.name;
       const t = document.createElement('div');
       t.className = 'thumb';
-
-      const k = kindOf(it.type);
-      if(k==='image'){
-        const img = document.createElement('img');
-        img.loading = 'lazy';
-        img.src = it.url;
-        img.alt = it.name;
-        t.appendChild(img);
-      }else if(k==='video'){
-        const v = document.createElement('video');
-        v.muted = true; v.preload = 'metadata'; v.playsInline = true;
-        if(it.poster) v.poster = it.poster;
-        const s = document.createElement('source');
-        s.src = it.url; s.type = it.type || 'video/mp4';
-        v.appendChild(s);
-        t.appendChild(v);
-      }else if(k==='audio'){
-        // simple icon plate for audio
-        const plate = document.createElement('div');
-        plate.style = 'position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#111,#000)';
-        plate.innerHTML = '<div style="font-size:42px">🎵</div>';
-        t.appendChild(plate);
-      }else{
-        const plate = document.createElement('div');
-        plate.style = 'position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#111,#000)';
-        plate.innerHTML = '<div style="font-size:38px">📄</div>';
-        t.appendChild(plate);
-      }
-
-      const badge = document.createElement('div');
-      badge.className = 'badge';
-      badge.innerHTML = `
-        <span class="type">${kindOf(it.type)}</span>
-        <span class="dim">${fmtBytes(it.size)}</span>
-      `;
-      t.appendChild(badge);
-
-      const acts = document.createElement('div');
-      acts.className = 'actions';
-      acts.innerHTML = `
-        <button class="icon-btn" data-act="preview" title="Preview">🔍</button>
-        <button class="icon-btn" data-act="toggle" title="Select / Deselect">${selected.has(it.url)?'✅':'＋'}</button>
-      `;
-      t.appendChild(acts);
-
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-      meta.innerHTML = `
-        <div class="name" title="${it.name}">${it.name}</div>
-        <div class="dim">${it.type?.split('/')[1]||'file'}</div>
-      `;
-
+      const img = document.createElement('img');
+      img.loading = 'lazy'; img.src = it.url; img.alt = it.name||'';
+      t.appendChild(img);
       card.appendChild(t);
-      card.appendChild(meta);
+      if(selected.has(it.url)) card.classList.add('sel');
       frag.appendChild(card);
     }
     els.grid.appendChild(frag);
-
-    const selCount = selected.size;
-    els.useBtn.disabled = selCount===0;
-    els.confirmBtn.disabled = selCount===0;
-    els.clearSel.disabled = selCount===0;
-    els.count.textContent = `${view.length} item${view.length!==1?'s':''} • ${selCount} selected`;
+    updateFooter();
+  }
+  function updateFooter(){
+    const total = view.length, sel = selected.size;
+    els.count.textContent = `${fmt(total)} • ${sel} selected`;
+    els.applyBtn.disabled = sel===0;
+    els.applyBtn2.disabled = sel===0;
+    els.applyFromPreview.disabled = sel===0 && currentIndex<0;
   }
 
-  // ========= Events =========
-  els.q.addEventListener('input', render);
-  els.sort.addEventListener('change', render);
-  filters.forEach(f=>f.addEventListener('change', render));
-
+  /** ===== Interactions ===== */
+  // Single click => open preview
   els.grid.addEventListener('click', e=>{
-    const btn = e.target.closest('button');
-    const card = e.target.closest('.card');
-    if(!card) return;
-    const url = card.dataset.url;
-    const it = items.find(x=>x.url===url);
-    if(!it) return;
-
-    if(btn){
-      const act = btn.dataset.act;
-      if(act==='preview'){ openPreview(it); return; }
-      if(act==='toggle'){
-        if(selected.has(url)) selected.delete(url); else selected.add(url);
-        btn.textContent = selected.has(url) ? '✅' : '＋';
-        render();
-        return;
-      }
-    }else{
-      // click card toggles selection
-      if(selected.has(url)) selected.delete(url); else selected.add(url);
-      render();
-    }
+    const card = e.target.closest('.card'); if(!card) return;
+    const idx = view.findIndex(i=>i.url===card.dataset.url);
+    openPreview(idx);
   });
 
-  els.clearSel.addEventListener('click', ()=>{
-    selected.clear(); render();
+  // Double click / long press => toggle select
+  let tapTimer=null;
+  els.grid.addEventListener('dblclick', e=>{
+    const card = e.target.closest('.card'); if(!card) return;
+    toggleSelect(card.dataset.url); render();
   });
+  els.grid.addEventListener('touchstart', e=>{
+    const card = e.target.closest('.card'); if(!card) return;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(()=>{ toggleSelect(card.dataset.url); render(); }, 350);
+  }, {passive:true});
+  els.grid.addEventListener('touchend', ()=>{ clearTimeout(tapTimer); }, {passive:true});
 
-  function submitSelection(){
-    const chosen = items.filter(i=>selected.has(i.url));
-    const payload = {
-      type:'media-picker:submit',
-      items: chosen
-    };
-    // send to parent (iframe) and also to opener if popped
-    try{ window.parent !== window && window.parent.postMessage(payload, openerOrigin); }catch(_){}
-    try{ window.opener && window.opener.postMessage(payload, openerOrigin); }catch(_){}
+  function toggleSelect(url){
+    if(selected.has(url)) selected.delete(url); else selected.add(url);
   }
 
-  els.useBtn.addEventListener('click', submitSelection);
-  els.confirmBtn.addEventListener('click', submitSelection);
+  // Preview navigation & actions
+  function openPreview(idx){
+    if(idx<0 || idx>=view.length) return;
+    currentIndex = idx;
+    const it = view[idx];
+    els.pvImg.src = it.url; els.pvImg.alt = it.name||'';
+    els.pvName.textContent = it.name||'';
+    els.openNew.href = it.url;
+    els.modal.classList.add('open');
+    updateFooter();
+  }
+  function closePreview(){ els.modal.classList.remove('open'); }
+  els.modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) closePreview(); });
+  els.prevBtn.addEventListener('click', ()=>{ if(currentIndex>0) openPreview(currentIndex-1); });
+  els.nextBtn.addEventListener('click', ()=>{ if(currentIndex<view.length-1) openPreview(currentIndex+1); });
+  els.selectFromPreview.addEventListener('click', ()=>{
+    const it = view[currentIndex]; if(!it) return;
+    toggleSelect(it.url); render();
+  });
+
+  // Search
+  els.q.addEventListener('input', render);
+
+  /** ===== Apply Image (single "Apply Image" action) ===== */
+  function applyImage(){
+    // Choose the first selected or current preview item
+    let chosen = null;
+    if(selected.size>0){
+      const firstUrl = [...selected][0];
+      chosen = items.find(i=>i.url===firstUrl);
+    }else if(currentIndex>=0){
+      chosen = view[currentIndex];
+    }
+    if(!chosen) return;
+
+    // Normalize to current repo path (/OA/images/filename)
+    const fileName = (chosen.name || chosen.url.split('/').pop() || '').replace(/^\/+/, '');
+    const normalized = DEFAULT_BASE + fileName;
+
+    const msg = { type:'content-picker:select', payload:{ url: normalized } };
+    try{ if (window.parent !== window) window.parent.postMessage(msg, openerOrigin); }catch{}
+    try{ if (window.opener) window.opener.postMessage(msg, openerOrigin); }catch{}
+
+    showToast('Applied ✓');
+
+    // Give user a beat to see the confirmation, then close
+    setTimeout(()=>{
+      try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
+      try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
+      // optional: window.close();
+    }, 500);
+  }
+  els.applyBtn.addEventListener('click', applyImage);
+  els.applyBtn2.addEventListener('click', applyImage);
+  els.applyFromPreview.addEventListener('click', applyImage);
   els.cancelBtn.addEventListener('click', ()=>{
-    const payload = { type:'media-picker:cancel' };
-    try{ window.parent !== window && window.parent.postMessage(payload, openerOrigin); }catch(_){}
-    try{ window.opener && window.opener.postMessage(payload, openerOrigin); }catch(_){}
-    // optional: window.close();
+    try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
+    try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
   });
 
-  // ========= Preview =========
-  const modal = els.modal;
-  const pv = els.pvView;
-  function openPreview(it){
-    pv.innerHTML = '';
-    els.pvName.textContent = it.name;
-    const k = kindOf(it.type);
-    if(k==='image'){
-      const img = document.createElement('img');
-      img.src = it.url; img.alt = it.name; pv.appendChild(img);
-    }else if(k==='video'){
-      const v = document.createElement('video');
-      v.controls = true; v.playsInline = true;
-      if(it.poster) v.poster = it.poster;
-      const s = document.createElement('source');
-      s.src = it.url; s.type = it.type || 'video/mp4';
-      v.appendChild(s);
-      pv.appendChild(v);
-    }else if(k==='audio'){
-      const a = document.createElement('audio');
-      a.controls = true;
-      const s = document.createElement('source');
-      s.src = it.url; s.type = it.type || 'audio/mpeg';
-      a.appendChild(s);
-      pv.appendChild(a);
-    }else{
-      const div = document.createElement('div');
-      div.style='padding:20px';
-      div.innerHTML = `<div style="opacity:.8">No inline preview for this file type.</div>
-      <div style="margin-top:8px"><a href="${it.url}" target="_blank" rel="noreferrer noopener">Open in new tab</a></div>`;
-      pv.appendChild(div);
-    }
-    els.openNew.onclick = ()=>{ window.open(it.url, '_blank', 'noopener'); };
-    modal.classList.add('open');
-  }
-  function closePreview(){ modal.classList.remove('open'); }
-  modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) closePreview(); });
-  document.addEventListener('keydown', e=>{
-    if(!modal.classList.contains('open')) return;
-    if(e.key==='Escape') closePreview();
-    const vid = pv.querySelector('video');
-    if(vid && e.code==='Space'){ e.preventDefault(); vid.paused ? vid.play() : vid.pause(); }
-  });
-
-  // ========= Data loading =========
+  /** ===== Data loading =====
+   * Accepts:
+   *  1) ?manifest= URL -> JSON array or {items:[]}
+   *  2) window.__MEDIA__ = []
+   *  3) postMessage {type:'media-picker:init', items:[...]}
+   */
   async function tryLoad(){
-    // 1) manifest param
-    const params = new URL(location.href).searchParams;
     const manifest = params.get('manifest');
-    const originParam = params.get('origin');
-    if(originParam) openerOrigin = originParam;
-
     if(manifest){
       try{
         const res = await fetch(manifest, {cache:'no-store'});
         const data = await res.json();
         if(Array.isArray(data)) setItems(data);
         else if(Array.isArray(data.items)) setItems(data.items);
-        else showHint('Manifest did not contain an array. Expected: [{"url","name","type",...}]');
+        else setItems([]);
         return;
-      }catch(err){
-        showHint('Failed to fetch manifest: '+err);
-      }
+      }catch{ setItems([]); }
     }
-
-    // 2) window.__MEDIA__
     if(Array.isArray(window.__MEDIA__)){ setItems(window.__MEDIA__); return; }
-
-    // 3) wait for postMessage init (parent can send later)
-    showHint('Waiting for parent to post init items…');
+    // else wait for postMessage
   }
-
   function setItems(arr){
     items = sanitize(arr);
-    if(items.length===0) showHint('No media found. Check your manifest/init payload.');
-    else hideHint();
     selected.clear();
     render();
   }
-
   function sanitize(arr){
-    return arr.map(it=>{
+    return (arr||[]).map(it=>{
       const o = {...it};
-      if(!o.name) o.name = o.url.split('/').pop() || 'file';
-      if(!o.type){
-        const ext = (o.name.split('.').pop()||'').toLowerCase();
-        const map = {
-          jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp', gif:'image/gif',
-          mp4:'video/mp4', webm:'video/webm', mov:'video/quicktime', m4v:'video/mp4',
-          mp3:'audio/mpeg', wav:'audio/wav', m4a:'audio/mp4',
-          pdf:'application/pdf'
-        };
-        o.type = map[ext] || 'application/octet-stream';
-      }
-      if(typeof o.mtime!=='number') o.mtime = Date.now();
+      if(!o.name) o.name = (o.url||'').split('/').pop() || 'file';
+      if(!o.url) o.url = DEFAULT_BASE + o.name;
       return o;
     });
   }
 
-  function showHint(msg){ els.hint.textContent = msg; els.hint.classList.remove('hidden'); }
-  function hideHint(){ els.hint.classList.add('hidden'); }
-
-  // ========= Messaging protocol =========
+  /** ===== Messaging ===== */
   window.addEventListener('message', (e)=>{
     const d = e.data;
     if(!d || typeof d!=='object') return;
@@ -512,18 +337,18 @@ body{
       if(d.origin) openerOrigin = d.origin;
     }
     if(d.type==='media-picker:set-selection'){
-      // parent can preselect
       selected.clear();
       (d.urls||[]).forEach(u=>selected.add(u));
       render();
     }
   });
 
-  // Expose basic API for direct scripts (optional)
-  window.MediaPicker = {
-    setItems, getSelection:()=>items.filter(i=>selected.has(i.url)),
-    clearSelection:()=>{ selected.clear(); render(); }
-  };
+  /** ===== Toast ===== */
+  function showToast(text){
+    els.toast.textContent = text || 'Done';
+    els.toast.classList.add('show');
+    setTimeout(()=>els.toast.classList.remove('show'), 1400);
+  }
 
   tryLoad();
 })();
