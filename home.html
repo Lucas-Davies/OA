@@ -1,3 +1,4 @@
+\
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -61,11 +62,11 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0; position:relative; z-index:0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal rows (GRID FIX: use max-content auto-columns so cards never overlap) */
+/* Rows */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:max-content;  /* <-- key fix (01c) */
+  grid-auto-columns:max-content;
   align-items:start;
   gap:var(--gap);
   overflow-x:auto;
@@ -137,31 +138,22 @@ body.lock{ position:fixed; width:100% }
   min-height:0;
   margin:28px 2px 8px;
   display:flex; align-items:flex-end;
+  gap:10px;
   z-index:1;
 }
 .divider .htext{ font-weight:900; opacity:.92 }
 
 /* Divider tools row */
 .divider .tools{
-  position:absolute; top:0; left:0;
+  position:absolute; top:0; right:0;
   display:flex; align-items:center; gap:8px; z-index:9000;
 }
-.divider .dctrls{ display:none; gap:6px; align-items:center }
-.config-on .divider .dctrls{ display:flex }
+/* Repositioned: dctrls now appear to the LEFT of heading text */
+.divider .dctrls-left{ display:none; gap:6px; align-items:center }
+.config-on .divider .dctrls-left{ display:flex }
+
 .divider .ctrls{ display:flex; align-items:center }
 .divider .aud-indicators-head{ display:flex; gap:6px; align-items:center }
-
-
-/* Countdown chip (CF7) */
-.hero .sched-chip{
-  position:absolute; left:10px; bottom:10px; z-index:3;
-  display:inline-flex; align-items:center; gap:6px;
-  padding:6px 8px; border-radius:10px; border:1px solid var(--stroke);
-  background:#10131a; font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-}
-.hero .sched-chip.green{ border-color:#1e3a22; background:#0c1610; color:#79ffa0 }
-.hero .sched-chip.red{ border-color:#3a1e1f; background:#160c0d; color:#ff9aa0 }
-.hero .sched-chip.blue{ border-color:#1e2f3a; background:#0c1216; color:#8fb3ff }
 
 /* Audience dots */
 .aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
@@ -228,6 +220,8 @@ body.lock{ position:fixed; width:100% }
 #editDialog{ position:fixed; inset:0; display:none; z-index:14000; align-items:center; justify-content:center; background:rgba(0,0,0,.5); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 #editDialog.open{ display:flex }
 #editPanel{ background:#0f1116; border:1px solid var(--stroke); border-radius:12px; padding:12px; min-width:min(420px,96vw); max-width:96vw }
+#editPanelHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px }
+#editCloseX{ border:1px solid var(--stroke); background:#121212; color:#fff; border-radius:10px; width:32px; height:32px; cursor:pointer }
 #editPanel .row{ margin:10px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 #editPanel .swatch{ width:22px; height:22px; border-radius:50%; border:1px solid rgba(255,255,255,.2) }
 #editPanel .preview{ padding:8px 10px; border:1px dashed var(--stroke); border-radius:8px }
@@ -245,6 +239,23 @@ body.lock{ position:fixed; width:100% }
 #coursePanel{
   position:relative; width:min(1100px, 96vw); max-height:86vh;
   background:#0f1116; border:1px solid var(--stroke); border-radius:16px; overflow:hidden; display:flex; flex-direction:column;
+}
+
+/* Hero schedule chip — bottom-left */
+.hero .sched-chip{
+  position:absolute; left:10px; bottom:10px; z-index:3;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border-radius:10px; border:1px solid var(--stroke);
+  background:#10131a; font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  max-width:calc(100% - 20px);
+}
+.hero .sched-chip.green{ color:#79ffa0; border-color:#1e3a22; background:#0c1610 }
+.hero .sched-chip.red{ color:#ff9aa0; border-color:#3a1e1f; background:#160c0d }
+.hero .sched-chip.blue{ color:#8fb3ff; border-color:#1e2f3a; background:#0c1216 }
+
+/* Safety: no heading flick arrows in portrait (none exist, ensure hidden placeholder class) */
+@media (max-width: 480px){
+  .heading-flick-arrows{ display:none !important; }
 }
 </style>
 </head>
@@ -281,12 +292,14 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 
-<!-- Edit Dialog -->
+<!-- Edit Dialog (with X) -->
 <div id="editDialog" aria-modal="true" role="dialog">
   <div id="editPanel" role="document">
-    <button id="editCloseX" aria-label="Close edit dialog">×</button>
-    <h3 id="editTitle">Edit</h3>
-    <div class="row"><input id="editText" type="text" placeholder="Title"></div>
+    <div id="editPanelHead">
+      <h3 id="editTitle" style="margin:0">Edit</h3>
+      <button id="editCloseX" aria-label="Close">×</button>
+    </div>
+    <div class="row"><input id="editText" type="text" placeholder="Title" style="width:100%"></div>
     <div class="row">
       <div style="font-weight:800">Colour:</div>
       <div class="palette" id="editPalette"></div>
@@ -380,6 +393,11 @@ const SCHEMA_VERSION=7;
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const fmtDate=d=>{ if(!d) return ''; const t=new Date(d); if(Number.isNaN(+t)) return ''; const dd=String(t.getDate()).padStart(2,'0'); const mm=String(t.getMonth()+1).padStart(2,'0'); const yy=t.getFullYear(); return `${dd}/${mm}/${yy}` };
 
+/* Time helpers */
+function toDateOnly(d){ const t=new Date(d); if(Number.isNaN(+t)) return null; return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+function daysUntil(d){ const n=toDateOnly(new Date()); const x=toDateOnly(d); if(!x) return null; const ms = x - n; return Math.ceil(ms/86400000); }
+function minBy(arr, key){ let best=null, bestK=Infinity; for(const a of arr){ const k=key(a); if(k<bestK){best=a; bestK=k;} } return best; }
+
 /* =========================
    Roles
 ========================= */
@@ -395,9 +413,12 @@ function devModeOn(){ return document.body.classList.contains('config-on'); }
 function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r==='director'; }
 
 /* =========================
-   Settings + seed
+   Settings + seed + sanitize
 ========================= */
-function numberFromId(id){ const m=String(id||'').match(/\\d+/); return m?m[0]:'?'; }
+function numberFromId(id){
+  const m = String(id || '').match(/(\\d+)/);
+  return m ? m[1] : '';
+}
 function defaults(){
   const heroFlags={}, pageOrder=[], heroSchedule={}, heroShortcuts={};
   heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
@@ -406,23 +427,39 @@ function defaults(){
   heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}, shape:'square'};
   for(let i=5;i<=12;i++) heroFlags['co-'+i]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}, shape:'square'};
   pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, heroSchedule, heroShortcuts, pageOrder, _seeded:true };
+  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, heroSchedule, heroShortcuts, pageOrder, _seeded:true, flags:{schedule:true} };
 }
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
-  c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{};
+  c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{}; c.flags=c.flags||{schedule:true};
+  /* Ensure stable IDs co-1..co-50 exist and unique */
   for(let i=1;i<=50;i++){ const id='co-'+i; if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'}; else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square'; }
+  /* Filter invalid pageOrder items and ensure uniqueness */
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
+  /* Remove duplicate hero entries in pageOrder */
+  const seen=new Set();
+  c.pageOrder = c.pageOrder.filter(it=>{
+    if(it.type!=='hero') return true;
+    if(seen.has(it.id)) return false;
+    seen.add(it.id); return true;
+  });
+  /* Auto-append any page heroes missing in pageOrder */
   Object.keys(c.heroFlags).forEach(id=>{ if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){ c.pageOrder.push({type:'hero', id}); } });
+  /* Strip divider.schedule entirely for CF7 */
+  c.pageOrder.forEach(it=>{ if(it.type==='divider' && it.schedule) delete it.schedule; });
   return c;
 }
 function loadSettings(){
   const ver = Number(store.get(K.schemaVer, 0))||0;
   const raw = store.get(K.settings, null);
-  const s = sanitize(raw);
-  if(ver!==SCHEMA_VERSION){ store.set(K.settings, s); store.set(K.schemaVer, SCHEMA_VERSION); }
+  let s = sanitize(raw);
+  if(ver!==SCHEMA_VERSION){
+    /* Migration step: remove divider.schedule */
+    s.pageOrder.forEach(it=>{ if(it.type==='divider' && it.schedule) delete it.schedule; });
+    store.set(K.settings, s); store.set(K.schemaVer, SCHEMA_VERSION);
+  }
   return s;
 }
 let S = loadSettings();
@@ -461,28 +498,18 @@ paintAvatar();
 })();
 
 /* =========================
-   Label helpers (patched)
+   Label helpers
 ========================= */
-function numberFromId(id){
-  const m = String(id || '').match(/(\d+)/);
-  return m ? m[1] : '';
-}
-
 function labelFor(id){
   const s = getSettings();
   const custom = s.heroLabels?.[id];
   if (custom && custom.trim()) return custom;
-
-  // Try digits from id
   const n = numberFromId(id);
   if (n) return `#${n}`;
-
-  // Fallback: position in pageOrder
   const heroes = s.pageOrder.filter(it => it.type === 'hero');
   const pos = heroes.findIndex(it => it.id === id);
   return pos >= 0 ? `#${pos + 1}` : '#?';
 }
-
 function styleFor(id){
   const st=(getSettings().heroStyle||{})[id]||{};
   return {
@@ -490,6 +517,76 @@ function styleFor(id){
     font:  st.labelFont  || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif",
     size:  Number(st.labelSize||18)
   };
+}
+
+/* =========================
+   Scheduling (one-off + simple recurrence) — CF7
+========================= */
+/*
+  heroSchedule[id] = {
+    release: string(YYYY-MM-DD) | {r:{freq:'DAILY'|'WEEKLY'|'MONTHLY'|'YEARLY', interval?:1, start:'YYYY-MM-DD'}} | null,
+    expiry:  same,
+    dev:     same
+  }
+*/
+function parseYMD(s){ if(!s) return null; const t=new Date(s); if(Number.isNaN(+t)) return null; return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+function nextFromRecurrence(rec, now){
+  if(!rec || !rec.r) return null;
+  const R = rec.r || {}; const freq=String(R.freq||'').toUpperCase(); const interval=Math.max(1, Number(R.interval||1));
+  let cur = parseYMD(R.start||new Date());
+  if(!cur) return null;
+  now = toDateOnly(now||new Date());
+  if(!now) now = toDateOnly(new Date());
+  function addStep(d){
+    if(freq==='DAILY'){ d.setDate(d.getDate()+interval); }
+    else if(freq==='WEEKLY'){ d.setDate(d.getDate()+7*interval); }
+    else if(freq==='MONTHLY'){ d.setMonth(d.getMonth()+interval); }
+    else if(freq==='YEARLY'){ d.setFullYear(d.getFullYear()+interval); }
+    else { d.setDate(d.getDate()+interval); }
+  }
+  /* If start >= now, return start; else step until >= now (cap to 512 iterations safety) */
+  let safety=0;
+  while(cur < now && safety<512){ addStep(cur); safety++; }
+  return cur>=now ? cur : null;
+}
+function nextOccurrence(val, now){
+  if(!val) return null;
+  if(typeof val==='string'){ const t=parseYMD(val); return (t && t>=toDateOnly(now||new Date())) ? t : null; }
+  if(typeof val==='object' && val.r) return nextFromRecurrence(val, now);
+  return null;
+}
+function computeHeroScheduleStateAndChip(id){
+  const s=getSettings(); const flag=s.heroFlags[id]||{}; const sch=s.heroSchedule[id]||{};
+  const now = new Date();
+  /* Determine current effective state based on past dates */
+  const relDate = parseYMD(typeof sch.release==='string'?sch.release:sch.release?.r?.start);
+  const expDate = parseYMD(typeof sch.expiry==='string'?sch.expiry:sch.expiry?.r?.start);
+  const devDate = parseYMD(typeof sch.dev==='string'?sch.dev:sch.dev?.r?.start);
+  const today = toDateOnly(now);
+
+  let effState = flag.state;
+  if(today && expDate && expDate <= today){ effState='off'; }
+  else if(today && relDate && relDate <= today){ effState='live'; }
+  else if(today && devDate && devDate <= today){ effState='dev'; }
+
+  /* Compute next upcoming (future) among release/expiry/dev */
+  const nexts = [
+    ['live','green', nextOccurrence(sch.release, now)],
+    ['off','red',   nextOccurrence(sch.expiry, now)],
+    ['dev','blue',  nextOccurrence(sch.dev, now)],
+  ].filter(([, , d])=>!!d);
+
+  let chip=null;
+  if(nexts.length){
+    const nearest = minBy(nexts, x => x[2].getTime());
+    const [type, color, date] = nearest;
+    const days = daysUntil(date);
+    if(days!=null){
+      const label = type==='live' ? 'Live' : (type==='off' ? 'Exp' : 'Dev');
+      chip = { color, text: `${label}: ${days} Days` };
+    }
+  }
+  return { effState, chip };
 }
 
 /* =========================
@@ -536,6 +633,7 @@ function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentF
 }
 function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; }
 $('#editCancel').addEventListener('click', closeEditDialog);
+$('#editCloseX').addEventListener('click', closeEditDialog);
 $('#editDialog').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeEditDialog(); }, {passive:true});
 $('#editSave').addEventListener('click', ()=>{
   if(!editCtx) return;
@@ -583,7 +681,7 @@ function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', 
 function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
   mTitle.textContent = title;
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
+    <input id="modalInput" type="text" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
   mFoot.innerHTML = '';
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
   const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); };
@@ -598,35 +696,45 @@ function modalDate({title='Select date', label='Date', value=''}={}, onOK){
   const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); };
   mFoot.append(cancel, ok); modalRoot.hidden = false;
 }
+function modalSelect({title='Select', options=[], value=null, label='Option'}={}, onOK){
+  mTitle.textContent = title;
+  const opts = options.map(o=>`<option value="${esc(o.value)}"${o.value===value?' selected':''}>${esc(o.label)}</option>`).join('');
+  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
+  <select id="modalSel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">${opts}</select>`;
+  mFoot.innerHTML = '';
+  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
+  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalSel').value; modalClose(); onOK?.(v); };
+  mFoot.append(cancel, ok); modalRoot.hidden = false;
+}
 
 /* =========================
    DOM builders
 ========================= */
-
-function chipFor(id){
-  const s=getSettings(); const sch=s.heroSchedule[id]||{};
-  if(!sch) return '';
-  // Dummy: just show if release date exists
-  if(sch.release){
-    return `<span class="sched-chip green">Live soon</span>`;
-  }
-  return '';
-}
-
 function heroCard(id){
   const s=getSettings(); const f=s.heroFlags[id]; if(!f) return null;
   const art = s.heroAssets?.[id]?.heroCard || null;
   const devOn = devModeOn(); const canAdminDev = isAdmin() && devOn;
   const shape = f.shape || 'square';
   const st = styleFor(id);
+  const {effState, chip} = computeHeroScheduleStateAndChip(id);
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place; el.classList.add(`shape-${shape}`);
-  if (seesAll()) { if(f.state==='live') el.classList.add('state-live'); else if (f.state==='dev') el.classList.add('state-dev'); else el.classList.add('state-off'); }
+  if (seesAll()) {
+    if(effState==='live') el.classList.add('state-live');
+    else if (effState==='dev') el.classList.add('state-dev');
+    else el.classList.add('state-off');
+  }
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
   const labelInline = ` style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px"`;
   el.innerHTML = `${artLayer}
     ${canAdminDev ? `<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button></div>` : ``}
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
     <div class="ctrls">${canAdminDev?`<button class="kebab" data-hero-kebab="${esc(id)}" aria-haspopup="dialog" aria-expanded="false">⋮</button>`:''}</div>`;
+  if(chip){
+    const chipEl = document.createElement('div');
+    chipEl.className = `sched-chip ${chip.color}`;
+    chipEl.textContent = chip.text;
+    el.appendChild(chipEl);
+  }
   return el;
 }
 
@@ -640,10 +748,9 @@ function dividerEl(obj){
   el.dataset.type = 'divider';
   el.dataset.divId = obj.id;
   el.innerHTML = `
+    ${editable ? `<div class="dctrls-left"><button class="footer-chip" data-div-act="up" data-div-id="${esc(obj.id)}" type="button">▲</button><button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button></div>`:''}
     <span class="htext" style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px">${esc(obj.title || 'Heading')}</span>
     <div class="tools">
-      ${editable ? `<div class="dctrls"><button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
-      <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button></div>`:''}
       ${editable ? `<div class="ctrls"><button class="kebab" data-div-kebab="${esc(obj.id)}" type="button">⋮</button></div>`:''}
       <div class="aud-indicators-head" aria-hidden="${seesAll()?'false':'true'}"></div>
     </div>`;
@@ -721,8 +828,10 @@ function paintPage(){
       const f = s.heroFlags[id];
       if(!f || f.place!=='page') continue;
 
+      const {effState} = computeHeroScheduleStateAndChip(id);
+
       if(!seesAll()){
-        if(f.state!=='live') continue;
+        if(effState!=='live') continue;
         if(!f.aud[role]) continue;
       }
 
@@ -802,7 +911,7 @@ function uuidId(){return 'div_'+Math.random().toString(36).slice(2,9);}
 $('#addHeadingBtn').addEventListener('click',()=>{
   if(!(isAdmin() && devModeOn())) return;
   modalPrompt({title:'Add Heading', label:'Heading title', value:'Section'}, (title)=>{
-    const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:(title||'Section').trim(), aud:{bronze:true,silver:true,gold:true}, fontSize:22, rowSize:'m', state:'live', schedule:{} });
+    const s=getSettings(); s.pageOrder.push({type:'divider', id:uuidId(), title:(title||'Section').trim(), aud:{bronze:true,silver:true,gold:true}, fontSize:22, rowSize:'m', state:'live' });
     saveSettings(s); paintPage();
   });
 });
@@ -830,7 +939,7 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Arrow reorder (dividers) via .dctrls buttons */
+  /* Arrow reorder (dividers) via new .dctrls-left buttons */
   const divSort = e.target.closest('[data-div-act]');
   if(divSort){
     if(!(isAdmin() && devModeOn())) return;
@@ -894,7 +1003,12 @@ function openHeroKebab(id){
   const s=getSettings(); const f=s.heroFlags[id]; const sch=s.heroSchedule[id]||{};
   const art = s.heroAssets?.[id]?.heroCard?.src || '';
   mTitle.textContent = labelFor(id);
-  const badge=(kind,val)=> val?`<span class="badge ${kind}">${fmtDate(val)}</span>`:'';
+  const badge=(kind,val)=>{
+    let text='';
+    if(typeof val==='string') text = fmtDate(val);
+    else if(val && val.r && val.r.start) text = fmtDate(val.r.start);
+    return val?`<span class="badge ${kind}">${text}</span>`:'';
+  };
 
   mBody.innerHTML = `
   <div class="modalGroup">
@@ -932,6 +1046,11 @@ function openHeroKebab(id){
       <div class="modalOpt" data-hact="date" data-kind="release"><div>Set Release Date</div><div class="optRight">${badge('green',sch.release)}</div></div>
       <div class="modalOpt" data-hact="date" data-kind="expiry"><div>Set Expiry Date</div><div class="optRight">${badge('red',sch.expiry)}</div></div>
       <div class="modalOpt" data-hact="date" data-kind="dev"><div>Schedule for Development</div><div class="optRight">${badge('blue',sch.dev)}</div></div>
+      <div class="modalSub">Recurrence (optional)</div>
+      ${[['release','Release'],['expiry','Expiry'],['dev','Development']].map(([k,lab])=>`
+        <div class="modalOpt" data-hact="recur" data-kind="${k}"><div>Set ${lab} Recurrence</div><div class="optRight" style="opacity:.85">${(sch[k]&&sch[k].r)?'On':'Off'}</div></div>`).join('')}
+      ${[['release','Release'],['expiry','Expiry'],['dev','Development']].map(([k,lab])=>`
+        <div class="modalOpt" data-hact="clear" data-kind="${k}"><div>Clear ${lab} Date/Recurrence</div></div>`).join('')}
     </div>
   </div>
   <div class="modalGroup">
@@ -940,10 +1059,6 @@ function openHeroKebab(id){
       <div class="modalOpt" data-hact="rename"><div>Rename Course</div></div>
       <div class="modalOpt" data-hact="cover"><div>Add Cover Art</div><div class="optRight" style="opacity:.8">${art? 'Set' : 'None'}</div></div>
       <div class="modalOpt" data-hact="archive"><div>Archive Course</div></div>
-      <div class="modalOpt"><div>Create Customisable Shortcut</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
-      <div class="modalOpt"><div>Remove Shortcut</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
-      <div class="modalOpt"><div>Create Request</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
-      <div class="modalOpt"><div>Audit Course</div><div class="optRight" style="opacity:.6">Coming soon</div></div>
     </div>
   </div>`;
 
@@ -968,8 +1083,40 @@ function openHeroKebab(id){
       });
     }else if(act==='date'){
       const kind = opt.getAttribute('data-kind');
-      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(s.heroSchedule[id]?.[kind]||'')}, (val)=>{
-        s.heroSchedule[id]={...(s.heroSchedule[id]||{}), [kind]:val||null}; saveSettings(s); paintPage(); openHeroKebab(id);
+      const cur = s.heroSchedule[id]?.[kind];
+      let seed = '';
+      if(typeof cur==='string') seed = cur;
+      else if(cur && cur.r && cur.r.start) seed = cur.r.start;
+      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:seed}, (val)=>{
+        const next = val ? {r:null, _date:val} : null;
+        const hs = s.heroSchedule[id]||{};
+        if(val){
+          // store as simple string for one-off
+          hs[kind]=val;
+        }else{
+          hs[kind]=null;
+        }
+        s.heroSchedule[id]=hs; saveSettings(s); paintPage(); openHeroKebab(id);
+      });
+    }else if(act==='recur'){
+      const kind = opt.getAttribute('data-kind');
+      modalSelect({title:'Recurrence', label:'Frequency', options:[
+        {label:'Daily', value:'DAILY'},
+        {label:'Weekly', value:'WEEKLY'},
+        {label:'Monthly', value:'MONTHLY'},
+        {label:'Yearly', value:'YEARLY'}
+      ]}, (freq)=>{
+        // ask for start date
+        modalDate({title:'Recurrence start date', label:'Start date', value:(s.heroSchedule[id]?.[kind]?.r?.start || '')}, (start)=>{
+          const hs = s.heroSchedule[id]||{};
+          hs[kind] = { r:{freq, interval:1, start:start||new Date().toISOString().slice(0,10)} };
+          s.heroSchedule[id]=hs; saveSettings(s); paintPage(); openHeroKebab(id);
+        });
+      });
+    }else if(act==='clear'){
+      const kind = opt.getAttribute('data-kind');
+      modalConfirm({title:'Clear schedule', body:`Clear ${kind} date/recurrence for <b>${labelFor(id)}</b>?`}, ()=>{
+        const hs = s.heroSchedule[id]||{}; hs[kind]=null; s.heroSchedule[id]=hs; saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='rename'){
       modalClose();
@@ -990,13 +1137,12 @@ function openHeroKebab(id){
 }
 
 /* =========================
-   DIVIDER KEBAB (iOS modal)
+   DIVIDER KEBAB (iOS modal) — schedules removed
 ========================= */
 function openDividerKebab(divId){
   const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===divId); if(idx<0) return;
-  const d=s.pageOrder[idx]; const sch=d.schedule||{};
+  const d=s.pageOrder[idx];
   mTitle.textContent = d.title || 'Heading';
-  const badge=(kind,val)=> val?`<span class="badge ${kind}">${fmtDate(val)}</span>`:'';
 
   mBody.innerHTML = `
   <div class="modalGroup">
@@ -1026,14 +1172,6 @@ function openDividerKebab(divId){
     <div class="groupBody">
       ${[['live','Online'],['off','Offline'],['dev','Under Development']].map(([k,lab])=>`
       <div class="modalOpt" data-dact="state" data-state="${k}"><div>${lab}</div><div class="optRight">${(d.state||'live')===k?'✓':''}</div></div>`).join('')}
-    </div>
-  </div>
-  <div class="modalGroup">
-    <div class="groupHead">Section Schedule</div>
-    <div class="groupBody">
-      <div class="modalOpt" data-dact="date" data-kind="release"><div>Set Release Date</div><div class="optRight">${badge('green',sch.release)}</div></div>
-      <div class="modalOpt" data-dact="date" data-kind="expiry"><div>Set Expiry Date</div><div class="optRight">${badge('red',sch.expiry)}</div></div>
-      <div class="modalOpt" data-dact="date" data-kind="dev"><div>Schedule for Development</div><div class="optRight">${badge('blue',sch.dev)}</div></div>
     </div>
   </div>
   <div class="modalGroup">
@@ -1067,12 +1205,6 @@ function openDividerKebab(divId){
       const state=opt.getAttribute('data-state');
       modalConfirm({title:'Change section state', body:`Set "${d.title||'Heading'}" to <b>${state}</b>?`}, ()=>{
         s.pageOrder[idx].state = state; saveSettings(s); paintPage(); openDividerKebab(divId);
-      });
-    }else if(act==='date'){
-      const kind=opt.getAttribute('data-kind');
-      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(sch?.[kind]||'')}, (val)=>{
-        s.pageOrder[idx].schedule = {...(s.pageOrder[idx].schedule||{}), [kind]:val||null};
-        saveSettings(s); paintPage(); openDividerKebab(divId);
       });
     }else if(act==='remove'){
       modalConfirm({title:'Remove heading', body:`Remove "${d.title||'Heading'}"? This won't delete contained heroes.`, danger:true}, ()=>{
