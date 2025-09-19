@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Home — FAOA (CF6a full 01c)</title>
+<title>Home — FAOA (CF6a full 01c + Schedules)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
@@ -157,6 +157,20 @@ body.lock{ position:fixed; width:100% }
 .aud-dot.bronze{ background:#b87333 }
 .aud-dot.silver{ background:#c0c7d1 }
 .aud-dot.gold{ background:#ffd700 }
+
+/* ===== Pinned schedule labels (bottom-left, never spill past hero edge) ===== */
+.hero .schedPills{
+  position:absolute; left:16px; bottom:10px; z-index:3;
+  display:flex; gap:6px; flex-wrap:wrap; max-width:calc(100% - 32px);
+}
+.schedPill{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border-radius:10px; border:1px solid var(--stroke);
+  font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  background:#0f131a; opacity:.98; white-space:nowrap;
+}
+.schedPill.green{ border-color:#1e3a22; background:#0c1610; color:#79ffa0 }
+.schedPill.red  { border-color:#3a1e1f; background:#160c0d; color:#ff9aa0 }
 
 /* Footer Dock (Developer only) */
 #archiveDock{
@@ -363,9 +377,67 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=6;
+const SCHEMA_VERSION=7;
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const fmtDate=d=>{ if(!d) return ''; const t=new Date(d); if(Number.isNaN(+t)) return ''; const dd=String(t.getDate()).padStart(2,'0'); const mm=String(t.getMonth()+1).padStart(2,'0'); const yy=t.getFullYear(); return `${dd}/${mm}/${yy}` };
+
+/* ==== Dates & Recurrence helpers ==== */
+const DAY_MS = 24*60*60*1000;
+const todayStart = ()=>{ const t=new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime(); };
+const toMs = d => (d? new Date(d).getTime() : NaN);
+
+function daysDiff(fromMs, toMsVal){
+  if(Number.isNaN(fromMs) || Number.isNaN(toMsVal)) return NaN;
+  return Math.floor((toMsVal - fromMs)/DAY_MS);
+}
+
+/* Recurrence: { kind:'none'|'daily'|'weekly'|'yearly'|'custom', every:number } */
+function normalizeRecurrence(r){
+  const kind = (r?.kind||'none').toLowerCase();
+  const every = Math.max(1, Number(r?.every||1));
+  return { kind: ['daily','weekly','yearly','custom'].includes(kind) ? kind : 'none', every };
+}
+
+/* Compute current active window and countdowns.
+   schedule = { release?: 'YYYY-MM-DD', expiry?: 'YYYY-MM-DD', recurrence?: {kind, every} }
+   Returns: { active:boolean, liveInDays?:number, expiresInDays?:number }
+*/
+function computeScheduleWindow(schedule){
+  if(!schedule) return { active:false };
+  const relMs = toMs(schedule.release);
+  const expMs = toMs(schedule.expiry);
+  const rec = normalizeRecurrence(schedule.recurrence);
+  const today0 = todayStart();
+
+  if(Number.isNaN(relMs)) return { active:false };
+
+  const baseLen = Number.isNaN(expMs) ? DAY_MS : Math.max(DAY_MS, (expMs - relMs) + DAY_MS);
+
+  let winStart=relMs, winEnd=relMs + baseLen;
+
+  if(rec.kind!=='none'){
+    let periodDays = 1;
+    if(rec.kind==='daily')  periodDays = rec.every;
+    if(rec.kind==='weekly') periodDays = 7*rec.every;
+    if(rec.kind==='yearly') periodDays = 365*rec.every;  // safe approx
+    if(rec.kind==='custom') periodDays = rec.every;
+
+    const periodMs = periodDays * DAY_MS;
+    if(periodMs>0){
+      const k = Math.floor((today0 - relMs)/periodMs);
+      const nearestStart = relMs + (k>=0 ? k : 0)*periodMs;
+      winStart = nearestStart<=today0 ? nearestStart : relMs;
+      winEnd   = winStart + baseLen;
+      if(today0 > winEnd) { winStart += periodMs; winEnd = winStart + baseLen; }
+    }
+  }
+
+  const active = today0 >= winStart && today0 <= winEnd;
+  const liveInDays   = today0 <  winStart ? daysDiff(today0, winStart) : undefined;
+  const expiresInDays= active             ? daysDiff(today0, winEnd)   : undefined;
+
+  return { active, liveInDays, expiresInDays };
+}
 
 /* =========================
    Roles
@@ -384,7 +456,7 @@ function seesAll(){ const r=getRole(); return r==='admin' || r==='support' || r=
 /* =========================
    Settings + seed
 ========================= */
-function numberFromId(id){ const m=String(id||'').match(/\\d+/); return m?m[0]:'?'; }
+function numberFromId(id){ const m=String(id||'').match(/\d+/); return m?m[0]:'?'; }
 function defaults(){
   const heroFlags={}, pageOrder=[], heroSchedule={}, heroShortcuts={};
   heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
@@ -400,9 +472,23 @@ function sanitize(cfg){
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{};
-  for(let i=1;i<=50;i++){ const id='co-'+i; if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'}; else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square'; }
+  for(let i=1;i<=50;i++){
+    const id='co-'+i;
+    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'};
+    else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square';
+  }
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
   Object.keys(c.heroFlags).forEach(id=>{ if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){ c.pageOrder.push({type:'hero', id}); } });
+
+  // Ensure heroSchedule structure + defaults
+  c.heroSchedule = c.heroSchedule || {};
+  for(let i=1;i<=50;i++){
+    const id='co-'+i;
+    const s = c.heroSchedule[id] || {};
+    const recurrence = normalizeRecurrence(s.recurrence);
+    c.heroSchedule[id] = { release: s.release || null, expiry: s.expiry || null, recurrence };
+  }
+
   return c;
 }
 function loadSettings(){
@@ -657,6 +743,34 @@ function addHeadingIndicators(){
   });
 }
 
+function addHeroSchedulePills(){
+  $$('.hero').forEach(h=>{
+    h.querySelectorAll('.schedPills').forEach(n=>n.remove());
+    const id = h.dataset.heroId;
+    const sch = getSettings()?.heroSchedule?.[id];
+    if(!sch || !sch.release) return;  // show nothing unless scheduled
+
+    const win = computeScheduleWindow(sch);
+    const wrap = document.createElement('div');
+    wrap.className = 'schedPills';
+
+    if(typeof win.liveInDays === 'number' && win.liveInDays >= 0){
+      const pill = document.createElement('span');
+      pill.className = 'schedPill green';
+      pill.textContent = (win.liveInDays===0) ? 'Live today' : `Live in ${win.liveInDays} day${win.liveInDays===1?'':'s'}`;
+      wrap.appendChild(pill);
+    }
+    if(typeof win.expiresInDays === 'number' && win.expiresInDays >= 0){
+      const pill = document.createElement('span');
+      pill.className = 'schedPill red';
+      pill.textContent = (win.expiresInDays===0) ? 'Expires today' : `Expires in ${win.expiresInDays} day${win.expiresInDays===1?'':'s'}`;
+      wrap.appendChild(pill);
+    }
+
+    if(wrap.children.length) h.appendChild(wrap);
+  });
+}
+
 function paintPage(){
   const root = $('#pageGrid');
   if(!root) return;
@@ -721,7 +835,7 @@ function paintPage(){
     if(!hasHeroes && !hasDivider){ sec.remove(); }
   });
 
-  addHeroIndicators(); addHeadingIndicators();
+  addHeroIndicators(); addHeadingIndicators(); addHeroSchedulePills();
 }
 
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
@@ -750,6 +864,30 @@ function paintArchive(){
 }
 
 /* =========================
+   Scheduling engine
+========================= */
+function applySchedules(){
+  const s = getSettings();
+  let changed = false;
+
+  Object.keys(s.heroFlags).forEach(id=>{
+    const f = s.heroFlags[id];
+    if(!f) return;
+    const sch = (s.heroSchedule||{})[id];
+    if(!sch || !sch.release) return;
+
+    const win = computeScheduleWindow(sch);
+    const desired = win.active ? 'live' : 'off'; // auto toggles only live/off
+    if(desired !== f.state){
+      s.heroFlags[id] = { ...f, state: desired };
+      changed = true;
+    }
+  });
+
+  if(changed){ saveSettings(s); paintPage(); paintArchive(); }
+}
+
+/* =========================
    Boot
 ========================= */
 applyArchiveVisibility();
@@ -757,6 +895,12 @@ applyArchiveSkin();
 paintArchive();
 paintPage();
 updateFooterModeControls();
+
+// Initial schedule application + periodic checks
+applySchedules();
+addHeroSchedulePills();
+setInterval(()=>{ applySchedules(); addHeroSchedulePills(); }, 60*1000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ applySchedules(); addHeroSchedulePills(); }});
 
 /* =========================
    Footer & global handlers
@@ -905,9 +1049,33 @@ function openHeroKebab(id){
   <div class="modalGroup">
     <div class="groupHead">Schedule Activity State</div>
     <div class="groupBody">
-      <div class="modalOpt" data-hact="date" data-kind="release"><div>Set Release Date</div><div class="optRight">${badge('green',sch.release)}</div></div>
-      <div class="modalOpt" data-hact="date" data-kind="expiry"><div>Set Expiry Date</div><div class="optRight">${badge('red',sch.expiry)}</div></div>
-      <div class="modalOpt" data-hact="date" data-kind="dev"><div>Schedule for Development</div><div class="optRight">${badge('blue',sch.dev)}</div></div>
+      <div class="modalOpt" data-hact="date" data-kind="release">
+        <div>Set Release Date</div><div class="optRight">${badge('green',sch.release)}</div>
+      </div>
+      <div class="modalOpt" data-hact="date" data-kind="expiry">
+        <div>Set Expiry Date</div><div class="optRight">${badge('red',sch.expiry)}</div>
+      </div>
+      <div class="modalOpt" data-hact="clear" data-kind="release"><div>Clear Release Date</div></div>
+      <div class="modalOpt" data-hact="clear" data-kind="expiry"><div>Clear Expiry Date</div></div>
+
+      <div class="modalSub">Recurrence</div>
+      ${(()=>{
+        const r = normalizeRecurrence(sch.recurrence);
+        const mark = k=> r.kind===k ? '✓' : '';
+        const txt = r.kind==='none' ? 'None' :
+                    r.kind==='daily' ? `Daily (every ${r.every}d)` :
+                    r.kind==='weekly'? `Weekly (every ${r.every}w)` :
+                    r.kind==='yearly'? `Yearly (every ${r.every}y)` :
+                    `Custom (every ${r.every}d)`;
+        return `
+        <div class="modalOpt" data-hact="recur" data-kind="none"><div>None</div><div class="optRight">${mark('none')}</div></div>
+        <div class="modalOpt" data-hact="recur" data-kind="daily"><div>Daily</div><div class="optRight">${mark('daily')}</div></div>
+        <div class="modalOpt" data-hact="recur" data-kind="weekly"><div>Weekly</div><div class="optRight">${mark('weekly')}</div></div>
+        <div class="modalOpt" data-hact="recur" data-kind="yearly"><div>Yearly</div><div class="optRight">${mark('yearly')}</div></div>
+        <div class="modalOpt" data-hact="recur-custom"><div>Custom…</div><div class="optRight">${mark('custom')}</div></div>
+        <div class="modalSub" style="opacity:.8">Current: ${txt}</div>
+        `;
+      })()}
     </div>
   </div>
   <div class="modalGroup">
@@ -945,7 +1113,26 @@ function openHeroKebab(id){
     }else if(act==='date'){
       const kind = opt.getAttribute('data-kind');
       modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(s.heroSchedule[id]?.[kind]||'')}, (val)=>{
-        s.heroSchedule[id]={...(s.heroSchedule[id]||{}), [kind]:val||null}; saveSettings(s); paintPage(); openHeroKebab(id);
+        s.heroSchedule[id]={...(s.heroSchedule[id]||{}), [kind]:val||null}; saveSettings(s); applySchedules(); paintPage(); openHeroKebab(id);
+      });
+    }else if(act==='clear'){
+      const kind = opt.getAttribute('data-kind');
+      modalConfirm({title:'Clear date', body:`Clear ${kind} date for <b>${labelFor(id)}</b>?`}, ()=>{
+        const cur = s.heroSchedule[id] || {};
+        s.heroSchedule[id] = { ...cur, [kind]: null };
+        saveSettings(s); applySchedules(); paintPage(); openHeroKebab(id);
+      });
+    }else if(act==='recur'){
+      const kind = opt.getAttribute('data-kind');
+      const cur = normalizeRecurrence((s.heroSchedule[id]||{}).recurrence);
+      s.heroSchedule[id] = { ...(s.heroSchedule[id]||{}), recurrence: normalizeRecurrence({kind, every: cur.every}) };
+      saveSettings(s); applySchedules(); paintPage(); openHeroKebab(id);
+    }else if(act==='recur-custom'){
+      const cur = normalizeRecurrence((s.heroSchedule[id]||{}).recurrence);
+      modalPrompt({title:'Custom Recurrence', label:'Repeat every N days', value:String(cur.kind==='custom'?cur.every:7)}, (val)=>{
+        const n = Math.max(1, Number(val||7));
+        s.heroSchedule[id] = { ...(s.heroSchedule[id]||{}), recurrence: {kind:'custom', every:n} };
+        saveSettings(s); applySchedules(); paintPage(); openHeroKebab(id);
       });
     }else if(act==='rename'){
       modalClose();
@@ -1065,7 +1252,7 @@ document.addEventListener('click',(e)=>{
   const hero = e.target.closest?.('.hero');
   if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
   const id = hero.dataset.heroId;
-  const n = Number(((id||'').match(/\\d+/)||[])[0]||0);
+  const n = Number(((id||'').match(/\d+/)||[])[0]||0);
   const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
   document.getElementById('courseTitle').textContent = labelFor(id);
   document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
