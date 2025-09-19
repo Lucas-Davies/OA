@@ -1,3 +1,5 @@
+V3 - HOME
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -952,7 +954,7 @@ let pickerHeroId = null;
 
 function openContentPicker(heroId){
   pickerHeroId = heroId || null;
-  pickerFrame.src = buildPickerUrl();                 // ✅ dynamic origin
+pickerFrame.src = PICKER_URL + "&t=" + Date.now();
   pickerOverlay.hidden = false;
   pickerOverlay.setAttribute('aria-hidden','false');
   document.body.classList.add('lock');
