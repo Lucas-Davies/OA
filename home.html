@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Home — FAOA (CF7)</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
-
 <style>
 :root{
   --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
@@ -281,10 +279,8 @@ body.lock{ position:fixed; width:100% }
 #pickerFrame{ width:100%; height:100%; border:0; background:#000 }
 </style>
 </head>
-
 <body ontouchstart="">
 <div class="bg" aria-hidden="true"></div>
-
 <header class="nav" role="navigation" aria-label="Primary">
   <div class="nav-left"><span class="title-tab">Courses</span></div>
   <div class="nav-right">
@@ -294,11 +290,9 @@ body.lock{ position:fixed; width:100% }
     </button>
   </div>
 </header>
-
 <main class="wrap">
   <div id="pageGrid"></div>
 </main>
-
 <!-- Avatar Drawer -->
 <div id="avatarSheet" aria-hidden="true">
   <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
@@ -313,7 +307,6 @@ body.lock{ position:fixed; width:100% }
     </div>
   </div>
 </div>
-
 <!-- Edit Dialog (with X) -->
 <div id="editDialog" aria-modal="true" role="dialog">
   <div id="editPanel" role="document">
@@ -350,7 +343,6 @@ body.lock{ position:fixed; width:100% }
     </div>
   </div>
 </div>
-
 <!-- Footer Dock (Developer only) -->
 <div id="archiveDock" class="collapsed" aria-hidden="true">
   <div class="bar">
@@ -367,7 +359,6 @@ body.lock{ position:fixed; width:100% }
     <div class="list" id="archiveList"></div>
   </div>
 </div>
-
 <!-- ===== Content Picker Overlay (fullscreen iframe + X) ===== -->
 <div id="pickerOverlay" hidden aria-hidden="true">
   <div id="pickerBar">
@@ -381,7 +372,6 @@ body.lock{ position:fixed; width:100% }
   </iframe>
 </div>
 <!-- ===== /Content Picker Overlay ===== -->
-
 <!-- Universal Modal Root -->
 <div id="modalRoot" hidden>
   <div id="modalBackdrop"></div>
@@ -391,7 +381,6 @@ body.lock{ position:fixed; width:100% }
     <div class="modalFoot" id="modalFoot"></div>
   </div>
 </div>
-
 <!-- Course Sheet (centered) -->
 <div id="courseSheet" aria-hidden="true">
   <div id="coursePanel" role="dialog" aria-modal="true">
@@ -414,7 +403,6 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 </body>
-
 <script>
 (()=>{'use strict';
 
@@ -946,8 +934,16 @@ $('#addHeadingBtn').addEventListener('click',()=>{
    ===== Content Picker JS =====
    Opens fullscreen iframe and updates hero cover on selection
 ========================= */
-const PICKER_URL = "https://lucas-davies.github.io/OA/content-picker.html?manifest=/OA/assets/media/manifest.json&origin=https://lucas-davies.github.io";
+const PICKER_BASE = "https://lucas-davies.github.io/OA/content-picker.html";
 const ALLOWED_ORIGIN = "https://lucas-davies.github.io";
+
+function buildPickerUrl(){
+  const params = new URLSearchParams({
+    manifest: "/OA/assets/media/manifest.json",
+    origin: (window.location.origin && window.location.origin !== "null") ? window.location.origin : "*"
+  });
+  return `${PICKER_BASE}?${params.toString()}`;
+}
 
 const pickerOverlay = $('#pickerOverlay');
 const pickerFrame   = $('#pickerFrame');
@@ -956,7 +952,7 @@ let pickerHeroId = null;
 
 function openContentPicker(heroId){
   pickerHeroId = heroId || null;
-  pickerFrame.src = PICKER_URL;
+  pickerFrame.src = buildPickerUrl();                 // ✅ dynamic origin
   pickerOverlay.hidden = false;
   pickerOverlay.setAttribute('aria-hidden','false');
   document.body.classList.add('lock');
@@ -969,28 +965,76 @@ function closeContentPicker(){
   pickerHeroId = null;
 }
 pickerClose.addEventListener('click', closeContentPicker);
+// Close on ESC and tapping the backdrop bar area
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && !pickerOverlay.hidden) closeContentPicker(); }, {passive:true});
+document.getElementById('pickerOverlay')?.addEventListener('click', (e)=>{
+  if(e.target.id === 'pickerOverlay' || e.target.id === 'pickerBar') closeContentPicker();
+}, {passive:true});
 
-// Accept various payload shapes from the picker
-window.addEventListener('message', (ev)=>{
-  if(ev.origin !== ALLOWED_ORIGIN) return;
-  const d = ev.data || {};
-  if(d.type === 'content-picker:close'){ closeContentPicker(); return; }
-
-  const url =
-    (d.payload && (d.payload.url || d.payload.src || d.payload.href)) ||
-    d.url || d.src || d.href || (d.selected && (d.selected.url || d.selected.src));
-
-  if(url && pickerHeroId){
-    const s = getSettings();
-    const cur = s.heroAssets[pickerHeroId] || {};
-    s.heroAssets[pickerHeroId] = {...cur, heroCard:{ src:String(url), crop:{cx:0,cy:0,scale:1}}};
-    saveSettings(s);
-    paintPage();
-    // Re-open the kebab so the status reflects immediately
-    try{ openHeroKebab(pickerHeroId); }catch{/* not fatal if kebab was closed */}
-    closeContentPicker();
+// Robust message handler
+(function(){
+  const ORIGIN_OK = (o)=>{
+    try{
+      const u = new URL(o);
+      return u.origin === ALLOWED_ORIGIN || u.hostname.endsWith('.github.io');
+    }catch{ return false; }
+  };
+  const URL_RE = /^(https?:)?\/\//i;
+  const EXT_RE = /\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
+  function findUrl(v){
+    if(!v) return null;
+    if(typeof v === 'string'){
+      if (URL_RE.test(v) || EXT_RE.test(v)) return v;
+      return null;
+    }
+    if(Array.isArray(v)){
+      for(const x of v){ const hit=findUrl(x); if(hit) return hit; }
+      return null;
+    }
+    if(typeof v === 'object'){
+      const keys=['url','src','href','path','file','asset','image','selected','value','item'];
+      for(const k of keys){ if(v[k]){ const hit=findUrl(v[k]); if(hit) return hit; } }
+      for(const k in v){ const hit=findUrl(v[k]); if(hit) return hit; }
+    }
+    return null;
   }
-});
+
+  window.addEventListener('message', (ev)=>{
+    if(!ORIGIN_OK(ev.origin)) return;
+    const d = ev.data || {};
+
+    if (d.type === 'content-picker:close' || d.type === 'close' || d.action === 'close') {
+      closeContentPicker();
+      return;
+    }
+
+    const direct =
+      (d.payload && (d.payload.url || d.payload.src || d.payload.href || d.payload.path)) ||
+      d.url || d.src || d.href || d.path ||
+      (d.selected && (d.selected.url || d.selected.src || d.selected.path)) ||
+      (d.item && (d.item.url || d.item.src || d.item.path)) ||
+      (typeof d === 'string' ? d : null);
+
+    let pickedUrl = direct || findUrl(d);
+    if(!pickedUrl) return;
+
+    try { pickedUrl = new URL(pickedUrl, ALLOWED_ORIGIN).href; } catch {}
+
+    if(pickedUrl && pickerHeroId){
+      const s = getSettings();
+      const cur = s.heroAssets[pickerHeroId] || {};
+      const hc  = cur.heroCard || {};
+      s.heroAssets[pickerHeroId] = {
+        ...cur,
+        heroCard: { src:String(pickedUrl), fit: hc.fit || 'cover', pos: hc.pos || '50% 50%', crop:{cx:0,cy:0,scale:1} }
+      };
+      saveSettings(s);
+      paintPage();
+      try{ openHeroKebab(pickerHeroId); }catch{}
+      closeContentPicker();
+    }
+  });
+})();
 
 /* =========================
    Delegated clicks (page)
