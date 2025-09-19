@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Home — FAOA (CF6a full 01c)</title>
+<title>Home — FAOA (CF6b schedule+recurrence)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
@@ -61,12 +61,11 @@ body.lock{ position:fixed; width:100% }
 .section{ margin:32px 0; position:relative; z-index:0 }
 .section .divider{ margin-bottom:10px }
 
-/* Horizontal rows (GRID FIX: use max-content auto-columns so cards never overlap) */
+/* Horizontal rows */
 .section .grid{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:max-content;  /* <-- key fix (01c) */
-  align-items:start;
+  grid-auto-columns: clamp(160px, 32vw, 240px); /* responsive fixed column width */
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
@@ -75,11 +74,12 @@ body.lock{ position:fixed; width:100% }
 .section .grid::-webkit-scrollbar{ display:none }
 .grid.size-xs{ --card-h:160px } .grid.size-s{ --card-h:190px } .grid.size-m{ --card-h:220px } .grid.size-l{ --card-h:250px } .grid.size-xl{ --card-h:280px }
 
-/* Cards */
+/* Wrapper keeps date badge grouped with hero in the same column */
+.heroWrap{ display:flex; flex-direction:column; gap:6px; width:auto; scroll-snap-align:start }
 .hero{
   position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
   border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
-  width:auto; scroll-snap-align:start; display:block; cursor:pointer;
+  width:auto; display:block; cursor:pointer;
 }
 .hero.shape-square{ aspect-ratio:1/1 }
 .hero.shape-hr{ aspect-ratio:16/9 }
@@ -127,7 +127,20 @@ body.lock{ position:fixed; width:100% }
   z-index:1;
 }
 
-/* Divider (Heading) */
+/* Staff-only next-date badge (outside hero, bottom-right of wrapper) */
+.hero-date{
+  font:700 12px/1.2 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  opacity:.92; align-self:flex-end; white-space:nowrap;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 8px; border-radius:10px; border:1px solid var(--stroke);
+  background:#0b0d12;
+}
+.hero-date .dot{ width:8px; height:8px; border-radius:999px; display:inline-block }
+.hero-date.release .dot{ background:#79ffa0 }  /* green-ish */
+.hero-date.expiry  .dot{ background:#ff9aa0 }  /* red-ish */
+.hero-date.dev     .dot{ background:#8fb3ff }  /* blue-ish */
+
+/* Divider (Heading) — compact line, no dotted border */
 .divider{
   position:relative;
   border:none;
@@ -141,7 +154,7 @@ body.lock{ position:fixed; width:100% }
 }
 .divider .htext{ font-weight:900; opacity:.92 }
 
-/* Divider tools row */
+/* Divider tools row (arrows, kebab, indicators together) */
 .divider .tools{
   position:absolute; top:0; right:0;
   display:flex; align-items:center; gap:8px; z-index:9000;
@@ -363,9 +376,35 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=6;
-const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const SCHEMA_VERSION=7;
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
 const fmtDate=d=>{ if(!d) return ''; const t=new Date(d); if(Number.isNaN(+t)) return ''; const dd=String(t.getDate()).padStart(2,'0'); const mm=String(t.getMonth()+1).padStart(2,'0'); const yy=t.getFullYear(); return `${dd}/${mm}/${yy}` };
+const iso=(d)=>{ const t=new Date(d); if(Number.isNaN(+t)) return ''; return t.toISOString().slice(0,10); };
+
+/* Date math helpers */
+const addPeriod=(date, unit, every=1)=>{
+  const d=new Date(date);
+  if(Number.isNaN(+d)) return null;
+  if(unit==='day'||unit==='days'){ d.setDate(d.getDate()+every); }
+  else if(unit==='week'||unit==='weeks'){ d.setDate(d.getDate()+7*every); }
+  else if(unit==='month'||unit==='months'){ d.setMonth(d.getMonth()+every); }
+  else if(unit==='year'||unit==='years'){ d.setFullYear(d.getFullYear()+every); }
+  return d;
+};
+
+/* Compute next occurrence from base date with recurrence rule (>= today) */
+function nextFrom(baseDate, recur){
+  if(!baseDate) return null;
+  const base=new Date(baseDate);
+  if(Number.isNaN(+base)) return null;
+  const now=new Date(); now.setHours(0,0,0,0);
+  let next=new Date(base);
+  if(!recur || recur.type==='none'){ return (next>=now)? next : null; }
+  const unit = (recur.type==='custom' ? (recur.unit||'day') : recur.type);
+  const step = Math.max(1, Number(recur.every||1));
+  while(next < now){ const n=addPeriod(next, unit, step); if(!n) break; next=n; }
+  return next>=now ? next : null;
+}
 
 /* =========================
    Roles
@@ -400,7 +439,22 @@ function sanitize(cfg){
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{};
-  for(let i=1;i<=50;i++){ const id='co-'+i; if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'}; else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square'; }
+
+  // Migrate older schedule format (string) -> {date,recur}
+  Object.keys(c.heroSchedule).forEach(id=>{
+    const obj=c.heroSchedule[id];
+    if(obj && typeof obj==='object'){
+      ['release','expiry','dev'].forEach(k=>{
+        if(obj[k] && typeof obj[k]==='string'){ obj[k]={date:obj[k], recur:{type:'none', every:1}}; }
+      });
+    }
+  });
+
+  for(let i=1;i<=50;i++){
+    const id='co-'+i;
+    if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'};
+    else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square';
+  }
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
   Object.keys(c.heroFlags).forEach(id=>{ if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){ c.pageOrder.push({type:'hero', id}); } });
   return c;
@@ -448,28 +502,9 @@ paintAvatar();
 })();
 
 /* =========================
-   Label helpers (patched)
+   Label helpers
 ========================= */
-function numberFromId(id){
-  const m = String(id || '').match(/(\d+)/);
-  return m ? m[1] : '';
-}
-
-function labelFor(id){
-  const s = getSettings();
-  const custom = s.heroLabels?.[id];
-  if (custom && custom.trim()) return custom;
-
-  // Try digits from id
-  const n = numberFromId(id);
-  if (n) return `#${n}`;
-
-  // Fallback: position in pageOrder
-  const heroes = s.pageOrder.filter(it => it.type === 'hero');
-  const pos = heroes.findIndex(it => it.id === id);
-  return pos >= 0 ? `#${pos + 1}` : '#?';
-}
-
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
 function styleFor(id){
   const st=(getSettings().heroStyle||{})[id]||{};
   return {
@@ -570,20 +605,75 @@ function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', 
 function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
   mTitle.textContent = title;
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
+    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
   mFoot.innerHTML = '';
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
   const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); };
   mFoot.append(cancel, ok); modalRoot.hidden = false; setTimeout(()=>$('#modalInput')?.focus(),0);
 }
-function modalDate({title='Select date', label='Date', value=''}={}, onOK){
+function modalDateRecur({title='Select date', label='Date', value='', recur={type:'none',every:1,unit:'day'}}={}, onOK){
   mTitle.textContent = title;
+  const curType = recur?.type||'none';
+  const curEvery = Number(recur?.every||1);
+  const curUnit = recur?.unit||'day';
   mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
+    <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">
+    <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+      <label style="opacity:.9">Repeat</label>
+      <select id="recurType" style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">
+        <option value="none"${curType==='none'?' selected':''}>None</option>
+        <option value="daily"${curType==='daily'?' selected':''}>Daily</option>
+        <option value="weekly"${curType==='weekly'?' selected':''}>Weekly</option>
+        <option value="monthly"${curType==='monthly'?' selected':''}>Monthly</option>
+        <option value="yearly"${curType==='yearly'?' selected':''}>Yearly</option>
+        <option value="custom"${curType==='custom'?' selected':''}>Custom (every N)</option>
+      </select>
+    </div>
+    <div id="customRow" style="display:${curType==='custom'?'flex':'none'};gap:6px;align-items:center;margin-top:8px">
+      <span style="opacity:.9">Every</span>
+      <input id="recurEvery" type="number" min="1" value="${curEvery}" style="width:80px;padding:8px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">
+      <select id="recurUnit" style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">
+        <option value="day"${curUnit==='day'?' selected':''}>day(s)</option>
+        <option value="week"${curUnit==='week'?' selected':''}>week(s)</option>
+        <option value="month"${curUnit==='month'?' selected':''}>month(s)</option>
+        <option value="year"${curUnit==='year'?' selected':''}>year(s)</option>
+      </select>
+    </div>`;
   mFoot.innerHTML = '';
   const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
-  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); };
+  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{
+    const v=$('#modalDate').value;
+    const type=$('#recurType').value;
+    const every=Number($('#recurEvery')?.value||1);
+    const unit=$('#recurUnit')?.value||'day';
+    const recur=(type==='custom')?{type, every:Math.max(1,every), unit}:{type, every:1, unit:type};
+    modalClose(); onOK?.({date:v||null, recur});
+  };
   mFoot.append(cancel, ok); modalRoot.hidden = false;
+  setTimeout(()=>{
+    const t=$('#recurType'); const row=$('#customRow');
+    t?.addEventListener('change',()=>{ row.style.display = (t.value==='custom')?'flex':'none'; });
+  },0);
+}
+
+/* =========================
+   Schedule helpers (per hero/divider)
+========================= */
+function ensureScheduleObj(o){ if(!o || typeof o!=='object') return {date:null, recur:{type:'none',every:1,unit:'day'}}; return {date:o.date||null, recur:o.recur||{type:'none',every:1,unit:'day'}}; }
+
+/* What is the next date to show? Returns {kind:'release'|'expiry'|'dev', date:Date} or null */
+function computeNextHeroDate(id){
+  const s=getSettings(); const f=s.heroFlags[id]; const H=s.heroSchedule[id]||{};
+  const rel=ensureScheduleObj(H.release), exp=ensureScheduleObj(H.expiry), dev=ensureScheduleObj(H.dev);
+  const cand=[];
+  const nxRel=nextFrom(rel.date, rel.recur); if(nxRel) cand.push({kind:'release', date:nxRel});
+  const nxExp=nextFrom(exp.date, exp.recur); if(nxExp) cand.push({kind:'expiry', date:nxExp});
+  const nxDev=nextFrom(dev.date, dev.recur); if(nxDev) cand.push({kind:'dev', date:nxDev});
+
+  if(!cand.length) return null;
+  cand.sort((a,b)=>a.date-b.date);
+  // If currently live and there is an expiry in future, prefer expiry when tied/close — but sort already handles; keep.
+  return cand[0];
 }
 
 /* =========================
@@ -595,6 +685,9 @@ function heroCard(id){
   const devOn = devModeOn(); const canAdminDev = isAdmin() && devOn;
   const shape = f.shape || 'square';
   const st = styleFor(id);
+
+  const wrap=document.createElement('div'); wrap.className='heroWrap'; wrap.dataset.heroId=id;
+
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place; el.classList.add(`shape-${shape}`);
   if (seesAll()) { if(f.state==='live') el.classList.add('state-live'); else if (f.state==='dev') el.classList.add('state-dev'); else el.classList.add('state-off'); }
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
@@ -603,7 +696,22 @@ function heroCard(id){
     ${canAdminDev ? `<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button></div>` : ``}
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
     <div class="ctrls">${canAdminDev?`<button class="kebab" data-hero-kebab="${esc(id)}" aria-haspopup="dialog" aria-expanded="false">⋮</button>`:''}</div>`;
-  return el;
+
+  wrap.appendChild(el);
+
+  // Staff-only next date badge
+  if(seesAll()){
+    const nxt = computeNextHeroDate(id);
+    if(nxt){
+      const badge=document.createElement('div');
+      badge.className = `hero-date ${nxt.kind}`;
+      const clr = nxt.kind==='release'?'Online':(nxt.kind==='expiry'?'Expiry':'Dev');
+      badge.innerHTML = `<span class="dot"></span><span>${clr}: ${fmtDate(nxt.date)}</span>`;
+      wrap.appendChild(badge);
+    }
+  }
+
+  return wrap;
 }
 
 function dividerEl(obj){
@@ -627,7 +735,7 @@ function dividerEl(obj){
 }
 
 /* =========================
-   Paint page + archive
+   Indicators
 ========================= */
 function addHeroIndicators(){
   if(!seesAll()) return;
@@ -657,6 +765,9 @@ function addHeadingIndicators(){
   });
 }
 
+/* =========================
+   Paint page + archive
+========================= */
 function paintPage(){
   const root = $('#pageGrid');
   if(!root) return;
@@ -868,6 +979,12 @@ document.addEventListener('click',(e)=>{
 ========================= */
 function openHeroKebab(id){
   const s=getSettings(); const f=s.heroFlags[id]; const sch=s.heroSchedule[id]||{};
+  // Ensure object structure
+  sch.release = ensureScheduleObj(sch.release);
+  sch.expiry  = ensureScheduleObj(sch.expiry);
+  sch.dev     = ensureScheduleObj(sch.dev);
+  s.heroSchedule[id]=sch; saveSettings(s);
+
   const art = s.heroAssets?.[id]?.heroCard?.src || '';
   mTitle.textContent = labelFor(id);
   const badge=(kind,val)=> val?`<span class="badge ${kind}">${fmtDate(val)}</span>`:'';
@@ -905,9 +1022,9 @@ function openHeroKebab(id){
   <div class="modalGroup">
     <div class="groupHead">Schedule Activity State</div>
     <div class="groupBody">
-      <div class="modalOpt" data-hact="date" data-kind="release"><div>Set Release Date</div><div class="optRight">${badge('green',sch.release)}</div></div>
-      <div class="modalOpt" data-hact="date" data-kind="expiry"><div>Set Expiry Date</div><div class="optRight">${badge('red',sch.expiry)}</div></div>
-      <div class="modalOpt" data-hact="date" data-kind="dev"><div>Schedule for Development</div><div class="optRight">${badge('blue',sch.dev)}</div></div>
+      <div class="modalOpt" data-hact="date" data-kind="release"><div>Set Release Date</div><div class="optRight">${badge('green',sch.release.date)}</div></div>
+      <div class="modalOpt" data-hact="date" data-kind="expiry"><div>Set Expiry Date</div><div class="optRight">${badge('red',sch.expiry.date)}</div></div>
+      <div class="modalOpt" data-hact="date" data-kind="dev"><div>Schedule for Development</div><div class="optRight">${badge('blue',sch.dev.date)}</div></div>
     </div>
   </div>
   <div class="modalGroup">
@@ -944,8 +1061,10 @@ function openHeroKebab(id){
       });
     }else if(act==='date'){
       const kind = opt.getAttribute('data-kind');
-      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(s.heroSchedule[id]?.[kind]||'')}, (val)=>{
-        s.heroSchedule[id]={...(s.heroSchedule[id]||{}), [kind]:val||null}; saveSettings(s); paintPage(); openHeroKebab(id);
+      const cur = ensureScheduleObj(s.heroSchedule[id]?.[kind]);
+      modalDateRecur({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(cur.date||''), recur:cur.recur}, ({date,recur})=>{
+        s.heroSchedule[id] = {...(s.heroSchedule[id]||{}), [kind]:{date, recur}};
+        saveSettings(s); paintPage(); openHeroKebab(id);
       });
     }else if(act==='rename'){
       modalClose();
@@ -971,6 +1090,8 @@ function openHeroKebab(id){
 function openDividerKebab(divId){
   const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===divId); if(idx<0) return;
   const d=s.pageOrder[idx]; const sch=d.schedule||{};
+  // optional: could add recurrence to dividers later
+
   mTitle.textContent = d.title || 'Heading';
   const badge=(kind,val)=> val?`<span class="badge ${kind}">${fmtDate(val)}</span>`:'';
 
@@ -1046,8 +1167,9 @@ function openDividerKebab(divId){
       });
     }else if(act==='date'){
       const kind=opt.getAttribute('data-kind');
-      modalDate({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(sch?.[kind]||'')}, (val)=>{
-        s.pageOrder[idx].schedule = {...(s.pageOrder[idx].schedule||{}), [kind]:val||null};
+      const cur = {date: sch?.[kind]||'', recur:{type:'none', every:1, unit:'day'}};
+      modalDateRecur({title:'Select date', label:`${kind[0].toUpperCase()+kind.slice(1)} date`, value:(cur.date||''), recur:cur.recur}, (val)=>{
+        s.pageOrder[idx].schedule = {...(s.pageOrder[idx].schedule||{}), [kind]:val?.date||null};
         saveSettings(s); paintPage(); openDividerKebab(divId);
       });
     }else if(act==='remove'){
