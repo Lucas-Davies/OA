@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
-<title>Home — FAOA (CF6a full 01d)</title>
+<title>Home — FAOA (CF6a full 01e)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
@@ -63,9 +63,10 @@ body.lock{ position:fixed; width:100% }
 
 /* Horizontal rows (GRID - safe auto column width) */
 .section .grid{
+  position:relative;
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns: clamp(160px, 32vw, 240px);
+  grid-auto-columns: clamp(180px, 32vw, 260px);
   gap:var(--gap);
   overflow-x:auto;
   scroll-snap-type:x mandatory;
@@ -74,7 +75,35 @@ body.lock{ position:fixed; width:100% }
 .section .grid::-webkit-scrollbar{ display:none }
 .grid.size-xs{ --card-h:160px } .grid.size-s{ --card-h:190px } .grid.size-m{ --card-h:220px } .grid.size-l{ --card-h:250px } .grid.size-xl{ --card-h:280px }
 
-/* Cards */
+/* Per-section row nav (phones) */
+.rowNav{ display:none; }
+@media (max-width: 768px){
+  .rowNav{
+    display:block;
+    pointer-events:none;
+    position:absolute; inset:0; z-index:5;
+  }
+  .rowNav .btn{
+    pointer-events:auto;
+    position:absolute; top:40%;
+    width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--stroke); background:rgba(0,0,0,.6); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    font-weight:900;
+  }
+  .rowNav .btn.left{ left:4px }
+  .rowNav .btn.right{ right:4px }
+  .rowNav[hidden]{ display:none }
+}
+
+/* Cards + wrapper (date below hero) */
+.heroWrap{ display:flex; flex-direction:column; gap:6px; }
+.underMeta{ display:flex; justify-content:flex-end; }
+.dateChip{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; background:#000; border:1px solid rgba(255,255,255,.18); box-shadow:0 0 0 1px rgba(255,255,255,.06) inset; font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; opacity:.95 }
+.dateChip .dot{ width:8px; height:8px; border-radius:50% }
+.dateChip.green .dot{ background:#32d74b } .dateChip.red .dot{ background:#ff3b30 } .dateChip.blue .dot{ background:#0A84FF }
+
+/* Hero card itself */
 .hero{
   position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
   border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
@@ -140,7 +169,7 @@ body.lock{ position:fixed; width:100% }
 }
 .divider .htext{ font-weight:900; opacity:.92 }
 
-/* Divider tools row (arrows, kebab, indicators together) */
+/* Divider tools row */
 .divider .tools{
   position:absolute; top:0; right:0;
   display:flex; align-items:center; gap:8px; z-index:9000;
@@ -148,10 +177,10 @@ body.lock{ position:fixed; width:100% }
 .divider .dctrls{ display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls{ display:flex }
 .divider .ctrls{ display:flex; align-items:center }
-.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center } /* placed inline to the right */
+.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center }
 
 /* Audience dots + OLED badges */
-.aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.9; outline:1px solid rgba(255,255,255,.25) }
+.aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.95; outline:1px solid rgba(255,255,255,.25) }
 .aud-dot.bronze{ background:#b87333 }
 .aud-dot.silver{ background:#c0c7d1 }
 .aud-dot.gold{ background:#ffd700 }
@@ -422,6 +451,53 @@ function getSettings(){ return S; }
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
 /* =========================
+   Helpers: labels, styles, dates
+========================= */
+function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
+function styleFor(id){
+  const st=(getSettings().heroStyle||{})[id]||{};
+  return {
+    color: st.labelColor || '',
+    font:  st.labelFont  || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif",
+    size:  Number(st.labelSize||18)
+  };
+}
+function nextScheduleForHero(id){
+  const s=getSettings(); const f=s.heroFlags[id]||{}; const sch=s.heroSchedule[id]||{};
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  const rel = sch.release? new Date(sch.release):null;
+  const exp = sch.expiry?  new Date(sch.expiry):null;
+  const dev = sch.dev?     new Date(sch.dev):null;
+
+  const items=[];
+  if(rel) items.push({k:'release', d:rel, color:'green', label:'Release'});
+  if(exp) items.push({k:'expiry',  d:exp, color:'red',   label:'Expiry'});
+  if(dev) items.push({k:'dev',     d:dev, color:'blue',  label:'Dev'});
+
+  // If currently online with an expiry — prefer expiry
+  if(f.state==='live' && exp){ return {color:'red', text:`Expiry ${fmtDate(exp)}`}; }
+
+  // Otherwise choose the closest upcoming date (>= today)
+  const upcoming = items.filter(x=>!isNaN(x.d) && x.d>=today).sort((a,b)=>a.d-b.d)[0];
+  if(upcoming){ return {color:upcoming.color, text:`${upcoming.label} ${fmtDate(upcoming.d)}`}; }
+  return null;
+}
+function nextScheduleForDivider(divObj){
+  const sch=divObj.schedule||{};
+  const today=new Date(); today.setHours(0,0,0,0);
+  const rel = sch.release? new Date(sch.release):null;
+  const exp = sch.expiry?  new Date(sch.expiry):null;
+  const dev = sch.dev?     new Date(sch.dev):null;
+  const items=[];
+  if(rel) items.push({k:'release', d:rel, color:'green', label:'Release'});
+  if(exp) items.push({k:'expiry',  d:exp, color:'red',   label:'Expiry'});
+  if(dev) items.push({k:'dev',     d:dev, color:'blue',  label:'Dev'});
+  const upcoming = items.filter(x=>!isNaN(x.d) && x.d>=today).sort((a,b)=>a.d-b.d)[0];
+  return upcoming? {color:upcoming.color, text:`${upcoming.label} ${fmtDate(upcoming.d)}`} : null;
+}
+
+/* =========================
    Avatar
 ========================= */
 function paintAvatar(){
@@ -453,126 +529,6 @@ paintAvatar();
 })();
 
 /* =========================
-   Label helpers
-========================= */
-function labelFor(id){ const s=getSettings(); return s.heroLabels[id] || `#${numberFromId(id)}`; }
-function styleFor(id){
-  const st=(getSettings().heroStyle||{})[id]||{};
-  return {
-    color: st.labelColor || '',
-    font:  st.labelFont  || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif",
-    size:  Number(st.labelSize||18)
-  };
-}
-
-/* =========================
-   Edit dialog (text+color+font)
-========================= */
-const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
-
-let editCtx=null;
-let liveFont=18, liveColor='', liveFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-
-function applyPreview(){
-  const pv = $('#editPreview');
-  pv.style.color = liveColor||'';
-  pv.style.fontFamily = liveFamily;
-  pv.style.fontSize = liveFont+'px';
-  pv.textContent = $('#editText').value || 'Preview';
-  $('#fontSizeLabel').textContent = liveFont+'px';
-}
-
-function openEditDialog(ctx, currentText, currentColor, currentSize=18, currentFamily="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif"){
-  editCtx = ctx;
-  $('#editTitle').textContent = (ctx.type==='hero'?'Rename Course':'Edit Heading');
-  $('#editText').value = currentText||'';
-
-  const pal = $('#editPalette'); pal.innerHTML='';
-  paletteColors.forEach(col=>{
-    const b=document.createElement('button');
-    b.type='button'; b.className='swatch'; b.style.background=col; b.dataset.col=col;
-    b.addEventListener('click',()=>{ liveColor=col; applyPreview(); }, {passive:true});
-    pal.appendChild(b);
-  });
-
-  liveFont = Math.max(10, Math.min(64, Number(currentSize||18)));
-  liveColor = currentColor || '';
-  liveFamily = currentFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-  $('#fontFamily').value = liveFamily;
-
-  $('#fontFamily').onchange = ()=>{ liveFamily = $('#fontFamily').value; applyPreview(); };
-  $('#fontUp').onclick   = ()=>{ liveFont = Math.min(64, liveFont+1); applyPreview(); };
-  $('#fontDown').onclick = ()=>{ liveFont = Math.max(10, liveFont-1); applyPreview(); };
-
-  applyPreview();
-  $('#editDialog').classList.add('open');
-}
-function closeEditDialog(){ $('#editDialog').classList.remove('open'); editCtx=null; }
-$('#editCancel').addEventListener('click', closeEditDialog);
-$('#editDialog').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeEditDialog(); }, {passive:true});
-$('#editSave').addEventListener('click', ()=>{
-  if(!editCtx) return;
-  const s=getSettings();
-  const text = $('#editText').value.trim();
-
-  if(editCtx.type==='hero'){
-    if(text){ s.heroLabels[editCtx.id]=text } else { delete s.heroLabels[editCtx.id] }
-    s.heroStyle = s.heroStyle || {};
-    s.heroStyle[editCtx.id] = { ...(s.heroStyle[editCtx.id]||{}), labelColor: liveColor, labelSize:  liveFont, labelFont:  liveFamily };
-  }else{
-    const idx = s.pageOrder.findIndex(it=>it.type==='divider' && it.id===editCtx.id);
-    if(idx>=0){
-      s.pageOrder[idx].title = text || 'Heading';
-      s.pageOrder[idx].color = liveColor || '';
-      s.pageOrder[idx].fontSize = liveFont;
-      s.pageOrder[idx].fontFamily = liveFamily;
-    }
-  }
-  saveSettings(s);
-  paintPage(); paintArchive();
-  closeEditDialog();
-});
-
-/* =========================
-   Universal Modal (no native prompts/confirms)
-========================= */
-const modalRoot = $('#modalRoot');
-const mTitle = $('#modalTitle');
-const mBody  = $('#modalBody');
-const mFoot  = $('#modalFoot');
-
-$('#modalX').onclick = ()=> modalClose();
-$('#modalBackdrop').onclick = ()=> modalClose();
-
-function modalClose(){ modalRoot.hidden = true; mTitle.textContent=''; mBody.innerHTML=''; mFoot.innerHTML=''; }
-function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', cancelText='Cancel', danger=false}={}, onOK){
-  mTitle.textContent = title;
-  mBody.innerHTML = typeof body==='string' ? `<div>${body}</div>` : '';
-  mFoot.innerHTML = '';
-  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent=cancelText; cancel.onclick=modalClose;
-  const ok = document.createElement('button'); ok.className='modalBtn'+(danger?' danger':''); ok.textContent=okText; ok.onclick=()=>{ modalClose(); onOK?.(); };
-  mFoot.append(cancel, ok); modalRoot.hidden = false;
-}
-function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
-  mTitle.textContent = title;
-  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
-  mFoot.innerHTML = '';
-  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
-  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); };
-  mFoot.append(cancel, ok); modalRoot.hidden = false; setTimeout(()=>$('#modalInput')?.focus(),0);
-}
-function modalDate({title='Select date', label='Date', value=''}={}, onOK){
-  mTitle.textContent = title;
-  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-    <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
-  mFoot.innerHTML = '';
-  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
-  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); };
-  mFoot.append(cancel, ok); modalRoot.hidden = false;
-}
-
-/* =========================
    DOM builders
 ========================= */
 function heroCard(id){
@@ -581,6 +537,10 @@ function heroCard(id){
   const devOn = devModeOn(); const canAdminDev = isAdmin() && devOn;
   const shape = f.shape || 'square';
   const st = styleFor(id);
+
+  // Wrapper to hold card + date line
+  const wrap=document.createElement('div'); wrap.className='heroWrap';
+
   const el=document.createElement('article'); el.className='hero'; el.dataset.heroId=id; el.dataset.place=f.place; el.classList.add(`shape-${shape}`);
   if (seesAll()) { if(f.state==='live') el.classList.add('state-live'); else if (f.state==='dev') el.classList.add('state-dev'); else el.classList.add('state-off'); }
   const artLayer = (art && art.src) ? `<div class="art"><img alt="" src="${esc(art.src)}"></div>` : '';
@@ -589,7 +549,19 @@ function heroCard(id){
     ${canAdminDev ? `<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button></div>` : ``}
     <span class="label"${labelInline}>${esc(labelFor(id))}</span>
     <div class="ctrls">${canAdminDev?`<button class="kebab" data-hero-kebab="${esc(id)}" aria-haspopup="dialog" aria-expanded="false">⋮</button>`:''}</div>`;
-  return el;
+
+  wrap.appendChild(el);
+
+  // Date line (staff only)
+  if(seesAll()){
+    const next=nextScheduleForHero(id);
+    if(next){
+      const meta=document.createElement('div'); meta.className='underMeta';
+      meta.innerHTML = `<span class="dateChip ${next.color}"><span class="dot"></span>${esc(next.text)}</span>`;
+      wrap.appendChild(meta);
+    }
+  }
+  return wrap;
 }
 
 function dividerEl(obj){
@@ -601,11 +573,15 @@ function dividerEl(obj){
   el.className = 'divider';
   el.dataset.type = 'divider';
   el.dataset.divId = obj.id;
+
+  const dateChip = (seesAll() ? (function(){ const nx=nextScheduleForDivider(obj); return nx? `<span class="aud-badge" style="margin-right:6px"><span class="aud-dot ${nx.color==='green'?'gold': nx.color}"></span>${esc(nx.text)}</span>` : '' })() : '');
+
   el.innerHTML = `
     <span class="htext" style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px">${esc(obj.title || 'Heading')}</span>
     <div class="tools">
-      ${editable ? `<div class="dctrls"><button class="footer-chip" data-div-act="up"   data-div-id="${esc(obj.id)}" type="button">▲</button>
-      <button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button></div>`:''}
+      ${dateChip}
+      ${editable ? `<div class="dctrls"><button class="footer-chip" data-div-act="left"  data-div-id="${esc(obj.id)}" type="button">◀</button>
+      <button class="footer-chip" data-div-act="right" data-div-id="${esc(obj.id)}" type="button">▶</button></div>`:''}
       ${editable ? `<div class="ctrls"><button class="kebab" data-div-kebab="${esc(obj.id)}" type="button">⋮</button></div>`:''}
       <div class="aud-indicators-head" aria-hidden="${seesAll()?'false':'true'}"></div>
     </div>`;
@@ -649,38 +625,45 @@ function addHeadingIndicators(){
   });
 }
 
+function startSection(divObj, idx){
+  const staff = seesAll(); const role=getRole();
+  if(divObj && !staff){
+    const aud = divObj.aud || {bronze:true,silver:true,gold:true};
+    if(!aud[role]) return null;
+    if(divObj.state==='off') return null;
+  }
+  const sec = document.createElement('section');
+  sec.className = 'section';
+  if(divObj) sec.appendChild(dividerEl(divObj));
+  const row = document.createElement('div');
+  row.className = 'grid';
+  const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
+  row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
+  row.dataset.rowId = 'row_'+idx;
+
+  // Row nav (phones)
+  const nav = document.createElement('div');
+  nav.className='rowNav'; nav.setAttribute('hidden','');
+  nav.innerHTML = `<button class="btn left"  data-row-nav="left"  data-for="${row.dataset.rowId}" aria-label="Scroll left">◀</button>
+                   <button class="btn right" data-row-nav="right" data-for="${row.dataset.rowId}" aria-label="Scroll right">▶</button>`;
+  row.appendChild(nav);
+
+  sec.appendChild(row);
+  $('#pageGrid').appendChild(sec);
+  return {sec, row, nav};
+}
+
 function paintPage(){
   const root = $('#pageGrid');
   if(!root) return;
   root.innerHTML = '';
   const s = getSettings();
-  const role = getRole();
-  const staff = seesAll();
 
-  function startSection(divObj){
-    if(divObj && !staff){
-      const aud = divObj.aud || {bronze:true,silver:true,gold:true};
-      if(!aud[role]) return null;
-      if(divObj.state==='off') return null;
-    }
-    const sec = document.createElement('section');
-    sec.className = 'section';
-    if(divObj) sec.appendChild(dividerEl(divObj));
-    const row = document.createElement('div');
-    row.className = 'grid';
-    const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
-    row.classList.add(`size-${['xs','s','m','l','xl'].includes(size)?size:'m'}`);
-
-    sec.appendChild(row);
-    root.appendChild(sec);
-    return {sec, row};
-  }
-
-  let currentRow = null;
+  let currentRow = null, rowIndex=0;
 
   for(const it of s.pageOrder){
     if(it.type === 'divider'){
-      const started = startSection(it);
+      const started = startSection(it, ++rowIndex);
       currentRow = started ? started.row : null;
       continue;
     }
@@ -690,12 +673,13 @@ function paintPage(){
       if(!f || f.place!=='page') continue;
 
       if(!seesAll()){
+        const role=getRole();
         if(f.state!=='live') continue;
         if(!f.aud[role]) continue;
       }
 
       if(!currentRow){
-        const started = startSection(null);
+        const started = startSection(null, ++rowIndex);
         currentRow = started ? started.row : null;
         if(!currentRow) continue;
       }
@@ -708,12 +692,23 @@ function paintPage(){
   // Clean empty nameless sections
   $$('#pageGrid .section').forEach(sec=>{
     const row = sec.querySelector('.grid');
-    const hasHeroes = row && row.children.length>0;
+    const hasHeroes = row && row.children.length>1; // >1 because rowNav is inside grid
     const hasDivider = !!sec.querySelector('.divider');
     if(!hasHeroes && !hasDivider){ sec.remove(); }
   });
 
   addHeroIndicators(); addHeadingIndicators();
+  updateRowNavs();
+}
+
+function updateRowNavs(){
+  // Show phone nav only when overflow exists
+  $$('.section .grid').forEach(row=>{
+    const nav=row.querySelector('.rowNav');
+    if(!nav) return;
+    const overflow = row.scrollWidth > row.clientWidth + 10;
+    if(overflow) nav.removeAttribute('hidden'); else nav.setAttribute('hidden','');
+  });
 }
 
 const dock=$('#archiveDock'), archiveList=$('#archiveList');
@@ -749,6 +744,7 @@ applyArchiveSkin();
 paintArchive();
 paintPage();
 updateFooterModeControls();
+window.addEventListener('resize', ()=>updateRowNavs());
 
 /* =========================
    Footer & global handlers
@@ -779,6 +775,19 @@ $('#addHeadingBtn').addEventListener('click',()=>{
    Delegated clicks (page)
 ========================= */
 document.addEventListener('click',(e)=>{
+  /* Phone row nav */
+  const navBtn = e.target.closest('[data-row-nav]');
+  if(navBtn){
+    const dir = navBtn.getAttribute('data-row-nav');
+    const forId = navBtn.getAttribute('data-for');
+    const row = document.querySelector(`.grid[data-row-id="${forId}"]`);
+    if(row){
+      const one = row.querySelector('.hero')?.getBoundingClientRect()?.width || 240;
+      row.scrollBy({left: dir==='left' ? -one-12 : one+12, behavior:'smooth'});
+    }
+    return;
+  }
+
   /* Arrow reorder (heroes) */
   const sortBtn = e.target.closest('.cfg-arrow');
   if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
@@ -798,7 +807,7 @@ document.addEventListener('click',(e)=>{
     return;
   }
 
-  /* Arrow reorder (dividers) via .dctrls buttons */
+  /* Arrow reorder (dividers) via .dctrls buttons — horizontal hint only */
   const divSort = e.target.closest('[data-div-act]');
   if(divSort){
     if(!(isAdmin() && devModeOn())) return;
@@ -807,7 +816,7 @@ document.addEventListener('click',(e)=>{
     const s = getSettings();
     const keys = s.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
     const from = keys.indexOf('div:'+id); if(from<0) return;
-    const dir = act==='up' ? -1 : 1;
+    const dir = (act==='left' ? -1 : 1);
     const to  = Math.min(Math.max(0, from+dir), s.pageOrder.length-1);
     if(to!==from){
       const obj = s.pageOrder.splice(from,1)[0];
@@ -866,7 +875,7 @@ function openHeroKebab(id){
 
   mBody.innerHTML = `
   <div class="modalGroup">
-    <div class="groupHead">Course Hero</div>
+    <div class="groupHead">Course</div>
     <div class="modalSub">Cover Dimensions</div>
     <div class="groupBody">
       ${['square','hr','vr','circle'].map(shape=>`
@@ -1070,6 +1079,41 @@ document.getElementById('courseX').addEventListener('click',()=>{
   const sheet=document.getElementById('courseSheet');
   sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true');
 });
+
+/* Modal helpers (no native prompts/confirms) */
+const modalRoot = $('#modalRoot');
+const mTitle = $('#modalTitle');
+const mBody  = $('#modalBody');
+const mFoot  = $('#modalFoot');
+$('#modalX')?.addEventListener('click', ()=> modalClose());
+$('#modalBackdrop')?.addEventListener('click', ()=> modalClose());
+function modalClose(){ modalRoot.hidden = true; mTitle.textContent=''; mBody.innerHTML=''; mFoot.innerHTML=''; }
+function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', cancelText='Cancel', danger=false}={}, onOK){
+  mTitle.textContent = title;
+  mBody.innerHTML = typeof body==='string' ? `<div>${body}</div>` : '';
+  mFoot.innerHTML = '';
+  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent=cancelText; cancel.onclick=modalClose;
+  const ok = document.createElement('button'); ok.className='modalBtn'+(danger?' danger':''); ok.textContent=okText; ok.onclick=()=>{ modalClose(); onOK?.(); };
+  mFoot.append(cancel, ok); modalRoot.hidden = false;
+}
+function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
+  mTitle.textContent = title;
+  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
+    <input id="modalInput" type="text" value="${value}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
+  mFoot.innerHTML = '';
+  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
+  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); };
+  mFoot.append(cancel, ok); modalRoot.hidden = false; setTimeout(()=>$('#modalInput')?.focus(),0);
+}
+function modalDate({title='Select date', label='Date', value=''}={}, onOK){
+  mTitle.textContent = title;
+  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
+    <input id="modalDate" type="date" value="${value||''}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
+  mFoot.innerHTML = '';
+  const cancel = document.createElement('button'); cancel.className='modalBtn'; cancel.textContent='Cancel'; cancel.onclick=modalClose;
+  const ok = document.createElement('button'); ok.className='modalBtn'; ok.textContent='Save'; ok.onclick=()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); };
+  mFoot.append(cancel, ok); modalRoot.hidden = false;
+}
 
 })();</script>
 </html>
