@@ -1,4 +1,4 @@
-Artitack-HQ-V1.O
+Artitack-HQ-V1.1
 
 <!DOCTYPE html>
 <html lang="en-AU">
@@ -9,1290 +9,1231 @@ Artitack-HQ-V1.O
   <title>Home — Artitack HQ</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-      --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
-      --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
-      --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --hero-pad:16px;
-      --dock-bg:#0e1117; --dock-border:rgba(255,255,255,.14); --shadow:0 16px 50px rgba(0,0,0,.5);
-    }
+:root{
+  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
+  --bg:#000; --panel:#0a0c10; --panel-2:#0f1116; --stroke:rgba(255,255,255,.18);
+  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --chip:#1b1f2a;
+  --gap:12px; --r:14px; --maxw:1240px; --nav-h:68px; --hero-pad:16px;
+}
 
-    /* Base */
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%; margin:0; background:var(--bg); color:var(--ink);
-      font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-      overscroll-behavior-y:contain; overflow-x:hidden; user-select:none; -webkit-user-select:none;
-    }
-    a{ color:inherit; text-decoration:none }
-    button{ user-select:none; -webkit-user-select:none; cursor:pointer }
-    body.lock{ position:fixed; width:100% }
+/* Base */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%; margin:0; background:var(--bg); color:var(--ink);
+  font:16px -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  overscroll-behavior-y:contain; overflow-x:hidden; user-select:none; -webkit-user-select:none;
+}
+a{ color:inherit; text-decoration:none }
+button{ user-select:none; -webkit-user-select:none; cursor:pointer }
+body.lock{ position:fixed; width:100% }
 
-    /* Background */
-    .bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat }
+/* Background */
+.bg{ position:fixed; inset:0; z-index:-1; background:#000 url("./assets/home-bg.jpg") center/cover no-repeat }
 
-    /* Top bar */
-    .nav{
-      position:fixed; top:0; left:0; right:0; height:var(--nav-h);
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:8px 12px; z-index:50;
-      background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
-      -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
-    }
+/* Top bar */
+.nav{
+  position:fixed; top:0; left:0; right:0; height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 12px; z-index:50;
+  background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+.nav-left{ display:flex; align-items:center; gap:10px }
+.hamburger{ width:38px; height:38px; border-radius:10px; border:1px solid var(--stroke);
+  background:#141821; color:var(--ink); font-size:20px; display:flex; align-items:center; justify-content:center; }
 
-    /* Hamburger (replaces "Courses") */
-    .hamburger{
-      appearance:none; border:1px solid var(--stroke); background:#141821; color:#e7eaf0;
-      width:44px; height:44px; border-radius:12px; font-size:20px; font-weight:900;
-      display:inline-flex; align-items:center; justify-content:center;
-    }
-    .hamburger:active{ transform:scale(.98) }
+/* Avatar pill with circular avatar */
+.avatarTab{
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+  padding-left:52px; border-radius:12px; min-width:164px; height:44px;
+  font-weight:900; line-height:1.1; text-align:left; border:1px solid var(--stroke);
+  background:#222; color:#eef3ff; position:relative;
+}
+.avatarTab::before{
+  content:attr(data-initial);
+  position:absolute; left:8px; top:50%; transform:translateY(-50%);
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:#1c2230; color:#eef3ff; font-weight:900;
+  overflow:hidden;
+}
+.avatarTab[data-avatar]::before{
+  content:""; background:#1c2230 url(var(--avatar-url)) center/cover no-repeat;
+}
+.avatarTab .name{ font-size:15px; font-weight:900 }
+.avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
 
-    /* Avatar pill */
-    .avatarTab{
-      display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
-      padding:6px 12px; border-radius:12px; min-width:132px; height:44px;
-      font-weight:900; line-height:1.1; text-align:left; border:1px solid var(--stroke);
-      background:#222; color:#eef3ff;
-    }
-    .avatarTab .name{ font-size:15px; font-weight:900 }
-    .avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
-
-    /* HQ Overlay */
-    #hqOverlay{ position:fixed; inset:0; z-index:2000; display:none; }
-    #hqOverlay.open{ display:flex }
-    #hqBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px) }
-    #hqCard{
-      position:relative; z-index:1; width:min(720px,94vw); max-height:84vh; overflow:auto;
-      background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px;
-      margin:auto; box-shadow:var(--shadow)
-    }
-    .hqHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; margin-bottom:8px }
-    .hqTitle{ font-weight:900 }
-    .hqX{ border:1px solid var(--stroke); background:#121212; color:#fff; border-radius:10px; width:32px; height:32px }
-    .hqList{ display:flex; flex-direction:column; gap:8px; margin-top:8px }
-    .hqRow{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:10px 12px; border:1px solid rgba(255,255,255,.14); background:#0c0f14; border-radius:12px;
-    }
-    .hqRow .left{ display:flex; align-items:center; gap:10px; min-width:0 }
-    .hqRow .name{ font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:40vw }
-    .hqRow .badges{ display:flex; gap:6px }
-    .badge{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:10px; border:1px solid var(--stroke); background:#10131a; font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
-    .badge.green{ border-color:#1e3a22; background:#0c1610; color:#79ffa0 }
-    .badge.dim{ opacity:.75 }
-    .rowBtns{ display:flex; gap:6px; flex-wrap:wrap }
-
-    /* Layout */
-    .wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
-    .section{ margin:32px 0; position:relative; z-index:0 }
-    .section .divider{ margin-bottom:10px }
-
-    /* Rows */
-    .section .grid{
-      display:grid;
-      grid-auto-flow:column;
-      grid-auto-columns:max-content;
-      align-items:start;
-      gap:var(--gap);
-      overflow-x:auto;
-      scroll-snap-type:x mandatory;
-      padding-bottom:10px;
-    }
-    .section .grid::-webkit-scrollbar{ display:none }
-    .grid.size-xs{ --card-h:160px } .grid.size-s{ --card-h:190px } .grid.size-m{ --card-h:220px } .grid.size-l{ --card-h:250px } .grid.size-xl{ --card-h:280px }
-
-    /* Cards */
-    .hero{
-      position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
-      border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
-      width:auto; scroll-snap-align:start; display:block; cursor:pointer;
-    }
-    .hero.shape-square{ aspect-ratio:1/1 }
-    .hero.shape-hr{ aspect-ratio:16/9 }
-    .hero.shape-vr{ aspect-ratio:3/4 }
-    .hero.shape-circle{ aspect-ratio:1/1; border-radius:50% }
-
-    /* Staff border state */
-    .hero.state-live{ border:2px solid var(--green) }
-    .hero.state-dev{ border:2px solid var(--blue) }
-    .hero.state-off{ border:2px solid var(--red) }
-
-    /* Labels / ctrls */
-    .hero .label{
-      font-weight:900; font-size:18px; opacity:.95; position:absolute; top:14px; left:16px; z-index:2
-    }
-    .hero .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
-    .kebab{
-      display:inline-flex; align-items:center; justify-content:center;
-      width:28px; height:28px; border-radius:8px; border:1px solid var(--stroke);
-      background:#12151c; color:#e7eaf0; cursor:pointer; font-weight:900;
-    }
-
-    /* Reorder arrows (Admin+Dev only) */
-    .hero-arrows{
-      display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
-      z-index:20; flex-direction:column; gap:10px; pointer-events:auto;
-    }
-    .config-on .hero .hero-arrows{ display:flex }
-    .cfg-arrow{
-      display:inline-flex; align-items:center; justify-content:center;
-      width:26px; height:26px; border-radius:8px; border:1px solid var(--stroke);
-      background:#12151c; color:#e7eaf0; cursor:pointer;
-    }
-
-    /* Hero art layer */
-    .hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
-    .hero .art img{
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
-      width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
-      filter:saturate(1.02) contrast(1.02) brightness(0.95);
-    }
-    .hero::after{
-      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-      background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6));
-      z-index:1;
-    }
-
-    /* Divider (Heading) */
-    .divider{
-      position:relative;
-      border:none;
-      border-radius:14px;
-      background:transparent;
-      padding:0 2px 6px;
-      min-height:0;
-      margin:28px 2px 8px;
-      display:flex; align-items:flex-end;
-      gap:10px;
-      z-index:1;
-    }
-    .divider .htext{ font-weight:900; opacity:.92 }
-
-    /* Divider tools row */
-    .divider .tools{
-      position:absolute; top:0; right:0;
-      display:flex; align-items:center; gap:8px; z-index:9000;
-    }
-    .divider .dctrls-left{ display:none; gap:6px; align-items:center }
-    .config-on .divider .dctrls-left{ display:flex }
-
-    .divider .ctrls{ display:flex; align-items:center }
-    .divider .aud-indicators-head{ display:flex; gap:6px; align-items:center }
-
-    /* Audience dots */
-    .aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
-    .aud-dot.on{ opacity:1 }
-    .aud-dot.beginner{ background:#b87333 } /* bronze */
-    .aud-dot.silver{ background:#c0c7d1 }
-    .aud-dot.gold{ background:#ffd700 }
-
-    /* ===== Dev Dock (always visible; dark; rounded 22px) ===== */
-    #devDock{
-      position:fixed; left:env(safe-area-inset-left); right:env(safe-area-inset-right);
-      bottom:env(safe-area-inset-bottom); z-index:75;
-      background:var(--dock-bg); color:#fff; border-top:1px solid var(--dock-border);
-      border-top-left-radius:22px; border-top-right-radius:22px;
-      box-shadow:var(--shadow);
-      transition:max-height .22s ease; overflow:hidden; overscroll-behavior:contain
-    }
-    #devDock .bar{
-      display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; font-weight:900;
-      overflow-x:auto; white-space:nowrap
-    }
-    #devDock .bar::-webkit-scrollbar{ display:none }
-    #devDock .title{ display:inline-flex; align-items:center; gap:8px }
-    #devDock .content{ background:#0b0e13; max-height:calc(60vh - 52px); overflow:auto }
-    #devDock .list{ padding:8px 12px 16px; display:flex; flex-direction:column; gap:8px }
-    #devDock .row{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:10px 12px; border:1px solid rgba(255,255,255,.18); background:#0d0f14; border-radius:10px
-    }
-    #devDock .row .num{ font-weight:900 }
-    #devDock.collapsed{ max-height:52px }
-    #devDock.open{ max-height:80vh }
-
-    .footer-chip{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:9px 12px; border-radius:10px; border:1px solid var(--stroke);
-      background:#141821; color:#e7eaf0; cursor:pointer; user-select:none; font:600 13px/1.2 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-    }
-    .footer-chip:hover{ background:#182032; }
-
-    /* Universal Modal */
-    #modalRoot{position:fixed; inset:0; z-index:15000; display:flex; align-items:center; justify-content:center}
-    #modalRoot[hidden]{display:none}
-    #modalBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.5); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
-    .modalCard{ position:relative; z-index:1; width:min(620px,94vw); max-height:84vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; box-shadow:0 20px 48px rgba(0,0,0,.6) }
-    .modalHead{display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; margin-bottom:8px}
-    .modalHead .title{font-weight:900}
-    .modalX{border:1px solid var(--stroke); background:#121212; color:#fff; border-radius:10px; width:32px; height:32px; cursor:pointer}
-    .modalFoot{display:flex; gap:8px; justify-content:flex-end; margin-top:12px}
-    .modalBtn{padding:8px 12px; border-radius:10px; border:1px solid var(--stroke); background:#141821; color:#e7eaf0; font-weight:800; cursor:pointer}
-    .modalBtn.danger{border-color:#5a1f23; background:#2a1012; color:#ffb4b8}
-
-    .modalGroup{ background:#0b0d12; border:1px solid rgba(255,255,255,.12); border-radius:12px; margin:10px 0; overflow:hidden }
-    .modalGroup .groupHead{ font-weight:900; opacity:.92; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08) }
-    .modalGroup .groupBody{ display:flex; flex-direction:column }
-    .modalSub{ opacity:.66; font-weight:800; padding:8px 12px }
-    .modalOpt{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.06); background:#0c1016; cursor:pointer }
-    .modalOpt:first-child{ border-top:none }
-    .modalOpt:hover{ background:#0e121a }
-    .optRight{ opacity:.92; font-weight:800 }
-
-    /* Hero schedule chip — bottom-left */
-    .hero .sched-chip{
-      position:absolute; left:10px; bottom:10px; z-index:3;
-      display:inline-flex; align-items:center; gap:6px;
-      padding:4px 8px; border-radius:10px; border:1px solid var(--stroke);
-      background:#10131a; font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-      max-width:calc(100% - 20px);
-    }
-    .hero .sched-chip.green{ color:#79ffa0; border-color:#1e3a22; background:#0c1610 }
-    .hero .sched-chip.red{ color:#ff9aa0; border-color:#3a1e1f; background:#160c0d }
-    .hero .sched-chip.blue{ color:#8fb3ff; border-color:#1e2f3a; background:#0c1216 }
-
-    /* Full-bleed rows on wider screens */
-    @media (min-width: 1024px){
-      .wrap{ max-width:100vw; padding-left:16px; padding-right:16px }
-      .section .grid{ margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); padding-left:16px; padding-right:16px; }
-    }
-
-    /* Safety */
-    @media (max-width: 480px){
-      .heading-flick-arrows{ display:none !important; }
-    }
-
-    /* ===== Content Picker Overlay ===== */
-    #pickerOverlay[hidden]{ display:none !important }
-    #pickerOverlay{
-      position:fixed; inset:0; z-index:20000;
-      display:grid; grid-template-rows:auto 1fr;
-      background:rgba(0,0,0,.86);
-      -webkit-backdrop-filter:blur(8px) saturate(120%);
-      backdrop-filter:blur(8px) saturate(120%);
-    }
-    #pickerBar{ display:flex; align-items:center; justify-content:flex-end; padding:8px 12px; }
-    #pickerClose{
-      appearance:none; border:0; cursor:pointer;
-      width:44px; height:44px; border-radius:12px;
-      display:inline-flex; align-items:center; justify-content:center;
-      font-size:22px; color:#eef3ff; background:rgba(255,255,255,.14);
-      box-shadow:0 2px 12px rgba(0,0,0,.35);
-    }
-    #pickerClose:active{ transform:scale(.98) }
-    #pickerFrame{ width:100%; height:100%; border:0; background:#000 }
+/* Notification bell */
+.notif-bell{
+  margin-left:8px; width:44px; height:44px; border-radius:12px;
+  border:1px solid var(--stroke); background:#141821; color:#e7eaf0; position:relative;
+}
+.notif-bell .nbadge{
+  position:absolute; right:-4px; top:-4px; min-width:16px; height:16px; border-radius:10px;
+  background:#0A84FF; color:#fff; font:700 11px/16px system-ui; text-align:center; padding:0 4px;
+}
   </style>
 </head>
-<body ontouchstart="">
-  <div class="bg" aria-hidden="true"></div>
-
-  <!-- ===== Header ===== -->
-  <header class="nav" role="navigation" aria-label="Primary">
-    <div class="nav-left">
-      <button id="btnHQ" class="hamburger" aria-label="Open Artitack HQ" title="Artitack HQ">☰</button>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<header class="nav" role="navigation" aria-label="Primary">
+  <div class="nav-left">
+    <button id="btnHQ" class="hamburger" aria-label="Open Artitack HQ" title="Artitack HQ">☰</button>
+  </div>
+  <div class="nav-right">
+    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false" data-initial="U">
+      <span class="name" id="avatarName">User</span>
+      <span class="lvl" id="avatarLvl">Admin</span>
+    </button>
+    <button id="notifBell" class="notif-bell" aria-label="Notifications" title="Notifications">🔔<span class="nbadge" hidden>0</span></button>
+  </div>
+</header>
+<main class="wrap">
+  <!-- Welcome screen -->
+  <div id="welcomeHero" class="welcome-hero" hidden>
+    <div class="wh-title">
+      <span class="wh-line1">Artitack</span>
+      <span class="wh-line2">HQ</span>
     </div>
-    <div class="nav-right">
-      <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
-        <span class="name" id="avatarName">User</span>
-        <span class="lvl" id="avatarLvl">Admin</span>
-      </button>
+  </div>
+  <div id="pageGrid"></div>
+</main>
+
+  <style>
+/* ===== Rest of styles ===== */
+
+/* Layout */
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:calc(var(--nav-h) + env(safe-area-inset-top) + 10px) 14px 160px }
+.section{ margin:32px 0; position:relative; z-index:0 }
+.section .divider{ margin-bottom:10px }
+
+/* Grid */
+.section .grid{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:max-content;
+  align-items:start;
+  gap:var(--gap);
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding-bottom:10px;
+}
+.section .grid::-webkit-scrollbar{ display:none }
+.grid.size-xs{ --card-h:160px } .grid.size-s{ --card-h:190px } .grid.size-m{ --card-h:220px } .grid.size-l{ --card-h:250px } .grid.size-xl{ --card-h:280px }
+
+/* Hero card */
+.hero{
+  position:relative; overflow:hidden; background:#060708; border:1px solid var(--stroke);
+  border-radius:16px; padding:var(--hero-pad); height:var(--card-h);
+  width:auto; scroll-snap-align:start; display:block; cursor:pointer;
+}
+.hero.shape-square{ aspect-ratio:1/1 }
+.hero.shape-hr{ aspect-ratio:16/9 }
+.hero.shape-vr{ aspect-ratio:3/4 }
+.hero.shape-circle{ aspect-ratio:1/1; border-radius:50% }
+
+.hero.state-live{ border:2px solid #0A84FF }   /* blue instead of green */
+.hero.state-dev{ border:2px solid #497cff }
+.hero.state-off{ border:2px solid var(--red) }
+
+.hero .label{ font-weight:900; font-size:18px; position:absolute; top:14px; left:16px; z-index:2 }
+.hero .ctrls{ position:absolute; top:10px; right:10px; z-index:6; display:flex; align-items:center; gap:8px }
+.kebab{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:8px; border:1px solid var(--stroke);
+  background:#12151c; color:#e7eaf0; cursor:pointer; font-weight:900;
+}
+
+/* Reorder arrows */
+.hero-arrows{ display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  z-index:20; flex-direction:column; gap:10px; pointer-events:auto; }
+.config-on .hero .hero-arrows{ display:flex }
+.cfg-arrow{ display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:8px; border:1px solid var(--stroke);
+  background:#12151c; color:#e7eaf0; cursor:pointer; }
+
+/* Hero art */
+.hero .art{ position:absolute; inset:0; z-index:0; opacity:.92; pointer-events:none; overflow:hidden; border-radius:inherit }
+.hero .art img{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(1);
+  width:auto; height:110%; min-width:110%; user-select:none; pointer-events:none;
+  filter:saturate(1.02) contrast(1.02) brightness(0.95); }
+.hero::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45) 65%, rgba(0,0,0,.6)); z-index:1; }
+
+/* Divider */
+.divider{ position:relative; border:none; border-radius:14px; background:transparent;
+  padding:0 2px 6px; min-height:0; margin:28px 2px 8px;
+  display:flex; align-items:flex-end; gap:10px; z-index:1; }
+.divider .htext{ font-weight:900; opacity:.92 }
+
+/* Divider tools row */
+.divider .tools{
+  position:absolute; top:0; right:0;
+  display:flex; align-items:center; gap:8px; z-index:9000;
+}
+.divider .dctrls-left{ display:none; gap:6px; align-items:center }
+.config-on .divider .dctrls-left{ display:flex }
+.divider .ctrls{ display:flex; align-items:center }
+.divider .aud-indicators-head{ display:flex; gap:6px; align-items:center }
+
+/* Audience dots */
+.aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.9; outline:1px solid rgba(255,255,255,.25) }
+.aud-dot.bronze{ background:#b87333 } /* beginner */
+.aud-dot.silver{ background:#c0c7d1 }
+.aud-dot.gold{ background:#ffd700 }
+
+/* Footer Dock — collapses to bottom-right tab when Dev OFF */
+#devDock{
+  position:fixed; right:14px; bottom:14px; z-index:75;
+  background:var(--panel-2); color:#fff; border:1px solid var(--stroke);
+  border-radius:16px; box-shadow:0 16px 40px rgba(0,0,0,.55);
+  transition:transform .22s ease, opacity .22s ease, max-height .22s ease;
+  overflow:hidden; max-width:min(92vw,1040px);
+}
+#devDock .bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; font-weight:900; }
+#devDock .title{ display:inline-flex; align-items:center; gap:8px; flex-wrap:nowrap; overflow:hidden; }
+#devDock .content{ background:#0b0e13; max-height:calc(60vh - 52px); overflow:auto; display:none }
+#devDock.open .content{ display:block }
+.footer-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 12px; border-radius:10px; border:1px solid var(--stroke);
+  background:#141821; color:#e7eaf0; cursor:pointer; user-select:none; font:700 13px/1.2 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+}
+.footer-chip:hover{ background:#182032; }
+
+/* Dev button colors: only the word "Developer"; color signifies state */
+.footer-chip.dev-on{ background:#133314; border-color:#1f4021; color:#b8ffbf }
+.footer-chip.dev-off{ background:#3a1414; border-color:#4c1d1d; color:#ffb3b3 }
+
+/* Modal (universal) */
+#modalRoot{position:fixed; inset:0; z-index:15000; display:flex; align-items:center; justify-content:center}
+#modalRoot[hidden]{display:none}
+#modalBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
+.modalCard{ position:relative; z-index:1; width:min(640px,94vw); max-height:84vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; box-shadow:0 20px 48px rgba(0,0,0,.6) }
+.modalHead{display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; margin-bottom:8px}
+.modalHead .title{font-weight:900}
+.modalX{border:1px solid var(--stroke); background:#121212; color:#fff; border-radius:10px; width:32px; height:32px; cursor:pointer}
+.modalFoot{display:flex; gap:8px; justify-content:flex-end; margin-top:12px}
+.modalBtn{padding:8px 12px; border-radius:10px; border:1px solid var(--stroke); background:#141821; color:#e7eaf0; font-weight:800; cursor:pointer}
+.modalBtn.danger{border-color:#5a1f23; background:#2a1012; color:#ffb4b8}
+
+/* Modal groups + 2mm-ish indent (use 8px for consistency) */
+.modalGroup{ background:#0b0d12; border:1px solid rgba(255,255,255,.12); border-radius:12px; margin:10px 0; overflow:hidden }
+.modalGroup .groupHead{ font-weight:900; opacity:.92; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08) }
+.modalGroup .groupBody{ display:flex; flex-direction:column; padding-left:8px }
+.modalSub{ opacity:.66; font-weight:800; padding:8px 12px }
+.modalOpt{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.06); background:#0c1016; cursor:pointer }
+.modalOpt:first-child{ border-top:none }
+.modalOpt:hover{ background:#0e121a }
+.optRight{ opacity:.92; font-weight:800 }
+.toggle{
+  --on:#0A84FF; --off:#3a3f4a;
+  width:44px; height:26px; border-radius:20px; background:var(--off); position:relative; border:1px solid rgba(255,255,255,.18);
+}
+.toggle.on{ background:var(--on) }
+.toggle .knob{
+  position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .18s ease
+}
+.toggle.on .knob{ left:20px }
+
+/* Schedule inline chip */
+.hero .sched-chip{
+  position:absolute; left:10px; bottom:10px; z-index:3;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 8px; border-radius:10px; border:1px solid var(--stroke);
+  background:#10131a; font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  max-width:calc(100% - 20px);
+}
+.hero .sched-chip.blue{ color:#8fb3ff; border-color:#1e2f3a; background:#0c1216 }
+.hero .sched-chip.red{  color:#ff9aa0; border-color:#3a1e1f; background:#160c0d }
+
+/* HQ Overlay (Artists) */
+#hqOverlay{ position:fixed; inset:0; z-index:2000; display:none; }
+#hqOverlay.open{ display:flex }
+#hqBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px) }
+#hqCard{
+  position:relative; z-index:1; width:min(720px,94vw); max-height:84vh; overflow:auto;
+  background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; margin:auto;
+}
+.hqHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; margin-bottom:8px }
+.hqTitle{ font-weight:900 }
+.hqX{ border:1px solid var(--stroke); background:#121212; color:#fff; border-radius:10px; width:32px; height:32px }
+.hqList{ display:flex; flex-direction:column; gap:8px; margin-top:8px }
+.hqRow{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 12px; border:1px solid rgba(255,255,255,.14); background:#0c0f14; border-radius:12px;
+}
+.hqRow .left{ display:flex; align-items:center; gap:10px; min-width:0 }
+.hqRow .name{ font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:40vw }
+.hqRow .badges{ display:flex; gap:6px }
+.badge{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:10px; border:1px solid var(--stroke); background:#10131a; font:700 12px/1 system-ui;-webkit-user-select:none; user-select:none}
+.badge.green{ border-color:#1e3a22; background:#0c1610; color:#79ffa0 }
+.badge.dim{ opacity:.75 }
+
+/* Modules Drawer (Hamburger) */
+#modulesSheet{ position:fixed; inset:0; z-index:1800; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px) }
+#modulesSheet.open{ display:flex }
+#modulesCard{ margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px; }
+.moduleItem{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.12); background:#0b0e13; border-radius:10px; margin:8px 0; }
+
+/* Avatar drawer */
+#avatarSheet{ position:fixed; inset:0; z-index:80; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px) }
+#avatarSheet.open{ display:flex }
+#avatarCard{ margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px; }
+#avatarCard h3{ margin:0 0 12px; font-weight:900 }
+
+/* Welcome emboss animation */
+.welcome-hero{ display:grid; place-items:center; min-height:52vh; }
+.wh-title{ text-align:center; }
+.wh-line1{ display:block; font:900 64px/1 'Oswald', system-ui; letter-spacing:.02em; color:#dfe6ff; text-shadow:0 0 0 rgba(0,0,0,0); animation:emboss 2.2s ease both }
+.wh-line2{ display:block; font:800 28px/1.2 system-ui; opacity:.9; color:#aab6d6; margin-top:10px; animation:emboss 2.2s ease .2s both }
+@keyframes emboss{
+  0%  { text-shadow: none; transform:translateY(6px); opacity:.0 }
+  60% { text-shadow: 0 1px 0 #111, 0 2px 0 #0d0f14, 0 8px 20px rgba(0,0,0,.45); transform:translateY(0); opacity:1 }
+  100%{ text-shadow: inset 0 1px 0 #222, 0 6px 30px rgba(0,0,0,.55) }
+}
+
+/* Content Picker overlay (unchanged) */
+#pickerOverlay[hidden]{ display:none !important }
+#pickerOverlay{
+  position:fixed; inset:0; z-index:20000;
+  display:grid; grid-template-rows:auto 1fr;
+  background:rgba(0,0,0,.86);
+  -webkit-backdrop-filter:blur(8px) saturate(120%);
+  backdrop-filter:blur(8px) saturate(120%);
+}
+#pickerBar{ display:flex; align-items:center; justify-content:flex-end; padding:8px 12px; }
+#pickerClose{
+  appearance:none; border:0; cursor:pointer;
+  width:44px; height:44px; border-radius:12px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:22px; color:#eef3ff; background:rgba(255,255,255,.14);
+  box-shadow:0 2px 12px rgba(0,0,0,.35);
+}
+#pickerClose:active{ transform:scale(.98) }
+#pickerFrame{ width:100%; height:100%; border:0; background:#000 }
+
+/* Full-bleed rows on wider screens */
+@media (min-width: 1024px){
+  .wrap{ max-width:100vw; padding-left:16px; padding-right:16px }
+  .section .grid{ margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); padding-left:16px; padding-right:16px; }
+}
+  </style>
+
+<!-- ===== Overlays & drawers ===== -->
+
+<div id="modulesSheet" aria-hidden="true">
+  <div id="modulesCard" role="dialog" aria-modal="true" aria-labelledby="modulesTitle">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <h3 id="modulesTitle" style="margin:0;font-weight:900">Artitack HQ — Modules</h3>
+      <button id="modulesClose" class="footer-chip" type="button">Close</button>
     </div>
-  </header>
+    <div id="modulesList">
+      <div class="moduleItem"><span>Artists</span><button class="footer-chip" data-module="artists">Open</button></div>
+      <div class="moduleItem"><span>Planner</span><button class="footer-chip" data-module="planner">Open</button></div>
+      <div class="moduleItem"><span>Statistics</span><button class="footer-chip" data-module="stats">Open</button></div>
+      <div class="moduleItem"><span>Revenue</span><button class="footer-chip" data-module="revenue">Open</button></div>
+      <div class="moduleItem"><span>User Search</span><button class="footer-chip" data-module="users">Open</button></div>
+      <div class="moduleItem"><span>Staff Accounts</span><button class="footer-chip" data-module="staff">Open</button></div>
+      <div class="moduleItem"><span>Artist Accounts</span><button class="footer-chip" data-module="artist-accounts">Open</button></div>
+      <div class="moduleItem"><span>Chat</span><button class="footer-chip" data-module="chat">Open</button></div>
+    </div>
+  </div>
+</div>
 
-  <!-- ===== Main Grid ===== -->
-  <main class="wrap" id="main">
-    <div id="pageGrid" aria-live="polite"></div>
-  </main>
+<!-- HQ overlay -->
 
-  <!-- ===== Artitack HQ Overlay (Artists) ===== -->
-  <div id="hqOverlay" aria-hidden="true">
-    <div id="hqBackdrop"></div>
-    <div id="hqCard" role="dialog" aria-modal="true" aria-labelledby="hqTitle">
-      <div class="hqHead">
-        <div class="hqTitle" id="hqTitle">Artitack HQ — Artists</div>
-        <button class="hqX" id="hqClose" aria-label="Close">×</button>
-      </div>
-      <div class="hqBody">
-        <div class="badge dim">Current artist is marked ✓</div>
-        <div class="hqList" id="artistList"></div>
-        <div style="display:flex; gap:8px; margin-top:12px">
-          <button class="footer-chip" id="createArtistBtn" type="button">+ Create Artist</button>
-        </div>
+<div id="hqOverlay" aria-hidden="true">
+  <div id="hqBackdrop"></div>
+  <div id="hqCard" role="dialog" aria-modal="true" aria-labelledby="hqTitle">
+    <div class="hqHead">
+      <div class="hqTitle" id="hqTitle">Artitack HQ — Artists</div>
+      <button class="hqX" id="hqClose" aria-label="Close">×</button>
+    </div>
+    <div class="hqBody">
+      <div class="badge dim">Current artist is marked ✓</div>
+      <div class="hqList" id="artistList"></div>
+      <div style="display:flex; gap:8px; margin-top:12px">
+        <button class="footer-chip" id="createArtistBtn" type="button">+ Create Artist</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ===== Avatar Drawer (no Dev toggle per brief) ===== -->
-  <div id="avatarSheet" aria-hidden="true" style="position:fixed; inset:0; z-index:80; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)">
-    <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle" style="margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;">
-      <button id="avatarClose" class="footer-chip" type="button">Close</button>
-      <h3 id="avatarTitle" style="margin:10px 0 12px">Profile</h3>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div><strong>Name:</strong> <span id="drawerName">User</span></div>
-        <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
-      </div>
+<!-- Avatar Drawer -->
+
+<div id="avatarSheet" aria-hidden="true">
+  <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle">
+    <button id="avatarClose" class="footer-chip" type="button">Close</button>
+    <h3 id="avatarTitle">Profile</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div><strong>Name:</strong> <span id="drawerName">User</span></div>
+      <div><strong>Role:</strong> <span id="drawerRole">Admin</span></div>
     </div>
   </div>
+</div>
 
-  <!-- ===== Universal Modal Root ===== -->
-  <div id="modalRoot" hidden>
-    <div id="modalBackdrop"></div>
-    <div class="modalCard" role="dialog" aria-modal="true">
-      <div class="modalHead"><span class="title" id="modalTitle"></span><button class="modalX" id="modalX">×</button></div>
-      <div class="modalBody" id="modalBody"></div>
-      <div class="modalFoot" id="modalFoot"></div>
+<!-- Universal Modal Root -->
+
+
+<div id="modalRoot" hidden>
+  <div id="modalBackdrop"></div>
+  <div class="modalCard" role="dialog" aria-modal="true">
+    <div class="modalHead"><span class="title" id="modalTitle"></span><button class="modalX" id="modalX">×</button></div>
+    <div class="modalBody" id="modalBody"></div>
+    <div class="modalFoot" id="modalFoot"></div>
+  </div>
+</div>
+
+
+<!-- Content Picker -->
+
+
+<div id="pickerOverlay" hidden aria-hidden="true">
+  <div id="pickerBar"><button id="pickerClose" aria-label="Close content picker" title="Close">✕</button></div>
+  <iframe id="pickerFrame" allow="clipboard-write; clipboard-read" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
+</div>
+
+
+<!-- Dev Dock -->
+
+
+<div id="devDock" class="collapsed" aria-hidden="false">
+  <div class="bar">
+    <div class="title" style="gap:12px">
+      <button class="footer-chip dev-off" id="devToggle" type="button" aria-pressed="false">Developer</button>
+      <button class="footer-chip dev-only" id="createCourseBtn" type="button" style="display:none">Create Course</button>
+      <button class="footer-chip dev-only" id="addHeadingBtn" type="button" style="display:none">Add Heading</button>
+    </div>
+    <div class="title" style="gap:12px">
+      <button class="footer-chip dev-only" id="archivedToggle" type="button" style="display:none">Archived</button>
+      <button class="footer-chip dev-only" id="trashToggle" type="button" style="display:none">Trash</button>
     </div>
   </div>
+  <div class="content" id="dockContent" hidden></div>
+</div>
 
-  <!-- ===== Content Picker Overlay ===== -->
-  <div id="pickerOverlay" hidden aria-hidden="true">
-    <div id="pickerBar"><button id="pickerClose" aria-label="Close content picker" title="Close">✕</button></div>
-    <iframe id="pickerFrame" allow="clipboard-write; clipboard-read" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
-  </div>
 
-  <!-- ===== Dev Dock (always visible; chips hide when Dev Off) ===== -->
-  <div id="devDock" class="collapsed" aria-hidden="false">
-    <div class="bar">
-      <div class="title" style="gap:12px">
-        <button class="footer-chip" id="devToggle" type="button" aria-pressed="false">Developer: Off</button>
-        <button class="footer-chip dev-only" id="createCourseBtn" type="button" style="display:none">Create Course</button>
-        <button class="footer-chip dev-only" id="addHeadingBtn" type="button" style="display:none">Add Heading</button>
-      </div>
-      <div class="title" style="gap:12px">
-        <button class="footer-chip dev-only" id="archivedToggle" type="button" style="display:none">Archived</button>
-        <button class="footer-chip dev-only" id="trashToggle" type="button" style="display:none">Trash</button>
-      </div>
-    </div>
-    <div class="content" id="dockContent" hidden></div>
-  </div>
+<script>
+(()=>{'use strict';
 
-  <script>
-  (()=>{'use strict';
+/* ===== Utils / storage ===== */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version',
+          artists:'ao_artists', currentArtist:'ao_current_artist' };
+const SCHEMA_VERSION=9;
 
-  /* --- string escapers must be HOISTED (used during boot) --- */
-  function escapeHTML(s){ return String(s ?? '').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-  function escapeAttr(s){ return String(s ?? '').replace(/["&<>]/g, m => ({'"':'&quot;','&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtDate=d=>{ if(!d) return ''; const t=new Date(d); if(Number.isNaN(+t)) return ''; const dd=String(t.getDate()).padStart(2,'0'); const mm=String(t.getMonth()+1).padStart(2,'0'); const yy=t.getFullYear(); return `${dd}/${mm}/${yy}` };
 
-  /* ============================================================
-     Utilities / Storage scaffolding (localStorage for now)
-     ============================================================ */
-  const $=s=>document.querySelector(s);
-  const $$=s=>Array.from(document.querySelectorAll(s));
-  const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-  const SCHEMA_VERSION=1;
+/* Roles */
+const ROLE_LABEL = { bronze:'Beginner', silver:'Intermediate', gold:'Advanced', support:'Support', director:'Director', admin:'Admin' };
+const roleMap={ beginner:'bronze', intermediate:'silver', advanced:'gold' };
+const normalize=r=> roleMap[String(r||'').toLowerCase()] || String(r||'admin').toLowerCase();
+function getRole(){ const p = store.get(K.profile, { skill:'admin', displayName:'User' }); return normalize(p.skill); }
+function isAdmin(){ return getRole()==='admin'; }
+function devOn(){ return document.body.classList.contains('config-on'); }
+function seesAll(){ const r=getRole(); return r==='admin'||r==='support'||r==='director'; }
 
-  /* Namespaced keys (kept as ao_* to preserve existing data) */
-  const K = {
-    artists: 'ao_artists',                // [{id,name,visible}]
-    currentArtist: 'ao_current_artist',   // 'artist-<timestamp>'
-    settingsNS: (artistId)=>`ao_settings::${artistId}`, // per-artist
-    legacySettings: 'ao_settings',        // for one-time migration
-    schemaVer: 'ao_schema_version'
+/* Settings + defaults */
+function defaults(){
+  return {
+    heroFlags:{}, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{},
+    heroSchedule:{}, heroShortcuts:{}, pageOrder:[], flags:{schedule:true},
+    courseMap:{} // heroId -> courseId
   };
+}
+function sanitize(cfg){
+  let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
+  c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
+  c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
+  c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{}; c.flags=c.flags||{schedule:true};
+  c.courseMap=c.courseMap||{};
+  c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
+  return c;
+}
+function loadSettings(){
+  const ver = Number(store.get(K.schemaVer, 0))||0;
+  const raw = store.get(K.settings, null);
+  let s = sanitize(raw);
+  if(ver!==SCHEMA_VERSION){ store.set(K.settings, s); store.set(K.schemaVer, SCHEMA_VERSION); }
+  return s;
+}
+let S = loadSettings();
+function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
-  /* Role helpers */
-  const ROLE_LABEL = { beginner:'Beginner', silver:'Intermediate', gold:'Advanced', support:'Support', director:'Director', admin:'Admin' };
-  function getRole(){
-    const prof = store.get('ao_profile', { displayName:'User', skill:'admin' });
-    return (prof.skill||'admin').toLowerCase();
-  }
-  function isStaff(){ const r=getRole(); return r==='admin'||r==='support'||r==='director'; }
-  function isAdmin(){ return getRole()==='admin'; }
-  function devOn(){ return document.body.classList.contains('config-on'); }
+/* Avatar + bell */
+function paintAvatar(){
+  const p=store.get(K.profile,{displayName:'User',skill:'admin'});
+  $('#avatarName').textContent = p.displayName || 'User';
+  $('#avatarLvl').textContent = ROLE_LABEL[normalize(p.skill)] || 'Admin';
+  $('#drawerName').textContent = p.displayName || 'User';
+  $('#drawerRole').textContent = $('#avatarLvl').textContent;
+  const init = (p.displayName||'User').trim()[0]?.toUpperCase() || 'U';
+  const tab = $('#avatarTab'); tab.setAttribute('data-initial', init);
+}
+paintAvatar();
+$('#notifBell')?.addEventListener('click',()=> alert('Notifications module coming soon'));
 
-  /* ============================================================
-     Grab Dev Dock elements FIRST (fixes init-order bug)
-     ============================================================ */
-  const devDock       = $('#devDock');
-  const dockContent   = $('#dockContent');
-  const devToggle     = $('#devToggle');
-  const createCourseBtn = $('#createCourseBtn');
-  const addHeadingBtn   = $('#addHeadingBtn');
-  const archivedToggle  = $('#archivedToggle');
-  const trashToggle     = $('#trashToggle');
+/* Drawer wiring */
+(function(){
+  const avatarBtn = $('#avatarTab');
+  const sheet = $('#avatarSheet');
+  const closeBtn = $('#avatarClose');
+  function openDrawer(){ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
+  function closeDrawer(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); avatarBtn.setAttribute('aria-expanded','false'); }
+  avatarBtn?.addEventListener('click', openDrawer, {passive:true});
+  closeBtn?.addEventListener('click', closeDrawer, {passive:true});
+  sheet?.addEventListener('click', e=>{ if(e.target===sheet) closeDrawer(); }, {passive:true});
+})();
 
-  function applyDevChips(){
-    const on = devOn();
-    devToggle.textContent = `Developer: ${on?'On':'Off'}`;
-    devToggle.setAttribute('aria-pressed', on?'true':'false');
-    $$('.dev-only').forEach(el=> el.style.display = on ? 'inline-flex' : 'none');
-    dockContent.hidden = true;
-    devDock.classList.add('collapsed'); devDock.classList.remove('open');
-  }
-
-  /* ============================================================
-     Artist bootstrap + migration hook
-     ============================================================ */
-  function ensureArtists(){
-    let artists = store.get(K.artists, null);
-    let cur = store.get(K.currentArtist, null);
-    const ver = Number(store.get(K.schemaVer, 0))||0;
-
-    // One-time migration: if legacy ao_settings exists and no artists yet
-    if(!artists){
-      const legacy = store.get(K.legacySettings, null);
-      if(legacy){
-        const id = newArtistId();
-        artists = [{ id, name:'Default Artist', visible:true }];
-        store.set(K.artists, artists);
-        store.set(K.currentArtist, id);
-        store.set(K.settingsNS(id), legacy);
-        localStorage.removeItem(K.legacySettings);
-        store.set(K.schemaVer, SCHEMA_VERSION);
-        return { artists, cur:id };
-      }
-    }
-    if(!artists || !artists.length){
-      const id = newArtistId();
-      artists = [{ id, name:'New Artist', visible:true }];
-      store.set(K.artists, artists);
-      store.set(K.currentArtist, id);
-      return { artists, cur:id, first:true };
-    }
-    if(!cur){ cur = artists[0].id; store.set(K.currentArtist, cur); }
-    if(ver!==SCHEMA_VERSION) store.set(K.schemaVer, SCHEMA_VERSION);
-    return { artists, cur };
-  }
-
-  function newArtistId(){ return 'artist-' + Date.now(); }
-
-  /* Per-artist settings (scaffold) */
-  function blankSettings(){
-    return {
-      heroFlags:{}, heroLabels:{}, heroAssets:{}, heroStyle:{}, heroSchedule:{}, heroShortcuts:{}, heroProgress:{},
-      pageOrder:[], flags:{}, courseMap:{} // co-* -> courseId
-    };
-  }
-  function loadSettings(artistId){
-    const raw = store.get(K.settingsNS(artistId), null);
-    if(!raw) return blankSettings();
-    const s = { ...blankSettings(), ...raw };
-    s.pageOrder = Array.isArray(s.pageOrder) ? s.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider')) : [];
-    return s;
-  }
-  function saveSettings(artistId, s){ store.set(K.settingsNS(artistId), s); }
-
-  /* Globals */
-  let ARTISTS = []; let CUR = null; let S = blankSettings();
-
-  /* ============================================================
-     Avatar (no Dev toggle here per brief)
-     ============================================================ */
-  function paintAvatar(){
-    const prof = store.get('ao_profile', { displayName:'User', skill:'admin' });
-    $('#avatarName').textContent = prof.displayName || 'User';
-    $('#avatarLvl').textContent  = ROLE_LABEL[(prof.skill||'admin').toLowerCase()] || 'Admin';
-    $('#drawerName').textContent = prof.displayName || 'User';
-    $('#drawerRole').textContent = $('#avatarLvl').textContent;
-  }
-  (function wireAvatar(){
-    const btn = $('#avatarTab'), sheet=$('#avatarSheet'), close=$('#avatarClose');
-    btn.addEventListener('click', ()=>{ sheet.style.display='flex'; sheet.setAttribute('aria-hidden','false'); btn.setAttribute('aria-expanded','true'); }, {passive:true});
-    close.addEventListener('click', ()=>{ sheet.style.display='none'; sheet.setAttribute('aria-hidden','true'); btn.setAttribute('aria-expanded','false'); }, {passive:true});
-    sheet.addEventListener('click', (e)=>{ if(e.target===sheet) close.click(); }, {passive:true});
-  })();
-
-  /* ============================================================
-     HQ Overlay (Artists)
-     ============================================================ */
-  function openHQ(){ $('#hqOverlay').classList.add('open'); $('#hqOverlay').setAttribute('aria-hidden','false'); }
-  function closeHQ(){ $('#hqOverlay').classList.remove('open'); $('#hqOverlay').setAttribute('aria-hidden','true'); }
-  function paintHQ(){
-    const list = $('#artistList'); list.innerHTML='';
-    ARTISTS.forEach(a=>{
-      const row = document.createElement('div'); row.className='hqRow'; row.dataset.artistId=a.id;
-      row.innerHTML = `
-        <div class="left">
-          <div class="name">${escapeHTML(a.name)}</div>
-          <div class="badges">
-            ${a.id===CUR?'<span class="badge green">✓ Current</span>':''}
-            ${a.visible? '': '<span class="badge dim">Hidden</span>'}
-          </div>
-        </div>
-        <div class="rowBtns">
-          <button class="footer-chip" data-act="switch">Switch</button>
-          <button class="footer-chip" data-act="rename">Rename</button>
-          <button class="footer-chip" data-act="toggle">${a.visible?'Hide':'Show'}</button>
-          <button class="footer-chip" data-act="delete">Delete</button>
-        </div>
-      `;
-      list.appendChild(row);
-    });
-  }
-  function upsertArtist(next){
-    ARTISTS = next;
-    store.set(K.artists, ARTISTS);
-    if(!ARTISTS.find(a=>a.id===CUR)){ CUR = ARTISTS[0]?.id || newArtistId(); store.set(K.currentArtist, CUR); }
-    paintHQ(); paintPage(); paintDockPanels();
-  }
-
-  $('#btnHQ').addEventListener('click', openHQ, {passive:true});
-  $('#hqClose').addEventListener('click', closeHQ, {passive:true});
-  $('#hqBackdrop').addEventListener('click', closeHQ, {passive:true});
-
-  $('#createArtistBtn').addEventListener('click', ()=>{
-    const id = newArtistId();
-    ARTISTS.push({ id, name:'New Artist', visible:true });
-    store.set(K.currentArtist, id);
-    upsertArtist(ARTISTS);
-    CUR = id; S = blankSettings(); saveSettings(CUR, S);
-    closeHQ();
+/* Modules drawer */
+(function(){
+  const btn=$('#btnHQ'), sheet=$('#modulesSheet'), close=$('#modulesClose');
+  btn.addEventListener('click', ()=>{ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); }, {passive:true});
+  close.addEventListener('click', ()=>{ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); }, {passive:true});
+  sheet.addEventListener('click', e=>{ if(e.target===sheet) close.click(); }, {passive:true});
+  $('#modulesList').addEventListener('click', e=>{
+    const m=e.target.closest('[data-module]')?.dataset.module; if(!m) return;
+    if(m==='artists'){ openHQ(); }
+    else alert('Module "'+m+'" is a placeholder for now.');
   });
+})();
 
-  // Artist row actions
-  $('#artistList').addEventListener('click',(e)=>{
-    const row = e.target.closest('.hqRow'); if(!row) return;
-    const id = row.dataset.artistId;
-    const act = e.target.closest('button')?.dataset.act;
-    const idx = ARTISTS.findIndex(a=>a.id===id);
-    if(idx<0) return;
+/* HQ overlay (Artists) */
+function openHQ(){ $('#hqOverlay').classList.add('open'); $('#hqOverlay').setAttribute('aria-hidden','false'); }
+function closeHQ(){ $('#hqOverlay').classList.remove('open'); $('#hqOverlay').setAttribute('aria-hidden','true'); }
+$('#hqClose').addEventListener('click', closeHQ, {passive:true});
+$('#hqBackdrop').addEventListener('click', closeHQ, {passive:true});
 
-    if(act==='switch'){
-      store.set(K.currentArtist, id);
-      CUR = id; S = loadSettings(CUR);
-      paintHQ(); paintPage(); paintDockPanels(); closeHQ();
-    }else if(act==='rename'){
-      modalPrompt({title:'Rename Artist', label:'Artist name', value:ARTISTS[idx].name}, (v)=>{
-        ARTISTS[idx].name = (v||'').trim()||'Untitled';
-        upsertArtist(ARTISTS);
-      });
-    }else if(act==='toggle'){
-      ARTISTS[idx].visible = !ARTISTS[idx].visible;
-      upsertArtist(ARTISTS);
-    }else if(act==='delete'){
-      modalConfirm({title:'Delete Artist', body:'Delete this artist profile? This does not remove remote data.', danger:true}, ()=>{
-        const wasCur = ARTISTS[idx].id===CUR;
-        ARTISTS.splice(idx,1);
-        upsertArtist(ARTISTS);
-        if(wasCur){
-          const next = ARTISTS[0];
-          if(next){ CUR = next.id; S = loadSettings(CUR); store.set(K.currentArtist, CUR); }
-          else{
-            const id2 = newArtistId();
-            ARTISTS = [{ id:id2, name:'New Artist', visible:true }];
-            store.set(K.artists, ARTISTS); store.set(K.currentArtist, id2);
-            CUR = id2; S = blankSettings(); saveSettings(CUR, S);
-            paintHQ(); openHQ();
-          }
-          paintPage(); paintDockPanels();
-        }
-      });
-    }
-  });
+function loadArtists(){ return store.get(K.artists, []); }
+function saveArtists(list){ store.set(K.artists, list); }
+function currentArtist(){ return store.get(K.currentArtist, null); }
+function setCurrentArtist(id){ store.set(K.currentArtist, id); }
 
-  /* ============================================================
-     Modal helpers
-     ============================================================ */
-  const modalRoot = $('#modalRoot');
-  const mTitle = $('#modalTitle');
-  const mBody  = $('#modalBody');
-  const mFoot  = $('#modalFoot');
-  $('#modalX').onclick = ()=> modalClose();
-  $('#modalBackdrop').onclick = ()=> modalClose();
-
-  function modalClose(){ modalRoot.hidden = true; mTitle.textContent=''; mBody.innerHTML=''; mFoot.innerHTML=''; }
-  function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', cancelText='Cancel', danger=false}={}, onOK){
-    mTitle.textContent = title;
-    mBody.innerHTML = typeof body==='string' ? `<div>${body}</div>` : '';
-    mFoot.innerHTML = '';
-    const cancel = button('modalBtn','Cancel',()=>modalClose());
-    const ok = button('modalBtn'+(danger?' danger':''),'OK',()=>{ modalClose(); onOK?.(); });
-    mFoot.append(cancel, ok); modalRoot.hidden = false;
-  }
-  function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
-    mTitle.textContent = title;
-    mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-      <input id="modalInput" type="text" value="${escapeAttr(value||'')}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
-    mFoot.innerHTML = '';
-    const cancel = button('modalBtn','Cancel',()=>modalClose());
-    const ok = button('modalBtn','Save',()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); });
-    mFoot.append(cancel, ok); modalRoot.hidden = false; setTimeout(()=>$('#modalInput')?.focus(),0);
-  }
-  function modalSelect({title='Select', options=[], value=null, label='Option'}={}, onOK){
-    mTitle.textContent = title;
-    const opts = options.map(o=>`<option value="${escapeAttr(o.value)}"${o.value===value?' selected':''}>${escapeHTML(o.label)}</option>`).join('');
-    mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-      <select id="modalSel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c0f;color:${'var(--ink)'}">${opts}</select>`;
-    mFoot.innerHTML = '';
-    const cancel = button('modalBtn','Cancel',()=>modalClose());
-    const ok = button('modalBtn','Save',()=>{ const v=$('#modalSel').value; modalClose(); onOK?.(v); });
-    mFoot.append(cancel, ok); modalRoot.hidden = false;
-  }
-  function modalDate({title='Select date', label='Date', value=''}={}, onOK){
-    mTitle.textContent = title;
-    mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
-      <input id="modalDate" type="date" value="${escapeAttr(value||'')}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">`;
-    mFoot.innerHTML = '';
-    const cancel = button('modalBtn','Cancel',()=>modalClose());
-    const ok = button('modalBtn','Save',()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); });
-    mFoot.append(cancel, ok); modalRoot.hidden = false;
-  }
-  function button(cls, text, onClick){ const b=document.createElement('button'); b.className=cls; b.textContent=text; b.onclick=onClick; return b; }
-
-  /* ============================================================
-     Dev Dock (always visible). Chips show only when Dev = On.
-     ============================================================ */
-
-  function openDockPanel(kind){
-    const isOpen = !dockContent.hidden && dockContent.dataset.kind===kind;
-    if(isOpen){ dockContent.hidden=true; devDock.classList.add('collapsed'); devDock.classList.remove('open'); return; }
-    dockContent.dataset.kind = kind;
-    dockContent.hidden = false; devDock.classList.remove('collapsed'); devDock.classList.add('open');
-    if(kind==='archive') paintArchivePanel();
-    if(kind==='trash') paintTrashPanel();
-  }
-  archivedToggle.addEventListener('click', ()=> openDockPanel('archive'), {passive:true});
-  trashToggle.addEventListener('click', ()=> openDockPanel('trash'), {passive:true});
-
-  devToggle.addEventListener('click', ()=>{
-    if(!isAdmin()) return; // admin gate
-    document.body.classList.toggle('config-on');
-    applyDevChips(); paintPage(); paintDockPanels();
-  }, {passive:true});
-
-  /* ============================================================
-     Page building — heroes & headings
-     ============================================================ */
-  function labelFor(id){
-    const custom = S.heroLabels?.[id];
-    if (custom && custom.trim()) return custom.trim();
-    const n = (id.match(/\d+/)||[])[0]; return n ? `#${n}` : id;
-  }
-  function styleFor(id){
-    const st=(S.heroStyle||{})[id]||{};
-    return {
-      color: st.labelColor || '',
-      font:  st.labelFont  || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif",
-      size:  Number(st.labelSize||18)
-    };
-  }
-
-  function computeScheduleChip(id){
-    const sch = S.heroSchedule?.[id]||{};
-    const candidates = [
-      ['live','green', nextOccurrence(sch.release)],
-      ['off','red',   nextOccurrence(sch.expiry)],
-      ['dev','blue',  nextOccurrence(sch.dev)]
-    ].filter(x=>x[2]);
-    if(!candidates.length) return null;
-    candidates.sort((a,b)=>a[2]-b[2]);
-    const [label,color,date] = candidates[0];
-    const days = daysUntil(date);
-    return { color, text: (label==='live'?'Live':label==='off'?'Exp':'Dev') + (days!=null?`: ${days} Days`: '') };
-  }
-  function effectiveState(id){
-    const flag = S.heroFlags[id]||{};
-    const sch = S.heroSchedule?.[id]||{};
-    const today = toDateOnly(new Date());
-    const rel = baseDate(sch.release), exp = baseDate(sch.expiry), dev = baseDate(sch.dev);
-    if(exp && exp<=today) return 'off';
-    if(rel && rel<=today) return 'live';
-    if(dev && dev<=today) return 'dev';
-    return flag.state || 'off';
-  }
-
-  function heroCard(id){
-    const f=S.heroFlags[id]; if(!f || f.place!=='page') return null;
-    const art = S.heroAssets?.[id]?.heroCard?.src || '';
-    const st = styleFor(id);
-    const state = effectiveState(id);
-    const dev = devOn() && isAdmin();
-    const el=document.createElement('article');
-    el.className='hero shape-'+(f.shape||'square');
-    el.dataset.heroId=id;
-    el.innerHTML = `
-      ${art? `<div class="art"><img alt="" src="${escapeAttr(art)}"></div>`:''}
-      ${dev? `<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${escapeAttr(id)}" type="button" aria-label="Move up">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${escapeAttr(id)}" type="button" aria-label="Move down">▼</button></div>`:''}
-      <span class="label" style="color:${escapeAttr(st.color)};font-family:${escapeAttr(st.font)};font-size:${st.size}px">${escapeHTML(labelFor(id))}</span>
-      <div class="ctrls">${dev?`<button class="kebab" data-hero-kebab="${escapeAttr(id)}" aria-haspopup="dialog" aria-expanded="false" aria-label="Open hero menu">⋮</button>`:''}</div>
-    `;
-    if(isStaff()){
-      el.classList.add(state==='live'?'state-live':state==='dev'?'state-dev':'state-off');
-      const chip = computeScheduleChip(id);
-      if(chip){
-        const c=document.createElement('div'); c.className='sched-chip '+chip.color; c.textContent=chip.text; el.appendChild(c);
-      }
-      const dots=document.createElement('div');
-      dots.style.cssText='position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:2;';
-      [['gold','gold'],['silver','silver'],['beginner','beginner']].forEach(([k,cls])=>{
-        if(f.aud?.[k]){ const d=document.createElement('span'); d.className='aud-dot '+cls+' on'; d.title=(ROLE_LABEL[k]||k); dots.appendChild(d); }
-      });
-      el.appendChild(dots);
-    }
-    return el;
-  }
-
-  function dividerEl(obj){
-    const editable = devOn() && isAdmin();
-    const color = obj.color || '';
-    const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-    const fontSize = Number(obj.fontSize || 22);
-    const el = document.createElement('div');
-    el.className = 'divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
-    el.innerHTML = `
-      ${editable ? `<div class="dctrls-left"><button class="footer-chip" data-div-act="up" data-div-id="${escapeAttr(obj.id)}" type="button" aria-label="Move heading up">▲</button><button class="footer-chip" data-div-act="down" data-div-id="${escapeAttr(obj.id)}" type="button" aria-label="Move heading down">▼</button></div>`:''}
-      <span class="htext" style="color:${escapeAttr(color)};font-family:${escapeAttr(fontFamily)};font-size:${fontSize}px">${escapeHTML(obj.title || 'Heading')}</span>
-      <div class="tools">
-        ${editable ? `<div class="ctrls"><button class="kebab" data-div-kebab="${escapeAttr(obj.id)}" type="button" aria-label="Open heading menu">⋮</button></div>`:''}
-        <div class="aud-indicators-head" aria-hidden="${isStaff()?'false':'true'}"></div>
+function paintHQ(){
+  const listEl=$('#artistList'); listEl.innerHTML='';
+  const artists=loadArtists(); const cur=currentArtist();
+  artists.forEach(a=>{
+    const row=document.createElement('div'); row.className='hqRow'; row.dataset.artistId=a.id;
+    row.innerHTML=`
+      <div class="left">
+        <div class="name">${esc(a.name)}</div>
+        <div class="badges">${a.id===cur?'<span class="badge green">✓ Current</span>':''}${a.visible?'':'<span class="badge dim">Hidden</span>'}</div>
+      </div>
+      <div class="rowBtns">
+        <button class="footer-chip" data-act="switch">Switch</button>
+        <button class="footer-chip" data-act="rename">Rename</button>
+        <button class="footer-chip" data-act="toggle">${a.visible?'Hide':'Show'}</button>
+        <button class="footer-chip" data-act="delete">Delete</button>
       </div>`;
-    return el;
-  }
-
-  function paintPage(){
-    const root = $('#pageGrid'); root.innerHTML='';
-    const role = getRole();
-    const staff = isStaff();
-
-    function startSection(divObj){
-      if(divObj && !staff){
-        const aud = divObj.aud || {beginner:true,silver:true,gold:true};
-        if(!aud[role]) return null;
-        if(divObj.state==='off') return null;
-      }
-      const sec = document.createElement('section'); sec.className='section';
-      if(divObj) sec.appendChild(dividerEl(divObj));
-      const row = document.createElement('div'); row.className='grid';
-      const size = (divObj && divObj.rowSize) ? String(divObj.rowSize) : 'm';
-      row.classList.add('size-'+(['xs','s','m','l','xl'].includes(size)?size:'m'));
-      sec.appendChild(row); root.appendChild(sec); return {sec,row};
-    }
-
-    let currentRow = null;
-    for(const it of S.pageOrder){
-      if(it.type==='divider'){ const start = startSection(it); currentRow = start? start.row : null; continue; }
-      if(it.type==='hero'){
-        const id=it.id; const f=S.heroFlags[id]; if(!f || f.place!=='page') continue;
-        const state = effectiveState(id);
-
-        if(!staff){
-          if(state!=='live') continue;
-          if(!f.aud?.[role]) continue;
-        }
-        if(!currentRow){ const start = startSection(null); currentRow = start? start.row : null; if(!currentRow) continue; }
-        const card = heroCard(id); if(card) currentRow.appendChild(card);
-      }
-    }
-
-    // remove empty sections
-    $$('#pageGrid .section').forEach(sec=>{
-      const row = sec.querySelector('.grid');
-      const hasHeroes = row && row.children.length>0;
-      const hasDivider = !!sec.querySelector('.divider');
-      if(!hasHeroes && !hasDivider){ sec.remove(); }
-    });
-  }
-
-  /* ============================================================
-     Dev: Add Heading / Create Course / Reorder / Kebab actions
-     ============================================================ */
-  $('#addHeadingBtn').addEventListener('click', ()=>{
-    if(!(isAdmin() && devOn())) return;
-    modalPrompt({title:'Add Heading', label:'Heading title', value:'Heading'}, (title)=>{
-      S.pageOrder.push({type:'divider', id:uid(), title:(title||'Heading').trim(), aud:{beginner:true,silver:true,gold:true}, fontSize:22, rowSize:'m', state:'live' });
-      saveSettings(CUR,S); paintPage();
-    });
+    listEl.appendChild(row);
   });
+}
+$('#createArtistBtn').addEventListener('click', ()=>{
+  const name=prompt('Artist name?','New Artist'); if(!name) return;
+  const id='artist-'+Date.now();
+  const list=loadArtists(); list.push({id,name,visible:true}); saveArtists(list); setCurrentArtist(id);
+  paintHQ(); closeHQ(); // new artist starts empty context
+});
+$('#artistList').addEventListener('click', e=>{
+  const row=e.target.closest('.hqRow'); if(!row) return;
+  const id=row.dataset.artistId; const act=e.target.closest('button')?.dataset.act; if(!act) return;
+  let list=loadArtists();
+  if(act==='switch'){ setCurrentArtist(id); paintHQ(); closeHQ(); paintPage(); }
+  if(act==='rename'){ const name=prompt('Rename artist',''); if(name){ list=list.map(a=>a.id===id?{...a,name}:a); saveArtists(list); paintHQ(); } }
+  if(act==='toggle'){ list=list.map(a=>a.id===id?{...a,visible:!a.visible}:a); saveArtists(list); paintHQ(); }
+  if(act==='delete'){ if(confirm('Delete artist?')){ list=list.filter(a=>a.id!==id); saveArtists(list); if(currentArtist()===id) setCurrentArtist(list[0]?.id||null); paintHQ(); paintPage(); } }
+});
 
-  $('#createCourseBtn').addEventListener('click', async ()=>{
-    if(!(isAdmin() && devOn())) return;
-    const { heroId, courseId } = await createCourse();
-    S.pageOrder.push({type:'hero', id:heroId});
-    S.heroFlags[heroId] = { state:'dev', place:'page', aud:{beginner:true,silver:true,gold:true}, shape:'square' };
-    S.heroLabels[heroId] = 'New Course';
-    S.courseMap[heroId] = courseId;
-    saveSettings(CUR,S); paintPage();
+/* ===== Page builders ===== */
+function numberFromId(id){ const m=String(id||'').match(/(\d+)/); return m?m[1]:''; }
+function labelFor(id){
+  const custom=S.heroLabels?.[id];
+  if (custom && custom.trim()) return custom.trim();
+  const n = numberFromId(id); return n?`#${n}`:id;
+}
+function styleFor(id){
+  const st=(S.heroStyle||{})[id]||{};
+  return { color: st.labelColor || '', font: st.labelFont || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif", size: Number(st.labelSize||18) };
+}
+
+/* Scheduling */
+function toDateOnly(d){ const t=new Date(d); if(Number.isNaN(+t)) return null; return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+function parseYMD(s){ if(!s) return null; const t=new Date(s); if(Number.isNaN(+t)) return null; return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+function nextFromRecurrence(rec, now){
+  if(!rec || !rec.r) return null;
+  const R = rec.r || {}; const freq=String(R.freq||'').toUpperCase(); const interval=Math.max(1, Number(R.interval||1));
+  let cur = parseYMD(R.start||new Date()); if(!cur) return null;
+  now = toDateOnly(now||new Date());
+  function step(d){ if(freq==='DAILY') d.setDate(d.getDate()+interval); else if(freq==='WEEKLY') d.setDate(d.getDate()+7*interval); else if(freq==='MONTHLY') d.setMonth(d.getMonth()+interval); else if(freq==='YEARLY') d.setFullYear(d.getFullYear()+interval); else d.setDate(d.getDate()+interval); }
+  let n=0; while(cur<now && n<512){ step(cur); n++; }
+  return cur>=now?cur:null;
+}
+function nextOccurrence(val, now){
+  if(!val) return null;
+  if(typeof val==='string'){ const t=parseYMD(val); return (t && t>=toDateOnly(now||new Date())) ? t : null; }
+  if(typeof val==='object' && val.r) return nextFromRecurrence(val, now);
+  return null;
+}
+function computeHeroState(id){
+  const f=S.heroFlags[id]||{}; const sch=S.heroSchedule[id]||{};
+  const today=toDateOnly(new Date());
+  const rel=parseYMD(typeof sch.release==='string'?sch.release:sch.release?.r?.start);
+  const exp=parseYMD(typeof sch.expiry==='string'?sch.expiry:sch.expiry?.r?.start);
+  const dev=parseYMD(typeof sch.dev==='string'?sch.dev:sch.dev?.r?.start);
+  if(exp && exp<=today) return 'off';
+  if(rel && rel<=today) return 'live';
+  if(dev && dev<=today) return 'dev';
+  return f.state || 'off';
+}
+
+/* Cards */
+function heroCard(id){
+  const f=S.heroFlags[id]; if(!f || f.place!=='page') return null;
+  const art=S.heroAssets?.[id]?.heroCard?.src||'';
+  const st=styleFor(id);
+  const state=computeHeroState(id);
+  const canDev=isAdmin() && devOn();
+  const el=document.createElement('article'); el.className='hero shape-'+(f.shape||'square'); el.dataset.heroId=id;
+  if(seesAll()){
+    if(state==='live') el.classList.add('state-live'); else if(state==='dev') el.classList.add('state-dev'); else el.classList.add('state-off');
+  }
+  el.innerHTML=`
+    ${art?`<div class="art"><img alt="" src="${esc(art)}"></div>`:''}
+    ${canDev?`<div class="hero-arrows"><button class="cfg-arrow" data-sort="up" data-key="hero:${esc(id)}" type="button">▲</button><button class="cfg-arrow" data-sort="down" data-key="hero:${esc(id)}" type="button">▼</button></div>`:''}
+    <span class="label" style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px">${esc(labelFor(id))}</span>
+    <div class="ctrls">${canDev?`<button class="kebab" data-hero-kebab="${esc(id)}" aria-haspopup="dialog" aria-expanded="false">⋮</button>`:''}</div>
+  `;
+  // upcoming date chip (blue=release/dev, red=expiry)
+  const sch=S.heroSchedule[id]||{};
+  const candidates=[ ['blue',nextOccurrence(sch.release)||nextOccurrence(sch.dev)], ['red',nextOccurrence(sch.expiry)] ].filter(([,d])=>d);
+  if(candidates.length){
+    candidates.sort((a,b)=>a[1]-b[1]);
+    const [color,date]=candidates[0]; const days=Math.ceil((toDateOnly(date)-toDateOnly(new Date()))/86400000);
+    const chip=document.createElement('div'); chip.className='sched-chip '+color; chip.textContent = fmtDate(date) + (Number.isFinite(days)?` • ${days}d`:''); el.appendChild(chip);
+  }
+  if(seesAll() && f.aud){
+    const dots=document.createElement('div');
+    dots.style.cssText='position:absolute;right:10px;bottom:10px;display:flex;gap:6px;z-index:2;';
+    [['gold','Advanced'],['silver','Intermediate'],['bronze','Beginner']].forEach(([k,t])=>{
+      if(f.aud[k]) dots.innerHTML += `<span class="aud-dot ${k}" title="${t}"></span>`;
+    });
+    if(dots.innerHTML) el.appendChild(dots);
+  }
+  return el;
+}
+
+function dividerEl(obj){
+  const editable = isAdmin() && devOn();
+  const color = obj.color || '';
+  const fontFamily = obj.fontFamily || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  const fontSize = Number(obj.fontSize || 22);
+  const el = document.createElement('div');
+  el.className = 'divider'; el.dataset.type='divider'; el.dataset.divId=obj.id;
+  el.innerHTML = `
+    ${editable ? `<div class="dctrls-left"><button class="footer-chip" data-div-act="up" data-div-id="${esc(obj.id)}" type="button">▲</button><button class="footer-chip" data-div-act="down" data-div-id="${esc(obj.id)}" type="button">▼</button></div>`:''}
+    <span class="htext" style="color:${esc(color)};font-family:${esc(fontFamily)};font-size:${fontSize}px">${esc(obj.title || 'Heading')}</span>
+    <div class="tools">
+      ${editable ? `<div class="ctrls"><button class="kebab" data-div-kebab="${esc(obj.id)}" type="button">⋮</button></div>`:''}
+      <div class="aud-indicators-head" aria-hidden="${seesAll()?'false':'true'}"></div>
+    </div>`;
+  return el;
+}
+
+function aggregateHeadingAudience(rowEl){
+  const agg={bronze:false,silver:false,gold:false};
+  rowEl.querySelectorAll('.hero').forEach(h=>{
+    const id=h.dataset.heroId; const f=S.heroFlags[id]; if(!f) return;
+    const state=computeHeroState(id);
+    if(state!=='live') return; // only live heroes count
+    if(f.aud){ agg.bronze ||= !!f.aud.bronze; agg.silver ||= !!f.aud.silver; agg.gold ||= !!f.aud.gold; }
   });
+  return agg;
+}
 
-  function uid(){ return 'div_' + Math.random().toString(36).slice(2,9); }
+function paintPage(){
+  const root = $('#pageGrid'); root.innerHTML='';
+  const staff=seesAll(); const role=getRole();
 
-  function nextHeroId(){
-    const nums = Object.keys(S.heroFlags||{}).map(id=> Number((id.match(/\d+/)||[])[0]||0));
-    const max = nums.length? Math.max(...nums) : 0;
-    return 'co-'+(max+1);
+  // Welcome screen: visible if no sections/heroes
+  const hasAny = (S.pageOrder||[]).some(x=>x);
+  $('#welcomeHero').hidden = !!hasAny ? true : false;
+
+  function startSection(divObj){
+    const sec=document.createElement('section'); sec.className='section';
+    if(divObj) sec.appendChild(dividerEl(divObj));
+    const row=document.createElement('div'); row.className='grid size-m'; sec.appendChild(row); root.appendChild(sec);
+    return {sec,row};
   }
-  async function createCourse(){
-    let cid = null;
-    try{ if(window.db && typeof window.db.createCourse==='function'){ cid = await window.db.createCourse(); } }catch{}
-    if(!cid) cid = crypto.randomUUID ? crypto.randomUUID() : ('uuid-' + Math.random().toString(16).slice(2));
-    const heroId = nextHeroId();
-    return { heroId, courseId: cid };
+  let currentRow=null;
+  for(const it of S.pageOrder){
+    if(it.type==='divider'){ const s=startSection(it); currentRow=s.row; continue; }
+    if(it.type==='hero'){
+      const id=it.id; const f=S.heroFlags[id]; if(!f || f.place!=='page') continue;
+      const state=computeHeroState(id);
+      if(!staff){
+        if(state!=='live') continue;
+        if(!(f.aud && f.aud[role])) continue;
+      }
+      if(!currentRow){ const s=startSection(null); currentRow=s.row; }
+      const card=heroCard(id); if(card) currentRow.appendChild(card);
+    }
   }
-
-  // Reorder (delegated)
-  document.addEventListener('click',(e)=>{
-    const sortBtn = e.target.closest('.cfg-arrow');
-    if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
-      e.stopPropagation();
-      if(!(isAdmin() && devOn())) return;
-      const key = sortBtn.dataset.key;
-      const keys = S.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-      const from = keys.indexOf(key); if(from<0) return;
-      const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
-      const to  = Math.min(Math.max(0, from+dir), S.pageOrder.length-1);
-      if(to!==from){
-        const obj = S.pageOrder.splice(from,1)[0];
-        S.pageOrder.splice(to,0,obj);
-        saveSettings(CUR,S); paintPage();
-      }
-      return;
+  // remove empty sections and add heading audience indicators
+  $$('#pageGrid .section').forEach(sec=>{
+    const row = sec.querySelector('.grid');
+    const hasHeroes = row && row.children.length>0;
+    const hasDivider = !!sec.querySelector('.divider');
+    if(!hasHeroes && !hasDivider){ sec.remove(); return; }
+    const slot = sec.querySelector('.aud-indicators-head');
+    if(slot){
+      const agg=aggregateHeadingAudience(row);
+      const items=[['gold','Advanced'],['silver','Intermediate'],['bronze','Beginner']].filter(([k])=>agg[k]);
+      slot.innerHTML = items.map(([k,t])=>`<span class="aud-dot ${k}" title="${t}"></span>`).join('');
+      if(!items.length && !seesAll()) sec.style.display='none';
     }
-    const divSort = e.target.closest('[data-div-act]');
-    if(divSort){
-      if(!(isAdmin() && devOn())) return;
-      const act = divSort.dataset.divAct; const id = divSort.dataset.divId;
-      const keys = S.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
-      const from = keys.indexOf('div:'+id); if(from<0) return;
-      const dir = act==='up' ? -1 : 1;
-      const to  = Math.min(Math.max(0, from+dir), S.pageOrder.length-1);
-      if(to!==from){
-        const obj = S.pageOrder.splice(from,1)[0];
-        S.pageOrder.splice(to,0,obj);
-        saveSettings(CUR,S); paintPage();
-      }
-      return;
-    }
-  }, {passive:false});
+  });
+}
 
-  /* ===== HERO KEBAB ===== */
-  document.addEventListener('click',(e)=>{
-    const keb = e.target.closest('[data-hero-kebab]'); if(!keb) return;
+/* ===== Dev Dock ===== */
+const devToggle = $('#devToggle');
+const createCourseBtn = $('#createCourseBtn');
+const addHeadingBtn = $('#addHeadingBtn');
+const archivedToggle = $('#archivedToggle');
+const trashToggle = $('#trashToggle');
+const dockContent = $('#dockContent');
+const devDock = $('#devDock');
+
+function applyDevChips(){
+  const on = devOn();
+  devToggle.classList.toggle('dev-on', on);
+  devToggle.classList.toggle('dev-off', !on);
+  devToggle.setAttribute('aria-pressed', on?'true':'false');
+  $$('.dev-only').forEach(el=> el.style.display = (isAdmin() && on) ? 'inline-flex' : 'none');
+  dockContent.hidden = true; devDock.classList.remove('open');
+}
+applyDevChips();
+
+devToggle.addEventListener('click', ()=>{
+  if(!isAdmin()) return;
+  document.body.classList.toggle('config-on');
+  applyDevChips(); paintPage(); paintDockPanels();
+}, {passive:true});
+
+function openDockPanel(kind){
+  const isOpen = !dockContent.hidden && dockContent.dataset.kind===kind;
+  if(isOpen){ dockContent.hidden=true; devDock.classList.remove('open'); return; }
+  dockContent.dataset.kind=kind; dockContent.hidden=false; devDock.classList.add('open');
+  if(kind==='archive') paintArchivePanel();
+  if(kind==='trash') paintTrashPanel();
+}
+archivedToggle.addEventListener('click', ()=> openDockPanel('archive'), {passive:true});
+trashToggle.addEventListener('click', ()=> openDockPanel('trash'), {passive:true});
+
+/* Create course / Add heading */
+createCourseBtn?.addEventListener('click', ()=>{
+  if(!(isAdmin() && devOn())) return;
+  const heroId='co-'+Date.now(); // explicit ID on creation
+  S.pageOrder.push({type:'hero', id:heroId});
+  S.heroFlags[heroId] = { place:'page', state:'dev', aud:{ bronze:false, silver:false, gold:false }, shape:'square' }; // audience OFF by default
+  S.heroLabels[heroId] = 'New Course';
+  S.courseMap[heroId] = 'course-'+Date.now();
+  saveSettings(S); paintPage();
+});
+addHeadingBtn?.addEventListener('click', ()=>{
+  if(!(isAdmin() && devOn())) return;
+  const divId='hd-'+Date.now();
+  S.pageOrder.push({type:'divider', id:divId, title:'Heading'});
+  saveSettings(S); paintPage();
+});
+
+/* Reorder */
+document.addEventListener('click',(e)=>{
+  const sortBtn = e.target.closest('.cfg-arrow');
+  if(sortBtn && sortBtn.dataset.key?.startsWith('hero:')){
+    e.stopPropagation();
     if(!(isAdmin() && devOn())) return;
-    openHeroKebab(keb.getAttribute('data-hero-kebab'));
-  }, {passive:false});
+    const key = sortBtn.dataset.key;
+    const keys = S.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf(key); if(from<0) return;
+    const dir = sortBtn.dataset.sort==='up' ? -1 : 1;
+    const to  = Math.min(Math.max(0, from+dir), S.pageOrder.length-1);
+    if(to!==from){
+      const obj = S.pageOrder.splice(from,1)[0];
+      S.pageOrder.splice(to,0,obj);
+      saveSettings(S); paintPage();
+    }
+    return;
+  }
+  const divSort = e.target.closest('[data-div-act]');
+  if(divSort){
+    if(!(isAdmin() && devOn())) return;
+    const act = divSort.dataset.divAct; const id = divSort.dataset.divId;
+    const keys = S.pageOrder.map(it=> it.type==='hero' ? `hero:${it.id}` : `div:${it.id}`);
+    const from = keys.indexOf('div:'+id); if(from<0) return;
+    const dir = act==='up' ? -1 : 1;
+    const to  = Math.min(Math.max(0, from+dir), S.pageOrder.length-1);
+    if(to!==from){
+      const obj = S.pageOrder.splice(from,1)[0];
+      S.pageOrder.splice(to,0,obj);
+      saveSettings(S); paintPage();
+    }
+    return;
+  }
+}, {passive:false});
 
-  function openHeroKebab(id){
-    const f=S.heroFlags[id]; const sch=S.heroSchedule[id]||{}; const art = S.heroAssets?.[id]?.heroCard?.src || '';
-    mTitle.textContent = labelFor(id);
-    const badge=(kind,val)=>{
-      let text='';
-      if(typeof val==='string') text = fmtDate(val);
-      else if(val && val.r && val.r.start) text = fmtDate(val.r.start);
-      return val?`<span class="badge ${kind}">${text}</span>`:'';
-    };
-    mBody.innerHTML = `
-      <div class="modalGroup">
-        <div class="groupHead">Course Hero</div>
-        <div class="modalSub">Cover Dimensions</div>
-        <div class="groupBody">
-          ${['square','hr','vr','circle'].map(shape=>`
-            <div class="modalOpt" data-hact="shape" data-shape="${shape}">
-              <div>${shape==='hr'?'16:9':shape==='vr'?'3:4':shape==='circle'?'Circle':'Square'}</div>
-              <div class="optRight">${f.shape===shape?'✓':''}</div>
-            </div>`).join('')}
-        </div>
+/* ===== HERO KEBAB (consolidated schedule, toggles blue, file name without extension) ===== */
+document.addEventListener('click',(e)=>{
+  const keb = e.target.closest('[data-hero-kebab]'); if(!keb) return;
+  if(!(isAdmin() && devOn())) return;
+  openHeroKebab(keb.getAttribute('data-hero-kebab'));
+}, {passive:false});
+
+function toggleHTML(on){ return `<span class="toggle ${on?'on':''}" role="switch" aria-checked="${on?'true':'false'}"><span class="knob"></span></span>`; }
+function fileBase(url){
+  try{ const p=new URL(url, location.href).pathname.split('/').pop()||''; return p.replace(/\.[a-z0-9]+$/i,''); }catch{ return ''; }
+}
+function openHeroKebab(id){
+  const f=S.heroFlags[id]; const sch=S.heroSchedule[id]||{}; const art = S.heroAssets?.[id]?.heroCard?.src || '';
+  const shape = f.shape || 'square';
+  const relText = sch.release ? fmtDate(typeof sch.release==='string'? sch.release : sch.release?.r?.start) : '—';
+  const expText = sch.expiry ? fmtDate(typeof sch.expiry==='string'? sch.expiry : sch.expiry?.r?.start) : '—';
+  const devText = sch.dev ? fmtDate(typeof sch.dev==='string'? sch.dev : sch.dev?.r?.start) : '—';
+
+  $('#modalTitle').textContent = labelFor(id);
+  const shapeIcon=(k)=>({square:'◼︎',hr:'▭',vr:'▮',circle:'◯'}[k]||'◼︎');
+
+  $('#modalBody').innerHTML = `
+    <div class="modalGroup">
+      <div class="groupHead">Course Activity State</div>
+      <div class="groupBody">
+        <div class="modalOpt" data-hact="state" data-state="live"><div>Live</div><div class="optRight">${toggleHTML(f.state==='live')}</div></div>
+        <div class="modalOpt" data-hact="state" data-state="off"><div>Offline</div><div class="optRight">${toggleHTML(f.state==='off')}</div></div>
+        <div class="modalOpt" data-hact="state" data-state="dev"><div>Dev</div><div class="optRight">${toggleHTML(f.state==='dev' || !f.state)}</div></div>
       </div>
-      <div class="modalGroup">
-        <div class="groupHead">Audience</div>
-        <div class="groupBody">
-          ${[['beginner','Beginner'],['silver','Intermediate'],['gold','Advanced']].map(([k,lab])=>`
-          <div class="modalOpt" data-hact="aud" data-aud="${k}">
-            <div>${lab}</div><div class="optRight">${f.aud?.[k]?'✓':''}</div>
+    </div>
+
+    <div class="modalGroup">
+      <div class="groupHead">Schedule</div>
+      <div class="groupBody">
+        <div class="modalOpt" data-hact="schedule"><div>Open Scheduler</div><div class="optRight">${relText} • ${expText} • ${devText}</div></div>
+        <div class="modalOpt" data-hact="clear" data-kind="release"><div>Clear Release</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-hact="clear" data-kind="expiry"><div>Clear Expiry</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-hact="clear" data-kind="dev"><div>Clear Development</div><div class="optRight"></div></div>
+      </div>
+    </div>
+
+    <div class="modalGroup">
+      <div class="groupHead">Course Cover Shape</div>
+      <div class="groupBody">
+        ${['square','hr','vr','circle'].map(k=>`
+          <div class="modalOpt" data-hact="shape" data-shape="${k}">
+            <div>${k.toUpperCase()} ${shapeIcon(k)}</div>
+            <div class="optRight">${k===shape?'•':''}</div>
           </div>`).join('')}
-        </div>
       </div>
-      <div class="modalGroup">
-        <div class="groupHead">Course Activity State</div>
-        <div class="groupBody">
-          ${[['live','Live'],['off','Offline'],['dev','Dev']].map(([k,lab])=>`
-          <div class="modalOpt" data-hact="state" data-state="${k}">
-            <div>${lab}</div><div class="optRight">${f.state===k?'✓':''}</div>
-          </div>`).join('')}
-        </div>
+    </div>
+
+    <div class="modalGroup">
+      <div class="groupHead">Customisation</div>
+      <div class="groupBody">
+        <div class="modalOpt" data-hact="cover"><div>Change Cover Art…</div><div class="optRight" style="opacity:.8">${art? esc(fileBase(art)) : 'None'}</div></div>
+        <div class="modalOpt" data-hact="archive"><div>Archive</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-hact="delete"><div style="color:#ff3b30">Delete</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-hact="request"><div>Make an admin request…</div><div class="optRight">→</div></div>
+        <div class="modalOpt" data-hact="rename"><div>Rename (font/color/size)</div><div class="optRight"></div></div>
       </div>
-      <div class="modalGroup">
-        <div class="groupHead">Schedule</div>
-        <div class="groupBody">
-          <div class="modalOpt" data-hact="date" data-kind="release"><div>Set Release</div><div class="optRight">${badge('green',sch.release)}</div></div>
-          <div class="modalOpt" data-hact="date" data-kind="expiry"><div>Set Expiry</div><div class="optRight">${badge('red',sch.expiry)}</div></div>
-          <div class="modalOpt" data-hact="date" data-kind="dev"><div>Set Dev Date</div><div class="optRight">${badge('blue',sch.dev)}</div></div>
-          <div class="modalSub">Recurrence</div>
-          ${[['release','Release'],['expiry','Expiry'],['dev','Development']].map(([k,lab])=>`
-            <div class="modalOpt" data-hact="recur" data-kind="${k}"><div>${lab} Recurrence</div><div class="optRight" style="opacity:.85">${(sch[k]&&sch[k].r)?'On':'Off'}</div></div>`).join('')}
-          ${[['release','Release'],['expiry','Expiry'],['dev','Development']].map(([k,lab])=>`
-            <div class="modalOpt" data-hact="clear" data-kind="${k}"><div>Clear ${lab}</div></div>`).join('')}
-        </div>
-      </div>
-      <div class="modalGroup">
-        <div class="groupHead">Customisation</div>
-        <div class="groupBody">
-          <div class="modalOpt" data-hact="rename"><div>Rename (font/color/size)</div></div>
-          <div class="modalOpt" data-hact="cover"><div>Change Cover Art…</div><div class="optRight" style="opacity:.8">${art? 'Set' : 'None'}</div></div>
-          <div class="modalOpt" data-hact="archive"><div>Archive</div></div>
-          <div class="modalOpt" data-hact="delete"><div>Delete</div><div class="optRight" style="opacity:.8">${f.state==='live'?'(disabled while Live)':''}</div></div>
-        </div>
-      </div>
-    `;
-    mFoot.innerHTML=''; modalRoot.hidden=false;
+    </div>
+  `;
+  $('#modalFoot').innerHTML = '';
+  $('#modalRoot').hidden=false;
 
-    mBody.onclick = (e)=>{
-      const opt = e.target.closest('[data-hact]'); if(!opt) return;
-      const act = opt.getAttribute('data-hact');
-      if(act==='shape'){
-        const shape=opt.getAttribute('data-shape');
-        S.heroFlags[id] = { ...f, shape }; saveSettings(CUR,S); paintPage(); openHeroKebab(id);
-      }else if(act==='aud'){
-        const key = opt.getAttribute('data-aud'); const next = !f.aud?.[key];
-        S.heroFlags[id] = { ...f, aud:{ ...(f.aud||{}), [key]:next } }; saveSettings(CUR,S); paintPage(); openHeroKebab(id);
-      }else if(act==='state'){
-        const state = opt.getAttribute('data-state');
-        S.heroFlags[id] = { ...f, state }; saveSettings(CUR,S); paintPage(); openHeroKebab(id);
-      }else if(act==='date'){
-        const kind = opt.getAttribute('data-kind');
-        const cur = S.heroSchedule[id]?.[kind];
-        let seed = ''; if(typeof cur==='string') seed=cur; else if(cur?.r?.start) seed=cur.r.start;
-        modalDate({title:'Select date', label:kind.toUpperCase(), value:seed}, (val)=>{
-          const hs = S.heroSchedule[id]||{}; hs[kind]=val||null; S.heroSchedule[id]=hs; saveSettings(CUR,S); paintPage(); openHeroKebab(id);
-        });
-      }else if(act==='recur'){
-        const kind = opt.getAttribute('data-kind');
-        modalSelect({title:'Recurrence', label:'Frequency', options:[
-          {label:'Daily', value:'DAILY'}, {label:'Weekly', value:'WEEKLY'},
-          {label:'Monthly', value:'MONTHLY'}, {label:'Yearly', value:'YEARLY'}
-        ]}, (freq)=>{
-          modalDate({title:'Start date', label:'Start', value:(S.heroSchedule[id]?.[kind]?.r?.start || '')}, (start)=>{
-            const hs = S.heroSchedule[id]||{}; hs[kind] = { r:{freq, interval:1, start:start||new Date().toISOString().slice(0,10)} };
-            S.heroSchedule[id]=hs; saveSettings(CUR,S); paintPage(); openHeroKebab(id);
-          });
-        });
-      }else if(act==='clear'){
-        const kind = opt.getAttribute('data-kind');
-        const hs = S.heroSchedule[id]||{}; hs[kind]=null; S.heroSchedule[id]=hs; saveSettings(CUR,S); paintPage(); openHeroKebab(id);
-      }else if(act==='rename'){
-        modalClose(); openRenameDialog('hero', id, S.heroLabels[id]||labelFor(id), styleFor(id));
-      }else if(act==='cover'){
-        openContentPicker(id);
-      }else if(act==='archive'){
-        modalConfirm({title:'Archive Course', body:`Archive <b>${escapeHTML(labelFor(id))}</b>?`}, ()=>{
-          S.heroFlags[id] = { ...f, place:'archive' };
-          S.pageOrder = S.pageOrder.filter(it=> !(it.type==='hero' && it.id===id));
-          saveSettings(CUR,S); paintPage(); paintDockPanels(); modalClose();
-        });
-      }else if(act==='delete'){
-        if(f.state==='live') return;
-        modalConfirm({title:'Move to Trash', body:`Move <b>${escapeHTML(labelFor(id))}</b> to Trash?`}, ()=>{
-          S.heroFlags[id] = { ...f, place:'trash' };
-          S.pageOrder = S.pageOrder.filter(it=> !(it.type==='hero' && it.id===id));
-          saveSettings(CUR,S); paintPage(); paintDockPanels(); modalClose();
-        });
-      }
-    };
-  }
+  $('#modalBody').onclick = (e)=>{
+    const opt = e.target.closest('[data-hact]'); if(!opt) return;
+    const act = opt.getAttribute('data-hact');
 
-  /* ===== DIVIDER KEBAB ===== */
-  document.addEventListener('click',(e)=>{
-    const keb = e.target.closest('[data-div-kebab]'); if(!keb) return;
-    if(!(isAdmin() && devOn())) return;
-    openDividerKebab(keb.getAttribute('data-div-kebab'));
-  }, {passive:false});
-
-  function openDividerKebab(divId){
-    const idx=S.pageOrder.findIndex(it=>it.type==='divider' && it.id===divId); if(idx<0) return;
-    const d=S.pageOrder[idx];
-    mTitle.textContent = d.title || 'Heading';
-    mBody.innerHTML = `
-      <div class="modalGroup">
-        <div class="groupHead">Heading</div>
-        <div class="groupBody"><div class="modalOpt" data-dact="rename"><div>Rename (font/color/size)</div></div></div>
-      </div>
-      <div class="modalGroup">
-        <div class="groupHead">Row Size</div>
-        <div class="groupBody">
-          ${['xs','s','m','l','xl'].map(sz=>`
-            <div class="modalOpt" data-dact="size" data-size="${sz}">
-              <div>${sz.toUpperCase()}</div><div class="optRight">${(d.rowSize||'m')===sz?'✓':''}</div>
-            </div>`).join('')}
-        </div>
-      </div>
-      <div class="modalGroup">
-        <div class="groupHead">Audience Filter</div>
-        <div class="groupBody">
-          ${[['beginner','Beginner'],['silver','Intermediate'],['gold','Advanced']].map(([k,lab])=>`
-            <div class="modalOpt" data-dact="aud" data-aud="${k}"><div>${lab}</div><div class="optRight">${d.aud?.[k]?'✓':''}</div></div>`).join('')}
-        </div>
-      </div>
-      <div class="modalGroup">
-        <div class="groupHead">Section State</div>
-        <div class="groupBody">
-          ${[['live','Live'],['off','Off'],['dev','Dev']].map(([k,lab])=>`
-            <div class="modalOpt" data-dact="state" data-state="${k}"><div>${lab}</div><div class="optRight">${(d.state||'live')===k?'✓':''}</div></div>`).join('')}
-        </div>
-      </div>
-      <div class="modalGroup">
-        <div class="groupHead">Danger</div>
-        <div class="groupBody"><div class="modalOpt" data-dact="remove"><div>Remove Heading</div></div></div>
-      </div>
-    `;
-    mFoot.innerHTML=''; modalRoot.hidden=false;
-
-    mBody.onclick = (e)=>{
-      const opt = e.target.closest('[data-dact]'); if(!opt) return;
-      const act = opt.getAttribute('data-dact');
-      if(act==='rename'){
-        modalClose(); openRenameDialog('divider', divId, d.title||'Heading', { color:d.color||'', size:d.fontSize||22, font:d.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" });
-      }else if(act==='size'){
-        const sz = opt.getAttribute('data-size')||'m';
-        S.pageOrder[idx].rowSize = sz; saveSettings(CUR,S); paintPage(); openDividerKebab(divId);
-      }else if(act==='aud'){
-        const key = opt.getAttribute('data-aud'); const cur = d.aud || {beginner:true,silver:true,gold:true};
-        S.pageOrder[idx].aud = {...cur, [key]: !cur[key] }; saveSettings(CUR,S); paintPage(); openDividerKebab(divId);
-      }else if(act==='state'){
-        S.pageOrder[idx].state = opt.getAttribute('data-state'); saveSettings(CUR,S); paintPage(); openDividerKebab(divId);
-      }else if(act==='remove'){
-        modalConfirm({title:'Remove Heading', body:'This does not delete contained heroes.'}, ()=>{
-          S.pageOrder = S.pageOrder.filter(x=> !(x.type==='divider' && x.id===divId)); saveSettings(CUR,S); paintPage(); modalClose();
-        });
-      }
-    };
-  }
-
-  /* ===== Rename Dialog (shared) ===== */
-  function openRenameDialog(kind, id, currentText, currentStyle){
-    mTitle.textContent = (kind==='hero'?'Rename Course':'Edit Heading');
-    mBody.innerHTML = `
-      <div class="modalSub">Text</div>
-      <div class="modalBody" style="padding:0 12px 12px"><input id="rnText" type="text" value="${escapeAttr(currentText||'')}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}"></div>
-      <div class="modalSub">Font / Color</div>
-      <div style="display:flex; gap:8px; align-items:center; padding:0 12px 12px; flex-wrap:wrap">
-        <select id="rnFont" style="padding:8px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:${'var(--ink)'}">
-          <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
-          <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
-          <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
-          <option value="'Comic Neue','Comic Sans MS',cursive">Comic Neue</option>
-          <option value="'Pacifico',cursive">Pacifico</option>
-          <option value="'Bangers',cursive">Bangers</option>
-          <option value="'Lobster',cursive">Lobster</option>
-          <option value="'Oswald',Arial,sans-serif">Oswald</option>
-          <option value="'Raleway',Arial,sans-serif">Raleway</option>
-        </select>
-        <button id="fDown" class="footer-chip" type="button" aria-label="Decrease font size">A–</button>
-        <button id="fUp" class="footer-chip" type="button" aria-label="Increase font size">A+</button>
-        <span id="fSz" style="opacity:.9;min-width:48px;text-align:right"></span>
-      </div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap; padding:0 12px 12px" id="rnPalette"></div>
-      <div class="modalSub">Preview</div>
-      <div style="padding:0 12px 12px"><div id="rnPreview" style="padding:8px 10px; border:1px dashed var(--stroke); border-radius:8px">Preview</div></div>
-    `;
-    mFoot.innerHTML='';
-    const cancel = button('modalBtn','Cancel',()=>modalClose());
-    const save   = button('modalBtn','Save',()=>{
-      const text = $('#rnText').value.trim();
-      if(kind==='hero'){
-        if(text){ S.heroLabels[id]=text } else { delete S.heroLabels[id] }
-        S.heroStyle[id] = { ...(S.heroStyle[id]||{}), labelColor: liveColor, labelSize:  liveFont, labelFont:  liveFamily };
-      }else{
-        const idx=S.pageOrder.findIndex(x=>x.type==='divider'&&x.id===id); if(idx>=0){
-          S.pageOrder[idx].title = text || 'Heading';
-          S.pageOrder[idx].color = liveColor || '';
-          S.pageOrder[idx].fontSize = liveFont;
-          S.pageOrder[idx].fontFamily = liveFamily;
-        }
-      }
-      saveSettings(CUR,S); paintPage(); modalClose();
-    });
-    mFoot.append(cancel, save); modalRoot.hidden=false;
-
-    let liveFont = Number(currentStyle?.size||18);
-    let liveColor = currentStyle?.color||'';
-    let liveFamily = currentStyle?.font || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
-    const pal = $('#rnPalette'); const preview=$('#rnPreview'); const txt=$('#rnText'); const fontSel=$('#rnFont');
-    function apply(){ preview.style.color=liveColor||''; preview.style.fontFamily=liveFamily; preview.style.fontSize=liveFont+'px'; preview.textContent = txt.value||'Preview'; $('#fSz').textContent=liveFont+'px'; }
-    const colors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
-    colors.forEach(col=>{ const b=document.createElement('button'); b.type='button'; b.className='footer-chip'; b.textContent=''; b.style.width='22px'; b.style.height='22px'; b.style.borderRadius='50%'; b.style.background=col; b.addEventListener('click',()=>{ liveColor=col; apply(); }, {passive:true}); pal.appendChild(b); });
-    $('#fUp').onclick=()=>{ liveFont=Math.min(64,liveFont+1); apply(); };
-    $('#fDown').onclick=()=>{ liveFont=Math.max(10,liveFont-1); apply(); };
-    fontSel.value=liveFamily; fontSel.onchange=()=>{ liveFamily=fontSel.value; apply(); };
-    txt.oninput=apply; apply();
-  }
-
-  /* ============================================================
-     Archived & Trash panels
-     ============================================================ */
-  function paintDockPanels(){
-    if(dockContent.hidden) return;
-    const kind = dockContent.dataset.kind;
-    if(kind==='archive') paintArchivePanel();
-    if(kind==='trash') paintTrashPanel();
-  }
-
-  function paintArchivePanel(){
-    dockContent.innerHTML = '';
-    const list = document.createElement('div'); list.className='list';
-    Object.entries(S.heroFlags).filter(([id,f])=>f.place==='archive').sort(byHeroId).forEach(([id,f])=>{
-      const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id;
-      const stateLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
-      row.innerHTML = `
-        <span class="num">${escapeHTML(labelFor(id))}</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="footer-chip" data-arch-act="move" type="button">Move to Page</button>
-          <button class="footer-chip" data-arch-act="toggle" type="button">${stateLabel}</button>
-          <button class="footer-chip" data-arch-act="trash" type="button">Move to Trash</button>
-        </div>`;
-      list.appendChild(row);
-    });
-    dockContent.appendChild(list);
-  }
-  function paintTrashPanel(){
-    dockContent.innerHTML = '';
-    const list = document.createElement('div'); list.className='list';
-    Object.entries(S.heroFlags).filter(([id,f])=>f.place==='trash').sort(byHeroId).forEach(([id,f])=>{
-      const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id;
-      row.innerHTML = `
-        <span class="num">${escapeHTML(labelFor(id))}</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="footer-chip" data-trash-act="restore" type="button">Restore</button>
-          <button class="footer-chip" data-trash-act="delete" type="button">Delete Permanently</button>
-        </div>`;
-      list.appendChild(row);
-    });
-    dockContent.appendChild(list);
-  }
-  function byHeroId([a], [b]){ return Number((a.match(/\d+/)||[])[0]) - Number((b.match(/\d+/)||[])[0]); }
-
-  dockContent.addEventListener('click',(e)=>{
-    const row = e.target.closest('.row'); if(!row) return;
-    const id = row.dataset.heroId; const f=S.heroFlags[id]; if(!f) return;
-
-    const aAct = e.target.closest('[data-arch-act]');
-    if(aAct){
-      const act=aAct.dataset.archAct;
-      if(act==='move'){
-        S.heroFlags[id] = { ...f, place:'page' };
-        if(!S.pageOrder.some(x=>x.type==='hero' && x.id===id)) S.pageOrder.push({type:'hero', id});
-      }else if(act==='toggle'){
-        const order=['live','off','dev']; const ni=(order.indexOf(f.state)+1)%order.length;
-        S.heroFlags[id] = { ...f, state:order[ni] };
-      }else if(act==='trash'){
-        S.heroFlags[id] = { ...f, place:'trash' };
-      }
-      saveSettings(CUR,S); paintPage(); paintArchivePanel();
+    if(act==='state'){
+      const st = opt.getAttribute('data-state');
+      S.heroFlags[id] = { ...(S.heroFlags[id]||{}), state: st };
+      saveSettings(S); paintPage(); openHeroKebab(id);
       return;
     }
-    const tAct = e.target.closest('[data-trash-act]');
-    if(tAct){
-      const act=tAct.dataset.trashAct;
-      if(act==='restore'){
-        S.heroFlags[id] = { ...f, place:'page' };
-        if(!S.pageOrder.some(x=>x.type==='hero' && x.id===id)) S.pageOrder.push({type:'hero', id});
-      }else if(act==='delete'){
-        const courseId = S.courseMap?.[id];
-        delete S.heroFlags[id];
-        delete S.heroLabels[id];
-        delete S.heroStyle[id];
-        delete S.heroAssets[id];
-        delete S.heroSchedule[id];
-        delete S.heroShortcuts[id];
-        delete S.heroProgress[id];
-        delete S.courseMap[id];
-        S.pageOrder = S.pageOrder.filter(x=> !(x.type==='hero' && x.id===id));
-        try{ if(courseId && window.db && typeof window.db.deleteCourse==='function'){ window.db.deleteCourse(courseId); } }catch{}
-      }
-      saveSettings(CUR,S); paintPage(); paintTrashPanel();
+    if(act==='shape'){
+      const shape=opt.getAttribute('data-shape');
+      S.heroFlags[id] = { ...(S.heroFlags[id]||{}), shape };
+      saveSettings(S); paintPage(); openHeroKebab(id); return;
     }
+    if(act==='cover'){ openContentPicker(id); return; }
+    if(act==='archive'){
+      S.heroFlags[id] = { ...(S.heroFlags[id]||{}), place:'archive' };
+      S.pageOrder = S.pageOrder.filter(x=> !(x.type==='hero' && x.id===id));
+      saveSettings(S); paintPage(); paintDockPanels(); modalClose(); return;
+    }
+    if(act==='delete'){
+      if((S.heroFlags[id]?.state)==='live'){ alert('Cannot delete while Live.'); return; }
+      S.heroFlags[id] = { ...(S.heroFlags[id]||{}), place:'trash' };
+      S.pageOrder = S.pageOrder.filter(x=> !(x.type==='hero' && x.id===id));
+      saveSettings(S); paintPage(); paintDockPanels(); modalClose(); return;
+    }
+    if(act==='rename'){
+      modalClose(); openRenameDialog('hero', id, S.heroLabels[id]||labelFor(id), styleFor(id)); return;
+    }
+    if(act==='request'){
+      modalPrompt({title:'Admin Request', label:'Describe your request', value:''}, (txt)=>{
+        console.log('Admin request (hero)', id, txt);
+      }); return;
+    }
+    if(act==='schedule'){
+      openSchedulerDialog(id); return;
+    }
+    if(act==='clear'){
+      const kind=opt.getAttribute('data-kind'); const hs=S.heroSchedule[id]||{};
+      hs[kind]=null; S.heroSchedule[id]=hs; saveSettings(S); paintPage(); openHeroKebab(id); return;
+    }
+  };
+}
+
+/* Scheduler mini-dialog */
+function openSchedulerDialog(id){
+  const sch=S.heroSchedule[id]||{};
+  $('#modalTitle').textContent='Schedule';
+  $('#modalBody').innerHTML = `
+    <div class="modalGroup">
+      <div class="groupHead">Dates</div>
+      <div class="groupBody">
+        <div class="modalOpt" data-sched="date" data-kind="release"><div>Release Date</div><div class="optRight">${fmtDate(typeof sch.release==='string'? sch.release : sch.release?.r?.start) || '—'}</div></div>
+        <div class="modalOpt" data-sched="date" data-kind="expiry"><div>Expiry Date</div><div class="optRight">${fmtDate(typeof sch.expiry==='string'? sch.expiry : sch.expiry?.r?.start) || '—'}</div></div>
+        <div class="modalOpt" data-sched="date" data-kind="dev"><div>Dev Date</div><div class="optRight">${fmtDate(typeof sch.dev==='string'? sch.dev : sch.dev?.r?.start) || '—'}</div></div>
+      </div>
+    </div>
+    <div class="modalGroup">
+      <div class="groupHead">Recurrence</div>
+      <div class="groupBody">
+        ${['release','expiry','dev'].map(k=>`
+          <div class="modalOpt" data-sched="recur" data-kind="${k}">
+            <div>${k[0].toUpperCase()+k.slice(1)} Recurrence</div>
+            <div class="optRight">${(sch[k]&&sch[k].r)?'On':'Off'}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+  $('#modalFoot').innerHTML = `<button class="modalBtn" id="schedDone">Done</button>`;
+  $('#modalRoot').hidden=false;
+  $('#schedDone').onclick=()=> openHeroKebab(id);
+  $('#modalBody').onclick=(e)=>{
+    const opt=e.target.closest('[data-sched]'); if(!opt) return;
+    const act=opt.dataset.sched; const kind=opt.dataset.kind;
+    if(act==='date'){
+      modalDate({title:'Select date', label:kind.toUpperCase(), value:(typeof sch[kind]==='string'?sch[kind]:(sch[kind]?.r?.start)||'')}, val=>{
+        const hs=S.heroSchedule[id]||{}; hs[kind]=val||null; S.heroSchedule[id]=hs; saveSettings(S); openSchedulerDialog(id);
+      });
+    }else if(act==='recur'){
+      modalSelect({title:'Recurrence', label:'Frequency', options:[
+        {label:'Daily',value:'DAILY'},{label:'Weekly',value:'WEEKLY'},{label:'Monthly',value:'MONTHLY'},{label:'Yearly',value:'YEARLY'}
+      ]}, freq=>{
+        modalDate({title:'Start date', label:'Start', value:(S.heroSchedule[id]?.[kind]?.r?.start||'')}, start=>{
+          const hs=S.heroSchedule[id]||{}; hs[kind]={ r:{freq, interval:1, start:start||new Date().toISOString().slice(0,10)} }; S.heroSchedule[id]=hs; saveSettings(S); openSchedulerDialog(id);
+        });
+      });
+    }
+  };
+}
+
+/* ===== Divider Kebab (aligned with hero; rename at bottom; no audience filter/state) ===== */
+document.addEventListener('click',(e)=>{
+  const keb = e.target.closest('[data-div-kebab]'); if(!keb) return;
+  if(!(isAdmin() && devOn())) return;
+  const divId=keb.getAttribute('data-div-kebab');
+  const idx=S.pageOrder.findIndex(it=>it.type==='divider'&&it.id===divId); if(idx<0) return;
+  const d=S.pageOrder[idx];
+  $('#modalTitle').textContent = d.title || 'Heading';
+  $('#modalBody').innerHTML = `
+    <div class="modalGroup">
+      <div class="groupHead">Row Size</div>
+      <div class="groupBody">
+        ${['xs','s','m','l','xl'].map(sz=>`
+          <div class="modalOpt" data-dact="size" data-size="${sz}">
+            <div>${sz.toUpperCase()}</div><div class="optRight">${(d.rowSize||'m')===sz?'•':''}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="modalGroup">
+      <div class="groupHead">Admin</div>
+      <div class="groupBody">
+        <div class="modalOpt" data-dact="request"><div>Make an admin request…</div><div class="optRight">→</div></div>
+        <div class="modalOpt" data-dact="remove"><div>Remove Heading</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-dact="rename"><div>Rename (font/color/size)</div><div class="optRight"></div></div>
+      </div>
+    </div>
+  `;
+  $('#modalFoot').innerHTML = '';
+  $('#modalRoot').hidden=false;
+
+  $('#modalBody').onclick = (e)=>{
+    const opt=e.target.closest('[data-dact]'); if(!opt) return;
+    const act=opt.dataset.dact;
+    if(act==='size'){ S.pageOrder[idx].rowSize=opt.dataset.size; saveSettings(S); paintPage(); e.currentTarget; openDividerKebab(divId); }
+    if(act==='remove'){ modalConfirm({title:'Remove Heading', body:'This does not delete contained heroes.'}, ()=>{ S.pageOrder = S.pageOrder.filter(x=> !(x.type==='divider' && x.id===divId)); saveSettings(S); paintPage(); modalClose(); }); }
+    if(act==='request'){ modalPrompt({title:'Admin Request', label:'Describe your request', value:''}, (txt)=>{ console.log('Admin request (heading)', divId, txt); }); }
+    if(act==='rename'){ modalClose(); openRenameDialog('divider', divId, d.title||'Heading', { color:d.color||'', size:d.fontSize||22, font:d.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" }); }
+  };
+});
+
+/* ===== Modal helpers ===== */
+const modalRoot = $('#modalRoot');
+const mTitle = $('#modalTitle');
+const mBody  = $('#modalBody');
+const mFoot  = $('#modalFoot');
+$('#modalX').onclick = ()=> modalClose();
+$('#modalBackdrop').onclick = ()=> modalClose();
+function modalClose(){ modalRoot.hidden = true; mTitle.textContent=''; mBody.innerHTML=''; mFoot.innerHTML=''; }
+function modalConfirm({title='Confirm', body='Are you sure?', okText='Confirm', cancelText='Cancel', danger=false}={}, onOK){
+  mTitle.textContent = title; mBody.innerHTML = typeof body==='string' ? `<div>${body}</div>` : ''; mFoot.innerHTML = '';
+  const cancel = button('modalBtn','Cancel',()=>modalClose());
+  const ok = button('modalBtn'+(danger?' danger':''),'OK',()=>{ modalClose(); onOK?.(); });
+  mFoot.append(cancel, ok); modalRoot.hidden = false;
+}
+function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
+  mTitle.textContent = title;
+  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
+    <input id="modalInput" type="text" value="${esc(value||'')}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
+  mFoot.innerHTML = '';
+  const cancel = button('modalBtn','Cancel',()=>modalClose());
+  const ok = button('modalBtn','Save',()=>{ const v=$('#modalInput').value; modalClose(); onOK?.(v); });
+  mFoot.append(cancel, ok); modalRoot.hidden = false; setTimeout(()=>$('#modalInput')?.focus(),0);
+}
+function modalSelect({title='Select', options=[], value=null, label='Option'}={}, onOK){
+  mTitle.textContent = title;
+  const opts = options.map(o=>`<option value="${esc(o.value)}"${o.value===value?' selected':''}>${esc(o.label)}</option>`).join('');
+  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
+    <select id="modalSel" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c0f;color:var(--ink)">${opts}</select>`;
+  mFoot.innerHTML = '';
+  const cancel = button('modalBtn','Cancel',()=>modalClose());
+  const ok = button('modalBtn','Save',()=>{ const v=$('#modalSel').value; modalClose(); onOK?.(v); });
+  mFoot.append(cancel, ok); modalRoot.hidden = false;
+}
+function modalDate({title='Select date', label='Date', value=''}={}, onOK){
+  mTitle.textContent = title;
+  mBody.innerHTML = `<label style="display:block;opacity:.9;margin-bottom:6px">${label}</label>
+    <input id="modalDate" type="date" value="${esc(value||'')}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">`;
+  mFoot.innerHTML = '';
+  const cancel = button('modalBtn','Cancel',()=>modalClose());
+  const ok = button('modalBtn','Save',()=>{ const v=$('#modalDate').value; modalClose(); onOK?.(v); });
+  mFoot.append(cancel, ok); modalRoot.hidden = false;
+}
+function button(cls, text, onClick){ const b=document.createElement('button'); b.className=cls; b.textContent=text; b.onclick=onClick; return b; }
+
+/* ===== Archive & Trash panels ===== */
+function paintDockPanels(){
+  if(dockContent.hidden) return;
+  const kind = dockContent.dataset.kind;
+  if(kind==='archive') paintArchivePanel();
+  if(kind==='trash') paintTrashPanel();
+}
+function byHeroId([a],[b]){ return String(a).localeCompare(String(b),undefined,{numeric:true}); }
+function paintArchivePanel(){
+  dockContent.innerHTML = '';
+  const list = document.createElement('div'); list.className='list'; list.style.padding='8px 12px 16px'; list.style.display='flex'; list.style.flexDirection='column'; list.style.gap='8px';
+  Object.entries(S.heroFlags).filter(([id,f])=>f.place==='archive').sort(byHeroId).forEach(([id,f])=>{
+    const stateLabel = f.state==='live'?'Live':(f.state==='dev'?'Dev':'Offline');
+    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id;
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);background:#0d0f14;border-radius:10px';
+    row.innerHTML = `
+      <span class="num" style="font-weight:900">${esc(labelFor(id))}</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="footer-chip" data-arch-act="move" type="button">Move to Page</button>
+        <button class="footer-chip" data-arch-act="toggle" type="button">${esc(stateLabel)}</button>
+        <button class="footer-chip" data-arch-act="trash" type="button">Move to Trash</button>
+      </div>`;
+    list.appendChild(row);
   });
-
-  /* ============================================================
-     Hero click → studio.html?course=<id>
-     ============================================================ */
-  document.addEventListener('click',(e)=>{
-    const hero = e.target.closest?.('.hero');
-    if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
-    const id = hero.dataset.heroId;
-    const courseId = S.courseMap?.[id];
-    if(courseId){
-      window.location.href = `./studio.html?course=${encodeURIComponent(courseId)}`;
-    }
-  }, {passive:false});
-
-  /* ============================================================
-     Content Picker
-     ============================================================ */
-  const PICKER_BASE = "https://lucas-davies.github.io/OA/content-picker.html";
-  const ALLOWED_ORIGIN = (()=>{ try{ return new URL(PICKER_BASE).origin; }catch{ return "https://lucas-davies.github.io"; } })();
-  const MANIFEST_PATH = "/OA/assets/media/manifest.json";
-  function buildPickerUrl(){
-    const manifestAbs = new URL(MANIFEST_PATH, ALLOWED_ORIGIN).href;
-    const params = new URLSearchParams({
-      manifest: manifestAbs,
-      origin: (window.location.origin && window.location.origin !== "null") ? window.location.origin : "*"
-    });
-    return `${PICKER_BASE}?${params.toString()}`;
-  }
-  const pickerOverlay=$('#pickerOverlay'), pickerFrame=$('#pickerFrame'), pickerClose=$('#pickerClose');
-  let pickerHeroId=null;
-  function openContentPicker(heroId){
-    pickerHeroId = heroId || null;
-    pickerFrame.src = buildPickerUrl() + "&t=" + Date.now();
-    pickerOverlay.hidden = false; pickerOverlay.setAttribute('aria-hidden','false'); document.body.classList.add('lock');
-  }
-  function closeContentPicker(){
-    pickerOverlay.hidden = true; pickerOverlay.setAttribute('aria-hidden','true'); document.body.classList.remove('lock'); pickerFrame.src='about:blank'; pickerHeroId=null;
-  }
-  pickerClose.addEventListener('click', closeContentPicker, {passive:true});
-  pickerOverlay.addEventListener('click',(e)=>{ if(e.target.id==='pickerOverlay'||e.target.id==='pickerBar') closeContentPicker(); }, {passive:true});
-  window.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && !pickerOverlay.hidden) closeContentPicker(); }, {passive:true});
-
-  window.addEventListener('message',(ev)=>{
-    let ok=false;
-    try{ const u=new URL(ev.origin); ok = (u.origin===ALLOWED_ORIGIN) || (u.origin===window.location.origin) || u.hostname.endsWith('.github.io'); }catch{}
-    if(!ok) return;
-    const url = extractImageUrl(ev.data); if(!url || !pickerHeroId) return;
-    try{
-      const abs = new URL(url, ev.origin).href;
-      const cur = S.heroAssets[pickerHeroId] || {};
-      const hc  = cur.heroCard || {};
-      S.heroAssets[pickerHeroId] = { ...cur, heroCard:{ src:abs, fit: hc.fit||'cover', pos:hc.pos||'50% 50%', crop:{cx:0,cy:0,scale:1} } };
-      saveSettings(CUR,S); paintPage();
-    }finally{ closeContentPicker(); }
+  dockContent.appendChild(list);
+}
+function paintTrashPanel(){
+  dockContent.innerHTML = '';
+  const list = document.createElement('div'); list.className='list'; list.style.padding='8px 12px 16px'; list.style.display='flex'; list.style.flexDirection='column'; list.style.gap='8px';
+  Object.entries(S.heroFlags).filter(([id,f])=>f.place==='trash').sort(byHeroId).forEach(([id,f])=>{
+    const row=document.createElement('div'); row.className='row'; row.dataset.heroId=id;
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);background:#0d0f14;border-radius:10px';
+    row.innerHTML = `
+      <span class="num" style="font-weight:900">${esc(labelFor(id))}</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="footer-chip" data-trash-act="restore" type="button">Restore</button>
+        <button class="footer-chip" data-trash-act="delete" type="button" style="color:#ffb4b8;border-color:#5a1f23;background:#2a1012">Delete Permanently</button>
+      </div>`;
+    list.appendChild(row);
   });
+  dockContent.appendChild(list);
+}
+dockContent.addEventListener('click',(e)=>{
+  const row = e.target.closest('.row'); if(!row) return;
+  const id = row.dataset.heroId; const f=S.heroFlags[id]; if(!f) return;
 
-  function extractImageUrl(d){
-    const URL_RE=/^(https?:)?\/\//i; const EXT_RE=/\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
-    function find(v){
-      if(!v) return null;
-      if(typeof v==='string') return (URL_RE.test(v)||EXT_RE.test(v))?v:null;
-      if(Array.isArray(v)){ for(const x of v){ const hit=find(x); if(hit) return hit; } return null; }
-      if(typeof v==='object'){ for(const k of Object.keys(v)){ const hit=find(v[k]); if(hit) return hit; } }
-      return null;
+  const aAct = e.target.closest('[data-arch-act]');
+  if(aAct){
+    const act=aAct.dataset.archAct;
+    if(act==='move'){
+      S.heroFlags[id] = { ...f, place:'page' };
+      if(!S.pageOrder.some(x=>x.type==='hero' && x.id===id)) S.pageOrder.push({type:'hero', id});
+    }else if(act==='toggle'){
+      const order=['live','off','dev']; const ni=(order.indexOf(f.state)+1)%order.length;
+      S.heroFlags[id] = { ...f, state:order[ni] };
+    }else if(act==='trash'){
+      S.heroFlags[id] = { ...f, place:'trash' };
     }
-    return find(d);
+    saveSettings(S); paintPage(); paintArchivePanel();
+    return;
   }
-
-  /* ============================================================
-     Small helpers (dates)
-     ============================================================ */
-  const fmtDate=d=>{ if(!d) return ''; const t=new Date(d); if(Number.isNaN(+t)) return ''; const dd=String(t.getDate()).padStart(2,'0'); const mm=String(t.getMonth()+1).padStart(2,'0'); const yy=t.getFullYear(); return `${dd}/${mm}/${yy}` };
-  function toDateOnly(d){ const t=new Date(d); if(Number.isNaN(+t)) return null; return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
-  function daysUntil(d){ const n=toDateOnly(new Date()); const x=toDateOnly(d); if(!x) return null; const ms=x-n; return Math.ceil(ms/86400000); }
-  function baseDate(val){ if(typeof val==='string') return toDateOnly(val); if(val?.r?.start) return toDateOnly(val.r.start); return null; }
-  function nextOccurrence(val){
-    if(!val) return null;
-    if(typeof val==='string'){ const t=toDateOnly(val); return (t && t>=toDateOnly(new Date())) ? t : null; }
-    if(typeof val==='object' && val.r){
-      const R=val.r||{}; const freq=String(R.freq||'').toUpperCase(); const interval=Math.max(1, Number(R.interval||1));
-      let cur = toDateOnly(R.start||new Date());
-      const now = toDateOnly(new Date());
-      function step(d){ if(freq==='DAILY') d.setDate(d.getDate()+interval); else if(freq==='WEEKLY') d.setDate(d.getDate()+7*interval); else if(freq==='MONTHLY') d.setMonth(d.getMonth()+interval); else if(freq==='YEARLY') d.setFullYear(d.getFullYear()+interval); else d.setDate(d.getDate()+interval); }
-      let guard=0; while(cur && cur<now && guard<512){ step(cur); guard++; }
-      return (cur && cur>=now) ? cur : null;
+  const tAct = e.target.closest('[data-trash-act]');
+  if(tAct){
+    const act=tAct.dataset.trashAct;
+    if(act==='restore'){
+      S.heroFlags[id] = { ...f, place:'page' };
+      if(!S.pageOrder.some(x=>x.type==='hero' && x.id===id)) S.pageOrder.push({type:'hero', id});
+    }else if(act==='delete'){
+      const courseId = S.courseMap?.[id];
+      delete S.heroFlags[id];
+      delete S.heroLabels[id];
+      delete S.heroStyle[id];
+      delete S.heroAssets[id];
+      delete S.heroSchedule[id];
+      delete S.heroShortcuts[id];
+      delete S.heroProgress[id];
+      delete S.courseMap[id];
+      S.pageOrder = S.pageOrder.filter(x=> !(x.type==='hero' && x.id===id));
+      try{ if(courseId && window.db && typeof window.db.deleteCourse==='function'){ window.db.deleteCourse(courseId); } }catch{}
     }
+    saveSettings(S); paintPage(); paintTrashPanel();
+  }
+});
+
+/* Hero click -> studio */
+document.addEventListener('click',(e)=>{
+  const hero = e.target.closest?.('.hero');
+  if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
+  const id = hero.dataset.heroId;
+  const courseId = S.courseMap?.[id];
+  if(courseId) window.location.href = `./studio.html?course=${encodeURIComponent(courseId)}`;
+}, {passive:false});
+
+/* ===== Content Picker (unchanged infra) ===== */
+const PICKER_BASE = "https://lucas-davies.github.io/OA/content-picker.html";
+const ALLOWED_ORIGIN = (()=>{ try{ return new URL(PICKER_BASE).origin; }catch{ return "https://lucas-davies.github.io"; } })();
+const MANIFEST_PATH = "/OA/assets/media/manifest.json";
+function buildPickerUrl(){
+  const manifestAbs = new URL(MANIFEST_PATH, ALLOWED_ORIGIN).href;
+  const params = new URLSearchParams({ manifest: manifestAbs, origin: (window.location.origin && window.location.origin !== "null") ? window.location.origin : "*" });
+  return `${PICKER_BASE}?${params.toString()}`;
+}
+const pickerOverlay=$('#pickerOverlay'), pickerFrame=$('#pickerFrame'), pickerClose=$('#pickerClose');
+let pickerHeroId=null;
+function openContentPicker(heroId){
+  pickerHeroId = heroId || null;
+  pickerFrame.src = buildPickerUrl() + "&t=" + Date.now();
+  pickerOverlay.hidden = false; pickerOverlay.setAttribute('aria-hidden','false'); document.body.classList.add('lock');
+}
+function closeContentPicker(){
+  pickerOverlay.hidden = true; pickerOverlay.setAttribute('aria-hidden','true'); document.body.classList.remove('lock'); pickerFrame.src='about:blank'; pickerHeroId=null;
+}
+pickerClose.addEventListener('click', closeContentPicker, {passive:true});
+pickerOverlay.addEventListener('click',(e)=>{ if(e.target.id==='pickerOverlay'||e.target.id==='pickerBar') closeContentPicker(); }, {passive:true});
+window.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && !pickerOverlay.hidden) closeContentPicker(); }, {passive:true});
+window.addEventListener('message',(ev)=>{
+  let ok=false;
+  try{ const u=new URL(ev.origin); ok = (u.origin===ALLOWED_ORIGIN) || (u.origin===window.location.origin) || u.hostname.endsWith('.github.io'); }catch{}
+  if(!ok) return;
+  const url = extractImageUrl(ev.data); if(!url || !pickerHeroId) return;
+  try{
+    const abs = new URL(url, ev.origin).href;
+    const cur = S.heroAssets[pickerHeroId] || {};
+    const hc  = cur.heroCard || {};
+    S.heroAssets[pickerHeroId] = { ...cur, heroCard:{ src:abs, fit: hc.fit||'cover', pos:hc.pos||'50% 50%', crop:{cx:0,cy:0,scale:1} } };
+    saveSettings(S); paintPage();
+  }finally{ closeContentPicker(); }
+});
+function extractImageUrl(d){
+  const URL_RE=/^(https?:)?\/\//i; const EXT_RE=/\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
+  function find(v){
+    if(!v) return null;
+    if(typeof v==='string') return (URL_RE.test(v)||EXT_RE.test(v))?v:null;
+    if(Array.isArray(v)){ for(const x of v){ const hit=find(x); if(hit) return hit; } return null; }
+    if(typeof v==='object'){ for(const k of Object.keys(v)){ const hit=find(v[k]); if(hit) return hit; } }
     return null;
   }
+  return find(d);
+}
 
-  /* ============================================================
-     BOOT — do this AFTER we have grabbed Dev Dock nodes
-     ============================================================ */
-  (function boot(){
-    const {artists, cur, first} = ensureArtists();
-    ARTISTS = artists; CUR = cur; S = loadSettings(CUR);
-    paintAvatar();
-    paintHQ();
-    applyDevChips();      // safe now that devToggle et al are bound
-    paintPage();
-    if(first) openHQ();   // show HQ on first load
-  })();
+/* ===== Rename shared dialog ===== */
+function openRenameDialog(kind, id, currentText, currentStyle){
+  const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
+  mTitle.textContent = (kind==='hero'?'Rename Course':'Edit Heading');
+  mBody.innerHTML = `
+    <div class="modalSub">Text</div>
+    <div class="modalBody" style="padding:0 12px 12px"><input id="rnText" type="text" value="${esc(currentText||'')}" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)"></div>
+    <div class="modalSub">Font / Color</div>
+    <div style="display:flex; gap:8px; align-items:center; padding:0 12px 12px; flex-wrap:wrap">
+      <select id="rnFont" style="padding:8px;border-radius:10px;border:1px solid var(--stroke);background:#0b0c10;color:var(--ink)">
+        <option value="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">System Sans</option>
+        <option value="ui-serif,Georgia,'Times New Roman',serif">Serif</option>
+        <option value="ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace">Monospace</option>
+        <option value="'Comic Neue','Comic Sans MS',cursive">Comic Neue</option>
+        <option value="'Pacifico',cursive">Pacifico</option>
+        <option value="'Bangers',cursive">Bangers</option>
+        <option value="'Lobster',cursive">Lobster</option>
+        <option value="'Oswald',Arial,sans-serif">Oswald</option>
+        <option value="'Raleway',Arial,sans-serif">Raleway</option>
+      </select>
+      <button id="fDown" class="footer-chip" type="button">A–</button>
+      <button id="fUp" class="footer-chip" type="button">A+</button>
+      <span id="fSz" style="opacity:.9;min-width:48px;text-align:right"></span>
+    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap; padding:0 12px 12px" id="rnPalette"></div>
+    <div class="modalSub">Preview</div>
+    <div style="padding:0 12px 12px"><div id="rnPreview" style="padding:8px 10px; border:1px dashed var(--stroke); border-radius:8px">Preview</div></div>
+  `;
+  mFoot.innerHTML='';
+  const cancel = button('modalBtn','Cancel',()=>modalClose());
+  const save   = button('modalBtn','Save',()=>{
+    const text = $('#rnText').value.trim();
+    if(kind==='hero'){
+      if(text){ S.heroLabels[id]=text } else { delete S.heroLabels[id] }
+      S.heroStyle[id] = { ...(S.heroStyle[id]||{}), labelColor: liveColor, labelSize:  liveFont, labelFont:  liveFamily };
+    }else{
+      const idx=S.pageOrder.findIndex(x=>x.type==='divider'&&x.id===id); if(idx>=0){
+        S.pageOrder[idx].title = text || 'Heading';
+        S.pageOrder[idx].color = liveColor || '';
+        S.pageOrder[idx].fontSize = liveFont;
+        S.pageOrder[idx].fontFamily = liveFamily;
+      }
+    }
+    saveSettings(S); paintPage(); modalClose();
+  });
+  mFoot.append(cancel, save); modalRoot.hidden=false;
 
-  })();
-  </script>
+  let liveFont = Number(currentStyle?.size||18);
+  let liveColor = currentStyle?.color||'';
+  let liveFamily = currentStyle?.font || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
+  const pal = $('#rnPalette'); const preview=$('#rnPreview'); const txt=$('#rnText'); const fontSel=$('#rnFont');
+  function apply(){ preview.style.color=liveColor||''; preview.style.fontFamily=liveFamily; preview.style.fontSize=liveFont+'px'; preview.textContent=txt.value||'Preview'; $('#fSz').textContent=liveFont+'px'; }
+  const colors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
+  colors.forEach(col=>{ const b=document.createElement('button'); b.type='button'; b.className='footer-chip'; b.textContent=''; b.style.width='22px'; b.style.height='22px'; b.style.borderRadius='50%'; b.style.background=col; b.addEventListener('click',()=>{ liveColor=col; apply(); }, {passive:true}); pal.appendChild(b); });
+  $('#fUp').onclick=()=>{ liveFont=Math.min(64,liveFont+1); apply(); };
+  $('#fDown').onclick=()=>{ liveFont=Math.max(10,liveFont-1); apply(); };
+  fontSel.value=liveFamily; fontSel.onchange=()=>{ liveFamily=fontSel.value; apply(); };
+  txt.oninput=apply; apply();
+}
+
+/* ===== Boot ===== */
+paintHQ();
+paintPage();
+
+/* ===== Helpers ===== */
+function modalCloseSafe(){ try{ modalClose(); }catch{} }
+})(); // IIFE end
+</script>
 </body>
 </html>
+```
+
