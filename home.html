@@ -936,12 +936,20 @@ $('#addHeadingBtn').addEventListener('click',()=>{
    ===== Content Picker JS =====
    Opens fullscreen iframe and updates hero cover on selection
 ========================= */
+/* ===== Content Picker wiring (robust origin + absolute manifest) ===== */
 const PICKER_BASE = "https://lucas-davies.github.io/OA/content-picker.html";
-const ALLOWED_ORIGIN = "https://lucas-davies.github.io";
 
+/* Derive the allowed origin from PICKER_BASE (fallback kept just in case) */
+const ALLOWED_ORIGIN = (() => {
+  try { return new URL(PICKER_BASE).origin; } catch { return "https://lucas-davies.github.io"; }
+})();
+
+/* Build an absolute manifest URL against the picker’s origin */
+const MANIFEST_PATH = "/OA/assets/media/manifest.json";
 function buildPickerUrl(){
+  const manifestAbs = new URL(MANIFEST_PATH, ALLOWED_ORIGIN).href;
   const params = new URLSearchParams({
-    manifest: "/OA/assets/media/manifest.json",
+    manifest: manifestAbs,
     origin: (window.location.origin && window.location.origin !== "null") ? window.location.origin : "*"
   });
   return `${PICKER_BASE}?${params.toString()}`;
@@ -954,7 +962,8 @@ let pickerHeroId = null;
 
 function openContentPicker(heroId){
   pickerHeroId = heroId || null;
-  pickerFrame.src = buildPickerUrl() + "&t=" + Date.now();  // use the builder
+  // cache-bust for GH Pages
+  pickerFrame.src = buildPickerUrl() + "&t=" + Date.now();
   pickerOverlay.hidden = false;
   pickerOverlay.setAttribute('aria-hidden','false');
   document.body.classList.add('lock');
@@ -973,26 +982,25 @@ document.getElementById('pickerOverlay')?.addEventListener('click', (e)=>{
   if(e.target.id === 'pickerOverlay' || e.target.id === 'pickerBar') closeContentPicker();
 }, {passive:true});
 
-// Robust message handler
+/* Robust message handler */
 (function(){
+  const URL_RE = /^(https?:)?\/\//i;
+  const EXT_RE = /\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
+
+  /* Accept messages from:
+     - The picker’s own origin (derived from PICKER_BASE)
+     - Our page’s origin (useful when embedding on the same site) */
   const ORIGIN_OK = (o)=>{
     try{
       const u = new URL(o);
-      return u.origin === ALLOWED_ORIGIN || u.hostname.endsWith('.github.io');
+      return u.origin === ALLOWED_ORIGIN || u.origin === window.location.origin || u.hostname.endsWith('.github.io');
     }catch{ return false; }
   };
-  const URL_RE = /^(https?:)?\/\//i;
-  const EXT_RE = /\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
+
   function findUrl(v){
     if(!v) return null;
-    if(typeof v === 'string'){
-      if (URL_RE.test(v) || EXT_RE.test(v)) return v;
-      return null;
-    }
-    if(Array.isArray(v)){
-      for(const x of v){ const hit=findUrl(x); if(hit) return hit; }
-      return null;
-    }
+    if(typeof v === 'string'){ return (URL_RE.test(v) || EXT_RE.test(v)) ? v : null; }
+    if(Array.isArray(v)){ for(const x of v){ const hit=findUrl(x); if(hit) return hit; } return null; }
     if(typeof v === 'object'){
       const keys=['url','src','href','path','file','asset','image','selected','value','item'];
       for(const k of keys){ if(v[k]){ const hit=findUrl(v[k]); if(hit) return hit; } }
@@ -1020,7 +1028,9 @@ document.getElementById('pickerOverlay')?.addEventListener('click', (e)=>{
     let pickedUrl = direct || findUrl(d);
     if(!pickedUrl) return;
 
-    try { pickedUrl = new URL(pickedUrl, ALLOWED_ORIGIN).href; } catch {}
+    /* Resolve against the event’s origin first (then fall back to the picker origin) */
+    try { pickedUrl = new URL(pickedUrl, ev.origin).href; }
+    catch { try { pickedUrl = new URL(pickedUrl, ALLOWED_ORIGIN).href; } catch {} }
 
     if(pickedUrl && pickerHeroId){
       const s = getSettings();
