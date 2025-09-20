@@ -800,7 +800,6 @@ function addHeroIndicators(){
     h.appendChild(ind);
   });
 }
-
 function addHeadingIndicators(){
   if(!seesAll()) return;
   $$('.divider').forEach(div=>{
@@ -809,10 +808,20 @@ function addHeadingIndicators(){
     slot.innerHTML = '';
     const heroes=[...(div.nextElementSibling?.querySelectorAll?.('.hero')||[])];
     const agg={bronze:false,silver:false,gold:false};
-    heroes.forEach(h=>{ const f=getSettings()?.heroFlags?.[h.dataset.heroId]; if(f?.aud){ agg.bronze ||= !!f.aud.bronze; agg.silver ||= !!f.aud.silver; agg.gold   ||= !!f.aud.gold; } });
+    heroes.forEach(h=>{
+      const f=getSettings()?.heroFlags?.[h.dataset.heroId];
+      if(f?.aud){
+        agg.bronze ||= !!f.aud.bronze;
+        agg.silver ||= !!f.aud.silver;
+        agg.gold   ||= !!f.aud.gold;
+      }
+    });
     const order=[['gold','Advanced'],['silver','Intermediate'],['bronze','Beginner']];
-    const active = order.filter(([k])=>agg[k]); if(!active.length) return;
-    slot.innerHTML = active map(([k,t])=>`<span class="aud-dot ${k} on" title="${t}"></span>`).join('');
+    const active = order.filter(([k])=>agg[k]);
+    if(!active.length) return;
+    slot.innerHTML = active
+      .map(([k,t])=>`<span class="aud-dot ${k} on" title="${t}"></span>`)
+      .join('');
   });
 }
 
