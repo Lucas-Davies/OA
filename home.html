@@ -1,5 +1,3 @@
-V4 - Home
-
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -352,6 +350,8 @@ body.lock{ position:fixed; width:100% }
       <span id="archiveTitle">Developer Mode</span>
       <button class="footer-chip" id="devToggle" type="button">Developer: Off</button>
       <button class="footer-chip hide-when-normal" id="addHeadingBtn" type="button">Add Heading</button>
+      <!-- NEW: Create Course button (Dev mode only) -->
+      <button class="footer-chip hide-when-normal" id="createCourseBtn" type="button" style="display:none">Create Course</button>
     </div>
     <div class="title" style="gap:12px">
       <button class="footer-chip" id="archiveToggle" type="button">Archived</button>
@@ -415,7 +415,7 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
 const K={ profile:'ao_profile', settings:'ao_settings', view:'ao_view', schemaVer:'ao_schema_version' };
-const SCHEMA_VERSION=7;
+const SCHEMA_VERSION=8; /* bumped to 8 because schema changed (no 1..50 seed; add courseMap) */
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const fmtDate=d=>{ if(!d) return ''; const t=new Date(d); if(Number.isNaN(+t)) return ''; const dd=String(t.getDate()).padStart(2,'0'); const mm=String(t.getMonth()+1).padStart(2,'0'); const yy=t.getFullYear(); return `${dd}/${mm}/${yy}` };
 
@@ -445,45 +445,54 @@ function numberFromId(id){
   const m = String(id || '').match(/(\d+)/);
   return m ? m[1] : '';
 }
+
+/* NEW: Empty defaults (no pre-seeded heroes) + courseMap */
 function defaults(){
-  const heroFlags={}, pageOrder=[], heroSchedule={}, heroShortcuts={};
-  heroFlags['co-1']={state:'live', place:'page', aud:{bronze:true,silver:false,gold:false}, shape:'square'};
-  heroFlags['co-2']={state:'live', place:'page', aud:{bronze:false,silver:true,gold:false}, shape:'square'};
-  heroFlags['co-3']={state:'live', place:'page', aud:{bronze:false,silver:false,gold:true}, shape:'square'};
-  heroFlags['co-4']={state:'dev',  place:'page', aud:{bronze:false,silver:false,gold:false}, shape:'square'};
-  for(let i=5;i<=12;i++) heroFlags['co-'+i]={state:'off', place:'archive', aud:{bronze:true,silver:true,gold:true}, shape:'square'};
-  pageOrder.push({type:'hero',id:'co-1'},{type:'hero',id:'co-2'},{type:'hero',id:'co-3'},{type:'hero',id:'co-4'});
-  return { heroFlags, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{}, heroSchedule, heroShortcuts, pageOrder, _seeded:true, flags:{schedule:true} };
+  return {
+    heroFlags:{}, heroLabels:{}, heroAssets:{}, heroProgress:{}, heroStyle:{},
+    heroSchedule:{}, heroShortcuts:{}, pageOrder:[],
+    courseMap:{}, /* heroId -> courseUUID */
+    _seeded:true, flags:{schedule:true}
+  };
 }
+
 function sanitize(cfg){
   let c = (!cfg || typeof cfg!=='object') ? defaults() : {...cfg};
   c.heroFlags=c.heroFlags||{}; c.heroLabels=c.heroLabels||{}; c.heroAssets=c.heroAssets||{};
   c.heroProgress=c.heroProgress||{}; c.heroStyle=c.heroStyle||{}; c.pageOrder=Array.isArray(c.pageOrder)?c.pageOrder:[];
   c.heroSchedule=c.heroSchedule||{}; c.heroShortcuts=c.heroShortcuts||{}; c.flags=c.flags||{schedule:true};
-  /* Ensure stable IDs co-1..co-50 exist and unique */
-  for(let i=1;i<=50;i++){ const id='co-'+i; if(!c.heroFlags[id]) c.heroFlags[id]={state:'off',place:'archive',aud:{bronze:true,silver:true,gold:true}, shape:'square'}; else if(!c.heroFlags[id].shape) c.heroFlags[id].shape='square'; }
+  c.courseMap=c.courseMap||{}; /* ensure mapping exists */
+
+  /* NO auto-create of co-1..co-50 anymore */
+
   /* Filter invalid pageOrder items and ensure uniqueness */
   c.pageOrder = c.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider'));
-  /* Remove duplicate hero entries in pageOrder */
   const seen=new Set();
   c.pageOrder = c.pageOrder.filter(it=>{
     if(it.type!=='hero') return true;
     if(seen.has(it.id)) return false;
     seen.add(it.id); return true;
   });
+
   /* Auto-append any page heroes missing in pageOrder */
-  Object.keys(c.heroFlags).forEach(id=>{ if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){ c.pageOrder.push({type:'hero', id}); } });
+  Object.keys(c.heroFlags).forEach(id=>{
+    if(c.heroFlags[id].place==='page' && !c.pageOrder.some(it=>it.type==='hero' && it.id===id)){
+      c.pageOrder.push({type:'hero', id});
+    }
+  });
+
   /* Strip divider.schedule entirely for CF7 */
   c.pageOrder.forEach(it=>{ if(it.type==='divider' && it.schedule) delete it.schedule; });
   return c;
 }
+
 function loadSettings(){
   const ver = Number(store.get(K.schemaVer, 0))||0;
   const raw = store.get(K.settings, null);
   let s = sanitize(raw);
   if(ver!==SCHEMA_VERSION){
-    /* Migration step: remove divider.schedule */
-    s.pageOrder.forEach(it=>{ if(it.type==='divider' && it.schedule) delete it.schedule; });
+    /* Migration: ensure courseMap exists */
+    s.courseMap = s.courseMap || {};
     store.set(K.settings, s); store.set(K.schemaVer, SCHEMA_VERSION);
   }
   return s;
@@ -801,7 +810,7 @@ function addHeadingIndicators(){
     heroes.forEach(h=>{ const f=getSettings()?.heroFlags?.[h.dataset.heroId]; if(f?.aud){ agg.bronze ||= !!f.aud.bronze; agg.silver ||= !!f.aud.silver; agg.gold   ||= !!f.aud.gold; } });
     const order=[['gold','Advanced'],['silver','Intermediate'],['bronze','Beginner']];
     const active = order.filter(([k])=>agg[k]); if(!active.length) return;
-    slot.innerHTML = active.map(([k,t])=>`<span class="aud-dot ${k} on" title="${t}"></span>`).join('');
+    slot.innerHTML = active map(([k,t])=>`<span class="aud-dot ${k} on" title="${t}"></span>`).join('');
   });
 }
 
@@ -879,7 +888,13 @@ function applyArchiveVisibility(){
   else{ dock.style.display='none'; dock.setAttribute('aria-hidden','true'); }
 }
 function applyArchiveSkin(){ $('#archiveTitle').textContent='Developer Mode'; updateFooterModeControls(); }
-function updateFooterModeControls(){ const devOn=devModeOn(); $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`; $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none'; }
+function updateFooterModeControls(){
+  const devOn=devModeOn();
+  $('#devToggle').textContent=`Developer: ${devOn?'On':'Off'}`;
+  $('#addHeadingBtn').style.display=(isAdmin() && devOn) ? 'inline-flex' : 'none';
+  const cc = $('#createCourseBtn');
+  if (cc) cc.style.display = (isAdmin() && devOn) ? 'inline-flex' : 'none';
+}
 
 function paintArchive(){
   const s=getSettings(); const flags=s.heroFlags;
@@ -932,19 +947,9 @@ $('#addHeadingBtn').addEventListener('click',()=>{
   });
 });
 
-/* =========================
-   ===== Content Picker JS =====
-   Opens fullscreen iframe and updates hero cover on selection
-========================= */
 /* ===== Content Picker wiring (robust origin + absolute manifest) ===== */
 const PICKER_BASE = "https://lucas-davies.github.io/OA/content-picker.html";
-
-/* Derive the allowed origin from PICKER_BASE (fallback kept just in case) */
-const ALLOWED_ORIGIN = (() => {
-  try { return new URL(PICKER_BASE).origin; } catch { return "https://lucas-davies.github.io"; }
-})();
-
-/* Build an absolute manifest URL against the picker’s origin */
+const ALLOWED_ORIGIN = (() => { try { return new URL(PICKER_BASE).origin; } catch { return "https://lucas-davies.github.io"; } })();
 const MANIFEST_PATH = "/OA/assets/media/manifest.json";
 function buildPickerUrl(){
   const manifestAbs = new URL(MANIFEST_PATH, ALLOWED_ORIGIN).href;
@@ -962,7 +967,6 @@ let pickerHeroId = null;
 
 function openContentPicker(heroId){
   pickerHeroId = heroId || null;
-  // cache-bust for GH Pages
   pickerFrame.src = buildPickerUrl() + "&t=" + Date.now();
   pickerOverlay.hidden = false;
   pickerOverlay.setAttribute('aria-hidden','false');
@@ -976,7 +980,6 @@ function closeContentPicker(){
   pickerHeroId = null;
 }
 pickerClose.addEventListener('click', closeContentPicker);
-// Close on ESC and tapping the backdrop bar area
 window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && !pickerOverlay.hidden) closeContentPicker(); }, {passive:true});
 document.getElementById('pickerOverlay')?.addEventListener('click', (e)=>{
   if(e.target.id === 'pickerOverlay' || e.target.id === 'pickerBar') closeContentPicker();
@@ -987,9 +990,6 @@ document.getElementById('pickerOverlay')?.addEventListener('click', (e)=>{
   const URL_RE = /^(https?:)?\/\//i;
   const EXT_RE = /\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
 
-  /* Accept messages from:
-     - The picker’s own origin (derived from PICKER_BASE)
-     - Our page’s origin (useful when embedding on the same site) */
   const ORIGIN_OK = (o)=>{
     try{
       const u = new URL(o);
@@ -1028,7 +1028,6 @@ document.getElementById('pickerOverlay')?.addEventListener('click', (e)=>{
     let pickedUrl = direct || findUrl(d);
     if(!pickedUrl) return;
 
-    /* Resolve against the event’s origin first (then fall back to the picker origin) */
     try { pickedUrl = new URL(pickedUrl, ev.origin).href; }
     catch { try { pickedUrl = new URL(pickedUrl, ALLOWED_ORIGIN).href; } catch {} }
 
@@ -1200,6 +1199,7 @@ function openHeroKebab(id){
   mBody.onclick = (e)=>{
     const opt = e.target.closest('[data-hact]'); if(!opt) return;
     const act = opt.getAttribute('data-hact');
+    const s=getSettings(); const f=s.heroFlags[id]; const sch=s.heroSchedule[id]||{};
     if(act==='shape'){
       const shape = opt.getAttribute('data-shape');
       s.heroFlags[id]={...f, shape}; saveSettings(s); paintPage(); openHeroKebab(id);
@@ -1246,9 +1246,8 @@ function openHeroKebab(id){
     }else if(act==='rename'){
       modalClose();
       const st=styleFor(id);
-      openEditDialog({type:'hero', id}, s.heroLabels[id] || `#${numberFromId(id)}`, st.color, st.size, st.font);
+      openEditDialog({type:'hero', id}, s.heroLabels[id] || labelFor(id), st.color, st.size, st.font);
     }else if(act==='cover'){
-      // ✅ Open the fullscreen Content Picker for this hero
       openContentPicker(id);
     }else if(act==='archive'){
       modalConfirm({title:'Archive Course', body:`Move <b>${labelFor(id)}</b> to Archive?`}, ()=>{
@@ -1259,7 +1258,7 @@ function openHeroKebab(id){
 }
 
 /* =========================
-   DIVIDER KEBAB (iOS modal) — schedules removed
+   DIVIDER KEBAB (iOS modal)
 ========================= */
 function openDividerKebab(divId){
   const s=getSettings(); const idx=s.pageOrder.findIndex(it=>it.type==='divider' && it.id===divId); if(idx<0) return;
@@ -1338,18 +1337,13 @@ function openDividerKebab(divId){
 
 /* =========================
    Course Sheet (tap hero area)
+   - OLD behavior: open iframe to courses/N.html
+   - NEW behavior is implemented in module script; this block intentionally left inert.
 ========================= */
 document.addEventListener('click',(e)=>{
   const hero = e.target.closest?.('.hero');
   if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
-  const id = hero.dataset.heroId;
-  const n = Number(((id||'').match(/\d+/)||[])[0]||0);
-  const url = (n>=1 && n<=50) ? `courses/${n}.html` : '';
-  document.getElementById('courseTitle').textContent = labelFor(id);
-  document.getElementById('courseFrame').src = url ? url + '?v=' + Date.now() : '';
-  document.getElementById('courseSummary').textContent = `Quick summary for ${labelFor(id)} — (placeholder).`;
-  const sheet = document.getElementById('courseSheet');
-  sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false');
+  /* No default action here — click handling is in the module below to open Studio. */
 });
 
 document.getElementById('courseClose').addEventListener('click',()=>{
@@ -1357,5 +1351,83 @@ document.getElementById('courseClose').addEventListener('click',()=>{
   sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true');
 });
 
+/* === Expose a few helpers for the module script === */
+window.__getSettings = getSettings;
+window.__saveSettings = saveSettings;
+window.__paintPage = paintPage;
+window.__isAdmin = isAdmin;
+window.__devModeOn = devModeOn;
+window.__labelFor = labelFor;
+
 })();</script>
+
+<!-- NEW module: course creation + hero click -> Studio -->
+<script type="module">
+  import { db } from './js/db.js';
+
+  const getSettings = () => window.__getSettings?.();
+  const saveSettings = (s) => window.__saveSettings?.(s);
+  const paintPage = () => window.__paintPage?.();
+
+  function nextHeroId(s){
+    const ids = Object.keys(s.heroFlags||{}).map(id=>{
+      const m = /^co-(\d+)$/.exec(id);
+      return m ? Number(m[1]) : 0;
+    });
+    const max = ids.length ? Math.max(...ids) : 0;
+    return `co-${max+1}`;
+  }
+
+  function ensureCourseForHero(s, heroId){
+    s.courseMap = s.courseMap || {};
+    let courseId = s.courseMap[heroId];
+    if(!courseId){
+      const c = db.createCourse({ title: s.heroLabels?.[heroId] || window.__labelFor?.(heroId) || 'New Course', status:'development', hero:{image:'',overlay:''} });
+      courseId = c.id;
+      s.courseMap[heroId] = courseId;
+      saveSettings(s);
+    }
+    return courseId;
+  }
+
+  // Create Course button (Dev footer)
+  const btn = document.getElementById('createCourseBtn');
+  if (btn) {
+    btn.addEventListener('click', ()=>{
+      const s = getSettings(); if(!s) return;
+
+      // Decide initial label
+      const n = Object.keys(s.heroFlags||{}).length + 1;
+      const title = `New Course ${n}`;
+
+      // Create course first (UUID)
+      const c = db.createCourse({ title, status:'development', hero:{image:'',overlay:''} });
+
+      // Make new hero id + flags
+      const heroId = nextHeroId(s);
+      s.heroFlags[heroId] = { state:'dev', place:'page', aud:{bronze:true,silver:true,gold:true}, shape:'square' };
+      s.heroLabels[heroId] = title;
+      s.pageOrder.push({ type:'hero', id: heroId });
+      s.courseMap = s.courseMap || {};
+      s.courseMap[heroId] = c.id;
+
+      saveSettings(s);
+      paintPage();
+    });
+  }
+
+  // Clicking any hero opens Studio for its mapped course (create mapping on the fly if missing)
+  document.addEventListener('click', (e)=>{
+    const hero = e.target.closest?.('.hero');
+    if(!hero || e.target.closest('.kebab, .cfg-arrow')) return;
+    const heroId = hero.dataset.heroId;
+    const s = getSettings(); if(!s) return;
+    const courseId = ensureCourseForHero(s, heroId);
+    window.location.href = `./studio.html?course=${courseId}`;
+  });
+
+  // Respect Dev mode visibility for the button on initial load
+  const showBtn = (window.__isAdmin?.() && window.__devModeOn?.());
+  if (btn) btn.style.display = showBtn ? 'inline-flex' : 'none';
+</script>
 </html>
