@@ -605,7 +605,6 @@ $('#artistList').addEventListener('keydown', (e)=>{
     paintPage();
   }
 });
-}
 $('#createArtistBtn').addEventListener('click', ()=>{
   const name=prompt('Artist name?','New Artist'); if(!name) return;
   const id='artist-'+Date.now();
