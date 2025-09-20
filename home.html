@@ -1,4 +1,4 @@
-Artitack-HQ-V1.1
+Artitack-HQ-V1.2
 
 <!DOCTYPE html>
 <html lang="en-AU">
@@ -38,39 +38,39 @@ body.lock{ position:fixed; width:100% }
   -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
 }
 .nav-left{ display:flex; align-items:center; gap:10px }
-.hamburger{ width:38px; height:38px; border-radius:10px; border:1px solid var(--stroke);
-  background:#141821; color:var(--ink); font-size:20px; display:flex; align-items:center; justify-content:center; }
 
-/* Avatar pill with circular avatar */
-.avatarTab{
-  display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
-  padding-left:52px; border-radius:12px; min-width:164px; height:44px;
-  font-weight:900; line-height:1.1; text-align:left; border:1px solid var(--stroke);
-  background:#222; color:#eef3ff; position:relative;
+/* Icon buttons (hamburger, avatar, inbox) */
+.hamburger,
+.icon-btn{
+  width:44px; height:44px; border-radius:12px; border:1px solid var(--stroke);
+  background:#141821; color:#e7eaf0; display:inline-flex; align-items:center; justify-content:center;
+  font-size:20px;
 }
-.avatarTab::before{
+.avatar-btn{ position:relative; overflow:hidden; font-weight:900 }
+.avatar-btn::before{
   content:attr(data-initial);
-  position:absolute; left:8px; top:50%; transform:translateY(-50%);
-  width:36px; height:36px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  background:#1c2230; color:#eef3ff; font-weight:900;
-  overflow:hidden;
+  width:100%; height:100%; border-radius:inherit; background:#1c2230;
+  font-size:16px; color:#eef3ff;
 }
-.avatarTab[data-avatar]::before{
-  content:""; background:#1c2230 url(var(--avatar-url)) center/cover no-repeat;
-}
-.avatarTab .name{ font-size:15px; font-weight:900 }
-.avatarTab .lvl{ font-size:12px; opacity:.95; text-transform:capitalize }
 
-/* Notification bell */
-.notif-bell{
-  margin-left:8px; width:44px; height:44px; border-radius:12px;
-  border:1px solid var(--stroke); background:#141821; color:#e7eaf0; position:relative;
+/* Welcome emboss + iOS blue delayed outline */
+.welcome-hero{ display:grid; place-items:center; min-height:52vh; }
+.wh-title{ text-align:center; position:relative }
+.wh-line1{ display:block; font:900 80px/1 'Oswald', system-ui; letter-spacing:.02em; color:#dfe6ff; animation:emboss 2.2s ease both }
+.wh-line2{ display:block; font:800 32px/1.2 system-ui; opacity:.9; color:#aab6d6; margin-top:12px; animation:emboss 2.2s ease .2s both }
+.wh-outline{
+  position:absolute; inset:auto; left:50%; top:0; transform:translateX(-50%);
+  color:transparent; -webkit-text-stroke:2px var(--blue);
+  filter:drop-shadow(0 0 12px rgba(10,132,255,.45));
+  animation:outlinePop .9s ease 1.4s both;
 }
-.notif-bell .nbadge{
-  position:absolute; right:-4px; top:-4px; min-width:16px; height:16px; border-radius:10px;
-  background:#0A84FF; color:#fff; font:700 11px/16px system-ui; text-align:center; padding:0 4px;
+@keyframes emboss{
+  0%  { text-shadow: none; transform:translateY(6px); opacity:.0 }
+  60% { text-shadow: 0 1px 0 #111, 0 8px 20px rgba(0,0,0,.45); transform:translateY(0); opacity:1 }
+  100%{ text-shadow: inset 0 1px 0 #222, 0 6px 30px rgba(0,0,0,.55) }
 }
+@keyframes outlinePop{ from{ opacity:0; transform:translateX(-50%) scale(.96) } to{ opacity:1; transform:translateX(-50%) scale(1) } }
   </style>
 </head>
 <body>
@@ -80,11 +80,8 @@ body.lock{ position:fixed; width:100% }
     <button id="btnHQ" class="hamburger" aria-label="Open Artitack HQ" title="Artitack HQ">☰</button>
   </div>
   <div class="nav-right">
-    <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false" data-initial="U">
-      <span class="name" id="avatarName">User</span>
-      <span class="lvl" id="avatarLvl">Admin</span>
-    </button>
-    <button id="notifBell" class="notif-bell" aria-label="Notifications" title="Notifications">🔔<span class="nbadge" hidden>0</span></button>
+    <button id="notifBtn" class="icon-btn" aria-label="Inbox" title="Inbox">✉️</button>
+    <button id="avatarBtn" class="icon-btn avatar-btn" aria-haspopup="dialog" aria-expanded="false" data-initial="U"></button>
   </div>
 </header>
 <main class="wrap">
@@ -92,12 +89,12 @@ body.lock{ position:fixed; width:100% }
   <div id="welcomeHero" class="welcome-hero" hidden>
     <div class="wh-title">
       <span class="wh-line1">Artitack</span>
+      <span class="wh-line1 wh-outline" aria-hidden="true">Artitack</span>
       <span class="wh-line2">HQ</span>
     </div>
   </div>
   <div id="pageGrid"></div>
 </main>
-
   <style>
 /* ===== Rest of styles ===== */
 
@@ -166,10 +163,7 @@ body.lock{ position:fixed; width:100% }
 .divider .htext{ font-weight:900; opacity:.92 }
 
 /* Divider tools row */
-.divider .tools{
-  position:absolute; top:0; right:0;
-  display:flex; align-items:center; gap:8px; z-index:9000;
-}
+.divider .tools{ position:absolute; top:0; right:0; display:flex; align-items:center; gap:8px; z-index:9000; }
 .divider .dctrls-left{ display:none; gap:6px; align-items:center }
 .config-on .divider .dctrls-left{ display:flex }
 .divider .ctrls{ display:flex; align-items:center }
@@ -200,9 +194,13 @@ body.lock{ position:fixed; width:100% }
 }
 .footer-chip:hover{ background:#182032; }
 
-/* Dev button colors: only the word "Developer"; color signifies state */
-.footer-chip.dev-on{ background:#133314; border-color:#1f4021; color:#b8ffbf }
-.footer-chip.dev-off{ background:#3a1414; border-color:#4c1d1d; color:#ffb3b3 }
+/* Dev LED next to the word "Developer" */
+#devToggle .led{
+  width:10px; height:10px; border-radius:50%; margin-right:8px; box-shadow:0 0 10px rgba(0,0,0,.4) inset;
+  display:inline-block; vertical-align:middle; background:#6e1b1b; outline:1px solid rgba(255,255,255,.15);
+}
+#devToggle.dev-on .led{ background:#1b6e22; box-shadow:0 0 8px rgba(50,215,75,.6) }
+#devToggle.dev-off .led{ background:#6e1b1b; box-shadow:0 0 8px rgba(255,59,48,.45) }
 
 /* Modal (universal) */
 #modalRoot{position:fixed; inset:0; z-index:15000; display:flex; align-items:center; justify-content:center}
@@ -216,7 +214,7 @@ body.lock{ position:fixed; width:100% }
 .modalBtn{padding:8px 12px; border-radius:10px; border:1px solid var(--stroke); background:#141821; color:#e7eaf0; font-weight:800; cursor:pointer}
 .modalBtn.danger{border-color:#5a1f23; background:#2a1012; color:#ffb4b8}
 
-/* Modal groups + 2mm-ish indent (use 8px for consistency) */
+/* Modal groups + indent */
 .modalGroup{ background:#0b0d12; border:1px solid rgba(255,255,255,.12); border-radius:12px; margin:10px 0; overflow:hidden }
 .modalGroup .groupHead{ font-weight:900; opacity:.92; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08) }
 .modalGroup .groupBody{ display:flex; flex-direction:column; padding-left:8px }
@@ -224,16 +222,19 @@ body.lock{ position:fixed; width:100% }
 .modalOpt{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.06); background:#0c1016; cursor:pointer }
 .modalOpt:first-child{ border-top:none }
 .modalOpt:hover{ background:#0e121a }
-.optRight{ opacity:.92; font-weight:800 }
-.toggle{
-  --on:#0A84FF; --off:#3a3f4a;
-  width:44px; height:26px; border-radius:20px; background:var(--off); position:relative; border:1px solid rgba(255,255,255,.18);
-}
+.optRight{ opacity:.92; font-weight:800; display:flex; align-items:center; gap:10px }
+.toggle{ --on:#0A84FF; --off:#3a3f4a; width:44px; height:26px; border-radius:20px; background:var(--off); position:relative; border:1px solid rgba(255,255,255,.18); }
 .toggle.on{ background:var(--on) }
-.toggle .knob{
-  position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .18s ease
-}
+.toggle .knob{ position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .18s ease }
 .toggle.on .knob{ left:20px }
+
+/* Shape previews */
+.shape-preview{ width:44px; height:28px; border-radius:8px; border:1px solid var(--stroke); display:inline-flex; align-items:center; justify-content:center; background:#0e1118; overflow:hidden }
+.shape-preview .inner{ background:linear-gradient(135deg,#1a2030,#0f1320); outline:1px solid rgba(255,255,255,.08) }
+.shape-square .inner{ width:18px; height:18px; border-radius:4px }
+.shape-hr .inner{ width:28px; height:16px; border-radius:4px }
+.shape-vr .inner{ width:16px; height:22px; border-radius:4px }
+.shape-circle .inner{ width:18px; height:18px; border-radius:50% }
 
 /* Schedule inline chip */
 .hero .sched-chip{
@@ -250,18 +251,12 @@ body.lock{ position:fixed; width:100% }
 #hqOverlay{ position:fixed; inset:0; z-index:2000; display:none; }
 #hqOverlay.open{ display:flex }
 #hqBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px) }
-#hqCard{
-  position:relative; z-index:1; width:min(720px,94vw); max-height:84vh; overflow:auto;
-  background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; margin:auto;
-}
+#hqCard{ position:relative; z-index:1; width:min(720px,94vw); max-height:84vh; overflow:auto; background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:12px; margin:auto; }
 .hqHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:900; margin-bottom:8px }
 .hqTitle{ font-weight:900 }
 .hqX{ border:1px solid var(--stroke); background:#121212; color:#fff; border-radius:10px; width:32px; height:32px }
 .hqList{ display:flex; flex-direction:column; gap:8px; margin-top:8px }
-.hqRow{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:10px 12px; border:1px solid rgba(255,255,255,.14); background:#0c0f14; border-radius:12px;
-}
+.hqRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.14); background:#0c0f14; border-radius:12px; }
 .hqRow .left{ display:flex; align-items:center; gap:10px; min-width:0 }
 .hqRow .name{ font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:40vw }
 .hqRow .badges{ display:flex; gap:6px }
@@ -280,17 +275,6 @@ body.lock{ position:fixed; width:100% }
 #avatarSheet.open{ display:flex }
 #avatarCard{ margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px; }
 #avatarCard h3{ margin:0 0 12px; font-weight:900 }
-
-/* Welcome emboss animation */
-.welcome-hero{ display:grid; place-items:center; min-height:52vh; }
-.wh-title{ text-align:center; }
-.wh-line1{ display:block; font:900 64px/1 'Oswald', system-ui; letter-spacing:.02em; color:#dfe6ff; text-shadow:0 0 0 rgba(0,0,0,0); animation:emboss 2.2s ease both }
-.wh-line2{ display:block; font:800 28px/1.2 system-ui; opacity:.9; color:#aab6d6; margin-top:10px; animation:emboss 2.2s ease .2s both }
-@keyframes emboss{
-  0%  { text-shadow: none; transform:translateY(6px); opacity:.0 }
-  60% { text-shadow: 0 1px 0 #111, 0 2px 0 #0d0f14, 0 8px 20px rgba(0,0,0,.45); transform:translateY(0); opacity:1 }
-  100%{ text-shadow: inset 0 1px 0 #222, 0 6px 30px rgba(0,0,0,.55) }
-}
 
 /* Content Picker overlay (unchanged) */
 #pickerOverlay[hidden]{ display:none !important }
@@ -317,6 +301,11 @@ body.lock{ position:fixed; width:100% }
   .wrap{ max-width:100vw; padding-left:16px; padding-right:16px }
   .section .grid{ margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); padding-left:16px; padding-right:16px; }
 }
+
+/* Collapsed dev dock (reminder applied) */
+#devDock.collapsed { right:14px; bottom:14px; width:auto; height:auto; }
+#devDock.collapsed .content,
+#devDock.collapsed .bar .dev-only { display:none }
   </style>
 
 <!-- ===== Overlays & drawers ===== -->
@@ -373,8 +362,6 @@ body.lock{ position:fixed; width:100% }
 </div>
 
 <!-- Universal Modal Root -->
-
-
 <div id="modalRoot" hidden>
   <div id="modalBackdrop"></div>
   <div class="modalCard" role="dialog" aria-modal="true">
@@ -384,23 +371,17 @@ body.lock{ position:fixed; width:100% }
   </div>
 </div>
 
-
 <!-- Content Picker -->
-
-
 <div id="pickerOverlay" hidden aria-hidden="true">
   <div id="pickerBar"><button id="pickerClose" aria-label="Close content picker" title="Close">✕</button></div>
   <iframe id="pickerFrame" allow="clipboard-write; clipboard-read" referrerpolicy="no-referrer" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
 </div>
 
-
 <!-- Dev Dock -->
-
-
 <div id="devDock" class="collapsed" aria-hidden="false">
   <div class="bar">
     <div class="title" style="gap:12px">
-      <button class="footer-chip dev-off" id="devToggle" type="button" aria-pressed="false">Developer</button>
+      <button class="footer-chip dev-off" id="devToggle" type="button" aria-pressed="false"><span class="led"></span>Developer</button>
       <button class="footer-chip dev-only" id="createCourseBtn" type="button" style="display:none">Create Course</button>
       <button class="footer-chip dev-only" id="addHeadingBtn" type="button" style="display:none">Add Heading</button>
     </div>
@@ -411,8 +392,6 @@ body.lock{ position:fixed; width:100% }
   </div>
   <div class="content" id="dockContent" hidden></div>
 </div>
-
-
 <script>
 (()=>{'use strict';
 
@@ -463,22 +442,20 @@ function loadSettings(){
 let S = loadSettings();
 function saveSettings(next){ S = sanitize(next||S); store.set(K.settings,S); }
 
-/* Avatar + bell */
+/* Avatar + inbox */
 function paintAvatar(){
   const p=store.get(K.profile,{displayName:'User',skill:'admin'});
-  $('#avatarName').textContent = p.displayName || 'User';
-  $('#avatarLvl').textContent = ROLE_LABEL[normalize(p.skill)] || 'Admin';
-  $('#drawerName').textContent = p.displayName || 'User';
-  $('#drawerRole').textContent = $('#avatarLvl').textContent;
   const init = (p.displayName||'User').trim()[0]?.toUpperCase() || 'U';
-  const tab = $('#avatarTab'); tab.setAttribute('data-initial', init);
+  const btn = $('#avatarBtn'); if(btn) btn.setAttribute('data-initial', init);
+  $('#drawerName').textContent = p.displayName || 'User';
+  $('#drawerRole').textContent = ROLE_LABEL[normalize(p.skill)] || 'Admin';
 }
 paintAvatar();
-$('#notifBell')?.addEventListener('click',()=> alert('Notifications module coming soon'));
+$('#notifBtn')?.addEventListener('click',()=> alert('Inbox coming soon'), {passive:true});
 
-/* Drawer wiring */
+/* Avatar drawer wiring */
 (function(){
-  const avatarBtn = $('#avatarTab');
+  const avatarBtn = $('#avatarBtn');
   const sheet = $('#avatarSheet');
   const closeBtn = $('#avatarClose');
   function openDrawer(){ sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); avatarBtn.setAttribute('aria-expanded','true'); }
@@ -502,7 +479,7 @@ $('#notifBell')?.addEventListener('click',()=> alert('Notifications module comin
 })();
 
 /* HQ overlay (Artists) */
-function openHQ(){ $('#hqOverlay').classList.add('open'); $('#hqOverlay').setAttribute('aria-hidden','false'); }
+function openHQ(){ $('#hqOverlay').classList.add('open'); $('#hqOverlay').setAttribute('aria-hidden','false'); paintHQ(); }
 function closeHQ(){ $('#hqOverlay').classList.remove('open'); $('#hqOverlay').setAttribute('aria-hidden','true'); }
 $('#hqClose').addEventListener('click', closeHQ, {passive:true});
 $('#hqBackdrop').addEventListener('click', closeHQ, {passive:true});
@@ -535,7 +512,7 @@ $('#createArtistBtn').addEventListener('click', ()=>{
   const name=prompt('Artist name?','New Artist'); if(!name) return;
   const id='artist-'+Date.now();
   const list=loadArtists(); list.push({id,name,visible:true}); saveArtists(list); setCurrentArtist(id);
-  paintHQ(); closeHQ(); // new artist starts empty context
+  paintHQ(); closeHQ(); paintPage();
 });
 $('#artistList').addEventListener('click', e=>{
   const row=e.target.closest('.hqRow'); if(!row) return;
@@ -548,6 +525,7 @@ $('#artistList').addEventListener('click', e=>{
 });
 
 /* ===== Page builders ===== */
+function selectedArtistId(){ return store.get(K.currentArtist, null); }
 function numberFromId(id){ const m=String(id||'').match(/(\d+)/); return m?m[1]:''; }
 function labelFor(id){
   const custom=S.heroLabels?.[id];
@@ -606,13 +584,18 @@ function heroCard(id){
     <span class="label" style="color:${esc(st.color)};font-family:${esc(st.font)};font-size:${st.size}px">${esc(labelFor(id))}</span>
     <div class="ctrls">${canDev?`<button class="kebab" data-hero-kebab="${esc(id)}" aria-haspopup="dialog" aria-expanded="false">⋮</button>`:''}</div>
   `;
-  // upcoming date chip (blue=release/dev, red=expiry)
+  // upcoming chip: "Live: 1 day" / "Exp: 2 days"
   const sch=S.heroSchedule[id]||{};
-  const candidates=[ ['blue',nextOccurrence(sch.release)||nextOccurrence(sch.dev)], ['red',nextOccurrence(sch.expiry)] ].filter(([,d])=>d);
-  if(candidates.length){
-    candidates.sort((a,b)=>a[1]-b[1]);
-    const [color,date]=candidates[0]; const days=Math.ceil((toDateOnly(date)-toDateOnly(new Date()))/86400000);
-    const chip=document.createElement('div'); chip.className='sched-chip '+color; chip.textContent = fmtDate(date) + (Number.isFinite(days)?` • ${days}d`:''); el.appendChild(chip);
+  const cand = [
+    ['Live','blue', nextOccurrence(sch.release)||nextOccurrence(sch.dev)],
+    ['Exp','red',   nextOccurrence(sch.expiry)]
+  ].filter(([, , d])=>d);
+  if(cand.length){
+    cand.sort((a,b)=>a[2]-b[2]);
+    const [label,color,date]=cand[0];
+    const days=Math.ceil((toDateOnly(date)-toDateOnly(new Date()))/86400000);
+    const chip=document.createElement('div'); chip.className='sched-chip '+color; chip.textContent = `${label}: ${days} day${days===1?'':'s'}`;
+    el.appendChild(chip);
   }
   if(seesAll() && f.aud){
     const dots=document.createElement('div');
@@ -655,11 +638,13 @@ function aggregateHeadingAudience(rowEl){
 
 function paintPage(){
   const root = $('#pageGrid'); root.innerHTML='';
-  const staff=seesAll(); const role=getRole();
+  const inArtist = !!selectedArtistId();
 
-  // Welcome screen: visible if no sections/heroes
-  const hasAny = (S.pageOrder||[]).some(x=>x);
-  $('#welcomeHero').hidden = !!hasAny ? true : false;
+  // show welcome logo when not inside an artist
+  $('#welcomeHero').hidden = inArtist ? true : false;
+  if(!inArtist) return;
+
+  const staff=seesAll(); const role=getRole();
 
   function startSection(divObj){
     const sec=document.createElement('section'); sec.className='section';
@@ -712,6 +697,7 @@ function applyDevChips(){
   devToggle.classList.toggle('dev-off', !on);
   devToggle.setAttribute('aria-pressed', on?'true':'false');
   $$('.dev-only').forEach(el=> el.style.display = (isAdmin() && on) ? 'inline-flex' : 'none');
+  if(!on) devDock.classList.add('collapsed'); else devDock.classList.remove('collapsed');
   dockContent.hidden = true; devDock.classList.remove('open');
 }
 applyDevChips();
@@ -784,7 +770,7 @@ document.addEventListener('click',(e)=>{
   }
 }, {passive:false});
 
-/* ===== HERO KEBAB (consolidated schedule, toggles blue, file name without extension) ===== */
+/* ===== HERO KEBAB (better layout, shape previews, Rename above Cover, Delete last) ===== */
 document.addEventListener('click',(e)=>{
   const keb = e.target.closest('[data-hero-kebab]'); if(!keb) return;
   if(!(isAdmin() && devOn())) return;
@@ -803,7 +789,11 @@ function openHeroKebab(id){
   const devText = sch.dev ? fmtDate(typeof sch.dev==='string'? sch.dev : sch.dev?.r?.start) : '—';
 
   $('#modalTitle').textContent = labelFor(id);
-  const shapeIcon=(k)=>({square:'◼︎',hr:'▭',vr:'▮',circle:'◯'}[k]||'◼︎');
+  const shapeRow = (k,lbl)=>`
+    <div class="modalOpt" data-hact="shape" data-shape="${k}">
+      <div>${lbl}</div>
+      <div class="optRight"><span class="shape-preview shape-${k}"><span class="inner"></span></span>${shape===k?'•':''}</div>
+    </div>`;
 
   $('#modalBody').innerHTML = `
     <div class="modalGroup">
@@ -811,7 +801,7 @@ function openHeroKebab(id){
       <div class="groupBody">
         <div class="modalOpt" data-hact="state" data-state="live"><div>Live</div><div class="optRight">${toggleHTML(f.state==='live')}</div></div>
         <div class="modalOpt" data-hact="state" data-state="off"><div>Offline</div><div class="optRight">${toggleHTML(f.state==='off')}</div></div>
-        <div class="modalOpt" data-hact="state" data-state="dev"><div>Dev</div><div class="optRight">${toggleHTML(f.state==='dev' || !f.state)}</div></div>
+        <div class="modalOpt" data-hact="state" data-state="dev"><div>Dev</div><div class="optRight">${toggleHTML(!f.state || f.state==='dev')}</div></div>
       </div>
     </div>
 
@@ -828,22 +818,21 @@ function openHeroKebab(id){
     <div class="modalGroup">
       <div class="groupHead">Course Cover Shape</div>
       <div class="groupBody">
-        ${['square','hr','vr','circle'].map(k=>`
-          <div class="modalOpt" data-hact="shape" data-shape="${k}">
-            <div>${k.toUpperCase()} ${shapeIcon(k)}</div>
-            <div class="optRight">${k===shape?'•':''}</div>
-          </div>`).join('')}
+        ${shapeRow('square','SQUARE')}
+        ${shapeRow('hr','HR')}
+        ${shapeRow('vr','VR')}
+        ${shapeRow('circle','CIRCLE')}
       </div>
     </div>
 
     <div class="modalGroup">
       <div class="groupHead">Customisation</div>
       <div class="groupBody">
+        <div class="modalOpt" data-hact="rename"><div>Rename (font/color/size)</div><div class="optRight"></div></div>
         <div class="modalOpt" data-hact="cover"><div>Change Cover Art…</div><div class="optRight" style="opacity:.8">${art? esc(fileBase(art)) : 'None'}</div></div>
         <div class="modalOpt" data-hact="archive"><div>Archive</div><div class="optRight"></div></div>
-        <div class="modalOpt" data-hact="delete"><div style="color:#ff3b30">Delete</div><div class="optRight"></div></div>
         <div class="modalOpt" data-hact="request"><div>Make an admin request…</div><div class="optRight">→</div></div>
-        <div class="modalOpt" data-hact="rename"><div>Rename (font/color/size)</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-hact="delete"><div style="color:#ff3b30">Delete</div><div class="optRight"></div></div>
       </div>
     </div>
   `;
@@ -941,7 +930,7 @@ function openSchedulerDialog(id){
   };
 }
 
-/* ===== Divider Kebab (aligned with hero; rename at bottom; no audience filter/state) ===== */
+/* ===== Divider Kebab ===== */
 document.addEventListener('click',(e)=>{
   const keb = e.target.closest('[data-div-kebab]'); if(!keb) return;
   if(!(isAdmin() && devOn())) return;
@@ -963,8 +952,8 @@ document.addEventListener('click',(e)=>{
       <div class="groupHead">Admin</div>
       <div class="groupBody">
         <div class="modalOpt" data-dact="request"><div>Make an admin request…</div><div class="optRight">→</div></div>
-        <div class="modalOpt" data-dact="remove"><div>Remove Heading</div><div class="optRight"></div></div>
         <div class="modalOpt" data-dact="rename"><div>Rename (font/color/size)</div><div class="optRight"></div></div>
+        <div class="modalOpt" data-dact="remove"><div style="color:#ff3b30">Remove Heading</div><div class="optRight"></div></div>
       </div>
     </div>
   `;
@@ -974,7 +963,7 @@ document.addEventListener('click',(e)=>{
   $('#modalBody').onclick = (e)=>{
     const opt=e.target.closest('[data-dact]'); if(!opt) return;
     const act=opt.dataset.dact;
-    if(act==='size'){ S.pageOrder[idx].rowSize=opt.dataset.size; saveSettings(S); paintPage(); e.currentTarget; openDividerKebab(divId); }
+    if(act==='size'){ S.pageOrder[idx].rowSize=opt.dataset.size; saveSettings(S); paintPage(); }
     if(act==='remove'){ modalConfirm({title:'Remove Heading', body:'This does not delete contained heroes.'}, ()=>{ S.pageOrder = S.pageOrder.filter(x=> !(x.type==='divider' && x.id===divId)); saveSettings(S); paintPage(); modalClose(); }); }
     if(act==='request'){ modalPrompt({title:'Admin Request', label:'Describe your request', value:''}, (txt)=>{ console.log('Admin request (heading)', divId, txt); }); }
     if(act==='rename'){ modalClose(); openRenameDialog('divider', divId, d.title||'Heading', { color:d.color||'', size:d.fontSize||22, font:d.fontFamily||"system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif" }); }
@@ -1167,7 +1156,6 @@ function extractImageUrl(d){
 
 /* ===== Rename shared dialog ===== */
 function openRenameDialog(kind, id, currentText, currentStyle){
-  const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
   mTitle.textContent = (kind==='hero'?'Rename Course':'Edit Heading');
   mBody.innerHTML = `
     <div class="modalSub">Text</div>
@@ -1229,11 +1217,7 @@ function openRenameDialog(kind, id, currentText, currentStyle){
 paintHQ();
 paintPage();
 
-/* ===== Helpers ===== */
-function modalCloseSafe(){ try{ modalClose(); }catch{} }
 })(); // IIFE end
 </script>
 </body>
 </html>
-```
-
