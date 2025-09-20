@@ -94,9 +94,10 @@
   .footer{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-top:1px solid var(--stroke)}
   .count{font-size:13px; color:var(--ink-dim)}
 
-  /* ===== Toast ===== */
+  /* ===== Toast / Loading ===== */
   .toast{position:fixed; left:50%; bottom:16px; transform:translateX(-50%); background:#0f1320; border:1px solid var(--stroke); border-radius:999px; padding:10px 14px; color:var(--ink); font-weight:800; display:none; z-index:50}
   .toast.show{display:block}
+  .loading{display:grid; place-items:center; color:var(--ink-dim); font-weight:700; border:1px dashed var(--stroke); border-radius:12px; padding:14px; margin:10px}
 
   /* ===== Empty ===== */
   .empty{display:grid; place-items:center; color:var(--ink-dim); font-weight:700; border:1px dashed var(--stroke); border-radius:12px; padding:14px; margin:10px}
@@ -104,7 +105,7 @@
 </head>
 <body>
 <div class="app" role="application" aria-label="Content Picker">
-  <header>
+  <header id="hdr">
     <div class="brand"><span class="dot" aria-hidden="true"></span><span>Content Picker</span></div>
 
     <label class="search" aria-label="Search">
@@ -143,8 +144,9 @@
     <!-- Grid -->
     <section class="pane">
       <div id="grid" class="grid" aria-live="polite"></div>
+      <div id="loading" class="loading" style="display:none">Loading media…</div>
       <div id="empty" class="empty" style="display:none">No media here yet.</div>
-      <div class="footer">
+      <div class="footer" id="gridFoot">
         <div class="count" id="count">0 items • 0 selected</div>
         <div style="display:flex; gap:8px">
           <button id="cancelBtn">Cancel</button>
@@ -179,7 +181,7 @@
           </div>
         </div>
       </div>
-      <div class="footer">
+      <div class="footer" id="pvFoot">
         <div class="count hint">Tip: tap image to set focal; sliders adjust crop within the active preset.</div>
         <div style="display:flex; gap:8px">
           <button id="selectFromPreview">Select</button>
@@ -200,40 +202,54 @@
    *  ======================= */
   const params = new URL(location.href).searchParams;
   let openerOrigin = params.get('origin') || '*';
-  const DEFAULT_BASE = (params.get('base') || '/OA/assets/media/').replace(/\/+$/,'/') ; // repo base (optional param)
-  const manifestURL = params.get('manifest') || '';  // JSON with array or {items:[]}
+  const DEFAULT_BASE = (params.get('base') || '/OA/assets/media/').replace(/\/+$/,'/') ;
+  const manifestURL = params.get('manifest') || '';
   const capParam = parseInt(params.get('max') || '', 10);
   let selectionCap = Number.isFinite(capParam) ? Math.max(0, capParam) : Infinity;
 
-  /** Schema: presets [{id, name?, aspectRatio:number (w/h), targetWidth?:number, safeArea?:{x,y,w,h}, cornerRadius?:number}] */
-  let presets = [];        // hero presets from caller
+  // Embed mode (hide internal header close/apply rows if parent already renders them)
+  const controlsMode = (params.get('controls')||'full').toLowerCase();
+  const EMBED = controlsMode === 'embed';
+
+  /** Schema: presets [{id, name?, aspectRatio:number, targetWidth?, safeArea?, cornerRadius?}] */
+  let presets = [];
   let activePresetId = null;
 
   /** Media state */
   /** @typedef {{url:string,name?:string,type?:string,size?:number,mtime?:number,w?:number,h?:number,folderPath?:string}} MediaItem */
-  let allItems = [];       // full set
-  let byFolder = new Map();// folder -> items[]
-  let currentFolder = '';  // '' = All
-  let view = [];           // filtered items for grid
-  const selected = new Set(); // url set
-  const focal = Object.create(null); // url -> {x,y}
-  const cropState = Object.create(null); // url -> {zoom, panX, panY, fitCover}
+  let allItems = [];
+  let byFolder = new Map();
+  let currentFolder = '';
+  let view = [];
+  const selected = new Set();
+  const focal = Object.create(null);
+  const cropState = Object.create(null);
 
   /** UI refs */
   const $ = (id)=>document.getElementById(id);
   const els = {
+    hdr: $('hdr'),
     q: $('q'), allFolders: $('allFolders'),
     typeFilter: $('typeFilter'), orientFilter: $('orientFilter'),
     applyBtn: $('applyBtn'), applyBtn2: $('applyBtn2'), cancelBtn: $('cancelBtn'), closeBtn: $('closeBtn'),
-    grid: $('grid'), empty: $('empty'), count: $('count'),
+    grid: $('grid'), empty: $('empty'), loading: $('loading'), count: $('count'), gridFoot: $('gridFoot'),
     crumbs: $('crumbs'), tree: $('tree'),
     pvName: $('pvName'), pvImg: $('pvImg'), pvCanvas: $('pvCanvas'), pvOverlay: $('pvOverlay'), pvTabs: $('pvTabs'),
     prevBtn: $('prevBtn'), nextBtn: $('nextBtn'),
     selectFromPreview: $('selectFromPreview'), applyFromPreview: $('applyFromPreview'), openNew: $('openNew'),
     fitCover: $('fitCover'), zoom: $('zoom'), panX: $('panX'), panY: $('panY'),
     setFocal: $('setFocal'), qualityHint: $('qualityHint'),
+    pvFoot: $('pvFoot'),
     toast: $('toast')
   };
+
+  // hide duplicate controls if embedded
+  if (EMBED){
+    els.closeBtn.style.display = 'none';
+    els.applyBtn.style.display = 'none';
+    els.gridFoot.style.display = 'none';
+    els.pvFoot.style.display = 'none';
+  }
 
   /** Persist last state */
   const STORAGE_KEY = 'faoa:picker:last';
@@ -262,7 +278,7 @@
     try{
       const u = new URL(url, location.origin);
       const parts = u.pathname.split('/').filter(Boolean);
-      return parts.slice(0, -1).join('/'); // everything except filename
+      return parts.slice(0, -1).join('/');
     }catch{ return ''; }
   }
 
@@ -294,16 +310,8 @@
       els.crumbs.appendChild(b);
     });
 
-    // Simple one-level tree (expandable groups)
     els.tree.innerHTML = '';
     const folders = [...byFolder.keys()].sort();
-    const topLevel = new Map(); // root -> Set(children)
-    folders.forEach(fp=>{
-      const [root,...rest] = fp.split('/').filter(Boolean);
-      if(!topLevel.has(root||'(root)')) topLevel.set(root||'(root)', new Set());
-      if(rest.length) topLevel.get(root||'(root)').add(root+'/'+rest[0]);
-    });
-
     for(const fp of folders){
       const n = document.createElement('div');
       n.className = 'node';
@@ -328,7 +336,6 @@
     if(currentFolder && !els.allFolders.checked){
       pool = byFolder.get(currentFolder)||[];
     }else{
-      // all folders
       pool = allItems;
     }
     view = pool.filter(it=>{
@@ -349,10 +356,13 @@
     els.empty.style.display = view.length? 'none' : 'grid';
     const frag = document.createDocumentFragment();
     for(const it of view){
-      const card = document.createElement('div');
+      const card = document.createElement('button');
+      card.type = 'button';
       card.className = 'card';
       card.dataset.url = it.url;
       card.dataset.name = it.name||'';
+      card.setAttribute('aria-label', (it.name||'media') + ', ' + (it.type||'image'));
+
       const th = document.createElement('div'); th.className = 'thumb';
       let media;
       if((it.type||'image')==='video'){ media = document.createElement('video'); media.muted = true; media.preload='metadata'; }
@@ -370,11 +380,23 @@
       card.appendChild(meta);
 
       if(selected.has(it.url)) card.classList.add('sel');
+
+      // Always-clickable interactions:
+      card.addEventListener('click', (e)=>{
+        // single click toggles selection (respect limit)
+        if(e.ctrlKey || e.metaKey){ tryToggleSelect(it.url); return; }
+        // default: open preview AND select current
+        openPreview(view.findIndex(v=>v.url===it.url), true);
+        tryToggleSelect(it.url);
+      }, {passive:true});
+      card.addEventListener('dblclick', ()=>{
+        openPreview(view.findIndex(v=>v.url===it.url)); // focus preview
+      }, {passive:true});
+
       frag.appendChild(card);
     }
     els.grid.appendChild(frag);
     updateFooter();
-    // if preview has an item open, refresh it
     if(currentIndex>=0) openPreview(currentIndex, /*silent*/true);
   }
 
@@ -382,59 +404,15 @@
     const total = view.length, sel = selected.size;
     els.count.textContent = `${fmt(total)} • ${sel} selected${Number.isFinite(selectionCap)&&selectionCap!==Infinity? ` (max ${selectionCap})`:''}`;
     const canApply = sel>0 || currentIndex>=0;
-    els.applyBtn.disabled = !canApply;
-    els.applyBtn2.disabled = !canApply;
-    els.applyFromPreview.disabled = !canApply;
-  }
-
-  /** =======================
-   *  Pointer-safe interactions
-   *  ======================= */
-  let currentIndex = -1;
-  let down = null, lastScrollTop = 0, lastScrollAt = 0;
-  const MOVE_THRESH = 12; // px
-  const SCROLL_GRACE = 200; // ms
-
-  els.grid.addEventListener('scroll', ()=>{ lastScrollTop = els.grid.scrollTop; lastScrollAt = performance.now(); }, {passive:true});
-
-  // Click = open preview, Ctrl/Cmd-click = toggle select
-  els.grid.addEventListener('pointerdown', e=>{
-    const card = e.target.closest('.card'); if(!card) return;
-    els.grid.setPointerCapture?.(e.pointerId);
-    down = { id:e.pointerId, x:e.clientX, y:e.clientY, url:card.dataset.url, st:lastScrollTop };
-  }, {passive:true});
-
-  els.grid.addEventListener('pointerup', e=>{
-    if(!down || down.id !== e.pointerId) return (down=null);
-    const dx = Math.abs(e.clientX - down.x);
-    const dy = Math.abs(e.clientY - down.y);
-    const moved = Math.hypot(dx,dy) > MOVE_THRESH;
-    const scrolled = els.grid.scrollTop !== down.st || (performance.now() - lastScrollAt) < SCROLL_GRACE;
-    const card = e.target.closest('.card');
-    if(card && !moved && !scrolled){
-      if(e.ctrlKey || e.metaKey){ tryToggleSelect(down.url); }
-      else{
-        const idx = view.findIndex(i=>i.url===down.url);
-        openPreview(idx);
-      }
-    }
-    down = null;
-  }, {passive:true});
-
-  function tryToggleSelect(url){
-    const isSelected = selected.has(url);
-    if(!isSelected && selected.size >= selectionCap){
-      toast(selectionCap===1?'Only 1 item can be selected':`Max ${selectionCap} items`);
-      return;
-    }
-    if(selectionCap === 1 && !isSelected){ selected.clear(); }
-    if(isSelected) selected.delete(url); else selected.add(url);
-    renderList();
+    if (els.applyBtn) els.applyBtn.disabled = !canApply;
+    if (els.applyBtn2) els.applyBtn2.disabled = !canApply;
+    if (els.applyFromPreview) els.applyFromPreview.disabled = !canApply;
   }
 
   /** =======================
    *  Preview + presets + focal/crop
    *  ======================= */
+  let currentIndex = -1;
   let focalMode = false;
 
   function activePreset(){
@@ -455,20 +433,17 @@
     });
   }
 
-  // preview navigation
   els.prevBtn.onclick = ()=>{ if(currentIndex>0) openPreview(currentIndex-1); };
   els.nextBtn.onclick = ()=>{ if(currentIndex<view.length-1) openPreview(currentIndex+1); };
   els.selectFromPreview.onclick = ()=>{ const it=view[currentIndex]; if(it) tryToggleSelect(it.url); };
   els.setFocal.onclick = ()=>{ focalMode = !focalMode; toast(focalMode?'Click image to set focal':'Focal mode off'); };
 
-  // sliders
   [els.zoom, els.panX, els.panY, els.fitCover].forEach(el=> el.addEventListener('input', ()=>{ persistCrop(); drawPreview(); }));
   function persistCrop(){
     const it = view[currentIndex]; if(!it) return;
     cropState[it.url] = { zoom: +els.zoom.value, panX: +els.panX.value, panY: +els.panY.value, fitCover: !!els.fitCover.checked };
   }
 
-  // image click: set focal in [0..1]
   els.pvImg.addEventListener('click', (e)=>{
     const it = view[currentIndex]; if(!it || !focalMode) return;
     const r = e.target.getBoundingClientRect();
@@ -485,7 +460,6 @@
     els.pvImg.src = it.url; els.pvImg.alt = it.name||'';
     els.pvName.textContent = it.name||'';
     els.openNew.href = it.url;
-    // hydrate sliders from state or defaults
     const cs = cropState[it.url] || { zoom:1, panX:0, panY:0, fitCover:true };
     els.zoom.value = cs.zoom; els.panX.value = cs.panX; els.panY.value = cs.panY; els.fitCover.checked = cs.fitCover;
     renderPresetTabs();
@@ -502,18 +476,15 @@
 
     if(!p) { els.qualityHint.textContent='—'; return; }
 
-    // compute box for preset aspect inside canvas
     const ar = p.aspectRatio || (16/9);
     let boxW = W, boxH = W / ar;
     if(boxH > H){ boxH = H; boxW = H * ar; }
     const boxX = (W - boxW)/2, boxY = (H - boxH)/2;
 
-    // draw frame
     ctx.strokeStyle = 'rgba(255,255,255,.25)';
     ctx.lineWidth = 2;
     roundRect(ctx, boxX, boxY, boxW, boxH, p.cornerRadius||12); ctx.stroke();
 
-    // safe area (relative)
     if(p.safeArea){
       ctx.setLineDash([6,6]);
       ctx.strokeStyle = 'rgba(255,255,255,.35)';
@@ -522,7 +493,6 @@
       ctx.setLineDash([]);
     }
 
-    // focal point marker (if any)
     const it = view[currentIndex];
     const f = focal[it?.url];
     if(f){
@@ -532,7 +502,6 @@
       ctx.fill();
     }
 
-    // Quality hint
     if(it && it.w && it.h){
       const targetW = p.targetWidth || 1920;
       els.qualityHint.textContent = it.w < targetW ? `⚠ ${it.w}px < ${targetW}px (may look soft)` : `✓ ${it.w}px OK for ~${targetW}px`;
@@ -540,7 +509,6 @@
       els.qualityHint.textContent = '—';
     }
   }
-
   function roundRect(ctx,x,y,w,h,r){
     const rr = Math.min(r, w/2, h/2);
     ctx.beginPath();
@@ -561,11 +529,7 @@
       const it = allItems.find(i=>i.url===u) || {url:u, name:u.split('/').pop()};
       const cs = cropState[u] || {zoom:1, panX:0, panY:0, fitCover:true};
       const variants = (presets||[]).map(p=>{
-        return {
-          id: p.id,
-          focal: focal[u] || null,
-          crop: computeCropForPreset(it, p, cs)  // normalized crop rect x,y,w,h
-        };
+        return { id: p.id, focal: focal[u] || null, crop: computeCropForPreset(it, p, cs) };
       });
       return {
         url: it.url,
@@ -578,28 +542,27 @@
       };
     });
   }
-
-  // Very lightweight crop math: we simulate a zoom/pan inside aspect box; return normalized crop rect in source coords
   function computeCropForPreset(item, preset, cs){
     const iw = item.w||0, ih = item.h||0; if(!iw || !ih) return null;
     const ar = preset.aspectRatio || (16/9);
-
-    // base fit size (cover/contain) inside 1x1 box
-    // We'll map zoom [1..3] as additional scale after base fit
     const fitCover = !!cs.fitCover;
-    const baseScale = fitCover ? Math.max(1/iw*ar*ih, 1) : Math.min(1/iw*ar*ih, 1); // simplified heuristic
-    const scale = baseScale * clamp(cs.zoom, 1, 3);
 
-    // pan offsets [-1..1] relative to excess space after scale
+    // base fit into aspect box using cover/contain
+    const boxW = iw, boxH = iw / ar;
+    const coverScale = Math.max(boxW/iw, boxH/ih);
+    const containScale = Math.min(boxW/iw, boxH/ih);
+    const baseScale = fitCover ? coverScale : containScale;
+
+    const scale = baseScale * clamp(cs.zoom, 1, 3);
     const viewW = iw/scale;
     const viewH = viewW / ar;
+
     let x = (iw - viewW)/2 + cs.panX * (iw - viewW)/2;
     let y = (ih - viewH)/2 + cs.panY * (ih - viewH)/2;
     x = clamp(x, 0, Math.max(0, iw - viewW));
     y = clamp(y, 0, Math.max(0, ih - viewH));
     const w = Math.min(viewW, iw), h = Math.min(viewH, ih);
 
-    // return normalized
     return { x: +(x/iw).toFixed(6), y: +(y/ih).toFixed(6), w: +(w/iw).toFixed(6), h: +(h/ih).toFixed(6), aspectId: preset.id };
   }
 
@@ -620,9 +583,9 @@
   /** =======================
    *  Events
    *  ======================= */
-  els.applyBtn.onclick = ()=>dispatchSelection(true);
-  els.applyBtn2.onclick = ()=>dispatchSelection(true);
-  els.applyFromPreview.onclick = ()=>dispatchSelection(false);
+  if (els.applyBtn) els.applyBtn.onclick = ()=>dispatchSelection(true);
+  if (els.applyBtn2) els.applyBtn2.onclick = ()=>dispatchSelection(true);
+  if (els.applyFromPreview) els.applyFromPreview.onclick = ()=>dispatchSelection(false);
   els.cancelBtn.onclick = ()=>{ try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{} try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{} };
   els.closeBtn.onclick = els.cancelBtn.onclick;
 
@@ -631,7 +594,6 @@
   els.typeFilter.addEventListener('change', ()=>{ renderList(); saveState(); });
   els.orientFilter.addEventListener('change', ()=>{ renderList(); saveState(); });
 
-  /** keyboard niceties */
   window.addEventListener('keydown', (e)=>{
     if(e.key==='/'){ e.preventDefault(); els.q.focus(); }
     if(e.key==='Enter' && document.activeElement===els.q && view.length){ openPreview(0); }
@@ -651,7 +613,6 @@
       if(Array.isArray(d.items)) setItems(d.items);
       if(d.origin) openerOrigin = d.origin;
       if(Number.isFinite(d.limit)) selectionCap = Math.max(0, d.limit);
-      if(typeof d.base === 'string') {/* optional override for DEFAULT_BASE at runtime */}
       if(d.initialFolder) currentFolder = d.initialFolder;
       if(Array.isArray(d.selection)){ selected.clear(); d.selection.forEach(u=>selected.add(u)); }
       renderList(); renderTree();
@@ -668,16 +629,17 @@
   });
 
   /** =======================
-   *  Data loading
+   *  Data loading (with robust fallback)
    *  ======================= */
   async function loadManifest(url){
     try{
+      els.loading.style.display = 'grid';
       const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error('fetch failed');
       const data = await res.json();
-      if(Array.isArray(data)) return data;
-      if(data && Array.isArray(data.items)) return data.items;
-      return [];
+      return Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : []);
     }catch{ return []; }
+    finally{ els.loading.style.display = 'none'; }
   }
 
   function sanitize(arr){
@@ -686,7 +648,7 @@
       if(!o.name) o.name = (o.url||'').split('/').pop() || 'file';
       if(!o.url) o.url = DEFAULT_BASE + o.name;
       if(!o.folderPath) o.folderPath = toFolderPath(o.url);
-      if(!o.type){ // guess from extension
+      if(!o.type){
         const ext = o.url.split('.').pop()?.toLowerCase() || '';
         o.type = /mp4|webm|mov/.test(ext) ? 'video' : /mp3|wav|m4a/.test(ext) ? 'audio' : /pdf|doc|docx/.test(ext) ? 'doc' : 'image';
       }
@@ -696,7 +658,6 @@
 
   function setItems(arr){
     allItems = sanitize(arr);
-    // try to fetch natural sizes for images (best-effort)
     allItems.forEach(it=>{
       if((it.type||'image')==='image' && (!it.w || !it.h)){
         const img = new Image();
@@ -710,15 +671,22 @@
     renderList();
   }
 
+  // Small inline fallback so grid never appears blank if manifest missing / cross-origin
+  const SAMPLE_MEDIA = [
+    {url:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200', name:'mountains.jpg', w:1200, h:800, folderPath:'/demo/images', type:'image'},
+    {url:'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?w=1200', name:'city.jpg', w:1200, h:800, folderPath:'/demo/images', type:'image'},
+    {url:'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200', name:'desk.jpg', w:1200, h:800, folderPath:'/demo/images', type:'image'}
+  ];
+
   async function bootstrap(){
     loadState();
     if(manifestURL){
       const items = await loadManifest(manifestURL);
-      setItems(items);
-      return;
+      if(items.length){ setItems(items); return; }
     }
-    if(Array.isArray(window.__MEDIA__)){ setItems(window.__MEDIA__); return; }
-    // else: wait for media-picker:init
+    if(Array.isArray(window.__MEDIA__) && window.__MEDIA__.length){ setItems(window.__MEDIA__); return; }
+    // Fallback (so testers can interact even if manifest path is wrong)
+    setItems(SAMPLE_MEDIA);
   }
 
   /** =======================
