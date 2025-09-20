@@ -583,21 +583,28 @@ function saveArtists(list){ store.set(K.artists, list); }
 function currentArtist(){ return store.get(K.currentArtist, null); }
 function setCurrentArtist(id){ store.set(K.currentArtist, id); }
 
-function paintHQ(){
-  const listEl=$('#artistList'); listEl.innerHTML='';
-  const artists=loadArtists(); const cur=currentArtist();
-  artists.forEach(a=>{
-    const row=document.createElement('div'); row.className='hqRow'; row.dataset.artistId=a.id;
-    row.innerHTML=`
-      <div class="left">
-        <div class="name">${esc(a.name)}</div>
-        <div class="badges">${a.id===cur?'<span class="badge green">✓ Current</span>':''}${a.visible?'':'<span class="badge dim">Hidden</span>'}</div>
-      </div>
-      <div class="rowBtns">
-        <button class="kebab" title="Menu" data-artist-kebab="${esc(a.id)}">⋮</button>
-      </div>`;
-    listEl.appendChild(row);
-  });
+// Make artist rows selectable (click or keyboard)
+$('#artistList').addEventListener('click', (e)=>{
+  const row = e.target.closest('.hqRow');
+  if (!row) return;
+  if (e.target.closest('[data-artist-kebab]')) return; // ignore kebab clicks
+  setCurrentArtist(row.dataset.artistId);
+  paintHQ();
+  closeHQ();
+  paintPage();
+}, { passive:true });
+
+$('#artistList').addEventListener('keydown', (e)=>{
+  const row = e.target.closest('.hqRow');
+  if (!row) return;
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    setCurrentArtist(row.dataset.artistId);
+    paintHQ();
+    closeHQ();
+    paintPage();
+  }
+});
 }
 $('#createArtistBtn').addEventListener('click', ()=>{
   const name=prompt('Artist name?','New Artist'); if(!name) return;
