@@ -1,4 +1,4 @@
-ArtCademy V1.1
+Artitack-HQ-V1.O
 
 <!DOCTYPE html>
 <html lang="en-AU">
@@ -6,7 +6,7 @@ ArtCademy V1.1
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
-  <title>Home — ArtCademy HQ</title>
+  <title>Home — Artitack HQ</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lobster&family=Oswald:wght@400;700&family=Pacifico&family=Raleway:wght@700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -289,7 +289,7 @@ ArtCademy V1.1
   <!-- ===== Header ===== -->
   <header class="nav" role="navigation" aria-label="Primary">
     <div class="nav-left">
-      <button id="btnHQ" class="hamburger" aria-label="Open ArtCademy HQ" title="ArtCademy HQ">☰</button>
+      <button id="btnHQ" class="hamburger" aria-label="Open Artitack HQ" title="Artitack HQ">☰</button>
     </div>
     <div class="nav-right">
       <button id="avatarTab" class="avatarTab" aria-haspopup="dialog" aria-expanded="false">
@@ -304,12 +304,12 @@ ArtCademy V1.1
     <div id="pageGrid" aria-live="polite"></div>
   </main>
 
-  <!-- ===== ArtCademy HQ Overlay (Artists) ===== -->
+  <!-- ===== Artitack HQ Overlay (Artists) ===== -->
   <div id="hqOverlay" aria-hidden="true">
     <div id="hqBackdrop"></div>
     <div id="hqCard" role="dialog" aria-modal="true" aria-labelledby="hqTitle">
       <div class="hqHead">
-        <div class="hqTitle" id="hqTitle">ArtCademy HQ — Artists</div>
+        <div class="hqTitle" id="hqTitle">Artitack HQ — Artists</div>
         <button class="hqX" id="hqClose" aria-label="Close">×</button>
       </div>
       <div class="hqBody">
@@ -381,7 +381,7 @@ ArtCademy V1.1
   const store={ get:(k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch{ return f } }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
   const SCHEMA_VERSION=1;
 
-  /* Namespaced keys (matches brief) */
+  /* Namespaced keys (kept as ao_* to preserve existing data) */
   const K = {
     artists: 'ao_artists',                // [{id,name,visible}]
     currentArtist: 'ao_current_artist',   // 'artist-<timestamp>'
@@ -400,7 +400,29 @@ ArtCademy V1.1
   function isAdmin(){ return getRole()==='admin'; }
   function devOn(){ return document.body.classList.contains('config-on'); }
 
-  /* Artist bootstrap + migration hook */
+  /* ============================================================
+     Grab Dev Dock elements FIRST (fixes init-order bug)
+     ============================================================ */
+  const devDock       = $('#devDock');
+  const dockContent   = $('#dockContent');
+  const devToggle     = $('#devToggle');
+  const createCourseBtn = $('#createCourseBtn');
+  const addHeadingBtn   = $('#addHeadingBtn');
+  const archivedToggle  = $('#archivedToggle');
+  const trashToggle     = $('#trashToggle');
+
+  function applyDevChips(){
+    const on = devOn();
+    devToggle.textContent = `Developer: ${on?'On':'Off'}`;
+    devToggle.setAttribute('aria-pressed', on?'true':'false');
+    $$('.dev-only').forEach(el=> el.style.display = on ? 'inline-flex' : 'none');
+    dockContent.hidden = true;
+    devDock.classList.add('collapsed'); devDock.classList.remove('open');
+  }
+
+  /* ============================================================
+     Artist bootstrap + migration hook
+     ============================================================ */
   function ensureArtists(){
     let artists = store.get(K.artists, null);
     let cur = store.get(K.currentArtist, null);
@@ -434,7 +456,7 @@ ArtCademy V1.1
 
   function newArtistId(){ return 'artist-' + Date.now(); }
 
-  /* Per-artist settings model (matches brief keys) */
+  /* Per-artist settings (scaffold) */
   function blankSettings(){
     return {
       heroFlags:{}, heroLabels:{}, heroAssets:{}, heroStyle:{}, heroSchedule:{}, heroShortcuts:{}, heroProgress:{},
@@ -452,15 +474,6 @@ ArtCademy V1.1
 
   /* Globals */
   let ARTISTS = []; let CUR = null; let S = blankSettings();
-  (function bootArtists(){
-    const {artists, cur, first} = ensureArtists();
-    ARTISTS = artists; CUR = cur; S = loadSettings(CUR);
-    paintAvatar();
-    paintHQ();
-    if(first) openHQ(); // First load: open HQ automatically
-    applyDevChips();
-    paintPage();
-  })();
 
   /* ============================================================
      Avatar (no Dev toggle here per brief)
@@ -619,28 +632,6 @@ ArtCademy V1.1
   /* ============================================================
      Dev Dock (always visible). Chips show only when Dev = On.
      ============================================================ */
-  const devToggle = $('#devToggle');
-  const createCourseBtn = $('#createCourseBtn');
-  const addHeadingBtn = $('#addHeadingBtn');
-  const archivedToggle = $('#archivedToggle');
-  const trashToggle = $('#trashToggle');
-  const dockContent = $('#dockContent');
-  const devDock = $('#devDock');
-
-  function applyDevChips(){
-    const on = devOn();
-    devToggle.textContent = `Developer: ${on?'On':'Off'}`;
-    devToggle.setAttribute('aria-pressed', on?'true':'false');
-    $$('.dev-only').forEach(el=> el.style.display = on ? 'inline-flex' : 'none');
-    dockContent.hidden = true;
-    devDock.classList.add('collapsed'); devDock.classList.remove('open');
-  }
-
-  devToggle.addEventListener('click', ()=>{
-    if(!isAdmin()) return; // keep admin gate per brief
-    document.body.classList.toggle('config-on');
-    applyDevChips(); paintPage(); paintDockPanels();
-  }, {passive:true});
 
   function openDockPanel(kind){
     const isOpen = !dockContent.hidden && dockContent.dataset.kind===kind;
@@ -652,6 +643,12 @@ ArtCademy V1.1
   }
   archivedToggle.addEventListener('click', ()=> openDockPanel('archive'), {passive:true});
   trashToggle.addEventListener('click', ()=> openDockPanel('trash'), {passive:true});
+
+  devToggle.addEventListener('click', ()=>{
+    if(!isAdmin()) return; // admin gate
+    document.body.classList.toggle('config-on');
+    applyDevChips(); paintPage(); paintDockPanels();
+  }, {passive:true});
 
   /* ============================================================
      Page building — heroes & headings
@@ -1051,7 +1048,6 @@ ArtCademy V1.1
 
   /* ===== Rename Dialog (shared) ===== */
   function openRenameDialog(kind, id, currentText, currentStyle){
-    const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
     mTitle.textContent = (kind==='hero'?'Rename Course':'Edit Heading');
     mBody.innerHTML = `
       <div class="modalSub">Text</div>
@@ -1284,8 +1280,17 @@ ArtCademy V1.1
   }
 
   /* ============================================================
-     Final init already called in bootArtists()
+     BOOT — do this AFTER we have grabbed Dev Dock nodes
      ============================================================ */
+  (function boot(){
+    const {artists, cur, first} = ensureArtists();
+    ARTISTS = artists; CUR = cur; S = loadSettings(CUR);
+    paintAvatar();
+    paintHQ();
+    applyDevChips();      // safe now that devToggle et al are bound
+    paintPage();
+    if(first) openHQ();   // show HQ on first load
+  })();
 
   })();
   </script>
