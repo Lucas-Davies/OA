@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="en-AU"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Course Studio</title>
+<link rel="stylesheet" href="./assets/studio.css">
+</head><body>
+<div id="bar">
+  <button id="close">Close</button>
+  <div style="flex:1"></div>
+  <button id="addModule">+ Module</button>
+  <button id="addLesson">+ Lesson</button>
+  <button id="publish">Publish</button>
+</div>
+<div id="grid">
+  <aside id="nav"></aside>
+  <main id="canvas"><div id="preview"></div></main>
+  <aside id="insp"></aside>
+</div>
+
+<script type="module">
+import { db } from './js/db.js';
+import { el, renderCourse, normalizeCourse } from './js/renderer.js';
+
+const q = new URLSearchParams(location.search);
+const courseId = q.get('course');
+let sel = {kind:'course', id:null, parent:null};
+
+const nav = document.getElementById('nav');
+const insp = document.getElementById('insp');
+const preview = document.getElementById('preview');
+
+if(!courseId){ document.body.innerHTML = '<p style="padding:20px">No course id. Open from Home.</p>'; throw new Error('no course'); }
+
+function refresh(){
+  const c = db.getCourse(courseId); if(!c){ document.body.innerHTML='<p style="padding:20px">Course not found.</p>'; return; }
+  // nav
+  nav.innerHTML='';
+  const cItem = el('div',{class:'nav-item '+(sel.kind==='course'?'active':'')}, '• '+c.title); cItem.onclick=()=>{sel={kind:'course'}; drawInspector();};
+  nav.append(cItem);
+  (c.modules||[]).forEach(m=>{
+    const mItem=el('div',{class:'nav-item '+(sel.id===m.id&&sel.kind==='module'?'active':'')}, 'Module: '+m.title); mItem.onclick=()=>{sel={kind:'module',id:m.id}; drawInspector();};
+    nav.append(mItem);
+    (m.lessons||[]).forEach(l=>{
+      const lItem=el('div',{class:'nav-item', style:'margin-left:12px;'+(sel.id===l.id&&sel.kind==='lesson'?'background:#171a22;border:1px solid var(--stroke);border-radius:8px':'')}, 'Lesson: '+l.title); lItem.onclick=()=>{sel={kind:'lesson',id:l.id,parent:m.id}; drawInspector();};
+      nav.append(lItem);
+    });
+  });
+  // preview
+  preview.innerHTML=''; preview.append(renderCourse(normalizeCourse(c)));
+  // insp
+  drawInspector();
+}
+
+function drawInspector(){
+  const c = db.getCourse(courseId); insp.innerHTML='';
+  if(sel.kind==='course'){
+    insp.append(label('Title', input(c.title, v=>{c.title=v; db.saveCourse(c); refresh();})));
+    insp.append(label('Summary', textarea(c.summary||'', v=>{c.summary=v; db.saveCourse(c);})));
+    const wrap = el('div',{class:'row'});
+    wrap.append(label('Hero Image URL', input(c.hero?.image||'', v=>{c.hero.image=v; db.saveCourse(c); refresh();})));
+    insp.append(wrap);
+  } else if(sel.kind==='module'){
+    const m=c.modules.find(x=>x.id===sel.id);
+    insp.append(label('Module title', input(m.title, v=>{m.title=v; db.saveCourse(c); refresh();})));
+    insp.append(button('+ Add Lesson', ()=>{ addLesson(c, m.id); }));
+  } else if(sel.kind==='lesson'){
+    const m=c.modules.find(x=>x.id===sel.parent), l=m.lessons.find(x=>x.id===sel.id);
+    insp.append(label('Lesson title', input(l.title, v=>{l.title=v; db.saveCourse(c); refresh();})));
+    insp.append(label('Duration (min)', input(String(l.duration||0), v=>{ l.duration=parseInt(v||0,10); db.saveCourse(c);})));
+    insp.append(el('div',{}, el('h4',{},'Blocks')));
+    (l.blocks||[]).forEach((b,idx)=> insp.append(blockEditor(c,m.id,l.id,b,idx)));
+    insp.append(button('+ Add Block', ()=>{ addBlock(c, m.id, l.id); }));
+  }
+}
+
+function blockEditor(c, mid, lid, b, idx){
+  const w=el('div',{class:'block'});
+  w.append(label('Type', select(b.type, ['richtext','image','video'], v=>{ b.type=v; db.saveCourse(c); refresh(); })));
+  if(b.type==='richtext'){
+    w.append(label('HTML', textarea(b.data?.html||'', v=>{ b.data={...(b.data||{}), html:v}; db.saveCourse(c); refresh(); })));
+  } else if(b.type==='image'){
+    w.append(label('Image URL', input(b.data?.src||'', v=>{ b.data={...(b.data||{}), src:v}; db.saveCourse(c); refresh(); })));
+    w.append(label('Caption', input(b.data?.caption||'', v=>{ b.data={...(b.data||{}), caption:v}; db.saveCourse(c);})));
+  } else if(b.type==='video'){
+    w.append(label('Video URL', input(b.data?.src||'', v=>{ b.data={...(b.data||{}), src:v}; db.saveCourse(c); refresh(); })));
+    w.append(label('Poster URL', input(b.data?.poster||'', v=>{ b.data={...(b.data||{}), poster:v}; db.saveCourse(c);})));
+  }
+  return w;
+}
+
+/* helpers */
+function label(t,ctrl){ return el('div',{}, el('label',{},t), ctrl); }
+function input(val,on){ const i=el('input',{value:val}); i.oninput=e=>on(e.target.value); return i; }
+function textarea(val,on){ const i=el('textarea',{},val); i.oninput=e=>on(e.target.value); return i; }
+function select(val,opts,on){ const s=el('select',{}); opts.forEach(o=> s.append(el('option',{value:o, selected:o===val?true:null},o))); s.onchange=e=>on(e.target.value); return s; }
+function button(t,fn){ const b=el('button',{},t); b.onclick=fn; return b; }
+
+/* actions */
+document.getElementById('close').onclick=()=>history.back();
+document.getElementById('addModule').onclick=()=>{ const c=db.getCourse(courseId); addModule(c); };
+document.getElementById('addLesson').onclick=()=>{ const c=db.getCourse(courseId); if(!c.modules.length) addModule(c); addLesson(db.getCourse(courseId), db.getCourse(courseId).modules[0].id); };
+document.getElementById('publish').onclick=()=>{ const v=db.publish(courseId); alert('Published v'+v); };
+
+function addModule(course){
+  const m={id:crypto.randomUUID(), title:'New Module', order:(course.modules.length+1), lessons:[]};
+  course.modules.push(m); db.saveCourse(course); sel={kind:'module',id:m.id}; refresh();
+}
+function addLesson(course, moduleId){
+  const m=course.modules.find(x=>x.id===moduleId); m.lessons = m.lessons||[];
+  const l={id:crypto.randomUUID(), title:'New Lesson', order:(m.lessons.length+1), duration:0, blocks:[]};
+  m.lessons.push(l); db.saveCourse(course); sel={kind:'lesson',id:l.id,parent:m.id}; refresh();
+}
+function addBlock(course, moduleId, lessonId){
+  const m=course.modules.find(x=>x.id===moduleId); const l=m.lessons.find(x=>x.id===lessonId);
+  l.blocks=l.blocks||[]; l.blocks.push({type:'richtext', data:{html:'<p>New text…</p>'}});
+  db.saveCourse(course); refresh();
+}
+
+refresh();
+</script>
+</body></html>
