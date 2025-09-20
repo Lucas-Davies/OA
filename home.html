@@ -1,4 +1,5 @@
-ArtCademy V1.0
+ArtCademy V1.1
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -38,7 +39,7 @@ ArtCademy V1.0
       -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
     }
 
-    /* Hamburger (replaces "Courses" title) */
+    /* Hamburger (replaces "Courses") */
     .hamburger{
       appearance:none; border:1px solid var(--stroke); background:#141821; color:#e7eaf0;
       width:44px; height:44px; border-radius:12px; font-size:20px; font-weight:900;
@@ -181,7 +182,7 @@ ArtCademy V1.0
     /* Audience dots */
     .aud-dot{ width:8px; height:8px; border-radius:50%; opacity:.6; outline:1px solid rgba(255,255,255,.25) }
     .aud-dot.on{ opacity:1 }
-    .aud-dot.beginner{ background:#b87333 } /* (bronze) */
+    .aud-dot.beginner{ background:#b87333 } /* bronze */
     .aud-dot.silver{ background:#c0c7d1 }
     .aud-dot.gold{ background:#ffd700 }
 
@@ -217,7 +218,7 @@ ArtCademy V1.0
     }
     .footer-chip:hover{ background:#182032; }
 
-    /* Universal Modal (for kebabs, prompts) */
+    /* Universal Modal */
     #modalRoot{position:fixed; inset:0; z-index:15000; display:flex; align-items:center; justify-content:center}
     #modalRoot[hidden]{display:none}
     #modalBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.5); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
@@ -321,7 +322,7 @@ ArtCademy V1.0
     </div>
   </div>
 
-  <!-- ===== Avatar Drawer (simple profile view; no Dev toggle per brief) ===== -->
+  <!-- ===== Avatar Drawer (no Dev toggle per brief) ===== -->
   <div id="avatarSheet" aria-hidden="true" style="position:fixed; inset:0; z-index:80; display:none; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)">
     <div id="avatarCard" role="dialog" aria-modal="true" aria-labelledby="avatarTitle" style="margin:auto; width:min(420px,92vw); background:#0f1116; border:1px solid var(--stroke); border-radius:14px; padding:14px;">
       <button id="avatarClose" class="footer-chip" type="button">Close</button>
@@ -362,13 +363,15 @@ ArtCademy V1.0
         <button class="footer-chip dev-only" id="trashToggle" type="button" style="display:none">Trash</button>
       </div>
     </div>
-    <div class="content" id="dockContent" hidden>
-      <!-- Panels are injected here: Archived list or Trash list -->
-    </div>
+    <div class="content" id="dockContent" hidden></div>
   </div>
 
   <script>
   (()=>{'use strict';
+
+  /* --- string escapers must be HOISTED (used during boot) --- */
+  function escapeHTML(s){ return String(s ?? '').replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+  function escapeAttr(s){ return String(s ?? '').replace(/["&<>]/g, m => ({'"':'&quot;','&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
   /* ============================================================
      Utilities / Storage scaffolding (localStorage for now)
@@ -390,7 +393,6 @@ ArtCademy V1.0
   /* Role helpers */
   const ROLE_LABEL = { beginner:'Beginner', silver:'Intermediate', gold:'Advanced', support:'Support', director:'Director', admin:'Admin' };
   function getRole(){
-    // simple local profile (replace with Supabase session later)
     const prof = store.get('ao_profile', { displayName:'User', skill:'admin' });
     return (prof.skill||'admin').toLowerCase();
   }
@@ -442,7 +444,6 @@ ArtCademy V1.0
   function loadSettings(artistId){
     const raw = store.get(K.settingsNS(artistId), null);
     if(!raw) return blankSettings();
-    // sanitize minimal (no pre-seed; grid must start empty)
     const s = { ...blankSettings(), ...raw };
     s.pageOrder = Array.isArray(s.pageOrder) ? s.pageOrder.filter(it=> it && (it.type==='hero'||it.type==='divider')) : [];
     return s;
@@ -457,6 +458,8 @@ ArtCademy V1.0
     paintAvatar();
     paintHQ();
     if(first) openHQ(); // First load: open HQ automatically
+    applyDevChips();
+    paintPage();
   })();
 
   /* ============================================================
@@ -507,7 +510,7 @@ ArtCademy V1.0
     ARTISTS = next;
     store.set(K.artists, ARTISTS);
     if(!ARTISTS.find(a=>a.id===CUR)){ CUR = ARTISTS[0]?.id || newArtistId(); store.set(K.currentArtist, CUR); }
-    paintHQ(); paintPage(); paintDockPanels(); // swap page to new/remaining artist
+    paintHQ(); paintPage(); paintDockPanels();
   }
 
   $('#btnHQ').addEventListener('click', openHQ, {passive:true});
@@ -551,7 +554,7 @@ ArtCademy V1.0
         if(wasCur){
           const next = ARTISTS[0];
           if(next){ CUR = next.id; S = loadSettings(CUR); store.set(K.currentArtist, CUR); }
-          else{ // no artists left -> create one and open HQ
+          else{
             const id2 = newArtistId();
             ARTISTS = [{ id:id2, name:'New Artist', visible:true }];
             store.set(K.artists, ARTISTS); store.set(K.currentArtist, id2);
@@ -565,7 +568,7 @@ ArtCademy V1.0
   });
 
   /* ============================================================
-     Modal helpers (confirm / prompt / select / date)
+     Modal helpers
      ============================================================ */
   const modalRoot = $('#modalRoot');
   const mTitle = $('#modalTitle');
@@ -579,8 +582,8 @@ ArtCademy V1.0
     mTitle.textContent = title;
     mBody.innerHTML = typeof body==='string' ? `<div>${body}</div>` : '';
     mFoot.innerHTML = '';
-    const cancel = button('modalBtn', cancelText, ()=>modalClose());
-    const ok = button('modalBtn'+(danger?' danger':''), okText, ()=>{ modalClose(); onOK?.(); });
+    const cancel = button('modalBtn','Cancel',()=>modalClose());
+    const ok = button('modalBtn'+(danger?' danger':''),'OK',()=>{ modalClose(); onOK?.(); });
     mFoot.append(cancel, ok); modalRoot.hidden = false;
   }
   function modalPrompt({title='Enter value', label='Value', value=''}={}, onOK){
@@ -612,8 +615,6 @@ ArtCademy V1.0
     mFoot.append(cancel, ok); modalRoot.hidden = false;
   }
   function button(cls, text, onClick){ const b=document.createElement('button'); b.className=cls; b.textContent=text; b.onclick=onClick; return b; }
-  const escapeHTML = (s)=>String(s??'').replace(/[&<>]/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m]));
-  const escapeAttr = (s)=>String(s??'').replace(/["&<>]/g, m=>({ '"':'&quot;','&':'&amp;','<':'&lt;','>':'&gt;' }[m]));
 
   /* ============================================================
      Dev Dock (always visible). Chips show only when Dev = On.
@@ -636,13 +637,12 @@ ArtCademy V1.0
   }
 
   devToggle.addEventListener('click', ()=>{
-    if(!isAdmin()) return;
+    if(!isAdmin()) return; // keep admin gate per brief
     document.body.classList.toggle('config-on');
     applyDevChips(); paintPage(); paintDockPanels();
   }, {passive:true});
 
   function openDockPanel(kind){
-    // Toggle open/close
     const isOpen = !dockContent.hidden && dockContent.dataset.kind===kind;
     if(isOpen){ dockContent.hidden=true; devDock.classList.add('collapsed'); devDock.classList.remove('open'); return; }
     dockContent.dataset.kind = kind;
@@ -671,9 +671,7 @@ ArtCademy V1.0
   }
 
   function computeScheduleChip(id){
-    // nearest upcoming of release/expiry/dev (with simple recurrence)
     const sch = S.heroSchedule?.[id]||{};
-    const today = toDateOnly(new Date());
     const candidates = [
       ['live','green', nextOccurrence(sch.release)],
       ['off','red',   nextOccurrence(sch.expiry)],
@@ -683,10 +681,9 @@ ArtCademy V1.0
     candidates.sort((a,b)=>a[2]-b[2]);
     const [label,color,date] = candidates[0];
     const days = daysUntil(date);
-    return { color, text: (label==='live'?'Live':'Exp'===label?'Exp':'Dev') + (days!=null?`: ${days} Days`: '') };
+    return { color, text: (label==='live'?'Live':label==='off'?'Exp':'Dev') + (days!=null?`: ${days} Days`: '') };
   }
   function effectiveState(id){
-    // state overridden by schedule if dates passed
     const flag = S.heroFlags[id]||{};
     const sch = S.heroSchedule?.[id]||{};
     const today = toDateOnly(new Date());
@@ -792,7 +789,7 @@ ArtCademy V1.0
   /* ============================================================
      Dev: Add Heading / Create Course / Reorder / Kebab actions
      ============================================================ */
-  addHeadingBtn.addEventListener('click', ()=>{
+  $('#addHeadingBtn').addEventListener('click', ()=>{
     if(!(isAdmin() && devOn())) return;
     modalPrompt({title:'Add Heading', label:'Heading title', value:'Heading'}, (title)=>{
       S.pageOrder.push({type:'divider', id:uid(), title:(title||'Heading').trim(), aud:{beginner:true,silver:true,gold:true}, fontSize:22, rowSize:'m', state:'live' });
@@ -800,10 +797,9 @@ ArtCademy V1.0
     });
   });
 
-  createCourseBtn.addEventListener('click', async ()=>{
+  $('#createCourseBtn').addEventListener('click', async ()=>{
     if(!(isAdmin() && devOn())) return;
     const { heroId, courseId } = await createCourse();
-    // Add to page
     S.pageOrder.push({type:'hero', id:heroId});
     S.heroFlags[heroId] = { state:'dev', place:'page', aud:{beginner:true,silver:true,gold:true}, shape:'square' };
     S.heroLabels[heroId] = 'New Course';
@@ -811,18 +807,14 @@ ArtCademy V1.0
     saveSettings(CUR,S); paintPage();
   });
 
-  // Simple uid for headings
   function uid(){ return 'div_' + Math.random().toString(36).slice(2,9); }
 
-  // co-<incrementing> allocation (no preallocation; no reuse)
   function nextHeroId(){
     const nums = Object.keys(S.heroFlags||{}).map(id=> Number((id.match(/\d+/)||[])[0]||0));
     const max = nums.length? Math.max(...nums) : 0;
     return 'co-'+(max+1);
   }
-
   async function createCourse(){
-    // Try db.js -> createCourse(); else UUID fallback
     let cid = null;
     try{ if(window.db && typeof window.db.createCourse==='function'){ cid = await window.db.createCourse(); } }catch{}
     if(!cid) cid = crypto.randomUUID ? crypto.randomUUID() : ('uuid-' + Math.random().toString(16).slice(2));
@@ -980,7 +972,7 @@ ArtCademy V1.0
           saveSettings(CUR,S); paintPage(); paintDockPanels(); modalClose();
         });
       }else if(act==='delete'){
-        if(f.state==='live') return; // disabled when Live
+        if(f.state==='live') return;
         modalConfirm({title:'Move to Trash', body:`Move <b>${escapeHTML(labelFor(id))}</b> to Trash?`}, ()=>{
           S.heroFlags[id] = { ...f, place:'trash' };
           S.pageOrder = S.pageOrder.filter(it=> !(it.type==='hero' && it.id===id));
@@ -1059,9 +1051,6 @@ ArtCademy V1.0
 
   /* ===== Rename Dialog (shared) ===== */
   function openRenameDialog(kind, id, currentText, currentStyle){
-    // simple inline dialog using modalPrompt + style editor
-    // Reuse the modal: chain prompt then palette/font size/family
-    // For brevity, single dialog:
     const paletteColors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
     mTitle.textContent = (kind==='hero'?'Rename Course':'Edit Heading');
     mBody.innerHTML = `
@@ -1107,13 +1096,13 @@ ArtCademy V1.0
     });
     mFoot.append(cancel, save); modalRoot.hidden=false;
 
-    // live controls
     let liveFont = Number(currentStyle?.size||18);
     let liveColor = currentStyle?.color||'';
     let liveFamily = currentStyle?.font || "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif";
     const pal = $('#rnPalette'); const preview=$('#rnPreview'); const txt=$('#rnText'); const fontSel=$('#rnFont');
     function apply(){ preview.style.color=liveColor||''; preview.style.fontFamily=liveFamily; preview.style.fontSize=liveFont+'px'; preview.textContent = txt.value||'Preview'; $('#fSz').textContent=liveFont+'px'; }
-    paletteColors.forEach(col=>{ const b=document.createElement('button'); b.type='button'; b.className='footer-chip'; b.textContent=''; b.style.width='22px'; b.style.height='22px'; b.style.borderRadius='50%'; b.style.background=col; b.addEventListener('click',()=>{ liveColor=col; apply(); }, {passive:true}); pal.appendChild(b); });
+    const colors = ['#eef3ff','#cfd3e1','#ffffff','#000000','#808080','#0A84FF','#32d74b','#ff3b30','#ffd700','#b87333','#c0c7d1','#6a4cff','#ff9f0a','#64d2ff','#ff2d55'];
+    colors.forEach(col=>{ const b=document.createElement('button'); b.type='button'; b.className='footer-chip'; b.textContent=''; b.style.width='22px'; b.style.height='22px'; b.style.borderRadius='50%'; b.style.background=col; b.addEventListener('click',()=>{ liveColor=col; apply(); }, {passive:true}); pal.appendChild(b); });
     $('#fUp').onclick=()=>{ liveFont=Math.min(64,liveFont+1); apply(); };
     $('#fDown').onclick=()=>{ liveFont=Math.max(10,liveFont-1); apply(); };
     fontSel.value=liveFamily; fontSel.onchange=()=>{ liveFamily=fontSel.value; apply(); };
@@ -1164,7 +1153,6 @@ ArtCademy V1.0
   }
   function byHeroId([a], [b]){ return Number((a.match(/\d+/)||[])[0]) - Number((b.match(/\d+/)||[])[0]); }
 
-  // Archive actions
   dockContent.addEventListener('click',(e)=>{
     const row = e.target.closest('.row'); if(!row) return;
     const id = row.dataset.heroId; const f=S.heroFlags[id]; if(!f) return;
@@ -1191,7 +1179,6 @@ ArtCademy V1.0
         S.heroFlags[id] = { ...f, place:'page' };
         if(!S.pageOrder.some(x=>x.type==='hero' && x.id===id)) S.pageOrder.push({type:'hero', id});
       }else if(act==='delete'){
-        // Hard delete: remove hero + mapping, and call db.deleteCourse if present
         const courseId = S.courseMap?.[id];
         delete S.heroFlags[id];
         delete S.heroLabels[id];
@@ -1222,7 +1209,7 @@ ArtCademy V1.0
   }, {passive:false});
 
   /* ============================================================
-     Content Picker (GitHub Pages now; Azure later)
+     Content Picker
      ============================================================ */
   const PICKER_BASE = "https://lucas-davies.github.io/OA/content-picker.html";
   const ALLOWED_ORIGIN = (()=>{ try{ return new URL(PICKER_BASE).origin; }catch{ return "https://lucas-davies.github.io"; } })();
@@ -1250,7 +1237,6 @@ ArtCademy V1.0
   window.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && !pickerOverlay.hidden) closeContentPicker(); }, {passive:true});
 
   window.addEventListener('message',(ev)=>{
-    // Accept from picker origin or same origin (for GH Pages dev)
     let ok=false;
     try{ const u=new URL(ev.origin); ok = (u.origin===ALLOWED_ORIGIN) || (u.origin===window.location.origin) || u.hostname.endsWith('.github.io'); }catch{}
     if(!ok) return;
@@ -1298,19 +1284,7 @@ ArtCademy V1.0
   }
 
   /* ============================================================
-     Initial paint + dev dock state
-     ============================================================ */
-  function paintDockPanels(){ /* keeps reference name */ if(!dockContent.hidden){ if(dockContent.dataset.kind==='archive') paintArchivePanel(); else if(dockContent.dataset.kind==='trash') paintTrashPanel(); } }
-  applyDevChips();
-  paintPage();
-
-  /* ============================================================
-     Simple HQ autostart if no artists visible (safety)
-     ============================================================ */
-  if(!ARTISTS.length) openHQ();
-
-  /* ============================================================
-     Divider clicks for arrows and kebab handled above; HQ buttons wired.
+     Final init already called in bootArtists()
      ============================================================ */
 
   })();
