@@ -1,356 +1,738 @@
-V3 - Picker
+Picker V4
 
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="color-scheme" content="dark" />
-<title>Media Picker — FAOA</title>
+<meta name="color-scheme" content="dark light" />
+<title>Content Picker — FAOA</title>
 <style>
-:root{
-  --ink:#eef3ff; --ink-dim:#cfd3e1; --muted:rgba(238,243,255,.78);
-  --bg:#000; --panel:#0a0c10; --stroke:rgba(255,255,255,.18);
-  --blue:#0A84FF; --green:#32d74b; --red:#ff3b30; --amber:#ff9f0a;
-  --chip:#1b1f2a; --shadow:0 10px 30px rgba(0,0,0,.5);
-  --r:14px; --gap:12px; --maxw:1240px; --nav-h:64px; --btn-h:40px;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial;
-}
-.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 16px 24px }
+  :root{
+    --ink:#eaf0ff; --ink-dim:#c8cfdf; --muted:rgba(234,240,255,.72);
+    --bg:#0b0d12; --panel:#11151d; --panel-2:#0e1219; --stroke:rgba(255,255,255,.14);
+    --blue:#0a84ff; --green:#32d74b; --red:#ff453a; --amber:#ffd60a;
+    --r:14px; --gap:12px; --header:64px; --thumb:112px;
+    --shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .app{position:fixed; inset:0; display:grid; grid-template-rows:var(--header) 1fr; gap:0}
 
-/* ==== Top bar (matches Home feel) ==== */
-.nav{
-  position:sticky; top:0; z-index:1000;
-  background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
-  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--stroke);
-}
-.nav-inner{ display:flex; align-items:center; gap:10px; padding:10px 4px; min-height:var(--nav-h); }
-.title{ font-weight:900; letter-spacing:.3px; margin-right:auto; padding:0 8px; }
+  /* ===== Top Bar ===== */
+  header{
+    display:grid; grid-template-columns: 200px 1fr 380px 44px; gap:var(--gap);
+    align-items:center; padding:10px 12px; border-bottom:1px solid var(--stroke);
+    background:linear-gradient(180deg,rgba(0,0,0,.9),rgba(0,0,0,.55) 60%,rgba(0,0,0,.3));
+    backdrop-filter:blur(12px); position:sticky; top:0; z-index:12;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.2px}
+  .brand .dot{width:10px;height:10px;border-radius:99px;background:var(--blue); box-shadow:0 0 0 4px rgba(10,132,255,.18)}
+  .search{display:grid; grid-template-columns:20px 1fr auto; gap:8px; align-items:center; border:1px solid var(--stroke); border-radius:999px; padding:8px 12px; background:var(--panel-2)}
+  .search input{background:transparent; border:0; outline:0; color:var(--ink); font-size:15px}
+  .toggle{display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-dim)}
+  select, button{
+    background:var(--panel-2); border:1px solid var(--stroke); color:var(--ink);
+    border-radius:10px; height:44px; padding:0 12px; font-weight:700;
+  }
+  .x{display:grid; place-items:center; height:44px; width:44px; border-radius:10px; background:var(--panel-2); border:1px solid var(--stroke); font-size:22px; line-height:0}
+  .x:focus-visible, button:focus-visible, select:focus-visible, .card:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+  .apply{background:var(--blue); border-color:transparent; color:#fff}
+  .apply[disabled]{opacity:.5; cursor:not-allowed}
 
-.search{
-  display:flex; align-items:center; gap:8px; padding:0 10px;
-  border:1px solid var(--stroke); border-radius:12px; height:var(--btn-h);
-  background:rgba(255,255,255,.03); min-width:220px; flex:1 1 320px;
-}
-.search input{ background:transparent; border:0; outline:0; color:var(--ink); width:100%; font-size:14px; }
-.btn{
-  height:var(--btn-h); border-radius:12px; border:1px solid var(--stroke);
-  background:#141821; color:#e7eaf0; display:inline-flex; align-items:center; gap:8px;
-  padding:0 12px; cursor:pointer; user-select:none; font-weight:800;
-}
-.btn.primary{ background:var(--blue); color:#fff; border-color:transparent }
-.btn[disabled]{ opacity:.6; cursor:not-allowed }
+  /* ===== Body ===== */
+  main{display:grid; grid-template-columns: min(280px, 26vw) 1fr min(40vw,520px); gap:var(--gap); padding:12px; height:calc(100vh - var(--header))}
+  @media (max-width:1100px){ main{grid-template-columns:min(280px, 36vw) 1fr} .preview{display:none} }
+  .pane{background:var(--panel); border:1px solid var(--stroke); border-radius:var(--r); overflow:hidden; min-height:0}
 
-/* ==== Grid (uniform cropped like iOS Photos) ==== */
-.grid{ display:grid; gap:8px; margin:12px 0 16px;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-.card{
-  position:relative; border-radius:12px; overflow:hidden; background:#0b0d10; border:1px solid var(--stroke);
-  cursor:pointer;
-}
-.thumb{ width:100%; aspect-ratio:1/1; background:#000; }
-.thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  /* ===== Folders ===== */
+  .folders{display:grid; grid-template-rows:auto 1fr; }
+  .crumbs{display:flex; gap:6px; flex-wrap:wrap; padding:10px; border-bottom:1px solid var(--stroke)}
+  .crumb{padding:4px 8px; border-radius:999px; border:1px solid var(--stroke); background:var(--panel-2); font-weight:700; cursor:pointer}
+  .tree{overflow:auto; padding:8px}
+  .node{display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer}
+  .node:hover{background:rgba(255,255,255,.04)}
+  .node[data-active="1"]{background:rgba(10,132,255,.12); border:1px solid rgba(10,132,255,.35)}
+  .node .tw{opacity:.6; width:16px}
 
-/* No overlays on thumbs — clean gallery */
-.meta{ display:none }
+  /* ===== Grid ===== */
+  .grid{
+    height:100%; padding:10px; overflow:auto; display:grid; gap:10px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  .card{
+    position:relative; border-radius:12px; background:var(--panel-2); border:1px solid var(--stroke); cursor:pointer; overflow:hidden;
+  }
+  .thumb{aspect-ratio:1/1; background:#05070b; display:grid; place-items:center}
+  .thumb img, .thumb video{width:100%; height:100%; object-fit:cover; display:block}
+  .badge{
+    position:absolute; top:8px; left:8px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800;
+    background:#0f1320; border:1px solid var(--stroke); color:#9ecbff
+  }
+  .meta{position:absolute; bottom:8px; left:8px; right:8px; display:flex; justify-content:space-between; font-size:12px; color:var(--ink-dim); text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  .card.sel{ outline:3px solid var(--blue); outline-offset:-3px; }
+  .card.sel::after{
+    content:'✓'; position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%;
+    display:grid; place-items:center; font-weight:900; font-size:14px; background:var(--blue); color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.4)
+  }
 
-/* Selection outline (double-click / long-press) */
-.card.sel{ outline:3px solid var(--blue); outline-offset:-3px; }
+  /* ===== Preview ===== */
+  .preview{display:grid; grid-template-rows:auto 1fr auto; }
+  .pv-bar{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-bottom:1px solid var(--stroke)}
+  .pv-name{font-weight:900}
+  .pv-body{display:grid; grid-template-rows:auto 1fr auto; gap:8px; padding:10px}
+  .pv-tabs{display:flex; gap:6px; flex-wrap:wrap}
+  .tab{padding:6px 10px; border:1px solid var(--stroke); border-radius:999px; background:var(--panel-2); font-weight:800; cursor:pointer}
+  .tab[data-on="1"]{background:rgba(10,132,255,.14); border-color:rgba(10,132,255,.4)}
+  .pv-canvas{position:relative; background:#000; border:1px solid var(--stroke); border-radius:12px; overflow:hidden; display:grid; place-items:center; min-height:240px}
+  .pv-img{max-width:100%; max-height:100%; display:block; user-select:none; -webkit-user-drag:none}
+  .pv-overlay{position:absolute; inset:0; pointer-events:none}
+  .pv-tools{display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between}
+  .group{display:flex; gap:8px; align-items:center}
+  .hint{font-size:12px; color:var(--ink-dim)}
+  input[type="range"]{width:160px}
 
-/* ==== Footer ==== */
-.footer{
-  position:sticky; bottom:0; z-index:1000;
-  background:linear-gradient(0deg, rgba(0,0,0,.72), rgba(0,0,0,.35) 60%, transparent);
-  border-top:1px solid var(--stroke);
-}
-.footer-inner{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 4px; }
-.count{ color:var(--ink-dim); font-size:14px }
+  /* ===== Footer ===== */
+  .footer{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-top:1px solid var(--stroke)}
+  .count{font-size:13px; color:var(--ink-dim)}
 
-/* ==== Preview Sheet ==== */
-.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500 }
-.modal.open{ display:flex }
-.backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.6) }
-.sheet{
-  position:relative; width:min(980px,96vw); max-height:92vh; background:var(--panel); border:1px solid var(--stroke);
-  border-radius:18px; overflow:hidden; box-shadow:var(--shadow); display:grid; grid-template-rows:auto 1fr auto;
-}
-.bar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-bottom:1px solid var(--stroke) }
-.view{ position:relative; background:#000; display:grid; place-items:center; overflow:auto }
-.view img{ max-width:100%; max-height:100%; }
-.controls{ display:flex; gap:8px; align-items:center; justify-content:space-between; padding:10px 12px; border-top:1px solid var(--stroke) }
-.controls .left{ display:flex; gap:8px; align-items:center }
-.controls .right{ display:flex; gap:8px; align-items:center }
+  /* ===== Toast ===== */
+  .toast{position:fixed; left:50%; bottom:16px; transform:translateX(-50%); background:#0f1320; border:1px solid var(--stroke); border-radius:999px; padding:10px 14px; color:var(--ink); font-weight:800; display:none; z-index:50}
+  .toast.show{display:block}
 
-/* ==== Toast ==== */
-.toast{
-  position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
-  background:#0c1610; color:#79ffa0; border:1px solid #1e3a22; border-radius:12px;
-  padding:10px 14px; font-weight:800; z-index:2000; box-shadow:var(--shadow);
-  display:none;
-}
-.toast.show{ display:block }
+  /* ===== Empty ===== */
+  .empty{display:grid; place-items:center; color:var(--ink-dim); font-weight:700; border:1px dashed var(--stroke); border-radius:12px; padding:14px; margin:10px}
 </style>
 </head>
 <body>
-  <div class="nav">
-    <div class="wrap nav-inner">
-      <div class="title">Media Picker</div>
-      <div class="search" role="search">
-        <span style="opacity:.85">🔎</span>
-        <input id="q" type="search" placeholder="Search name…" autocomplete="off" />
-      </div>
-      <button id="applyBtn" class="btn primary" disabled>Apply Image</button>
+<div class="app" role="application" aria-label="Content Picker">
+  <header>
+    <div class="brand"><span class="dot" aria-hidden="true"></span><span>Content Picker</span></div>
+
+    <label class="search" aria-label="Search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.3-4.3m1.3-5.2a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="Search name or folder…" autocomplete="off" />
+      <label class="toggle"><input id="allFolders" type="checkbox" /> Search all folders</label>
+    </label>
+
+    <div style="display:flex; gap:8px; align-items:center">
+      <select id="typeFilter" title="Type">
+        <option value="">All types</option>
+        <option value="image">Images</option>
+        <option value="video">Video</option>
+        <option value="audio">Audio</option>
+        <option value="doc">Docs</option>
+      </select>
+      <select id="orientFilter" title="Orientation">
+        <option value="">Any</option>
+        <option value="land">Landscape</option>
+        <option value="port">Portrait</option>
+        <option value="square">Square</option>
+      </select>
+      <button id="applyBtn" class="apply" disabled>Apply</button>
     </div>
-  </div>
 
-  <div class="wrap">
-    <div id="grid" class="grid" aria-live="polite"></div>
-  </div>
+    <button id="closeBtn" class="x" title="Close" aria-label="Close">×</button>
+  </header>
 
-  <div class="footer">
-    <div class="wrap footer-inner">
-      <div class="count" id="count">0 items • 0 selected</div>
-      <div style="display:flex; gap:8px">
-        <button id="cancelBtn" class="btn">Cancel</button>
-        <button id="applyBtn2" class="btn primary" disabled>Apply Image</button>
-      </div>
-    </div>
-  </div>
+  <main>
+    <!-- Folders -->
+    <section class="pane folders">
+      <div class="crumbs" id="crumbs"></div>
+      <div class="tree" id="tree" aria-label="Folders"></div>
+    </section>
 
-  <!-- Preview -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-label="Preview">
-    <div class="backdrop" data-close></div>
-    <div class="sheet">
-      <div class="bar">
-        <button class="btn" id="prevBtn">◀︎ Previous</button>
-        <div id="pvName" style="font-weight:900">Preview</div>
-        <button class="btn" id="nextBtn">Next ▶︎</button>
-      </div>
-      <div class="view"><img id="pvImg" alt=""></div>
-      <div class="controls">
-        <div class="left">
-          <button class="btn" id="selectFromPreview">Select</button>
-          <a class="btn" id="openNew" target="_blank" rel="noreferrer noopener">Open</a>
+    <!-- Grid -->
+    <section class="pane">
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <div id="empty" class="empty" style="display:none">No media here yet.</div>
+      <div class="footer">
+        <div class="count" id="count">0 items • 0 selected</div>
+        <div style="display:flex; gap:8px">
+          <button id="cancelBtn">Cancel</button>
+          <button id="applyBtn2" class="apply" disabled>Apply</button>
         </div>
-        <div class="right">
-          <button class="btn primary" id="applyFromPreview">Apply Image</button>
-          <button class="btn" data-close>Close</button>
+      </div>
+    </section>
+
+    <!-- Preview / Presets -->
+    <section class="pane preview" id="previewPane">
+      <div class="pv-bar">
+        <button id="prevBtn">◀︎</button>
+        <div class="pv-name" id="pvName">Preview</div>
+        <button id="nextBtn">▶︎</button>
+      </div>
+      <div class="pv-body">
+        <div class="pv-tabs" id="pvTabs" aria-label="Hero presets"></div>
+        <div class="pv-canvas" id="pvCanvas" aria-label="Preview Canvas">
+          <img id="pvImg" class="pv-img" alt="">
+          <canvas id="pvOverlay" class="pv-overlay"></canvas>
+        </div>
+        <div class="pv-tools">
+          <div class="group">
+            <label class="toggle"><input id="fitCover" type="checkbox" checked/> Fit: Cover</label>
+            <label>Zoom <input id="zoom" type="range" min="1" max="3" step="0.01" value="1"></label>
+            <label>X <input id="panX" type="range" min="-1" max="1" step="0.01" value="0"></label>
+            <label>Y <input id="panY" type="range" min="-1" max="1" step="0.01" value="0"></label>
+          </div>
+          <div class="group">
+            <button id="setFocal">Set focal (click image)</button>
+            <div class="hint" id="qualityHint">—</div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+      <div class="footer">
+        <div class="count hint">Tip: tap image to set focal; sliders adjust crop within the active preset.</div>
+        <div style="display:flex; gap:8px">
+          <button id="selectFromPreview">Select</button>
+          <a id="openNew" target="_blank" rel="noreferrer noopener"><button>Open</button></a>
+          <button id="applyFromPreview" class="apply" disabled>Apply</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  <div class="toast" id="toast">Applied ✓</div>
+  <div class="toast" id="toast">Done</div>
+</div>
 
 <script>
 (function(){
-  /** ===== Config & Parent Communication ===== */
+  /** =======================
+   *  Query Params & Globals
+   *  ======================= */
   const params = new URL(location.href).searchParams;
   let openerOrigin = params.get('origin') || '*';
-  const DEFAULT_BASE = '/OA/images/'; // <-- current repo location
+  const DEFAULT_BASE = (params.get('base') || '/OA/assets/media/').replace(/\/+$/,'/') ; // repo base (optional param)
+  const manifestURL = params.get('manifest') || '';  // JSON with array or {items:[]}
+  const capParam = parseInt(params.get('max') || '', 10);
+  let selectionCap = Number.isFinite(capParam) ? Math.max(0, capParam) : Infinity;
 
-  /** @typedef {{url:string,name?:string,type?:string,size?:number,mtime?:number}} MediaItem */
-  let items = [];      // full list
-  let view = [];       // filtered list
-  const selected = new Set(); // urls
-  let currentIndex = -1;
+  /** Schema: presets [{id, name?, aspectRatio:number (w/h), targetWidth?:number, safeArea?:{x,y,w,h}, cornerRadius?:number}] */
+  let presets = [];        // hero presets from caller
+  let activePresetId = null;
 
-  // Elements
+  /** Media state */
+  /** @typedef {{url:string,name?:string,type?:string,size?:number,mtime?:number,w?:number,h?:number,folderPath?:string}} MediaItem */
+  let allItems = [];       // full set
+  let byFolder = new Map();// folder -> items[]
+  let currentFolder = '';  // '' = All
+  let view = [];           // filtered items for grid
+  const selected = new Set(); // url set
+  const focal = Object.create(null); // url -> {x,y}
+  const cropState = Object.create(null); // url -> {zoom, panX, panY, fitCover}
+
+  /** UI refs */
+  const $ = (id)=>document.getElementById(id);
   const els = {
-    grid: g('grid'), q: g('q'), count: g('count'),
-    applyBtn: g('applyBtn'), applyBtn2: g('applyBtn2'),
-    cancelBtn: g('cancelBtn'),
-    modal: g('modal'), pvImg: g('pvImg'), pvName: g('pvName'),
-    prevBtn: g('prevBtn'), nextBtn: g('nextBtn'),
-    selectFromPreview: g('selectFromPreview'),
-    applyFromPreview: g('applyFromPreview'),
-    openNew: g('openNew'),
-    toast: g('toast')
+    q: $('q'), allFolders: $('allFolders'),
+    typeFilter: $('typeFilter'), orientFilter: $('orientFilter'),
+    applyBtn: $('applyBtn'), applyBtn2: $('applyBtn2'), cancelBtn: $('cancelBtn'), closeBtn: $('closeBtn'),
+    grid: $('grid'), empty: $('empty'), count: $('count'),
+    crumbs: $('crumbs'), tree: $('tree'),
+    pvName: $('pvName'), pvImg: $('pvImg'), pvCanvas: $('pvCanvas'), pvOverlay: $('pvOverlay'), pvTabs: $('pvTabs'),
+    prevBtn: $('prevBtn'), nextBtn: $('nextBtn'),
+    selectFromPreview: $('selectFromPreview'), applyFromPreview: $('applyFromPreview'), openNew: $('openNew'),
+    fitCover: $('fitCover'), zoom: $('zoom'), panX: $('panX'), panY: $('panY'),
+    setFocal: $('setFocal'), qualityHint: $('qualityHint'),
+    toast: $('toast')
   };
 
-  function g(id){ return document.getElementById(id); }
-  const fmt = n=>`${n} item${n!==1?'s':''}`;
+  /** Persist last state */
+  const STORAGE_KEY = 'faoa:picker:last';
+  function saveState(){
+    try{
+      const s = { folder: currentFolder, q: els.q.value || '', type: els.typeFilter.value || '', orient: els.orientFilter.value || '' };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    }catch{}
+  }
+  function loadState(){
+    try{
+      const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+      if(s.q) els.q.value = s.q;
+      if(s.type) els.typeFilter.value = s.type;
+      if(s.orient) els.orientFilter.value = s.orient;
+      currentFolder = s.folder || '';
+    }catch{}
+  }
 
-  /** ===== Rendering ===== */
-  function render(){
-    const q = els.q.value.trim().toLowerCase();
-    view = items.filter(it=>!q || (it.name||'').toLowerCase().includes(q));
+  /** =======================
+   *  Helpers
+   *  ======================= */
+  const fmt = (n)=>`${n} item${n!==1?'s':''}`;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  function toFolderPath(url){
+    try{
+      const u = new URL(url, location.origin);
+      const parts = u.pathname.split('/').filter(Boolean);
+      return parts.slice(0, -1).join('/'); // everything except filename
+    }catch{ return ''; }
+  }
+
+  /** =======================
+   *  Build folder tree
+   *  ======================= */
+  function groupByFolder(items){
+    byFolder = new Map();
+    for(const it of items){
+      const key = it.folderPath || toFolderPath(it.url);
+      if(!byFolder.has(key)) byFolder.set(key, []);
+      byFolder.get(key).push(it);
+    }
+  }
+  function renderTree(){
+    els.crumbs.innerHTML = '';
+    const crumbs = currentFolder ? currentFolder.split('/').filter(Boolean) : [];
+    const full = [];
+    const home = document.createElement('span');
+    home.className = 'crumb'; home.textContent = 'All';
+    home.onclick = ()=>{ currentFolder=''; renderList(); renderTree(); saveState(); };
+    els.crumbs.appendChild(home);
+    crumbs.forEach((seg,i)=>{
+      full.push(seg);
+      const b = document.createElement('span');
+      b.className = 'crumb';
+      b.textContent = seg;
+      b.onclick = ()=>{ currentFolder = full.join('/'); renderList(); renderTree(); saveState(); };
+      els.crumbs.appendChild(b);
+    });
+
+    // Simple one-level tree (expandable groups)
+    els.tree.innerHTML = '';
+    const folders = [...byFolder.keys()].sort();
+    const topLevel = new Map(); // root -> Set(children)
+    folders.forEach(fp=>{
+      const [root,...rest] = fp.split('/').filter(Boolean);
+      if(!topLevel.has(root||'(root)')) topLevel.set(root||'(root)', new Set());
+      if(rest.length) topLevel.get(root||'(root)').add(root+'/'+rest[0]);
+    });
+
+    for(const fp of folders){
+      const n = document.createElement('div');
+      n.className = 'node';
+      n.dataset.active = (fp===currentFolder) ? '1':'0';
+      const tw = document.createElement('span'); tw.textContent = '▸'; tw.className = 'tw';
+      const lab = document.createElement('span'); lab.textContent = fp || '(root)';
+      n.appendChild(tw); n.appendChild(lab);
+      n.onclick = ()=>{ currentFolder = fp; renderList(); renderTree(); saveState(); };
+      els.tree.appendChild(n);
+    }
+  }
+
+  /** =======================
+   *  Render grid
+   *  ======================= */
+  function renderList(){
+    const q = (els.q.value||'').toLowerCase().trim();
+    const t = els.typeFilter.value;
+    const o = els.orientFilter.value;
+
+    let pool = [];
+    if(currentFolder && !els.allFolders.checked){
+      pool = byFolder.get(currentFolder)||[];
+    }else{
+      // all folders
+      pool = allItems;
+    }
+    view = pool.filter(it=>{
+      const name = (it.name||'').toLowerCase();
+      const folder = (it.folderPath||'').toLowerCase();
+      const match = !q || name.includes(q) || folder.includes(q);
+      const ty = !t || (it.type||'image')===t;
+      let orientOK = true;
+      if(o && it.w && it.h){
+        if(o==='land') orientOK = it.w>it.h;
+        if(o==='port') orientOK = it.h>it.w;
+        if(o==='square') orientOK = Math.abs(it.w-it.h)<2;
+      }
+      return match && ty && orientOK;
+    });
+
     els.grid.innerHTML = '';
+    els.empty.style.display = view.length? 'none' : 'grid';
     const frag = document.createDocumentFragment();
     for(const it of view){
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.url = it.url;
-      card.dataset.name = it.name;
-      const t = document.createElement('div');
-      t.className = 'thumb';
-      const img = document.createElement('img');
-      img.loading = 'lazy'; img.src = it.url; img.alt = it.name||'';
-      t.appendChild(img);
-      card.appendChild(t);
+      card.dataset.name = it.name||'';
+      const th = document.createElement('div'); th.className = 'thumb';
+      let media;
+      if((it.type||'image')==='video'){ media = document.createElement('video'); media.muted = true; media.preload='metadata'; }
+      else{ media = document.createElement('img'); media.loading='lazy'; }
+      media.src = it.url; media.alt = it.name||'';
+      media.onerror = ()=>{ media.replaceWith(Object.assign(document.createElement('div'),{textContent:'(missing)',style:'color:#9aa'})); };
+      th.appendChild(media);
+      card.appendChild(th);
+
+      const badge = document.createElement('div'); badge.className='badge'; badge.textContent=(it.type||'image');
+      card.appendChild(badge);
+
+      const meta = document.createElement('div'); meta.className='meta';
+      meta.textContent = [it.folderPath||'', (it.w&&it.h? `${it.w}×${it.h}`:'')].filter(Boolean).join(' • ');
+      card.appendChild(meta);
+
       if(selected.has(it.url)) card.classList.add('sel');
       frag.appendChild(card);
     }
     els.grid.appendChild(frag);
     updateFooter();
+    // if preview has an item open, refresh it
+    if(currentIndex>=0) openPreview(currentIndex, /*silent*/true);
   }
+
   function updateFooter(){
     const total = view.length, sel = selected.size;
-    els.count.textContent = `${fmt(total)} • ${sel} selected`;
-    els.applyBtn.disabled = sel===0;
-    els.applyBtn2.disabled = sel===0;
-    els.applyFromPreview.disabled = sel===0 && currentIndex<0;
+    els.count.textContent = `${fmt(total)} • ${sel} selected${Number.isFinite(selectionCap)&&selectionCap!==Infinity? ` (max ${selectionCap})`:''}`;
+    const canApply = sel>0 || currentIndex>=0;
+    els.applyBtn.disabled = !canApply;
+    els.applyBtn2.disabled = !canApply;
+    els.applyFromPreview.disabled = !canApply;
   }
 
-  /** ===== Interactions ===== */
-  // Single click => open preview
-  els.grid.addEventListener('click', e=>{
-    const card = e.target.closest('.card'); if(!card) return;
-    const idx = view.findIndex(i=>i.url===card.dataset.url);
-    openPreview(idx);
-  });
+  /** =======================
+   *  Pointer-safe interactions
+   *  ======================= */
+  let currentIndex = -1;
+  let down = null, lastScrollTop = 0, lastScrollAt = 0;
+  const MOVE_THRESH = 12; // px
+  const SCROLL_GRACE = 200; // ms
 
-  // Double click / long press => toggle select
-  let tapTimer=null;
-  els.grid.addEventListener('dblclick', e=>{
+  els.grid.addEventListener('scroll', ()=>{ lastScrollTop = els.grid.scrollTop; lastScrollAt = performance.now(); }, {passive:true});
+
+  // Click = open preview, Ctrl/Cmd-click = toggle select
+  els.grid.addEventListener('pointerdown', e=>{
     const card = e.target.closest('.card'); if(!card) return;
-    toggleSelect(card.dataset.url); render();
-  });
-  els.grid.addEventListener('touchstart', e=>{
-    const card = e.target.closest('.card'); if(!card) return;
-    clearTimeout(tapTimer);
-    tapTimer = setTimeout(()=>{ toggleSelect(card.dataset.url); render(); }, 350);
+    els.grid.setPointerCapture?.(e.pointerId);
+    down = { id:e.pointerId, x:e.clientX, y:e.clientY, url:card.dataset.url, st:lastScrollTop };
   }, {passive:true});
-  els.grid.addEventListener('touchend', ()=>{ clearTimeout(tapTimer); }, {passive:true});
 
-  function toggleSelect(url){
-    if(selected.has(url)) selected.delete(url); else selected.add(url);
+  els.grid.addEventListener('pointerup', e=>{
+    if(!down || down.id !== e.pointerId) return (down=null);
+    const dx = Math.abs(e.clientX - down.x);
+    const dy = Math.abs(e.clientY - down.y);
+    const moved = Math.hypot(dx,dy) > MOVE_THRESH;
+    const scrolled = els.grid.scrollTop !== down.st || (performance.now() - lastScrollAt) < SCROLL_GRACE;
+    const card = e.target.closest('.card');
+    if(card && !moved && !scrolled){
+      if(e.ctrlKey || e.metaKey){ tryToggleSelect(down.url); }
+      else{
+        const idx = view.findIndex(i=>i.url===down.url);
+        openPreview(idx);
+      }
+    }
+    down = null;
+  }, {passive:true});
+
+  function tryToggleSelect(url){
+    const isSelected = selected.has(url);
+    if(!isSelected && selected.size >= selectionCap){
+      toast(selectionCap===1?'Only 1 item can be selected':`Max ${selectionCap} items`);
+      return;
+    }
+    if(selectionCap === 1 && !isSelected){ selected.clear(); }
+    if(isSelected) selected.delete(url); else selected.add(url);
+    renderList();
   }
 
-  // Preview navigation & actions
-  function openPreview(idx){
+  /** =======================
+   *  Preview + presets + focal/crop
+   *  ======================= */
+  let focalMode = false;
+
+  function activePreset(){
+    if(!presets.length) return null;
+    return presets.find(p=>p.id===activePresetId) || presets[0];
+  }
+
+  function renderPresetTabs(){
+    els.pvTabs.innerHTML = '';
+    if(!presets.length){ els.pvTabs.style.display='none'; return; }
+    els.pvTabs.style.display='flex';
+    presets.forEach(p=>{
+      const b = document.createElement('button');
+      b.className = 'tab'; b.dataset.on = (p.id===activePresetId)?'1':'0';
+      b.textContent = p.name || p.id || `${p.aspectRatio.toFixed(3)} AR`;
+      b.onclick = ()=>{ activePresetId = p.id; drawPreview(); };
+      els.pvTabs.appendChild(b);
+    });
+  }
+
+  // preview navigation
+  els.prevBtn.onclick = ()=>{ if(currentIndex>0) openPreview(currentIndex-1); };
+  els.nextBtn.onclick = ()=>{ if(currentIndex<view.length-1) openPreview(currentIndex+1); };
+  els.selectFromPreview.onclick = ()=>{ const it=view[currentIndex]; if(it) tryToggleSelect(it.url); };
+  els.setFocal.onclick = ()=>{ focalMode = !focalMode; toast(focalMode?'Click image to set focal':'Focal mode off'); };
+
+  // sliders
+  [els.zoom, els.panX, els.panY, els.fitCover].forEach(el=> el.addEventListener('input', ()=>{ persistCrop(); drawPreview(); }));
+  function persistCrop(){
+    const it = view[currentIndex]; if(!it) return;
+    cropState[it.url] = { zoom: +els.zoom.value, panX: +els.panX.value, panY: +els.panY.value, fitCover: !!els.fitCover.checked };
+  }
+
+  // image click: set focal in [0..1]
+  els.pvImg.addEventListener('click', (e)=>{
+    const it = view[currentIndex]; if(!it || !focalMode) return;
+    const r = e.target.getBoundingClientRect();
+    focal[it.url] = { x: clamp((e.clientX - r.left)/r.width, 0,1), y: clamp((e.clientY - r.top)/r.height, 0,1) };
+    focalMode = false;
+    toast('Focal set');
+    drawPreview();
+  });
+
+  function openPreview(idx, silent=false){
     if(idx<0 || idx>=view.length) return;
     currentIndex = idx;
     const it = view[idx];
     els.pvImg.src = it.url; els.pvImg.alt = it.name||'';
     els.pvName.textContent = it.name||'';
     els.openNew.href = it.url;
-    els.modal.classList.add('open');
-    updateFooter();
+    // hydrate sliders from state or defaults
+    const cs = cropState[it.url] || { zoom:1, panX:0, panY:0, fitCover:true };
+    els.zoom.value = cs.zoom; els.panX.value = cs.panX; els.panY.value = cs.panY; els.fitCover.checked = cs.fitCover;
+    renderPresetTabs();
+    drawPreview();
+    if(!silent) updateFooter();
   }
-  function closePreview(){ els.modal.classList.remove('open'); }
-  els.modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) closePreview(); });
-  els.prevBtn.addEventListener('click', ()=>{ if(currentIndex>0) openPreview(currentIndex-1); });
-  els.nextBtn.addEventListener('click', ()=>{ if(currentIndex<view.length-1) openPreview(currentIndex+1); });
-  els.selectFromPreview.addEventListener('click', ()=>{
-    const it = view[currentIndex]; if(!it) return;
-    toggleSelect(it.url); render();
-  });
 
-  // Search
-  els.q.addEventListener('input', render);
+  function drawPreview(){
+    const ctx = els.pvOverlay.getContext('2d');
+    const p = activePreset();
+    const W = els.pvCanvas.clientWidth, H = els.pvCanvas.clientHeight;
+    els.pvOverlay.width = W; els.pvOverlay.height = H;
+    ctx.clearRect(0,0,W,H);
 
-  /** ===== Apply Image (single "Apply Image" action) ===== */
-  function applyImage(){
-    // Choose the first selected or current preview item
-    let chosen = null;
-    if(selected.size>0){
-      const firstUrl = [...selected][0];
-      chosen = items.find(i=>i.url===firstUrl);
-    }else if(currentIndex>=0){
-      chosen = view[currentIndex];
+    if(!p) { els.qualityHint.textContent='—'; return; }
+
+    // compute box for preset aspect inside canvas
+    const ar = p.aspectRatio || (16/9);
+    let boxW = W, boxH = W / ar;
+    if(boxH > H){ boxH = H; boxW = H * ar; }
+    const boxX = (W - boxW)/2, boxY = (H - boxH)/2;
+
+    // draw frame
+    ctx.strokeStyle = 'rgba(255,255,255,.25)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, boxX, boxY, boxW, boxH, p.cornerRadius||12); ctx.stroke();
+
+    // safe area (relative)
+    if(p.safeArea){
+      ctx.setLineDash([6,6]);
+      ctx.strokeStyle = 'rgba(255,255,255,.35)';
+      roundRect(ctx, boxX+p.safeArea.x*boxW, boxY+p.safeArea.y*boxH, p.safeArea.w*boxW, p.safeArea.h*boxH, p.cornerRadius||10);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
-    if(!chosen) return;
 
-    // Normalize to current repo path (/OA/images/filename)
-    const fileName = (chosen.name || chosen.url.split('/').pop() || '').replace(/^\/+/, '');
-    const normalized = DEFAULT_BASE + fileName;
+    // focal point marker (if any)
+    const it = view[currentIndex];
+    const f = focal[it?.url];
+    if(f){
+      ctx.fillStyle = 'rgba(10,132,255,.9)';
+      ctx.beginPath();
+      ctx.arc(boxX + f.x*boxW, boxY + f.y*boxH, 5, 0, Math.PI*2);
+      ctx.fill();
+    }
 
-    const msg = { type:'content-picker:select', payload:{ url: normalized } };
+    // Quality hint
+    if(it && it.w && it.h){
+      const targetW = p.targetWidth || 1920;
+      els.qualityHint.textContent = it.w < targetW ? `⚠ ${it.w}px < ${targetW}px (may look soft)` : `✓ ${it.w}px OK for ~${targetW}px`;
+    }else{
+      els.qualityHint.textContent = '—';
+    }
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  /** =======================
+   *  Apply / payload v1.1.0
+   *  ======================= */
+  function buildSelection(){
+    const urls = selected.size ? [...selected] : (currentIndex>=0 ? [view[currentIndex].url] : []);
+    return urls.map(u=>{
+      const it = allItems.find(i=>i.url===u) || {url:u, name:u.split('/').pop()};
+      const cs = cropState[u] || {zoom:1, panX:0, panY:0, fitCover:true};
+      const variants = (presets||[]).map(p=>{
+        return {
+          id: p.id,
+          focal: focal[u] || null,
+          crop: computeCropForPreset(it, p, cs)  // normalized crop rect x,y,w,h
+        };
+      });
+      return {
+        url: it.url,
+        name: it.name || '',
+        folderPath: it.folderPath || toFolderPath(it.url),
+        focal: focal[u] || null,
+        crop: presets.length ? variants.find(v=>v.id===activePresetId)?.crop || null : null,
+        variants,
+        meta: {w: it.w||null, h: it.h||null, type: it.type||'image', size: it.size||null}
+      };
+    });
+  }
+
+  // Very lightweight crop math: we simulate a zoom/pan inside aspect box; return normalized crop rect in source coords
+  function computeCropForPreset(item, preset, cs){
+    const iw = item.w||0, ih = item.h||0; if(!iw || !ih) return null;
+    const ar = preset.aspectRatio || (16/9);
+
+    // base fit size (cover/contain) inside 1x1 box
+    // We'll map zoom [1..3] as additional scale after base fit
+    const fitCover = !!cs.fitCover;
+    const baseScale = fitCover ? Math.max(1/iw*ar*ih, 1) : Math.min(1/iw*ar*ih, 1); // simplified heuristic
+    const scale = baseScale * clamp(cs.zoom, 1, 3);
+
+    // pan offsets [-1..1] relative to excess space after scale
+    const viewW = iw/scale;
+    const viewH = viewW / ar;
+    let x = (iw - viewW)/2 + cs.panX * (iw - viewW)/2;
+    let y = (ih - viewH)/2 + cs.panY * (ih - viewH)/2;
+    x = clamp(x, 0, Math.max(0, iw - viewW));
+    y = clamp(y, 0, Math.max(0, ih - viewH));
+    const w = Math.min(viewW, iw), h = Math.min(viewH, ih);
+
+    // return normalized
+    return { x: +(x/iw).toFixed(6), y: +(y/ih).toFixed(6), w: +(w/iw).toFixed(6), h: +(h/ih).toFixed(6), aspectId: preset.id };
+  }
+
+  function dispatchSelection(closeAfter=true){
+    const payload = { version:'1.1.0', selection: buildSelection() };
+    const msg = { type:'content-picker:select', payload };
     try{ if (window.parent !== window) window.parent.postMessage(msg, openerOrigin); }catch{}
     try{ if (window.opener) window.opener.postMessage(msg, openerOrigin); }catch{}
-
-    showToast('Applied ✓');
-
-    // Give user a beat to see the confirmation, then close
-    setTimeout(()=>{
-      try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
-      try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
-      // optional: window.close();
-    }, 500);
+    toast('Applied ✓');
+    if(closeAfter){
+      setTimeout(()=> {
+        try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
+        try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
+      }, 500);
+    }
   }
-  els.applyBtn.addEventListener('click', applyImage);
-  els.applyBtn2.addEventListener('click', applyImage);
-  els.applyFromPreview.addEventListener('click', applyImage);
-  els.cancelBtn.addEventListener('click', ()=>{
-    try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
-    try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{}
+
+  /** =======================
+   *  Events
+   *  ======================= */
+  els.applyBtn.onclick = ()=>dispatchSelection(true);
+  els.applyBtn2.onclick = ()=>dispatchSelection(true);
+  els.applyFromPreview.onclick = ()=>dispatchSelection(false);
+  els.cancelBtn.onclick = ()=>{ try{ if (window.parent !== window) window.parent.postMessage({type:'content-picker:close'}, openerOrigin); }catch{} try{ if (window.opener) window.opener.postMessage({type:'content-picker:close'}, openerOrigin); }catch{} };
+  els.closeBtn.onclick = els.cancelBtn.onclick;
+
+  els.q.addEventListener('input', ()=>{ renderList(); saveState(); });
+  els.allFolders.addEventListener('change', ()=>{ renderList(); saveState(); });
+  els.typeFilter.addEventListener('change', ()=>{ renderList(); saveState(); });
+  els.orientFilter.addEventListener('change', ()=>{ renderList(); saveState(); });
+
+  /** keyboard niceties */
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='/'){ e.preventDefault(); els.q.focus(); }
+    if(e.key==='Enter' && document.activeElement===els.q && view.length){ openPreview(0); }
+    if(e.key==='ArrowLeft' && currentIndex>0){ openPreview(currentIndex-1); }
+    if(e.key==='ArrowRight' && currentIndex<view.length-1){ openPreview(currentIndex+1); }
+    if(e.key==='Escape'){ els.cancelBtn.click(); }
   });
 
-  /** ===== Data loading =====
-   * Accepts:
-   *  1) ?manifest= URL -> JSON array or {items:[]}
-   *  2) window.__MEDIA__ = []
-   *  3) postMessage {type:'media-picker:init', items:[...]}
-   */
-  async function tryLoad(){
-    const manifest = params.get('manifest');
-    if(manifest){
-      try{
-        const res = await fetch(manifest, {cache:'no-store'});
-        const data = await res.json();
-        if(Array.isArray(data)) setItems(data);
-        else if(Array.isArray(data.items)) setItems(data.items);
-        else setItems([]);
-        return;
-      }catch{ setItems([]); }
+  /** =======================
+   *  Messaging (strict origin)
+   *  ======================= */
+  window.addEventListener('message', (e)=>{
+    if(openerOrigin && openerOrigin !== '*' && e.origin !== openerOrigin) return;
+    const d = e.data; if(!d || typeof d!=='object') return;
+
+    if(d.type==='media-picker:init'){
+      if(Array.isArray(d.items)) setItems(d.items);
+      if(d.origin) openerOrigin = d.origin;
+      if(Number.isFinite(d.limit)) selectionCap = Math.max(0, d.limit);
+      if(typeof d.base === 'string') {/* optional override for DEFAULT_BASE at runtime */}
+      if(d.initialFolder) currentFolder = d.initialFolder;
+      if(Array.isArray(d.selection)){ selected.clear(); d.selection.forEach(u=>selected.add(u)); }
+      renderList(); renderTree();
     }
-    if(Array.isArray(window.__MEDIA__)){ setItems(window.__MEDIA__); return; }
-    // else wait for postMessage
+    if(d.type==='media-picker:presets'){
+      if(Array.isArray(d.presets)) { presets = d.presets; activePresetId = presets[0]?.id || null; renderPresetTabs(); drawPreview(); }
+    }
+    if(d.type==='media-picker:open-folder'){
+      if(typeof d.path==='string'){ currentFolder = d.path; renderList(); renderTree(); }
+    }
+    if(d.type==='media-picker:set-selection'){
+      selected.clear(); (d.urls||[]).forEach(u=>selected.add(u)); renderList();
+    }
+  });
+
+  /** =======================
+   *  Data loading
+   *  ======================= */
+  async function loadManifest(url){
+    try{
+      const res = await fetch(url, {cache:'no-store'});
+      const data = await res.json();
+      if(Array.isArray(data)) return data;
+      if(data && Array.isArray(data.items)) return data.items;
+      return [];
+    }catch{ return []; }
   }
-  function setItems(arr){
-    items = sanitize(arr);
-    selected.clear();
-    render();
-  }
+
   function sanitize(arr){
     return (arr||[]).map(it=>{
       const o = {...it};
       if(!o.name) o.name = (o.url||'').split('/').pop() || 'file';
       if(!o.url) o.url = DEFAULT_BASE + o.name;
+      if(!o.folderPath) o.folderPath = toFolderPath(o.url);
+      if(!o.type){ // guess from extension
+        const ext = o.url.split('.').pop()?.toLowerCase() || '';
+        o.type = /mp4|webm|mov/.test(ext) ? 'video' : /mp3|wav|m4a/.test(ext) ? 'audio' : /pdf|doc|docx/.test(ext) ? 'doc' : 'image';
+      }
       return o;
     });
   }
 
-  /** ===== Messaging ===== */
-  window.addEventListener('message', (e)=>{
-    const d = e.data;
-    if(!d || typeof d!=='object') return;
-    if(d.type==='media-picker:init'){
-      if(Array.isArray(d.items)) setItems(d.items);
-      if(d.origin) openerOrigin = d.origin;
-    }
-    if(d.type==='media-picker:set-selection'){
-      selected.clear();
-      (d.urls||[]).forEach(u=>selected.add(u));
-      render();
-    }
-  });
+  function setItems(arr){
+    allItems = sanitize(arr);
+    // try to fetch natural sizes for images (best-effort)
+    allItems.forEach(it=>{
+      if((it.type||'image')==='image' && (!it.w || !it.h)){
+        const img = new Image();
+        img.onload = ()=>{ it.w = img.naturalWidth; it.h = img.naturalHeight; if(view.includes(it)) drawPreview(); };
+        img.src = it.url;
+      }
+    });
+    groupByFolder(allItems);
+    if(!currentFolder) currentFolder = [...byFolder.keys()][0] || '';
+    renderTree();
+    renderList();
+  }
 
-  /** ===== Toast ===== */
-  function showToast(text){
+  async function bootstrap(){
+    loadState();
+    if(manifestURL){
+      const items = await loadManifest(manifestURL);
+      setItems(items);
+      return;
+    }
+    if(Array.isArray(window.__MEDIA__)){ setItems(window.__MEDIA__); return; }
+    // else: wait for media-picker:init
+  }
+
+  /** =======================
+   *  Toast
+   *  ======================= */
+  function toast(text){
     els.toast.textContent = text || 'Done';
     els.toast.classList.add('show');
     setTimeout(()=>els.toast.classList.remove('show'), 1400);
   }
 
-  tryLoad();
+  bootstrap();
 })();
 </script>
 </body>
